@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wasabi", "Wasabi\Wasabi.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wasabi.MacOS", "Wasabi.MacOS\Wasabi.MacOS.csproj", "{8AD32D8C-8E47-47FD-BF46-08198C94174F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wasabi.Tests", "Wasabi.Tests\Wasabi.Tests.csproj", "{2EF271D9-3F04-4E90-BC7B-E31C863E069F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -67,5 +69,17 @@ Global
 		{8AD32D8C-8E47-47FD-BF46-08198C94174F}.Debug|iPhone.Build.0 = Debug|Any CPU
 		{8AD32D8C-8E47-47FD-BF46-08198C94174F}.Release|iPhone.ActiveCfg = Release|Any CPU
 		{8AD32D8C-8E47-47FD-BF46-08198C94174F}.Release|iPhone.Build.0 = Release|Any CPU
+		{2EF271D9-3F04-4E90-BC7B-E31C863E069F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2EF271D9-3F04-4E90-BC7B-E31C863E069F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2EF271D9-3F04-4E90-BC7B-E31C863E069F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2EF271D9-3F04-4E90-BC7B-E31C863E069F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2EF271D9-3F04-4E90-BC7B-E31C863E069F}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{2EF271D9-3F04-4E90-BC7B-E31C863E069F}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
+		{2EF271D9-3F04-4E90-BC7B-E31C863E069F}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{2EF271D9-3F04-4E90-BC7B-E31C863E069F}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
+		{2EF271D9-3F04-4E90-BC7B-E31C863E069F}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{2EF271D9-3F04-4E90-BC7B-E31C863E069F}.Debug|iPhone.Build.0 = Debug|Any CPU
+		{2EF271D9-3F04-4E90-BC7B-E31C863E069F}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{2EF271D9-3F04-4E90-BC7B-E31C863E069F}.Release|iPhone.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

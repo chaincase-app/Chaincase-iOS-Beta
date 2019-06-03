@@ -8,10 +8,48 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>pdbonly</DebugType>
     <DebugSymbols>true</DebugSymbols>
+    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <LangVersion>7.3</LangVersion>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Xamarin.Forms" Version="4.0.0.425677" />
     <PackageReference Include="Xamarin.Essentials" Version="1.0.1" />
+    <PackageReference Include="NBitcoin" Version="4.1.2.35" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Crypto\StringCipher.cs" />
+    <Compile Remove="Crypto\TokenGenerator.cs" />
+    <Compile Remove="Helpers\ByteArrayBuilder.cs" />
+    <Compile Remove="Helpers\ByteHelpers.cs" />
+    <Compile Remove="Helpers\Constants.cs" />
+    <Compile Remove="JsonConverters\BigIntegerJsonConverter.cs" />
+    <Compile Remove="JsonConverters\BitcoinAddressJsonConverter.cs" />
+    <Compile Remove="JsonConverters\OutPointJsonConverter.cs" />
+    <Compile Remove="JsonConverters\PubKeyJsonConverter.cs" />
+    <Compile Remove="JsonConverters\ScriptJsonConverter.cs" />
+    <Compile Remove="JsonConverters\TransactionJsonConverter.cs" />
+    <Compile Remove="JsonConverters\Uint256JsonConverter.cs" />
+    <Compile Remove="JsonConverters\UnblindedSignatureJsonConverter.cs" />
+    <Compile Remove="Logging\LogLevel.cs" />
+    <Compile Remove="Logging\LogMode.cs" />
+    <Compile Remove="Logging\Logger.cs" />
+    <Compile Remove="Nito\AsyncEx\AsyncLock.cs" />
+    <Compile Remove="Nito\AsyncEx\AsyncMutex.cs" />
+    <Compile Remove="Nito\AsyncEx\AsyncWaitQueueExtensions.cs" />
+    <Compile Remove="Nito\AsyncEx\AwaitableDisposable.cs" />
+    <Compile Remove="Nito\AsyncEx\DefaultAsyncWaitQueue.cs" />
+    <Compile Remove="Nito\AsyncEx\ExceptionHelpers.cs" />
+    <Compile Remove="Nito\AsyncEx\IAsyncWaitQueue.cs" />
+    <Compile Remove="Nito\AsyncEx\IdManager.cs" />
+    <Compile Remove="Nito\AsyncEx\TaskCompletionSourceExtensions.cs" />
+    <Compile Remove="Nito\AsyncEx\Synchronous\SynchronousTaskExtensions.cs" />
+    <Compile Remove="Nito\Collections\CollectionHelpers.cs" />
+    <Compile Remove="Nito\Collections\Deque.cs" />
+    <Compile Remove="Nito\Disposables\SingleDisposable.cs" />
+    <Compile Remove="Nito\Disposables\Internals\BoundAction.cs" />
+    <Compile Remove="BlockCypher\Models\BlockCypherGeneralInformation.cs" />
   </ItemGroup>
 </Project>
