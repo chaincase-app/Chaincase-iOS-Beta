@@ -15,7 +15,7 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Button Text="Save"
-                    Clicked="OnSaveButtonClicked" />
+                    Clicked="OnSaveButtonClickedAsync" />
             <Button Grid.Column="1"
                     Text="Delete"
                     Clicked="OnDeleteButtonClicked"/>
