@@ -52,4 +52,7 @@
     <Compile Remove="Nito\Disposables\Internals\BoundAction.cs" />
     <Compile Remove="BlockCypher\Models\BlockCypherGeneralInformation.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WalletWasabi\WalletWasabi.Standard\WalletWasabi.Standard.csproj" />
+  </ItemGroup>
 </Project>
