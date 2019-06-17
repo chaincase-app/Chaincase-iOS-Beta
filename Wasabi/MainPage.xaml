@@ -1,24 +1,26 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Wasabi.MainPage">
     <StackLayout Margin="10,35,10,10">
-        <Label Text="Notes"
+        <Label Text="Passphrase"
                HorizontalOptions="Center"
                FontAttributes="Bold" />
-        <Editor x:Name="editor"
-                Placeholder="Enter your note"
-                HeightRequest="100" />
+        <Entry Text="{Binding Passphrase}"
+               Placeholder="thIsisAPaSsPhrAseToGenerateKeys"
+               IsPassword="true"
+               />
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <Button Text="Save"
-                    Clicked="OnSaveButtonClickedAsync" />
+            <Button Text="Submit"
+                    Clicked="OnSubmitButtonClickedAsync" />
             <Button Grid.Column="1"
-                    Text="Delete"
-                    Clicked="OnDeleteButtonClicked"/>
+                    Text="Next"
+                    Clicked="OnNextButtonClickedAsync" />
+            
         </Grid>
     </StackLayout>
 </ContentPage>

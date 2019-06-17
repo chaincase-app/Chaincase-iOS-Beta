@@ -3,40 +3,55 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using WalletWasabi.KeyManagement;
+using WalletWasabi.Logging;
 using Xamarin.Forms;
 
 namespace Wasabi
 {
 	public partial class MainPage : ContentPage
 	{
-		string _fileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "notes.txt");
-		BlockCypherClient bcc = new BlockCypherClient(Network.Main);
+		private string _passphrase;
+
+		public string Passphrase
+		{
+			get => _passphrase;
+			set
+			{
+				if (value == _passphrase) return;
+				_passphrase = value;
+				OnPropertyChanged(nameof(Passphrase));
+			}
+		}
 
 		public MainPage()
 		{
 			InitializeComponent();
+			
+		}
 
-			if (File.Exists(_fileName))
+		async void OnSubmitButtonClickedAsync(object sender, EventArgs e)
+		{
+			string walletFilePath = Path.Combine(Global.WalletsDir, $"Main.json");
+
+			try
 			{
-				editor.Text = File.ReadAllText(_fileName);
-				bcc = new BlockCypherClient(Network.Main);
+				KeyManager.CreateNew(out Mnemonic mnemonic, Passphrase, walletFilePath);
+
+				await Navigation.PushAsync(new MnemonicPage
+				{
+					BindingContext = new { Text = mnemonic.ToString() }
+				});
+			}
+			catch (Exception ex)
+			{
+				Logger.LogError<KeyManager>(ex);
 			}
 		}
 
-		async void OnSaveButtonClickedAsync(object sender, EventArgs e)
+		async void OnNextButtonClickedAsync(object sender, EventArgs e)
 		{
-			string generalInfo = await bcc.GetGeneralInformationAsync(CancellationToken.None);
-			editor.Text = generalInfo;
-			File.WriteAllText(_fileName, generalInfo);
-		}
-
-		void OnDeleteButtonClicked(object sender, EventArgs e)
-		{
-			if (File.Exists(_fileName))
-			{
-				File.Delete(_fileName);
-			}
-			editor.Text = string.Empty;
+			await Navigation.PushAsync(new MnemonicPage());
 		}
 	}
 }
