@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Wasabi.MainPage">
+             x:Class="Wasabi.Views.MainPage">
     <StackLayout Margin="10,35,10,10">
         <Label Text="Passphrase"
                HorizontalOptions="Center"
@@ -10,17 +10,7 @@
                Placeholder="thIsisAPaSsPhrAseToGenerateKeys"
                IsPassword="true"
                />
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <Button Text="Submit"
-                    Clicked="OnSubmitButtonClickedAsync" />
-            <Button Grid.Column="1"
-                    Text="Next"
-                    Clicked="OnNextButtonClickedAsync" />
-            
-        </Grid>
+        <Button Text="Submit"
+                Command="{Binding SubmitCommand}" />
     </StackLayout>
 </ContentPage>

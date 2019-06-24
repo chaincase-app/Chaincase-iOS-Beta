@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="Wasabi.Views.MnemonicPage">
+    <StackLayout Margin="10,35,10,10">
+        <Label Text="Deterministic Seed (Mnemonic)"
+               HorizontalOptions="Center"
+               FontAttributes="Bold" />
+        <Label Text="{Binding MnemonicString}"
+               />
+        <Label Text="Write this down. Your keys are generated from this and your passphrase together." />
+        <Button Text="Submit"
+                    Command="{Binding AcceptCommand}" />
+    </StackLayout>
+</ContentPage>

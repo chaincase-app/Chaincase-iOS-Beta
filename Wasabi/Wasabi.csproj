@@ -55,4 +55,10 @@
   <ItemGroup>
     <ProjectReference Include="..\WalletWasabi\WalletWasabi.Standard\WalletWasabi.Standard.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="ViewModels\" />
+    <Folder Include="Navigation\" />
+    <Folder Include="Views\" />
+    <Folder Include="Controllers\" />
+  </ItemGroup>
 </Project>
