@@ -10,6 +10,15 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
     <PackageReference Include="xunit" Version="2.4.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
+    <PackageReference Include="NBitcoin" Version="4.1.2.36" />
+    <PackageReference Include="Xam.Plugins.Settings" Version="4.0.0.10-beta" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Wasabi\Wasabi.csproj" />
+    <ProjectReference Include="..\WalletWasabi\WalletWasabi.Standard\WalletWasabi.Standard.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="App.xaml.cs" />
+  </ItemGroup>
 </Project>
