@@ -56,10 +56,10 @@ namespace Wasabi.ViewModels
 			{
 				System.Diagnostics.Debug.WriteLine(string.Join(" ", Recall).ToString());
 
-				IsVerified = Recall[0] == MnemonicWords[0] &&
-					Recall[1] == MnemonicWords[3] &&
-					Recall[2] == MnemonicWords[6] &&
-					Recall[3] == MnemonicWords[9] &&
+				IsVerified = string.Equals(Recall[0], MnemonicWords[0], StringComparison.CurrentCultureIgnoreCase) &&
+					string.Equals(Recall[1], MnemonicWords[3], StringComparison.CurrentCultureIgnoreCase) &&
+					string.Equals(Recall[2], MnemonicWords[6], StringComparison.CurrentCultureIgnoreCase) &&
+					string.Equals(Recall[3], MnemonicWords[9], StringComparison.CurrentCultureIgnoreCase) &&
 					GenerateWalletController.VerifyWalletCredentials(MnemonicString, _passphrase);
 			});
 		}
