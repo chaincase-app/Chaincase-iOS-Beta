@@ -18,6 +18,7 @@
     <PackageReference Include="Xamarin.Forms" Version="4.0.0.425677" />
     <PackageReference Include="Xamarin.Essentials" Version="1.0.1" />
     <PackageReference Include="NBitcoin" Version="4.1.2.35" />
+    <PackageReference Include="Xam.Plugins.Settings" Version="4.0.0.10-beta" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Crypto\StringCipher.cs" />
