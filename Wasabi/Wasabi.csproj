@@ -52,6 +52,7 @@
     <Compile Remove="Nito\Disposables\SingleDisposable.cs" />
     <Compile Remove="Nito\Disposables\Internals\BoundAction.cs" />
     <Compile Remove="BlockCypher\Models\BlockCypherGeneralInformation.cs" />
+    <Compile Remove="UiConfig.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WalletWasabi\WalletWasabi.Standard\WalletWasabi.Standard.csproj" />
@@ -61,5 +62,10 @@
     <Folder Include="Navigation\" />
     <Folder Include="Views\" />
     <Folder Include="Controllers\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Views\MainPage.xaml.cs">
+      <DependentUpon>MainPage.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>

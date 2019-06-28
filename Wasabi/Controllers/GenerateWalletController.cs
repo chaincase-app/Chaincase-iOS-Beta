@@ -11,7 +11,7 @@ namespace Wasabi.Controllers
 		{
 			return Task.Run(() =>
 			{
-				string walletFilePath = Path.Combine(Settings.WalletsDir, $"Main.json");
+				string walletFilePath = Path.Combine(Global.WalletsDir, $"Main.json");
 				KeyManager.CreateNew(out Mnemonic mnemonic, passphrase, walletFilePath);
 				return mnemonic;
 			});
@@ -22,7 +22,7 @@ namespace Wasabi.Controllers
 			Mnemonic mnemonic = new Mnemonic(mnemonicString);
 			ExtKey derivedExtKey = mnemonic.DeriveExtKey(passphrase);
 
-			string walletFilePath = Path.Combine(Settings.WalletsDir, $"Main.json");
+			string walletFilePath = Path.Combine(Global.WalletsDir, $"Main.json");
 			var keyOnDisk = KeyManager.FromFile(walletFilePath).GetMasterExtKey(passphrase);
 
 			return keyOnDisk.Equals(derivedExtKey);
