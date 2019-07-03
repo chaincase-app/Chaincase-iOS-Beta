@@ -1,5 +1,6 @@
 ﻿using System.IO;
-using WalletWasabi.Helpers;
+using System.Threading.Tasks;
+using WalletWasabi.Logging;
 using Wasabi.Navigation;
 using Wasabi.Views;
 using Xamarin.Forms;
@@ -13,12 +14,12 @@ namespace Wasabi
 		public App()
 		{
 			InitializeComponent();
-
-			MainPage = new NavigationPage(new MainPage());
+			MainPage = new NavigationPage(new PassphrasePage());
 
 			NavigationService.Configure("MainPage", typeof(Views.MainPage));
 			NavigationService.Configure("MnemonicPage", typeof(Views.MnemonicPage));
 			NavigationService.Configure("VerifyMnemonicPage", typeof(Views.VerifyMnemonicPage));
+			NavigationService.Configure("ReceivePage", typeof(Views.ReceivePage));
 			var mainPage = ((NavigationService)NavigationService).SetRootPage("MainPage");
 
 			MainPage = mainPage;
@@ -26,7 +27,8 @@ namespace Wasabi
 
 		protected override void OnStart()
 		{
-			// Handle when your app starts
+			Logger.InitializeDefaults(Path.Combine(Global.DataDir, "Logs.txt"));
+			Task.Run(async () => await Global.InitializeNoWalletAsync());
 		}
 
 		protected override void OnSleep()
