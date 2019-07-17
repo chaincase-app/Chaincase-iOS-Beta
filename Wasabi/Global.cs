@@ -123,7 +123,6 @@ namespace Wasabi
 
 			BitcoinStore = new BitcoinStore();
 			var bstoreInitTask = BitcoinStore.InitializeAsync(Path.Combine(DataDir, "BitcoinStore"), Network);
-			var hwiInitTask = HwiProcessManager.InitializeAsync(DataDir, Network);
 
 			var addressManagerFolderPath = Path.Combine(DataDir, "AddressManager");
 			AddressManagerFilePath = Path.Combine(addressManagerFolderPath, $"AddressManager{Network}.dat");
@@ -237,19 +236,6 @@ namespace Wasabi
 			connectionParameters.TemplateBehaviors.Add(new MemPoolBehavior(MemPoolService));
 
 			#endregion MempoolInitialization
-
-			#region HwiProcessInitialization
-
-			try
-			{
-				await hwiInitTask;
-			}
-			catch (Exception ex)
-			{
-				Logger.LogError(ex, nameof(Global));
-			}
-
-			#endregion HwiProcessInitialization
 
 			#region BitcoinStoreInitialization
 
@@ -436,7 +422,7 @@ namespace Wasabi
 			KeyManager keyManager;
 
 			// Set the LastAccessTime.
-			new FileInfo(walletFullPath)
+			_ = new FileInfo(walletFullPath)
 			{
 				LastAccessTime = DateTime.Now
 			};

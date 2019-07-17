@@ -1,6 +1,4 @@
-﻿using System;
-using Wasabi;
-using Wasabi.ViewModels;
+﻿using Wasabi.ViewModels;
 using Xamarin.Forms;
 
 namespace Wasabi.Views

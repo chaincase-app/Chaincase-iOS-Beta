@@ -68,4 +68,7 @@
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
+  <ItemGroup>
+    <None Remove="CustomBuildActions.targets" />
+  </ItemGroup>
 </Project>

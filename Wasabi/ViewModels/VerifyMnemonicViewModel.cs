@@ -54,14 +54,21 @@ namespace Wasabi.ViewModels
 		{
 			await Task.Run(() =>
 			{
-				System.Diagnostics.Debug.WriteLine(string.Join(" ", Recall).ToString());
+				System.Diagnostics.Debug.WriteLine(string.Join(" ", Recall));
 
 				IsVerified = string.Equals(Recall[0], MnemonicWords[0], StringComparison.CurrentCultureIgnoreCase) &&
 					string.Equals(Recall[1], MnemonicWords[3], StringComparison.CurrentCultureIgnoreCase) &&
 					string.Equals(Recall[2], MnemonicWords[6], StringComparison.CurrentCultureIgnoreCase) &&
 					string.Equals(Recall[3], MnemonicWords[9], StringComparison.CurrentCultureIgnoreCase) &&
-					GenerateWalletController.VerifyWalletCredentials(MnemonicString, _passphrase);
+					WalletController.VerifyWalletCredentials(MnemonicString, _passphrase);
 			});
+		}
+
+		public ICommand NavCommand => new Command(async () => await NavigateToReceive());
+
+		private async Task NavigateToReceive()
+		{
+			await _navigationService.NavigateAsync("ReceivePage");
 		}
 	}
 }

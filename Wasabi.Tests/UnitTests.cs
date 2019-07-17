@@ -1,4 +1,6 @@
+using System.IO;
 using NBitcoin;
+using WalletWasabi.KeyManagement;
 using Wasabi.Controllers;
 using Xunit;
 
@@ -10,9 +12,9 @@ namespace Wasabi.Tests
 		public void AssertGeneratedWalletCredentialsVerifyWithPassphrase()
 		{
 			string passphrase = "passphrase";
-			Mnemonic mnemonic = GenerateWalletController.GenerateMnemonicAsync(passphrase).Result;
+			Mnemonic mnemonic =  WalletController.GenerateMnemonicAsync(passphrase).Result;
 
-			var isVerified = GenerateWalletController.VerifyWalletCredentials(mnemonic.ToString(),  passphrase);
+			var isVerified =  WalletController.VerifyWalletCredentials(mnemonic.ToString(),  passphrase);
 			Assert.True(isVerified);
 		}
 
@@ -20,10 +22,19 @@ namespace Wasabi.Tests
 		public void AssertGeneratedWalletCredentialsVerifyWithoutPassphrase()
 		{
 			string passphrase = ""; // cannot be null
-			Mnemonic mnemonic = GenerateWalletController.GenerateMnemonicAsync(passphrase).Result;
+			Mnemonic mnemonic =  WalletController.GenerateMnemonicAsync(passphrase).Result;
 
-			var isVerified = GenerateWalletController.VerifyWalletCredentials(mnemonic.ToString(), passphrase);
+			var isVerified =  WalletController.VerifyWalletCredentials(mnemonic.ToString(), passphrase);
 			Assert.True(isVerified);
+		}
+
+		[Fact]
+		public void CanLoadKeyManager()
+		{
+			string walletFilePath = Path.Combine(Global.WalletsDir, $"Main.json");
+			KeyManager keyManager = Global.LoadKeyManager(walletFilePath, walletFilePath);
+
+			Assert.True(keyManager is KeyManager);
 		}
 	}
 }

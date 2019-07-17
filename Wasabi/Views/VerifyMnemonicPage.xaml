@@ -32,7 +32,7 @@
                IsPassword="true"
                    />
         <Button Text="Verify"
-                Command="{Binding VerifyCommand}" />
+                Command="{Binding NavCommand}" />
         <Label Text="Hello World!">
             <Label.Triggers>
                 <DataTrigger TargetType="Label" Binding="{Binding IsVerified}" Value="false">

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Wasabi.ViewModels;
+﻿using Wasabi.ViewModels;
 using Xamarin.Forms;
 
 namespace Wasabi.Views
@@ -11,7 +9,6 @@ namespace Wasabi.Views
 		{
 			InitializeComponent();
 			BindingContext = new VerifyMnemonicViewModel(App.NavigationService, mnemonicString);
-
 		}
 	}
 }

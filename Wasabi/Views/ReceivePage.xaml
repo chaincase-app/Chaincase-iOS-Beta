@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Wasabi.Views.ReceivePage"
+             xmlns:templates="clr-namespace:Wasabi.Views.Templates;assembly=Wasabi" >
+    <ScrollView>
+        <StackLayout>
+            <!-- ADDRESSES -->
+            <StackLayout>
+            <Entry Text="{Binding Label}"
+               Placeholder="something unique"
+               />
+            <Button Text="New Address"
+                    Command="{Binding GenerateCommand}" />
+            </StackLayout>
+            <ListView  
+                ItemsSource="{Binding Addresses}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <templates:AddressTemplate />
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

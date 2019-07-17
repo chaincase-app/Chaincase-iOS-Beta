@@ -1,15 +1,15 @@
-﻿using System.Threading.Tasks;
-using System.Windows.Input;
-using Wasabi.Controllers;
-using Wasabi.Navigation;
+﻿using System.Windows.Input;
 using Xamarin.Forms;
+using Wasabi.Navigation;
+using System.Threading.Tasks;
+using Wasabi.Controllers;
 
 namespace Wasabi.ViewModels
 {
-	public class MainViewModel : ViewModelBase
+	public class PassphraseViewModel : ViewModelBase
 	{
 
-		public MainViewModel(INavigationService navigationService) : base(navigationService)
+		public PassphraseViewModel(INavigationService navigationService) : base(navigationService)
 		{
 		}
 		private string _passphrase { get; set; }

@@ -1,11 +1,14 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using NBitcoin;
 using WalletWasabi.KeyManagement;
+using WalletWasabi.Logging;
+using Wasabi.ViewModels;
 
 namespace Wasabi.Controllers
 {
-	public static class GenerateWalletController
+	public static class WalletController
 	{
 		public static Task<Mnemonic> GenerateMnemonicAsync(string passphrase)
 		{
@@ -26,6 +29,23 @@ namespace Wasabi.Controllers
 			var keyOnDisk = KeyManager.FromFile(walletFilePath).GetMasterExtKey(passphrase);
 
 			return keyOnDisk.Equals(derivedExtKey);
+		}
+
+		public static async Task LoadWalletAsync()
+		{
+			// TODO Nono backup wallet folder!!
+			string walletFilePath = Global.GetWalletFullPath("Main");
+			KeyManager keyManager = Global.LoadKeyManager(walletFilePath, walletFilePath);
+			try
+			{
+				Global.InitializeWalletServiceAsync(keyManager);
+			}
+			catch (Exception ex)
+			{
+				// Initialization failed.
+				Logger.LogError<ReceiveViewModel>(ex);
+				await Global.DisposeInWalletDependentServicesAsync();
+			}
 		}
 	}
 }
