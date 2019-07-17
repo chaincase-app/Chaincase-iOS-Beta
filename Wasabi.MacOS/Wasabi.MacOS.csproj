@@ -128,4 +128,5 @@
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Forms.4.0.0.497661\build\Xamarin.Forms.targets" Condition="Exists('..\packages\Xamarin.Forms.4.0.0.497661\build\Xamarin.Forms.targets')" />
+  <Import Project="CustomBuildActions.targets" />
 </Project>
