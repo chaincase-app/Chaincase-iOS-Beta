@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using NBitcoin;
 using WalletWasabi.KeyManagement;
@@ -10,9 +11,9 @@ namespace Wasabi.Controllers
 {
 	public static class WalletController
 	{
-		public static Task<Mnemonic> GenerateMnemonicAsync(string passphrase)
+		public static async Task<Mnemonic> GenerateMnemonicAsync(string passphrase)
 		{
-			return Task.Run(() =>
+			return await Task.Run(() =>
 			{
 				string walletFilePath = Path.Combine(Global.WalletsDir, $"Main.json");
 				KeyManager.CreateNew(out Mnemonic mnemonic, passphrase, walletFilePath);
@@ -38,7 +39,7 @@ namespace Wasabi.Controllers
 			KeyManager keyManager = Global.LoadKeyManager(walletFilePath, walletFilePath);
 			try
 			{
-				Global.InitializeWalletServiceAsync(keyManager);
+				await Global.InitializeWalletServiceAsync(keyManager);
 			}
 			catch (Exception ex)
 			{
