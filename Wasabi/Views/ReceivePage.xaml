@@ -7,6 +7,8 @@
         <StackLayout>
             <!-- ADDRESSES -->
             <StackLayout>
+            <Button Text="Back"
+                    Command="{Binding BackCommand}" />
             <Entry Text="{Binding Label}"
                Placeholder="something unique"
                />

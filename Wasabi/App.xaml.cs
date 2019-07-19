@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using WalletWasabi.Logging;
 using Wasabi.Navigation;
 using Wasabi.Views;
+using Wasabi.Controllers;
 using Xamarin.Forms;
 
 namespace Wasabi
@@ -17,13 +18,13 @@ namespace Wasabi
 			InitializeComponent();
 
 			//NavigationService.Configure("MainPage", typeof(Views.MainPage));
-			NavigationService.Configure("PassphrasePage", typeof(Views.PassphrasePage));
-			NavigationService.Configure("MnemonicPage", typeof(Views.MnemonicPage));
-			NavigationService.Configure("VerifyMnemonicPage", typeof(Views.VerifyMnemonicPage));
-			NavigationService.Configure("ReceivePage", typeof(Views.ReceivePage));
-			var mainPage = ((NavigationService)NavigationService).SetRootPage("PassphrasePage");
+			NavigationService.Configure("PassphrasePage", typeof(PassphrasePage));
+			NavigationService.Configure("MnemonicPage", typeof(MnemonicPage));
+			NavigationService.Configure("VerifyMnemonicPage", typeof(VerifyMnemonicPage));
+			NavigationService.Configure("MainPage", typeof(MainPage));
+			NavigationService.Configure("ReceivePage", typeof(ReceivePage));
 
-			MainPage = mainPage;
+			MainPage = ((NavigationService)NavigationService).SetRootPage("MainPage");
 		}
 
 		protected override void OnStart()

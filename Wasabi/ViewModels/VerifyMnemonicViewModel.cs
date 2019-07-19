@@ -64,11 +64,11 @@ namespace Wasabi.ViewModels
 			});
 		}
 
-		public ICommand NavCommand => new Command(async () => await NavigateToReceive());
+		public ICommand NavCommand => new Command(async () => await NavigateToMain());
 
-		private async Task NavigateToReceive()
+		private async Task NavigateToMain()
 		{
-			await _navigationService.NavigateAsync("ReceivePage");
+			await _navigationService.NavigateAsync("MainPage");
 		}
 	}
 }

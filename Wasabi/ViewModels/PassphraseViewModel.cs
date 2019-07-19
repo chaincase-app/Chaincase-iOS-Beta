@@ -32,7 +32,7 @@ namespace Wasabi.ViewModels
 		{
 			await _navigationService.NavigateAsync(
 				"MnemonicPage",
-				WalletController.GenerateMnemonicAsync(_passphrase).Result.ToString());
+				WalletController.GenerateMnemonic(_passphrase).ToString());
 		}
 	}
 }

@@ -42,6 +42,8 @@ namespace Wasabi.ViewModels
 			}
 		}
 
+		public ICommand BackCommand { get; }
+
 		public ICommand GenerateCommand { get; }
 
 		public ReceiveViewModel(INavigationService navigationService) : base(navigationService)
@@ -50,6 +52,8 @@ namespace Wasabi.ViewModels
 			_addresses = new ObservableCollection<AddressViewModel>();
 
 			InitializeAddresses();
+
+			BackCommand = new Command(() => navigationService.GoBack());
 
 			GenerateCommand = new Command(() =>
 			{
