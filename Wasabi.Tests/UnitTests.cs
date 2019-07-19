@@ -12,7 +12,7 @@ namespace Wasabi.Tests
 		public void AssertGeneratedWalletCredentialsVerifyWithPassphrase()
 		{
 			string passphrase = "passphrase";
-			Mnemonic mnemonic =  WalletController.GenerateMnemonicAsync(passphrase).Result;
+			Mnemonic mnemonic =  WalletController.GenerateMnemonic(passphrase);
 
 			var isVerified =  WalletController.VerifyWalletCredentials(mnemonic.ToString(),  passphrase);
 			Assert.True(isVerified);
@@ -22,7 +22,7 @@ namespace Wasabi.Tests
 		public void AssertGeneratedWalletCredentialsVerifyWithoutPassphrase()
 		{
 			string passphrase = ""; // cannot be null
-			Mnemonic mnemonic =  WalletController.GenerateMnemonicAsync(passphrase).Result;
+			Mnemonic mnemonic =  WalletController.GenerateMnemonic(passphrase);
 
 			var isVerified =  WalletController.VerifyWalletCredentials(mnemonic.ToString(), passphrase);
 			Assert.True(isVerified);
