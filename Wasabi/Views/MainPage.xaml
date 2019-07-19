@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Wasabi.Views.MainPage">
     <StackLayout>
-        <Label Text="{Binding Balance}"
+        <Label Text="{Binding Balance, StringFormat='₿{0:C}'}"
                HorizontalOptions="Center"
                FontAttributes="Bold" />
         <Button Text="Send"
