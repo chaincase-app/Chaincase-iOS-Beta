@@ -33,7 +33,7 @@ namespace Wasabi
 			TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
 
 			Logger.InitializeDefaults(Path.Combine(Global.DataDir, "Logs.txt"));
-			Global.InitializeNoWalletAsync();
+			Task.Run(async () => { await Global.InitializeNoWalletAsync(); }).Wait();
 			WalletController.LoadWalletAsync();
 
 			if (!WalletController.WalletExists())
