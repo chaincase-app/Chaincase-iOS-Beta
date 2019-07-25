@@ -46,6 +46,12 @@ namespace Wasabi.Controllers
 			}
 		}
 
+		public static bool WalletExists()
+		{
+			string walletFilePath = Global.GetWalletFullPath(Global.Network.ToString());
+			return File.Exists(walletFilePath);
+		}
+
 		public static async Task<Money> GetBalanceAsync()
 		{
 			return await Task.Run(() =>

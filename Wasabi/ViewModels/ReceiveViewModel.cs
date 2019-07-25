@@ -48,7 +48,6 @@ namespace Wasabi.ViewModels
 
 		public ReceiveViewModel(INavigationService navigationService) : base(navigationService)
 		{
-			WalletController.LoadWalletAsync();
 			_addresses = new ObservableCollection<AddressViewModel>();
 
 			InitializeAddresses();
