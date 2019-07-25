@@ -24,8 +24,16 @@ namespace Wasabi.Controllers
 			ExtKey derivedExtKey = mnemonic.DeriveExtKey(passphrase);
 
 			string walletFilePath = Path.Combine(Global.WalletsDir, $"{Global.Network.ToString()}.json");
-			var keyOnDisk = KeyManager.FromFile(walletFilePath).GetMasterExtKey(passphrase);
-
+			ExtKey keyOnDisk;
+			try
+			{
+				keyOnDisk = KeyManager.FromFile(walletFilePath).GetMasterExtKey(passphrase);
+			}
+			catch
+			{
+				// bad password
+				return false;
+			}
 			return keyOnDisk.Equals(derivedExtKey);
 		}
 

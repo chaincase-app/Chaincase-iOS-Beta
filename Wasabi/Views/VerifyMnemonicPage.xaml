@@ -31,8 +31,8 @@
                Placeholder="thIsisAPaSsPhrAseToGenerateKeys"
                IsPassword="true"
                    />
-        <Button Text="Verify"
-                Command="{Binding NavCommand}" />
+        <Button Text="Continue"
+                Command="{Binding TryCompleteInitializationCommand}" />
         <Label Text="Hello World!">
             <Label.Triggers>
                 <DataTrigger TargetType="Label" Binding="{Binding IsVerified}" Value="false">

@@ -48,20 +48,20 @@ namespace Wasabi.ViewModels
 			IsVerified = false;
 		}
 
-		public ICommand VerifyCommand => new Command(async () => await VerifyMnemonicAsync());
+		public ICommand TryCompleteInitializationCommand => new Command(async () => await TryCompleteInitializationAsync());
 
-		private async Task VerifyMnemonicAsync()
+		private async Task TryCompleteInitializationAsync()
 		{
-			await Task.Run(() =>
-			{
-				System.Diagnostics.Debug.WriteLine(string.Join(" ", Recall));
+			System.Diagnostics.Debug.WriteLine(string.Join(" ", Recall));
 
-				IsVerified = string.Equals(Recall[0], MnemonicWords[0], StringComparison.CurrentCultureIgnoreCase) &&
-					string.Equals(Recall[1], MnemonicWords[3], StringComparison.CurrentCultureIgnoreCase) &&
-					string.Equals(Recall[2], MnemonicWords[6], StringComparison.CurrentCultureIgnoreCase) &&
-					string.Equals(Recall[3], MnemonicWords[9], StringComparison.CurrentCultureIgnoreCase) &&
-					WalletController.VerifyWalletCredentials(MnemonicString, _passphrase);
-			});
+			IsVerified = string.Equals(Recall[0], MnemonicWords[0], StringComparison.CurrentCultureIgnoreCase) &&
+				string.Equals(Recall[1], MnemonicWords[3], StringComparison.CurrentCultureIgnoreCase) &&
+				string.Equals(Recall[2], MnemonicWords[6], StringComparison.CurrentCultureIgnoreCase) &&
+				string.Equals(Recall[3], MnemonicWords[9], StringComparison.CurrentCultureIgnoreCase) &&
+				WalletController.VerifyWalletCredentials(MnemonicString, _passphrase);
+			if (!IsVerified) return;
+			WalletController.LoadWalletAsync();
+			await NavigateToMain();
 		}
 
 		public ICommand NavCommand => new Command(async () => await NavigateToMain());
