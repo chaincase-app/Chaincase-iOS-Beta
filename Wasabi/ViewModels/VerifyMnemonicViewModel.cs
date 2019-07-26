@@ -58,9 +58,9 @@ namespace Wasabi.ViewModels
 				string.Equals(Recall[1], MnemonicWords[3], StringComparison.CurrentCultureIgnoreCase) &&
 				string.Equals(Recall[2], MnemonicWords[6], StringComparison.CurrentCultureIgnoreCase) &&
 				string.Equals(Recall[3], MnemonicWords[9], StringComparison.CurrentCultureIgnoreCase) &&
-				WalletController.VerifyWalletCredentials(MnemonicString, _passphrase);
+				WalletController.VerifyWalletCredentials(MnemonicString, _passphrase, Global.Network);
 			if (!IsVerified) return;
-			WalletController.LoadWalletAsync();
+			WalletController.LoadWalletAsync(Global.Network);
 			await NavigateToMain();
 		}
 

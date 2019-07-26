@@ -11,19 +11,19 @@ namespace Wasabi.Controllers
 {
 	public static class WalletController
 	{
-		public static Mnemonic GenerateMnemonic(string passphrase)
+		public static Mnemonic GenerateMnemonic(string passphrase, Network network)
 		{
-			string walletFilePath = Path.Combine(Global.WalletsDir, $"{Global.Network.ToString()}.json");
+			string walletFilePath = Path.Combine(Global.WalletsDir, $"{network.ToString()}.json");
 			KeyManager.CreateNew(out Mnemonic mnemonic, passphrase, walletFilePath);
 			return mnemonic;
 		}
 
-		public static bool VerifyWalletCredentials(string mnemonicString, string passphrase)
+		public static bool VerifyWalletCredentials(string mnemonicString, string passphrase, Network network)
 		{
 			Mnemonic mnemonic = new Mnemonic(mnemonicString);
 			ExtKey derivedExtKey = mnemonic.DeriveExtKey(passphrase);
 
-			string walletFilePath = Path.Combine(Global.WalletsDir, $"{Global.Network.ToString()}.json");
+			string walletFilePath = Path.Combine(Global.WalletsDir, $"{network.ToString()}.json");
 			ExtKey keyOnDisk;
 			try
 			{
@@ -37,10 +37,10 @@ namespace Wasabi.Controllers
 			return keyOnDisk.Equals(derivedExtKey);
 		}
 
-		public static async Task LoadWalletAsync()
+		public static async Task LoadWalletAsync(Network network)
 		{
 			// TODO Nono backup wallet folder!!
-			string walletFilePath = Global.GetWalletFullPath(Global.Network.ToString());
+			string walletFilePath = Global.GetWalletFullPath(network.ToString());
 			KeyManager keyManager = Global.LoadKeyManager(walletFilePath);
 			try
 			{
@@ -54,9 +54,9 @@ namespace Wasabi.Controllers
 			}
 		}
 
-		public static bool WalletExists()
+		public static bool WalletExists(Network network)
 		{
-			string walletFilePath = Global.GetWalletFullPath(Global.Network.ToString());
+			string walletFilePath = Global.GetWalletFullPath(network.ToString());
 			return File.Exists(walletFilePath);
 		}
 

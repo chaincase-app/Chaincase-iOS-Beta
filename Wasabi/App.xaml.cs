@@ -34,9 +34,9 @@ namespace Wasabi
 
 			Logger.InitializeDefaults(Path.Combine(Global.DataDir, "Logs.txt"));
 			Task.Run(async () => { await Global.InitializeNoWalletAsync(); }).Wait();
-			WalletController.LoadWalletAsync();
+			WalletController.LoadWalletAsync(Global.Network);
 
-			if (!WalletController.WalletExists())
+			if (!WalletController.WalletExists(Global.Network))
 			{
 				System.Diagnostics.Debug.WriteLine("no wallet");
 				NavigationService.NavigateModalAsync("PassphrasePage");
