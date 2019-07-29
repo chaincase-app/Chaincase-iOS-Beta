@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using NBitcoin;
 using WalletWasabi.KeyManagement;
 using WalletWasabi.Logging;
-using Wasabi.ViewModels;
 
 namespace Wasabi.Controllers
 {
@@ -49,7 +48,7 @@ namespace Wasabi.Controllers
 			catch (Exception ex)
 			{
 				// Initialization failed.
-				Logger.LogError<ReceiveViewModel>(ex);
+				Logger.LogError(ex, "WalletController");
 				await Global.DisposeInWalletDependentServicesAsync();
 			}
 		}
