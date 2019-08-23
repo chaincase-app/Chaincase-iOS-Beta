@@ -1,18 +1,35 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Wasabi.ViewModels;
 
 namespace Wasabi.Navigation
 {
-	// https://mallibone.com/post/a-simple-navigation-service-for-xamarinforms
+	//https://www.rocksolidknowledge.com/articles/decoupling-views-and-navigation-xamarinforms
 	public interface INavigationService
 	{
-		string CurrentPageKey { get; }
+		/// <summary>
+		/// Sets the viewmodel to be the main page of the application
+		/// </summary>
+		void PresentAsMainPage(ViewModelBase viewModel);
 
-		void Configure(string pageKey, Type pageType);
-		Task GoBack();
-		Task NavigateModalAsync(string pageKey, bool animated = true);
-		Task NavigateModalAsync(string pageKey, object parameter, bool animated = true);
-		Task NavigateAsync(string pageKey, bool animated = true);
-		Task NavigateAsync(string pageKey, object parameter, bool animated = true);
+		/// <summary>
+		/// Sets the viewmodel as the main page of the application, and wraps its page within a Navigation page
+		/// </summary>
+		void PresentAsNavigatableMainPage(ViewModelBase viewModel);
+
+		/// <summary>
+		/// Navigate to the given page on top of the current navigation stack
+		/// </summary>
+		Task NavigateTo(ViewModelBase viewModel);
+
+		/// <summary>
+		/// Navigate to the previous item in the navigation stack
+		/// </summary>
+		Task NavigateBack();
+
+		/// <summary>
+		/// Navigate back to the element at the root of the navigation stack
+		/// </summary>
+		Task NavigateBackToRoot();
 	}
 }

@@ -6,46 +6,51 @@ using Wasabi.Navigation;
 using Wasabi.Views;
 using Wasabi.Controllers;
 using Xamarin.Forms;
+using System.Diagnostics;
+using Wasabi.ViewModels;
 
 namespace Wasabi
 {
-	public partial class App : Application
+	public partial class App : Application, IHaveMainPage
 	{
-		public static INavigationService NavigationService { get; } = new NavigationService();
+		public static INavigationService Navigator { get; private set; }
 
 		public App()
 		{
 			InitializeComponent();
-
+			Navigator = new NavigationService(this, new ViewLocator());
 			//NavigationService.Configure("MainPage", typeof(Views.MainPage));
-			NavigationService.Configure("PassphrasePage", typeof(PassphrasePage));
-			NavigationService.Configure("MnemonicPage", typeof(MnemonicPage));
-			NavigationService.Configure("VerifyMnemonicPage", typeof(VerifyMnemonicPage));
-			NavigationService.Configure("MainPage", typeof(MainPage));
-			NavigationService.Configure("ReceivePage", typeof(ReceivePage));
-
-			MainPage = ((NavigationService)NavigationService).SetRootPage("MainPage");
+			//NavigationService.Configure("PassphrasePage", typeof(PassphrasePage));
+			//NavigationService.Configure("MnemonicPage", typeof(MnemonicPage));
+			//NavigationService.Configure("VerifyMnemonicPage", typeof(VerifyMnemonicPage));
+			//NavigationService.Configure("MainPage", typeof(MainPage));
+			//NavigationService.Configure("ReceivePage", typeof(ReceivePage));
+			//NavigationService.Configure("CoinListPage", typeof(CoinListPage));
 		}
 
 		protected override void OnStart()
 		{
+
 			AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 			TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
 
 			Logger.InitializeDefaults(Path.Combine(Global.DataDir, "Logs.txt"));
 			Task.Run(async () => { await Global.InitializeNoWalletAsync(); }).Wait();
 			WalletController.LoadWalletAsync(Global.Network);
+			var rootViewModel = new MainViewModel(Navigator);
+			Navigator.PresentAsNavigatableMainPage(rootViewModel);
 
 			if (!WalletController.WalletExists(Global.Network))
 			{
 				System.Diagnostics.Debug.WriteLine("no wallet");
-				NavigationService.NavigateModalAsync("PassphrasePage");
+				Navigator.NavigateTo(new PassphraseViewModel(Navigator));
 			}
 		}
 
 		protected override void OnSleep()
 		{
-			// Handle when your app sleeps
+			Debug.WriteLine("OnSleep");
+			Task.Run(async () => { await Global.DisposeAsync(); }).Wait();
 		}
 
 		protected override void OnResume()

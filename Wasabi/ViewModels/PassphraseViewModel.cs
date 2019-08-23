@@ -3,6 +3,7 @@ using Xamarin.Forms;
 using Wasabi.Navigation;
 using System.Threading.Tasks;
 using Wasabi.Controllers;
+using ReactiveUI;
 
 namespace Wasabi.ViewModels
 {
@@ -12,27 +13,20 @@ namespace Wasabi.ViewModels
 		public PassphraseViewModel(INavigationService navigationService) : base(navigationService)
 		{
 		}
-		private string _passphrase { get; set; }
+		private string _passphrase;
 		public string Passphrase
 		{
-			get
-			{
-				return _passphrase;
-			}
-			set
-			{
-				_passphrase = value;
-				RaisePropertyChanged(() => Passphrase);
-			}
+			get => _passphrase;
+			set => this.RaiseAndSetIfChanged(ref _passphrase, value);
 		}
 
 		public ICommand SubmitCommand => new Command(async () => await PushMnemonicAsync());
 
 		private async Task PushMnemonicAsync()
 		{
-			await _navigationService.NavigateAsync(
-				"MnemonicPage",
-				WalletController.GenerateMnemonic(_passphrase, Global.Network).ToString());
+			await _navigationService.NavigateTo( new
+				MnemonicViewModel(_navigationService,
+				WalletController.GenerateMnemonic(_passphrase, Global.Network).ToString()));
 		}
 	}
 }

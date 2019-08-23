@@ -2,11 +2,12 @@
 <ContentView
     xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    x:Class="Wasabi.Views.Templates.AddressTemplate">
+    x:Class="Wasabi.Views.Templates.CoinViewTemplate">
     <ContentView.Content>
         <StackLayout Spacing="10" x:Name="layout">
-            <Label Text="{Binding Label}" />
-            <Entry Text="{Binding Address}" />
+            <Label Text="{Binding Amount}" />
+            <Label Text="{Binding AnonymitySet}" />
+            <Label Text="{Binding Clusters}" />
         </StackLayout>
     </ContentView.Content>
 </ContentView>

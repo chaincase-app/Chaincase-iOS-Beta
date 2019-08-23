@@ -59,16 +59,13 @@ namespace Wasabi.Controllers
 			return File.Exists(walletFilePath);
 		}
 
-		public static async Task<Money> GetBalanceAsync()
+		public static Money GetBalance()
 		{
-			return await Task.Run(() =>
-			{
-				return Enumerable.Where
+			return Enumerable.Where
 				(
 					Global.WalletService.Coins,
 					c => c.Unspent && !c.SpentAccordingToBackend
 				).Sum(c => (long?)c.Amount) ?? 0;
-			});
 		}
 	}
 }

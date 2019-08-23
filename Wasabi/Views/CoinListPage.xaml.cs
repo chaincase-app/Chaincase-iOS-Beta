@@ -3,10 +3,9 @@ using Xamarin.Forms;
 
 namespace Wasabi.Views
 {
-	public partial class PassphrasePage : ContentPage
+	public partial class CoinListPage : ContentPage
 	{
-
-		public PassphrasePage()
+		public CoinListPage()
 		{
 			InitializeComponent();
 		}

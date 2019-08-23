@@ -8,7 +8,6 @@ namespace Wasabi.Views
 		public VerifyMnemonicPage(string mnemonicString)
 		{
 			InitializeComponent();
-			BindingContext = new VerifyMnemonicViewModel(App.NavigationService, mnemonicString);
 		}
 	}
 }

@@ -6,10 +6,9 @@ namespace Wasabi.Views
 	public partial class MnemonicPage : ContentPage
 	{
 
-		public MnemonicPage(string mnemonicString)
+		public MnemonicPage()
 		{
 			InitializeComponent();
-			BindingContext = new MnemonicViewModel(App.NavigationService, mnemonicString);
 		}
 	}
 }

@@ -4,6 +4,7 @@ using System.Windows.Input;
 using Wasabi.Navigation;
 using Wasabi.Controllers;
 using Xamarin.Forms;
+using ReactiveUI;
 
 namespace Wasabi.ViewModels
 {
@@ -15,29 +16,15 @@ namespace Wasabi.ViewModels
 		private bool _isVerified;
 		public bool IsVerified
 		{
-			get
-			{
-				return _isVerified;
-			}
-			set
-			{
-				_isVerified = value;
-				RaisePropertyChanged(() => IsVerified);
-			}
+			get => _isVerified;
+			set => this.RaiseAndSetIfChanged(ref _isVerified, value);
 		}
 
-		private string _passphrase { get; set; }
+		private string _passphrase;
 		public string Passphrase
 		{
-			get
-			{
-				return _passphrase;
-			}
-			set
-			{
-				_passphrase = value;
-				RaisePropertyChanged(() => Passphrase);
-			}
+			get => _passphrase;
+			set => this.RaiseAndSetIfChanged(ref _passphrase, value);
 		}
 
 		public VerifyMnemonicViewModel(INavigationService navigationService, string mnemonicString) : base(navigationService)
@@ -68,7 +55,7 @@ namespace Wasabi.ViewModels
 
 		private async Task NavigateToMain()
 		{
-			await _navigationService.NavigateAsync("MainPage");
+			await _navigationService.NavigateTo(new MainViewModel(_navigationService));
 		}
 	}
 }

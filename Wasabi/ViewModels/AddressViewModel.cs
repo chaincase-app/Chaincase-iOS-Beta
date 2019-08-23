@@ -1,4 +1,5 @@
 ﻿using Gma.QrCodeNet.Encoding;
+using ReactiveUI;
 using System.Threading.Tasks;
 using WalletWasabi.KeyManagement;
 using Wasabi.Navigation;
@@ -16,11 +17,7 @@ namespace Wasabi.ViewModels
 		public bool[,] QrCode
 		{
 			get => _qrCode;
-			set
-			{
-				_qrCode = value;
-				RaisePropertyChanged(() => _qrCode);
-			}
+			set => this.RaiseAndSetIfChanged(ref _qrCode, value);
 		}
 		public HdPubKey Model { get; }
 

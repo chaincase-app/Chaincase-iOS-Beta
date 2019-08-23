@@ -2,6 +2,7 @@
 using Xamarin.Forms;
 using Wasabi.Navigation;
 using System.Threading.Tasks;
+using ReactiveUI;
 
 namespace Wasabi.ViewModels
 {
@@ -10,15 +11,8 @@ namespace Wasabi.ViewModels
 		private string _mnemonicString;
 		public string MnemonicString
 		{
-			get
-			{
-				return _mnemonicString;
-			}
-			set
-			{
-				_mnemonicString = value;
-				RaisePropertyChanged(() => MnemonicString);
-			}
+			get => _mnemonicString;
+			set => this.RaiseAndSetIfChanged(ref _mnemonicString, value);
 		}
 
 		public MnemonicViewModel(INavigationService navigationService, string mnemonicString) : base(navigationService)
@@ -30,7 +24,7 @@ namespace Wasabi.ViewModels
 
 		private async Task AcceptMnemonicAsync()
 		{
-			await _navigationService.NavigateAsync("VerifyMnemonicPage", MnemonicString);
+			await _navigationService.NavigateTo(new VerifyMnemonicViewModel(_navigationService, MnemonicString));
 		}
 	}
 }

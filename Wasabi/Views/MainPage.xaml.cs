@@ -8,7 +8,6 @@ namespace Wasabi.Views
 		public MainPage()
 		{
 			InitializeComponent();
-			BindingContext = new MainViewModel(App.NavigationService);
 		}
 	}
 }

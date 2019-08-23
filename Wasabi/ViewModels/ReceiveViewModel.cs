@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using ReactiveUI;
 using WalletWasabi.KeyManagement;
 using Wasabi.Controllers;
 using Wasabi.Navigation;
@@ -17,29 +18,17 @@ namespace Wasabi.ViewModels
 		public ObservableCollection<AddressViewModel> Addresses
 		{
 			get => _addresses;
-			set
-			{
-				_addresses = value;
-				RaisePropertyChanged(() => _addresses);
-			}
+			set => this.RaiseAndSetIfChanged(ref _addresses, value);
 		}
 		public AddressViewModel SelectedAddress
 		{
 			get => _selectedAddress;
-			set
-			{
-				_selectedAddress = value;
-				RaisePropertyChanged(() => _selectedAddress);
-			}
+			set => this.RaiseAndSetIfChanged(ref _selectedAddress, value);
 		}
 		public string Label
 		{
 			get => _label;
-			set
-			{
-				_label = value;
-				RaisePropertyChanged(() => _label);
-			}
+			set => this.RaiseAndSetIfChanged(ref _label, value);
 		}
 
 		public ICommand BackCommand { get; }
@@ -52,7 +41,7 @@ namespace Wasabi.ViewModels
 
 			InitializeAddresses();
 
-			BackCommand = new Command(() => navigationService.GoBack());
+			BackCommand = new Command(() => navigationService.NavigateBack());
 
 			GenerateCommand = new Command(() =>
 			{

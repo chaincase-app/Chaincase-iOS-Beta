@@ -3,160 +3,136 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Wasabi.ViewModels;
 using Xamarin.Forms;
+using Xamarin.Forms.Internals;
 
 namespace Wasabi.Navigation
 {
-	// https://mallibone.com/post/a-simple-navigation-service-for-xamarinforms
 	public class NavigationService : INavigationService
 	{
-		private readonly object _sync = new object();
-		private readonly Dictionary<string, Type> _pagesByKey = new Dictionary<string, Type>();
-		private readonly Stack<NavigationPage> _navigationPageStack =
-			new Stack<NavigationPage>();
-		private NavigationPage CurrentNavigationPage => _navigationPageStack.Peek();
+		private readonly IHaveMainPage _presentationRoot;
+		private readonly IViewLocator _viewLocator;
 
-		public string CurrentPageKey
+		public NavigationService(IHaveMainPage presentationRoot, IViewLocator viewLocator)
 		{
-			get
+			_presentationRoot = presentationRoot;
+			_viewLocator = viewLocator;
+		}
+
+		private Xamarin.Forms.INavigation Navigator => _presentationRoot.MainPage.Navigation;
+
+		public void PresentAsMainPage(ViewModelBase viewModel)
+		{
+			var page = _viewLocator.CreateAndBindPageFor(viewModel);
+
+			IEnumerable<ViewModelBase> viewModelsToDismiss = FindViewModelsToDismiss(_presentationRoot.MainPage);
+
+			if (_presentationRoot.MainPage is NavigationPage navPage)
 			{
-				lock (_sync)
-				{
-					if (CurrentNavigationPage?.CurrentPage == null)
-					{
-						return null;
-					}
+				// If we're replacing a navigation page, unsub from events
+				navPage.PopRequested -= NavPagePopRequested;
+			}
 
-					var pageType = CurrentNavigationPage.CurrentPage.GetType();
+			viewModel.BeforeFirstShown();
 
-					return _pagesByKey.ContainsValue(pageType)
-						? _pagesByKey.First(p => p.Value == pageType).Key
-						: null;
-				}
+			_presentationRoot.MainPage = page;
+
+			foreach (ViewModelBase toDismiss in viewModelsToDismiss)
+			{
+				toDismiss.AfterDismissed();
 			}
 		}
 
-		public void Configure(string pageKey, Type pageType)
+		public void PresentAsNavigatableMainPage(ViewModelBase viewModel)
 		{
-			lock (_sync)
+			var page = _viewLocator.CreateAndBindPageFor(viewModel);
+
+			NavigationPage newNavigationPage = new NavigationPage(page);
+
+			IEnumerable<ViewModelBase> viewModelsToDismiss = FindViewModelsToDismiss(_presentationRoot.MainPage);
+
+			if (_presentationRoot.MainPage is NavigationPage navPage)
 			{
-				if (_pagesByKey.ContainsKey(pageKey))
-				{
-					_pagesByKey[pageKey] = pageType;
-				}
-				else
-				{
-					_pagesByKey.Add(pageKey, pageType);
-				}
+				navPage.PopRequested -= NavPagePopRequested;
+			}
+
+			viewModel.BeforeFirstShown();
+
+			// Listen for back button presses on the new navigation bar
+			newNavigationPage.PopRequested += NavPagePopRequested;
+			_presentationRoot.MainPage = newNavigationPage;
+
+			foreach (ViewModelBase toDismiss in viewModelsToDismiss)
+			{
+				toDismiss.AfterDismissed();
 			}
 		}
 
-		public Page SetRootPage(string rootPageKey)
+		private IEnumerable<ViewModelBase> FindViewModelsToDismiss(Page dismissingPage)
 		{
-			var rootPage = GetPage(rootPageKey);
-			_navigationPageStack.Clear();
-			var mainPage = new NavigationPage(rootPage);
-			_navigationPageStack.Push(mainPage);
-			return mainPage;
-		}
+			var viewmodels = new List<ViewModelBase>();
 
-		public async Task GoBack()
-		{
-			var navigationStack = CurrentNavigationPage.Navigation;
-			if (navigationStack.NavigationStack.Count > 1)
+			if (dismissingPage is NavigationPage)
 			{
-				await CurrentNavigationPage.PopAsync();
-				return;
+				viewmodels.AddRange(
+					Navigator
+						.NavigationStack
+						.Select(p => p.BindingContext)
+						.OfType<ViewModelBase>()
+				);
+			}
+			else
+			{
+				var viewmodel = dismissingPage?.BindingContext as ViewModelBase;
+				if (viewmodel != null) viewmodels.Add(viewmodel);
 			}
 
-			if (_navigationPageStack.Count > 1)
+			return viewmodels;
+		}
+
+		private void NavPagePopRequested(object sender, NavigationRequestedEventArgs e)
+		{
+			if (Navigator.NavigationStack.LastOrDefault()?.BindingContext is ViewModelBase poppingPage)
 			{
-				_navigationPageStack.Pop();
-				await CurrentNavigationPage.Navigation.PopModalAsync();
-				return;
-			}
-
-			await CurrentNavigationPage.PopAsync();
-		}
-
-		public async Task NavigateModalAsync(string pageKey, bool animated = true)
-		{
-			await NavigateModalAsync(pageKey, null, animated);
-		}
-
-		public async Task NavigateModalAsync(string pageKey, object parameter, bool animated = true)
-		{
-			var page = GetPage(pageKey, parameter);
-			NavigationPage.SetHasNavigationBar(page, false);
-			var modalNavigationPage = new NavigationPage(page);
-			await CurrentNavigationPage.Navigation.PushModalAsync(modalNavigationPage, animated);
-			_navigationPageStack.Push(modalNavigationPage);
-		}
-
-		public async Task NavigateAsync(string pageKey, bool animated = true)
-		{
-			await NavigateAsync(pageKey, null, animated);
-		}
-
-		public async Task NavigateAsync(string pageKey, object parameter, bool animated = true)
-		{
-			var page = GetPage(pageKey, parameter);
-			await CurrentNavigationPage.Navigation.PushAsync(page, animated);
-		}
-
-		private Page GetPage(string pageKey, object parameter = null)
-		{
-
-			lock (_sync)
-			{
-				if (!_pagesByKey.ContainsKey(pageKey))
-				{
-					throw new ArgumentException(
-						$"No such page: {pageKey}. Did you forget to call NavigationService.Configure?");
-				}
-
-				var type = _pagesByKey[pageKey];
-				ConstructorInfo constructor;
-				object[] parameters;
-
-				if (parameter == null)
-				{
-					constructor = type.GetTypeInfo()
-						.DeclaredConstructors
-						.FirstOrDefault(c => !c.GetParameters().Any());
-
-					parameters = new object[]
-					{
-					};
-				}
-				else
-				{
-					constructor = type.GetTypeInfo()
-						.DeclaredConstructors
-						.FirstOrDefault(
-							c =>
-							{
-								var p = c.GetParameters();
-								return p.Length == 1
-									   && p[0].ParameterType == parameter.GetType();
-							});
-
-					parameters = new[]
-					{
-					parameter
-				};
-				}
-
-				if (constructor == null)
-				{
-					throw new InvalidOperationException(
-						"No suitable constructor found for page " + pageKey);
-				}
-
-				var page = constructor.Invoke(parameters) as Page;
-				return page;
+				poppingPage.AfterDismissed();
 			}
 		}
 
+		public async Task NavigateTo(ViewModelBase viewModel)
+		{
+			var page = _viewLocator.CreateAndBindPageFor(viewModel);
+
+			await viewModel.BeforeFirstShown();
+
+			await Navigator.PushAsync(page);
+		}
+
+		public async Task NavigateBack()
+		{
+			var dismissing = Navigator.NavigationStack.Last().BindingContext as ViewModelBase;
+
+			await Navigator.PopAsync();
+
+			dismissing?.AfterDismissed();
+		}
+
+		public async Task NavigateBackToRoot()
+		{
+			var toDismiss = Navigator
+				.NavigationStack
+				.Skip(1)
+				.Select(vw => vw.BindingContext)
+				.OfType<ViewModelBase>()
+				.ToArray();
+
+			await Navigator.PopToRootAsync();
+
+			foreach (ViewModelBase viewModel in toDismiss)
+			{
+				// TODO test this .. It was orig. viewModel.AfterDismissed().FireAndForget();
+				_ = Task.Run(async () => await viewModel.AfterDismissed());
+			}
+		}
 	}
 }

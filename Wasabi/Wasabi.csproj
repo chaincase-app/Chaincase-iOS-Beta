@@ -17,8 +17,9 @@
   <ItemGroup>
     <PackageReference Include="Xamarin.Forms" Version="4.0.0.425677" />
     <PackageReference Include="Xamarin.Essentials" Version="1.0.1" />
-    <PackageReference Include="NBitcoin" Version="4.1.2.35" />
     <PackageReference Include="Xam.Plugins.Settings" Version="4.0.0.10-beta" />
+    <PackageReference Include="ReactiveUI" Version="9.19.5" />
+    <PackageReference Include="NBitcoin" Version="4.1.2.37" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Crypto\StringCipher.cs" />
@@ -58,17 +59,24 @@
     <ProjectReference Include="..\WalletWasabi\WalletWasabi.Standard\WalletWasabi.Standard.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="ViewModels\" />
     <Folder Include="Navigation\" />
     <Folder Include="Views\" />
     <Folder Include="Controllers\" />
+    <Folder Include="ViewModels\" />
+    <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Views\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
+    <Compile Condition=" '$(EnableDefaultCompileItems)' == 'true' " Update="Views\Templates\CoinViewTemplate.xaml.cs">
+      <DependentUpon>CoinViewTemplate.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Remove="CustomBuildActions.targets" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Remove="Views\Templates\CoinViewTemplate %28copy%29.xaml" />
   </ItemGroup>
 </Project>
