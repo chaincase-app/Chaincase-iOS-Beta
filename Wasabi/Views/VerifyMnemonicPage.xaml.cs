@@ -1,9 +1,9 @@
-﻿using Wasabi.ViewModels;
-using Xamarin.Forms;
+﻿using ReactiveUI.XamForms;
+using Wasabi.ViewModels;
 
 namespace Wasabi.Views
 {
-	public partial class VerifyMnemonicPage : ContentPage
+	public partial class VerifyMnemonicPage : ReactiveContentPage<VerifyMnemonicViewModel>
 	{
 		public VerifyMnemonicPage(string mnemonicString)
 		{

@@ -50,7 +50,7 @@ namespace Wasabi
 		protected override void OnSleep()
 		{
 			Debug.WriteLine("OnSleep");
-			Task.Run(async () => { await Global.DisposeAsync(); }).Wait();
+			// Task.Run(async () => { await Global.DisposeAsync(); }).Wait();
 		}
 
 		protected override void OnResume()

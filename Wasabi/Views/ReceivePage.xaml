@@ -1,8 +1,12 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Wasabi.Views.ReceivePage"
-             xmlns:templates="clr-namespace:Wasabi.Views.Templates;assembly=Wasabi" >
+<rxui:ReactiveContentPage
+    x:Class="Wasabi.Views.ReceivePage"
+    x:TypeArguments="vm:ReceiveViewModel"          
+    xmlns:vm="clr-namespace:Wasabi.ViewModels;assembly=Wasabi"
+    xmlns:rxui="clr-namespace:ReactiveUI.XamForms;assembly=ReactiveUI.XamForms"
+    xmlns:templates="clr-namespace:Wasabi.Views.Templates;assembly=Wasabi"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns="http://xamarin.com/schemas/2014/forms">
     <ScrollView>
         <StackLayout>
             <!-- ADDRESSES -->
@@ -27,4 +31,4 @@
             </ListView>
         </StackLayout>
     </ScrollView>
-</ContentPage>
+</rxui:ReactiveContentPage>

@@ -1,9 +1,9 @@
-﻿using Wasabi.ViewModels;
-using Xamarin.Forms;
+﻿using ReactiveUI.XamForms;
+using Wasabi.ViewModels;
 
 namespace Wasabi.Views
 {
-	public partial class PassphrasePage : ContentPage
+	public partial class PassphrasePage : ReactiveContentPage<PassphraseViewModel>
 	{
 
 		public PassphrasePage()

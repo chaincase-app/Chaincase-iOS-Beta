@@ -1,9 +1,9 @@
-﻿using Wasabi.ViewModels;
-using Xamarin.Forms;
+﻿using ReactiveUI.XamForms;
+using Wasabi.ViewModels;
 
 namespace Wasabi.Views
 {
-	public partial class ReceivePage : ContentPage
+	public partial class ReceivePage : ReactiveContentPage<ReceiveViewModel>
 	{
 		public ReceivePage()
 		{

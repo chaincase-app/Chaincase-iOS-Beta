@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using WalletWasabi.KeyManagement;
+﻿using ReactiveUI.XamForms;
 using Wasabi.ViewModels;
-using Xamarin.Forms;
 
 namespace Wasabi.Views.Templates
 {
-	public partial class AddressTemplate : ContentView
+	public partial class AddressTemplate : ReactiveContentView<AddressViewModel>
 	{
 		public AddressTemplate()
 		{

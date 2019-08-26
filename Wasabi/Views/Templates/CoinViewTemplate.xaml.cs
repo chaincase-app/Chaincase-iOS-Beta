@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using WalletWasabi.KeyManagement;
+﻿using ReactiveUI.XamForms;
 using Wasabi.ViewModels;
-using Xamarin.Forms;
 
 namespace Wasabi.Views.Templates
 {
-	public partial class CoinViewTemplate : ContentView
+	public partial class CoinViewTemplate : ReactiveContentView<CoinViewModel>
 	{
 		public CoinViewTemplate()
 		{
