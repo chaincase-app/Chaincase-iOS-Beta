@@ -21,7 +21,7 @@ namespace Wasabi.ViewModels
 		}
 		public HdPubKey Model { get; }
 
-		public AddressViewModel(INavigationService navigationService, HdPubKey model) : base(navigationService)
+		public AddressViewModel(IScreen hostScreen, HdPubKey model) : base(hostScreen)
 		{
 			Model = model;
 

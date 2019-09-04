@@ -1,11 +1,9 @@
 ﻿using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Reactive;
 using System.Windows.Input;
 using ReactiveUI;
 using WalletWasabi.KeyManagement;
-using Wasabi.Controllers;
-using Wasabi.Navigation;
 using Xamarin.Forms;
 
 namespace Wasabi.ViewModels
@@ -31,17 +29,13 @@ namespace Wasabi.ViewModels
 			set => this.RaiseAndSetIfChanged(ref _label, value);
 		}
 
-		public ICommand BackCommand { get; }
-
 		public ICommand GenerateCommand { get; }
 
-		public ReceiveViewModel(INavigationService navigationService) : base(navigationService)
+		public ReceiveViewModel(IScreen hostScreen) : base(hostScreen)
 		{
 			_addresses = new ObservableCollection<AddressViewModel>();
 
 			InitializeAddresses();
-
-			BackCommand = new Command(() => navigationService.NavigateBack());
 
 			GenerateCommand = new Command(() =>
 			{
@@ -59,7 +53,7 @@ namespace Wasabi.ViewModels
 						Addresses.Remove(found);
 					}
 
-					var newAddress = new AddressViewModel(_navigationService, newKey);
+					var newAddress = new AddressViewModel(_hostScreen, newKey);
 
 					Addresses.Insert(0, newAddress);
 
@@ -80,7 +74,7 @@ namespace Wasabi.ViewModels
 																		&& x.KeyState == KeyState.Clean)
 																	.Reverse())
 			{
-				_addresses.Add(new AddressViewModel(_navigationService, key));
+				_addresses.Add(new AddressViewModel(_hostScreen, key));
 			}
 		}
 	}

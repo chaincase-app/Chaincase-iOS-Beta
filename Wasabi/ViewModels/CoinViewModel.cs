@@ -26,7 +26,7 @@ namespace Wasabi.ViewModels
 		private ObservableAsPropertyHelper<bool> _unavailable;
 		private CoinListViewModel _owner;
 
-		public CoinViewModel(CoinListViewModel owner, SmartCoin model, INavigationService navigationService) : base(navigationService)
+		public CoinViewModel(CoinListViewModel owner, SmartCoin model, IScreen hostScreen) : base(hostScreen)
 		{
 			Model = model;
 			_owner = owner;
@@ -63,17 +63,6 @@ namespace Wasabi.ViewModels
 				.ObserveOn(RxApp.MainThreadScheduler)
 				.Subscribe(_ => RefreshSmartCoinStatus());
 
-			this.WhenAnyValue(x => x.IsSelected)
-				.ObserveOn(RxApp.MainThreadScheduler)
-				.Subscribe(_ => _owner.OnCoinIsSelectedChanged(this));
-
-			this.WhenAnyValue(x => x.Status)
-				.ObserveOn(RxApp.MainThreadScheduler)
-				.Subscribe(_ => _owner.OnCoinStatusChanged());
-
-			this.WhenAnyValue(x => x.Unspent)
-				.ObserveOn(RxApp.MainThreadScheduler)
-				.Subscribe(_ => _owner.OnCoinUnspentChanged(this));
 
 			Model.WhenAnyValue(x => x.IsBanned, x => x.SpentAccordingToBackend)
 				.ObserveOn(RxApp.MainThreadScheduler)

@@ -27,7 +27,7 @@ namespace Wasabi.ViewModels
 			set => this.RaiseAndSetIfChanged(ref _passphrase, value);
 		}
 
-		public VerifyMnemonicViewModel(INavigationService navigationService, string mnemonicString) : base(navigationService)
+		public VerifyMnemonicViewModel(IScreen hostScreen, string mnemonicString) : base(hostScreen)
 		{
 			MnemonicString = mnemonicString;
 			MnemonicWords = mnemonicString.Split(" ");
@@ -48,14 +48,14 @@ namespace Wasabi.ViewModels
 				WalletController.VerifyWalletCredentials(MnemonicString, _passphrase, Global.Network);
 			if (!IsVerified) return;
 			WalletController.LoadWalletAsync(Global.Network);
-			await NavigateToMain();
+			//await NavigateToMain();
 		}
 
-		public ICommand NavCommand => new Command(async () => await NavigateToMain());
+		//public ICommand NavCommand => new Command(async () => await NavigateToMain());
 
-		private async Task NavigateToMain()
-		{
-			await _navigationService.NavigateTo(new MainViewModel(_navigationService));
-		}
+		//private async Task NavigateToMain()
+		//{
+		//	await _navigationService.NavigateTo(new MainViewModel(_navigationService));
+		//}
 	}
 }

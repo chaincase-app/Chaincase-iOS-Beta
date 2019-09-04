@@ -15,16 +15,16 @@ namespace Wasabi.ViewModels
 			set => this.RaiseAndSetIfChanged(ref _mnemonicString, value);
 		}
 
-		public MnemonicViewModel(INavigationService navigationService, string mnemonicString) : base(navigationService)
+		public MnemonicViewModel(IScreen hostScreen, string mnemonicString) : base(hostScreen)
 		{
 			MnemonicString = mnemonicString;
 		}
 
-		public ICommand AcceptCommand => new Command(async () => await AcceptMnemonicAsync());
+		//public ICommand AcceptCommand => new Command(async () => await AcceptMnemonicAsync());
 
-		private async Task AcceptMnemonicAsync()
-		{
-			await _navigationService.NavigateTo(new VerifyMnemonicViewModel(_navigationService, MnemonicString));
-		}
+		//private async Task AcceptMnemonicAsync()
+		//{
+		//	await _navigationService.NavigateTo(new VerifyMnemonicViewModel(_navigationService, MnemonicString));
+		//}
 	}
 }
