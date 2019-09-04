@@ -15,7 +15,7 @@ namespace Wasabi.Views
 			{
 				this.OneWayBind(ViewModel,
 					vm => vm.Balance,
-					v => v.Balance)
+					v => v.Balance.Text)
 					.DisposeWith(disposables);
 				this.BindCommand(ViewModel,
 					x => x.NavSendCommand,

@@ -9,18 +9,17 @@
     xmlns="http://xamarin.com/schemas/2014/forms">
     <ScrollView>
         <StackLayout>
-            <!-- ADDRESSES -->
-            <StackLayout>
-            <Button Text="Back"
-                 Command="{Binding BackCommand}" />
-            </StackLayout>
-            <Label Text="{Binding Coins.Count, StringFormat='There are {0} items'}" />
-            <ListView  
-                ItemsSource="{Binding Coins}">
+            <Label Text="{Binding Count}" />
+            <ListView x:Name="Coins">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell>
-                            <templates:CoinViewTemplate />
+                            <!--StackLayout Spacing="10" x:Name="layout">
+                                <Label Text="{Binding Amount}" />
+                                <Label Text="{Binding AnonymitySet}" />
+                                <Label Text="{Binding Clusters}" />
+                            </-->
+                            <templates:CoinViewTemplate ViewModel="{Binding .}"/>
                         </ViewCell>
                     </DataTemplate>
                 </ListView.ItemTemplate>

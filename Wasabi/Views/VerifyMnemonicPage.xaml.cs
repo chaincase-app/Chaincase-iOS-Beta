@@ -5,7 +5,7 @@ namespace Wasabi.Views
 {
 	public partial class VerifyMnemonicPage : ReactiveContentPage<VerifyMnemonicViewModel>
 	{
-		public VerifyMnemonicPage(string mnemonicString)
+		public VerifyMnemonicPage()
 		{
 			InitializeComponent();
 		}
