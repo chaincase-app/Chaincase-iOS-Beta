@@ -9,16 +9,10 @@
     xmlns="http://xamarin.com/schemas/2014/forms">
     <ScrollView>
         <StackLayout>
-            <Label Text="{Binding Count}" />
             <ListView x:Name="Coins">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell>
-                            <!--StackLayout Spacing="10" x:Name="layout">
-                                <Label Text="{Binding Amount}" />
-                                <Label Text="{Binding AnonymitySet}" />
-                                <Label Text="{Binding Clusters}" />
-                            </-->
                             <templates:CoinViewTemplate ViewModel="{Binding .}"/>
                         </ViewCell>
                     </DataTemplate>

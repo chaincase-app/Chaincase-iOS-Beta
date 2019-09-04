@@ -33,9 +33,6 @@ namespace Wasabi.ViewModels
 
 		public ReadOnlyObservableCollection<CoinViewModel> Coins => _coinViewModels;
 
-		public int Count => RootList.Count;
-
-
 		public CoinListViewModel(IScreen hostScreen) : base(hostScreen)
 		{
 			RootList = new SourceList<CoinViewModel>();
