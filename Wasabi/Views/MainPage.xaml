@@ -7,13 +7,15 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns="http://xamarin.com/schemas/2014/forms">
     <StackLayout>
-        <Label Text="{Binding Balance, StringFormat='₿{0:C}'}"
+        <Label x:Name="Balance" Text="{Binding Balance, StringFormat='₿{0:C}'}"
                HorizontalOptions="Center"
-               FontAttributes="Bold" />
+               FontAttributes="Bold"
+               />
         <Button Text="Send"
-                Command="{Binding SendCommand}"
-                 />
+                x:Name="NavSendCommand"
+                />
         <Button Text="Receive"
-                Command="{Binding NavCommand}" />
+                x:Name="NavReceiveCommand"
+                />
     </StackLayout>
 </rxui:ReactiveContentPage>

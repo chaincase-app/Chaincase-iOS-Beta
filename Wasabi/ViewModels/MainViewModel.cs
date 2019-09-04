@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -17,14 +18,17 @@ namespace Wasabi.ViewModels
 
 		private CompositeDisposable Disposables { get; set; }
 
-		private Money _balance;
-		public Money Balance
+		private String _balance;
+		public String Balance
 		{
-			get => _balance;
+			get => _balance.ToString();
 			set => this.RaiseAndSetIfChanged(ref _balance, value);
 		}
 
-		public MainViewModel(INavigationService navigationService) : base(navigationService)
+		public ReactiveCommand<Unit, Unit> NavReceiveCommand;
+		public ReactiveCommand<Unit, Unit> NavSendCommand;
+
+		public MainViewModel(IScreen hostScreen) : base(hostScreen)
 		{
 			SetBalance();
 
@@ -35,6 +39,18 @@ namespace Wasabi.ViewModels
 
 			Disposables = new CompositeDisposable();
 
+			NavReceiveCommand = ReactiveCommand.CreateFromObservable(() =>
+			{
+				HostScreen.Router.Navigate.Execute(new ReceiveViewModel(hostScreen)).Subscribe();
+				return Observable.Return(Unit.Default);
+			});
+
+			NavSendCommand = ReactiveCommand.CreateFromObservable(() =>
+			{
+				HostScreen.Router.Navigate.Execute(new CoinListViewModel(hostScreen)).Subscribe();
+				return Observable.Return(Unit.Default);
+			});
+
 			Observable.FromEventPattern(Global.WalletService.Coins, nameof(Global.WalletService.Coins.CollectionChanged))
 				.Merge(Observable.FromEventPattern(Global.WalletService, nameof(Global.WalletService.CoinSpentOrSpenderConfirmed)))
 				.ObserveOn(RxApp.MainThreadScheduler)
@@ -42,26 +58,9 @@ namespace Wasabi.ViewModels
 				.DisposeWith(Disposables);
 		}
 
-		// Need event to watch for balance changes in wallet service
-
-		// need command to switch between this and receive
-		public ICommand NavCommand => new Command(async () => await NavigateToReceive());
-
-		public ICommand SendCommand => new Command(() => NavigateToCoinList());
-
-		private async Task NavigateToReceive()
-		{
-			await _navigationService.NavigateTo(new ReceiveViewModel(_navigationService));
-		}
-
-		private async Task NavigateToCoinList()
-		{
-			await _navigationService.NavigateTo(new CoinListViewModel(_navigationService));
-		}
-
 		private void SetBalance()
 		{
-			Balance = WalletController.GetBalance();
+			Balance = WalletController.GetBalance().ToString();
 		}
 	}
 }

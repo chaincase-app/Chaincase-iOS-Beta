@@ -1,24 +1,19 @@
-﻿using System;
-using Xamarin.Forms;
+﻿using ReactiveUI;
+using System;
 
 namespace Wasabi.ViewModels
 {
-	public interface IViewLocator
-	{
-		Page CreateAndBindPageFor<TViewModel>(TViewModel viewModel) where TViewModel : ViewModelBase;
-	}
-
 	public class ViewLocator : IViewLocator
 	{
-		public Page CreateAndBindPageFor<TViewModel>(TViewModel viewModel) where TViewModel : ViewModelBase
+		public IViewFor ResolveView<T>(T viewModel, string contract = null) where T : class
 		{
-			var pageType = FindPageForViewModel(viewModel.GetType());
+			var viewType = FindPageForViewModel(viewModel.GetType());
 
-			var page = (Page)Activator.CreateInstance(pageType);
+			var viewFor = (IViewFor)Activator.CreateInstance(viewType);
 
-			page.BindingContext = viewModel;
+			viewFor.ViewModel = viewModel;
 
-			return page;
+			return viewFor;
 		}
 
 		protected virtual Type FindPageForViewModel(Type viewModelType)

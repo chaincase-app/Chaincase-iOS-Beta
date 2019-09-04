@@ -4,13 +4,16 @@ using Wasabi.Navigation;
 
 namespace Wasabi.ViewModels
 {
-	public class ViewModelBase : ReactiveObject, IViewModelLifecycle
+	public class ViewModelBase : ReactiveObject, IViewModelLifecycle, IRoutableViewModel
 	{
-		protected readonly INavigationService _navigationService;
+		protected readonly IScreen _hostScreen;
+		public IScreen HostScreen => _hostScreen;
 
-		public ViewModelBase(INavigationService navigationService)
+		public string UrlPathSegment => this.GetType().BaseType.Name.Replace("ViewModel", "");
+
+		public ViewModelBase(IScreen hostScreen)
 		{
-			_navigationService = navigationService;
+			_hostScreen = hostScreen;
 		}
 
 		public virtual Task BeforeFirstShown()
