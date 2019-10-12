@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<rxui:ReactiveContentPage
-    x:Class="Wasabi.Views.CoinListPage"
+<rxui:ReactiveContentView
+    x:Class="Wasabi.Views.Templates.CoinListTemplate"
     x:TypeArguments="vm:CoinListViewModel"       
     xmlns:vm="clr-namespace:Wasabi.ViewModels;assembly=Wasabi"
     xmlns:rxui="clr-namespace:ReactiveUI.XamForms;assembly=ReactiveUI.XamForms"
@@ -21,4 +21,4 @@
         </StackLayout>
     </ScrollView>
     
-</rxui:ReactiveContentPage>
+</rxui:ReactiveContentView>

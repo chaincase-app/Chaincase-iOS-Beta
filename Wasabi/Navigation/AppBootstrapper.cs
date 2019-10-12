@@ -27,7 +27,7 @@ namespace Wasabi.Navigation
 
 			dependencyResolver.Register(() => new MainPage(), typeof(IViewFor<MainViewModel>));
 			dependencyResolver.Register(() => new ReceivePage(), typeof(IViewFor<ReceiveViewModel>));
-			dependencyResolver.Register(() => new CoinListPage(), typeof(IViewFor<CoinListViewModel>));
+			dependencyResolver.Register(() => new SendPage(), typeof(IViewFor<SendViewModel>));
 			dependencyResolver.Register(() => new PassphrasePage(), typeof(IViewFor<PassphraseViewModel>));
 			dependencyResolver.Register(() => new MnemonicPage(), typeof(IViewFor<MnemonicPage>));
 			dependencyResolver.Register(() => new VerifyMnemonicPage(), typeof(IViewFor<VerifyMnemonicPage>));
