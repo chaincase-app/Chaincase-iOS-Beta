@@ -17,7 +17,7 @@ namespace Wasabi.Views.Templates
 					.DisposeWith(disposable);
 				this.OneWayBind(ViewModel, x => x.AnonymitySet, x => x.AnonymitySet.Text)
 					.DisposeWith(disposable);
-				this.OneWayBind(ViewModel, x => x.Clusters, x => x.Clusters)
+				this.OneWayBind(ViewModel, x => x.Clusters, x => x.Clusters.Text)
 					.DisposeWith(disposable);
 			});
 		}

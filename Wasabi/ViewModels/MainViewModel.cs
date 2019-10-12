@@ -47,7 +47,7 @@ namespace Wasabi.ViewModels
 
 			NavSendCommand = ReactiveCommand.CreateFromObservable(() =>
 			{
-				HostScreen.Router.Navigate.Execute(new CoinListViewModel(hostScreen)).Subscribe();
+				HostScreen.Router.Navigate.Execute(new SendViewModel(hostScreen)).Subscribe();
 				return Observable.Return(Unit.Default);
 			});
 
