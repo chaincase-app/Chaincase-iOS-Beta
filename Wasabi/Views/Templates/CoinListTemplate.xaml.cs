@@ -13,9 +13,12 @@ namespace Wasabi.Views.Templates
 
 			this.WhenActivated(disposable =>
 			{
-				this.OneWayBind(ViewModel, vm => vm.Coins, v => v.Coins.ItemsSource)
-				.DisposeWith(disposable);
+				this.OneWayBind(ViewModel,
+					vm => vm.Coins,
+					v => v.Coins.ItemsSource)
+					.DisposeWith(disposable);
 			});
+			
 		}
 	}
 }

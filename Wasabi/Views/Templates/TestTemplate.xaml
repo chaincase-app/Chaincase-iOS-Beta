@@ -1,14 +1,12 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <rxui:ReactiveContentView
-    x:Class="Wasabi.Views.Templates.CoinViewTemplate"
-    x:TypeArguments="vm:CoinViewModel"          
+    x:Class="Wasabi.Views.Templates.TestTemplate"
+    x:TypeArguments="vm:TestViewModel"          
     xmlns:vm="clr-namespace:Wasabi.ViewModels;assembly=Wasabi"
     xmlns:rxui="clr-namespace:ReactiveUI.XamForms;assembly=ReactiveUI.XamForms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns="http://xamarin.com/schemas/2014/forms">
-    <StackLayout Grid.Column="1" >
-        <Label x:Name="Amount" />
-        <Label x:Name="AnonymitySet" />
-        <Label x:Name="Clusters" />
+    <StackLayout Spacing="10">
+        <Label Text="{Binding Label}" />
     </StackLayout>
 </rxui:ReactiveContentView>

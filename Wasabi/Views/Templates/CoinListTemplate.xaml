@@ -7,18 +7,14 @@
     xmlns:templates="clr-namespace:Wasabi.Views.Templates;assembly=Wasabi"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns="http://xamarin.com/schemas/2014/forms">
-    <ScrollView>
-        <StackLayout>
-            <ListView x:Name="Coins">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <ViewCell>
-                            <templates:CoinViewTemplate ViewModel="{Binding .}"/>
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-        </StackLayout>
-    </ScrollView>
-    
+    <ListView x:Name="Coins"
+                Header="Coins">
+        <ListView.ItemTemplate>
+            <DataTemplate>
+                <ViewCell>
+                    <templates:CoinViewTemplate ViewModel="{Binding .}" />
+                </ViewCell>
+            </DataTemplate>
+        </ListView.ItemTemplate>
+    </ListView>
 </rxui:ReactiveContentView>
