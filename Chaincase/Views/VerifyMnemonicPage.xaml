@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<rxui:ReactiveContentPage
+    x:Class="Chaincase.Views.VerifyMnemonicPage"
+    x:TypeArguments="vm:VerifyMnemonicViewModel"          
+    xmlns:vm="clr-namespace:Chaincase.ViewModels;assembly=Chaincase"
+    xmlns:rxui="clr-namespace:ReactiveUI.XamForms;assembly=ReactiveUI.XamForms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns="http://xamarin.com/schemas/2014/forms">
+    <StackLayout Margin="10,35,10,10">
+        <Label Text="Verify the Mnemonic"
+               HorizontalOptions="Center"
+               FontAttributes="Bold" />
+        
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+
+            </Grid.ColumnDefinitions>
+            <Entry Text="{Binding Recall[0]}"
+               />
+            <Entry Grid.Column="1"
+                   Text="{Binding Recall[1]}"
+                   />
+            <Entry Grid.Column="2"
+                    Text="{Binding Recall[2]}"
+                   />
+            <Entry Grid.Column="3"
+                   Text="{Binding Recall[3]}"
+                   />
+            
+        </Grid>
+        <Entry Grid.Column="3"
+               Text="{Binding Passphrase}"
+               Placeholder="thIsisAPaSsPhrAseToGenerateKeys"
+               IsPassword="true"
+                   />
+        <Button Text="Continue"
+                Command="{Binding TryCompleteInitializationCommand}" />
+        <Label Text="Hello World!">
+            <Label.Triggers>
+                <DataTrigger TargetType="Label" Binding="{Binding IsVerified}" Value="false">
+                    <Setter Property="Text"  Value="Not Verified" />
+                </DataTrigger>
+                <DataTrigger TargetType="Label" Binding="{Binding IsVerified}" Value="true">
+                    <Setter Property="Text"  Value="Verified" />
+                </DataTrigger>
+            </Label.Triggers>
+
+        </Label>
+    </StackLayout>
+</rxui:ReactiveContentPage>
