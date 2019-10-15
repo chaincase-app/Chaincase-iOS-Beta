@@ -8,7 +8,7 @@
     <ProjectTypeGuids>{A3F8F2AB-B479-4A4A-A458-A89E7DC349F1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Exe</OutputType>
     <RootNamespace>Chaincase.macOS</RootNamespace>
-    <AssemblyName>Chaincase</AssemblyName>
+    <AssemblyName>Chaincase.macOS</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <TargetFrameworkIdentifier>Xamarin.Mac</TargetFrameworkIdentifier>
     <MonoMacResourcePrefix>Resources</MonoMacResourcePrefix>
@@ -140,7 +140,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Chaincase\Chaincase.csproj">
-      <Project>{6AE10BAA-E2B2-4F68-8E1D-C57FB35057FE}</Project>
+      <Project>{E5B08CDB-EB96-43F3-8480-590552BAF744}</Project>
       <Name>Chaincase</Name>
     </ProjectReference>
   </ItemGroup>
