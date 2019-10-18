@@ -16,25 +16,43 @@ using WalletWasabi.Models;
 using Chaincase.Models;
 using Chaincase.Navigation;
 using Xamarin.Forms;
+using NBitcoin;
 
 namespace Chaincase.ViewModels
 {
 	public class CoinListViewModel : ViewModelBase
 	{
+
+		private Money _selectedAmount;
+
+		public Money SelectedAmount
+		{
+			get => _selectedAmount;
+			set => this.RaiseAndSetIfChanged(ref _selectedAmount, value);
+		}
+
+		private string _selectedAmountText;
+		public String SelectedAmountText
+		{
+			get => _selectedAmountText;
+			set => this.RaiseAndSetIfChanged(ref _selectedAmountText, $"{value} BTC Selected");
+		}
+
+		public event EventHandler<CoinViewModel> SelectionChanged;
+
 		private CompositeDisposable Disposables { get; set; }
 
 		public SourceList<CoinViewModel> RootList { get; private set; }
 
 		private ReadOnlyObservableCollection<CoinViewModel> _coinViewModels;
 
-		public ReactiveCommand<Unit, Unit> BackCommand { get; }
-
-		public event EventHandler<CoinViewModel> SelectionChanged;
-
 		public ReadOnlyObservableCollection<CoinViewModel> Coins => _coinViewModels;
+
+		public ReactiveCommand<Unit, Unit> BackCommand { get; }
 
 		public CoinListViewModel(IScreen hostScreen) : base(hostScreen)
 		{
+			SelectedAmountText = "0";
 			RootList = new SourceList<CoinViewModel>();
 			RootList.Connect()
 				.OnItemRemoved(x => x.UnsubscribeEvents())
@@ -45,6 +63,7 @@ namespace Chaincase.ViewModels
 
 			BackCommand = hostScreen.Router.NavigateBack;
 			OnOpen();
+
 		}
 
 		public void OnOpen()
@@ -107,6 +126,13 @@ namespace Chaincase.ViewModels
 			ClearRootList();
 
 			Disposables?.Dispose();
+		}
+
+		public void OnCoinIsSelectedChanged(CoinViewModel cvm)
+		{
+			SelectionChanged?.Invoke(this, cvm);
+			SelectedAmount = Coins.Where(x => x.IsSelected).Sum(x => x.Amount);
+			SelectedAmountText = SelectedAmount.ToString();
 		}
 
 	}

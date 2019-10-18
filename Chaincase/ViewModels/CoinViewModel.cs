@@ -56,6 +56,10 @@ namespace Chaincase.ViewModels
 			_unavailable = Model.WhenAnyValue(x => x.Unavailable).ToProperty(this, x => x.Unavailable, scheduler: RxApp.MainThreadScheduler)
 				.DisposeWith(Disposables);
 
+			this.WhenAnyValue(x => x.IsSelected)
+				.ObserveOn(RxApp.MainThreadScheduler)
+				.Subscribe(_ => _owner.OnCoinIsSelectedChanged(this));
+
 			this.WhenAnyValue(x => x.Status)
 				.Subscribe(_ => this.RaisePropertyChanged(nameof(ToolTip)));
 
