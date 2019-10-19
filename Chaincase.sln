@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chaincase.iOS", "Chaincase.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chaincase.Android", "Chaincase.Android\Chaincase.Android.csproj", "{DE68E773-EE76-4100-A11E-17081CF9AC1C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chaincase.GTK", "Chaincase.GTK\Chaincase.GTK.csproj", "{578B43C6-AC2C-40B1-8B1A-6359FA87E4C2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -123,5 +125,17 @@ Global
 		{DE68E773-EE76-4100-A11E-17081CF9AC1C}.Debug|iPhone.Build.0 = Debug|Any CPU
 		{DE68E773-EE76-4100-A11E-17081CF9AC1C}.Release|iPhone.ActiveCfg = Release|Any CPU
 		{DE68E773-EE76-4100-A11E-17081CF9AC1C}.Release|iPhone.Build.0 = Release|Any CPU
+		{578B43C6-AC2C-40B1-8B1A-6359FA87E4C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{578B43C6-AC2C-40B1-8B1A-6359FA87E4C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{578B43C6-AC2C-40B1-8B1A-6359FA87E4C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{578B43C6-AC2C-40B1-8B1A-6359FA87E4C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{578B43C6-AC2C-40B1-8B1A-6359FA87E4C2}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{578B43C6-AC2C-40B1-8B1A-6359FA87E4C2}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
+		{578B43C6-AC2C-40B1-8B1A-6359FA87E4C2}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{578B43C6-AC2C-40B1-8B1A-6359FA87E4C2}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
+		{578B43C6-AC2C-40B1-8B1A-6359FA87E4C2}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{578B43C6-AC2C-40B1-8B1A-6359FA87E4C2}.Debug|iPhone.Build.0 = Debug|Any CPU
+		{578B43C6-AC2C-40B1-8B1A-6359FA87E4C2}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{578B43C6-AC2C-40B1-8B1A-6359FA87E4C2}.Release|iPhone.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
