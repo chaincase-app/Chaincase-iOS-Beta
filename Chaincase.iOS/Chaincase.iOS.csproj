@@ -136,7 +136,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Wasabi\Chaincase.csproj">
+    <ProjectReference Include="..\Chaincase\Chaincase.csproj">
       <Project>{E5B08CDB-EB96-43F3-8480-590552BAF744}</Project>
       <Name>Chaincase</Name>
     </ProjectReference>
