@@ -15,7 +15,6 @@ namespace Chaincase.ViewModels
 {
 	public class MainViewModel : ViewModelBase
 	{
-
 		private CompositeDisposable Disposables { get; set; }
 
 		private String _balance;

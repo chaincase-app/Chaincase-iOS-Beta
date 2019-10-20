@@ -14,7 +14,7 @@
                Placeholder="thIsisAPaSsPhrAseToGenerateKeys"
                IsPassword="true"
                />
-        <Button Text="Submit"
-                Command="{Binding SubmitCommand}" />
+        <Button x:Name="Submit"
+                Text="Submit" />
     </StackLayout>
 </rxui:ReactiveContentPage>

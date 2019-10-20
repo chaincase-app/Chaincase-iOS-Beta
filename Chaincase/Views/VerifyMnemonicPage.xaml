@@ -38,7 +38,7 @@
                IsPassword="true"
                    />
         <Button Text="Continue"
-                Command="{Binding TryCompleteInitializationCommand}" />
+                x:Name="Continue" />
         <Label Text="Hello World!">
             <Label.Triggers>
                 <DataTrigger TargetType="Label" Binding="{Binding IsVerified}" Value="false">

@@ -5,6 +5,8 @@ using Chaincase.Navigation;
 using Chaincase.Controllers;
 using Xamarin.Forms;
 using ReactiveUI;
+using System.Reactive;
+using System.Reactive.Linq;
 
 namespace Chaincase.ViewModels
 {
@@ -33,9 +35,16 @@ namespace Chaincase.ViewModels
 			MnemonicWords = mnemonicString.Split(" ");
 			Recall = new string[4];
 			IsVerified = false;
+
+			NavMainCommand = ReactiveCommand.CreateFromObservable(() =>
+			{
+				HostScreen.Router.Navigate.Execute(new MainViewModel(hostScreen)).Subscribe();
+				return Observable.Return(Unit.Default);
+			});
 		}
 
 		public ICommand TryCompleteInitializationCommand => new Command(async () => await TryCompleteInitializationAsync());
+		public ReactiveCommand<Unit, Unit> NavMainCommand;
 
 		private async Task TryCompleteInitializationAsync()
 		{
@@ -48,14 +57,7 @@ namespace Chaincase.ViewModels
 				WalletController.VerifyWalletCredentials(MnemonicString, _passphrase, Global.Network);
 			if (!IsVerified) return;
 			WalletController.LoadWalletAsync(Global.Network);
-			//await NavigateToMain();
+			NavMainCommand.Execute();
 		}
-
-		//public ICommand NavCommand => new Command(async () => await NavigateToMain());
-
-		//private async Task NavigateToMain()
-		//{
-		//	await _navigationService.NavigateTo(new MainViewModel(_navigationService));
-		//}
 	}
 }
