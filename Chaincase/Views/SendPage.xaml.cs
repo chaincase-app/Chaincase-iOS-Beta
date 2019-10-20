@@ -14,7 +14,7 @@ namespace Chaincase.Views
 			this.WhenActivated(disposables =>
 			{
 				this.OneWayBind(ViewModel,
-					vm => vm.CoinListViewModel,
+					vm => vm.CoinList,
 					v => v.CoinList.ViewModel)
 					.DisposeWith(disposables);
 			});

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using NBitcoin;
 using WalletWasabi.KeyManagement;
 using WalletWasabi.Logging;
+using WalletWasabi.Models;
 
 namespace Chaincase.Controllers
 {
@@ -66,6 +67,21 @@ namespace Chaincase.Controllers
 					Global.WalletService.Coins,
 					c => c.Unspent && !c.SpentAccordingToBackend
 				).Sum(c => (long?)c.Amount) ?? 0;
+		}
+
+		public static Boolean SendTransaction (string addressString, FeeRate rate)
+		{
+			BitcoinAddress address;
+			try
+			{
+				address = BitcoinAddress.Create(addressString.Trim(), Global.Network);
+			}
+			catch (FormatException e)
+			{
+				return false;
+			}
+
+			return true;
 		}
 	}
 }

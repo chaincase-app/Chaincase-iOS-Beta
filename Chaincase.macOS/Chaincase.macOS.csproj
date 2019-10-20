@@ -82,7 +82,7 @@
       <HintPath>..\packages\Microsoft.Extensions.Logging.Abstractions.2.2.0\lib\netstandard2.0\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="NBitcoin">
-      <HintPath>..\packages\NBitcoin.4.2.4\lib\netstandard2.0\NBitcoin.dll</HintPath>
+      <HintPath>..\packages\NBitcoin.4.2.15\lib\netstandard2.1\NBitcoin.dll</HintPath>
     </Reference>
     <Reference Include="Plugin.Settings">
       <HintPath>..\packages\Xam.Plugins.Settings.4.1.0-beta\lib\xamarinmac20\Plugin.Settings.dll</HintPath>
