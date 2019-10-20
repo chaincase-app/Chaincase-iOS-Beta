@@ -22,9 +22,9 @@ namespace Chaincase
 
 			Logger.InitializeDefaults(Path.Combine(Global.DataDir, "Logs.txt"));
 			Task.Run(async () => { await Global.InitializeNoWalletAsync(); }).Wait();
-			WalletController.LoadWalletAsync(Global.Network);
-
-			var bs = new AppBootstrapper();
+			var walletExists = WalletController.WalletExists(Global.Network);
+			if (walletExists) WalletController.LoadWalletAsync(Global.Network);
+			var bs = new AppBootstrapper(walletExists);
 			MainPage = bs.CreateMainPage();
 		}
 

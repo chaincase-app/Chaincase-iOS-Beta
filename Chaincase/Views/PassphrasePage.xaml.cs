@@ -1,5 +1,7 @@
 ﻿using ReactiveUI.XamForms;
 using Chaincase.ViewModels;
+using ReactiveUI;
+using System.Reactive.Disposables;
 
 namespace Chaincase.Views
 {
@@ -9,6 +11,13 @@ namespace Chaincase.Views
 		public PassphrasePage()
 		{
 			InitializeComponent();
+			this.WhenActivated(disposables =>
+			{
+				this.BindCommand(ViewModel,
+					vm => vm.SubmitCommand,
+					v => v.Submit)
+					.DisposeWith(disposables);
+			});
 		}
 	}
 }

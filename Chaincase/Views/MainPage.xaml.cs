@@ -18,12 +18,12 @@ namespace Chaincase.Views
 					v => v.Balance.Text)
 					.DisposeWith(disposables);
 				this.BindCommand(ViewModel,
-					x => x.NavSendCommand,
-					x => x.NavSendCommand)
+					vm => vm.NavSendCommand,
+					v => v.NavSendCommand)
 					.DisposeWith(disposables);
 				this.BindCommand(ViewModel,
-					x => x.NavReceiveCommand,
-					x => x.NavReceiveCommand)
+					vm => vm.NavReceiveCommand,
+					v => v.NavReceiveCommand)
 					.DisposeWith(disposables);
 			});
 		}

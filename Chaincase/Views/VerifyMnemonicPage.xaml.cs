@@ -1,5 +1,7 @@
 ﻿using ReactiveUI.XamForms;
 using Chaincase.ViewModels;
+using ReactiveUI;
+using System.Reactive.Disposables;
 
 namespace Chaincase.Views
 {
@@ -8,6 +10,13 @@ namespace Chaincase.Views
 		public VerifyMnemonicPage()
 		{
 			InitializeComponent();
+			this.WhenActivated(disposables =>
+			{
+				this.BindCommand(ViewModel,
+					vm => vm.TryCompleteInitializationCommand,
+					x => x.Continue)
+					.DisposeWith(disposables);
+			});
 		}
 	}
 }
