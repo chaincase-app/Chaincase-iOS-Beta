@@ -10,7 +10,7 @@
         <Label Text="Deterministic Seed (Mnemonic)"
                HorizontalOptions="Center"
                FontAttributes="Bold" />
-        <Label Text="{Binding MnemonicString}"
+        <Label x:Name="MnemonicStringLabel"
                />
         <Label Text="Write this down. Your keys are generated from this and your passphrase together." />
         <Button Text="Accept"

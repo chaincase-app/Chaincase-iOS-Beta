@@ -14,8 +14,34 @@ namespace Chaincase.ViewModels
 	{
 		public string MnemonicString { get; }
 		public string[] MnemonicWords { get; }
-		public string[] Recall { get; }
-		private bool _isVerified;
+		public string[] Recall { get; set; }
+
+        //Recall words
+        public string Recall0 
+        {
+            get => Recall[0];
+            set => this.RaiseAndSetIfChanged(ref Recall[0], value);
+        }
+
+        public string Recall1
+        {
+            get => Recall[1];
+            set => this.RaiseAndSetIfChanged(ref Recall[1], value);
+        }
+
+        public string Recall2
+        {
+            get => Recall[2];
+            set => this.RaiseAndSetIfChanged(ref Recall[2], value);
+        }
+
+        public string Recall3
+        {
+            get => Recall[3];
+            set => this.RaiseAndSetIfChanged(ref Recall[3], value);
+        }
+
+        private bool _isVerified;
 		public bool IsVerified
 		{
 			get => _isVerified;

@@ -20,7 +20,7 @@ namespace Chaincase.ViewModels
 		private String _balance;
 		public String Balance
 		{
-			get => _balance.ToString();
+			get => _balance;
 			set => this.RaiseAndSetIfChanged(ref _balance, value);
 		}
 

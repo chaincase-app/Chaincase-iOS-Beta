@@ -12,11 +12,12 @@
             <!-- ADDRESSES -->
             <StackLayout>
 
-            <Entry Text="{Binding Label}"
+            <Entry x:Name="LabelField"
                Placeholder="something unique"
                />
             <Button Text="New Address"
-                    Command="{Binding GenerateCommand}" />
+                    x:Name="Generate"
+                    />
             </StackLayout>
             <ListView  
                 ItemsSource="{Binding Addresses}">
