@@ -3,6 +3,9 @@ using Xamarin.Forms;
 using Chaincase.Navigation;
 using System.Threading.Tasks;
 using ReactiveUI;
+using System.Reactive;
+using System;
+using System.Reactive.Linq;
 
 namespace Chaincase.ViewModels
 {
@@ -15,16 +18,16 @@ namespace Chaincase.ViewModels
 			set => this.RaiseAndSetIfChanged(ref _mnemonicString, value);
 		}
 
+		public ReactiveCommand<Unit, Unit> AcceptCommand;
+
 		public MnemonicViewModel(IScreen hostScreen, string mnemonicString) : base(hostScreen)
 		{
 			MnemonicString = mnemonicString;
+			AcceptCommand = ReactiveCommand.CreateFromObservable(() =>
+			{
+				HostScreen.Router.Navigate.Execute(new VerifyMnemonicViewModel(hostScreen, MnemonicString)).Subscribe();
+				return Observable.Return(Unit.Default);
+			});
 		}
-
-		//public ICommand AcceptCommand => new Command(async () => await AcceptMnemonicAsync());
-
-		//private async Task AcceptMnemonicAsync()
-		//{
-		//	await _navigationService.NavigateTo(new VerifyMnemonicViewModel(_navigationService, MnemonicString));
-		//}
 	}
 }

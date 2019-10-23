@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using DynamicData;
 using NBitcoin;
 using ReactiveUI;
@@ -11,6 +12,7 @@ using WalletWasabi.Exceptions;
 using WalletWasabi.Helpers;
 using WalletWasabi.Logging;
 using WalletWasabi.Models;
+using WalletWasabi.Services;
 
 namespace Chaincase.ViewModels
 {
@@ -68,7 +70,51 @@ namespace Chaincase.ViewModels
 			{
 				try
 				{
+					IsBusy = true;
 					Password = Guard.Correct(Password);
+					Label = Label.Trim(',', ' ').Trim();
+
+					var selectedCoinViewModels = CoinList.Coins.Where(cvm => cvm.IsSelected);
+					var selectedCoinReferences = selectedCoinViewModels.Select(cvm => new TxoRef(cvm.Model.TransactionId, cvm.Model.Index)).ToList();
+					if (!selectedCoinReferences.Any())
+					{
+						//SetWarningMessage("No coins are selected to spend.");
+						return;
+					}
+
+					BitcoinAddress address;
+					try
+					{
+						address = BitcoinAddress.Create(Address.Trim(), Global.Network);
+					}
+					catch (FormatException)
+					{
+						// SetWarningMessage("Invalid address.");
+						return;
+					}
+
+					var script = address.ScriptPubKey;
+					var amount = Money.Zero;
+					if (!Money.TryParse(AmountText, out amount) || amount == Money.Zero)
+					{
+						// SetWarningMessage($"Invalid amount.");
+						return;
+					}
+
+					if (amount == selectedCoinViewModels.Sum(x => x.Amount))
+					{
+						// SetWarningMessage("Looks like you want to spend a whole coin. Try Max button instead.");
+						return;
+					}
+
+					var label = Label;
+					var operation = new WalletService.Operation(script, amount, label);
+
+					var feeTarget = 500;
+					var result = await Task.Run(() => Global.WalletService.BuildTransaction(Password, new[] { operation }, feeTarget, allowUnconfirmed: true, allowedInputs: selectedCoinReferences));
+					SmartTransaction signedTransaction = result.Transaction;
+
+					await Task.Run(async () => await Global.WalletService.SendTransactionAsync(signedTransaction));
 				}
 				catch (InsufficientBalanceException ex)
 				{
@@ -81,21 +127,25 @@ namespace Chaincase.ViewModels
 					Logger.LogDebug<SendViewModel>(ex);
 					//SetWarningMessage(ex.ToTypeMessageString());
 				}
-			},
+				finally
+				{
+					IsBusy = false;
+				}
+			});
 			this.WhenAny(x => x.AmountText, x => x.Address, x => x.IsBusy,
-				(amountText, address, busy) => !string.IsNullOrWhiteSpace(amountText.Value) && !string.IsNullOrWhiteSpace(Address) && !IsBusy));
+				(amountText, address, busy) => !string.IsNullOrWhiteSpace(amountText.Value) && !string.IsNullOrWhiteSpace(Address) && !IsBusy);
 		}
 
 		public string Password
 		{
-			get => Password;
+			get => _password;
 			set => this.RaiseAndSetIfChanged(ref _password, value);
 		}
 
 
 		public bool IsBusy
 		{
-			get => IsBusy;
+			get => _isBusy;
 			set => this.RaiseAndSetIfChanged(ref _isBusy, value);
 		}
 
@@ -103,6 +153,12 @@ namespace Chaincase.ViewModels
 		{
 			get => _amountText;
 			set => this.RaiseAndSetIfChanged(ref _amountText, value);
+		}
+
+		public string Label
+		{
+			get => _label;
+			set => this.RaiseAndSetIfChanged(ref _label, value);
 		}
 
 		public CoinListViewModel CoinList

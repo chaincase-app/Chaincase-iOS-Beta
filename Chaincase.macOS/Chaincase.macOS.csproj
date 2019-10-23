@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\Xamarin.Forms.4.2.0.709249\build\Xamarin.Forms.props" Condition="Exists('..\packages\Xamarin.Forms.4.2.0.709249\build\Xamarin.Forms.props')" />
+  <Import Project="..\packages\Xamarin.Forms.4.2.0.848062\build\Xamarin.Forms.props" Condition="Exists('..\packages\Xamarin.Forms.4.2.0.848062\build\Xamarin.Forms.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -60,16 +60,16 @@
     <Reference Include="System.Core" />
     <Reference Include="Xamarin.Mac" />
     <Reference Include="Xamarin.Forms.Core">
-      <HintPath>..\packages\Xamarin.Forms.4.2.0.709249\lib\Xamarin.Mac\Xamarin.Forms.Core.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Forms.4.2.0.848062\lib\Xamarin.Mac\Xamarin.Forms.Core.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.Forms.Platform">
-      <HintPath>..\packages\Xamarin.Forms.4.2.0.709249\lib\Xamarin.Mac\Xamarin.Forms.Platform.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Forms.4.2.0.848062\lib\Xamarin.Mac\Xamarin.Forms.Platform.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.Forms.Platform.macOS">
-      <HintPath>..\packages\Xamarin.Forms.4.2.0.709249\lib\Xamarin.Mac\Xamarin.Forms.Platform.macOS.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Forms.4.2.0.848062\lib\Xamarin.Mac\Xamarin.Forms.Platform.macOS.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.Forms.Xaml">
-      <HintPath>..\packages\Xamarin.Forms.4.2.0.709249\lib\Xamarin.Mac\Xamarin.Forms.Xaml.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Forms.4.2.0.848062\lib\Xamarin.Mac\Xamarin.Forms.Xaml.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\netstandard2.0\Newtonsoft.Json.dll</HintPath>
@@ -79,7 +79,7 @@
     </Reference>
     <Reference Include="System.Net.Http" />
     <Reference Include="Microsoft.Extensions.Logging.Abstractions">
-      <HintPath>..\packages\Microsoft.Extensions.Logging.Abstractions.2.2.0\lib\netstandard2.0\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Extensions.Logging.Abstractions.3.0.0\lib\netstandard2.0\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="NBitcoin">
       <HintPath>..\packages\NBitcoin.4.2.15\lib\netstandard2.1\NBitcoin.dll</HintPath>
@@ -88,22 +88,26 @@
       <HintPath>..\packages\Xam.Plugins.Settings.4.1.0-beta\lib\xamarinmac20\Plugin.Settings.dll</HintPath>
     </Reference>
     <Reference Include="Splat">
-      <HintPath>..\packages\Splat.8.2.4\lib\xamarinmac20\Splat.dll</HintPath>
+      <HintPath>..\packages\Splat.9.1.1\lib\netstandard2.0\Splat.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Reactive">
-      <HintPath>..\packages\System.Reactive.4.2.0-preview.566\lib\netstandard2.0\System.Reactive.dll</HintPath>
+      <HintPath>..\packages\System.Reactive.4.2.0\lib\netstandard2.0\System.Reactive.dll</HintPath>
     </Reference>
     <Reference Include="DynamicData">
-      <HintPath>..\packages\DynamicData.6.13.1\lib\netstandard2.0\DynamicData.dll</HintPath>
+      <HintPath>..\packages\DynamicData.6.13.18\lib\netstandard2.0\DynamicData.dll</HintPath>
     </Reference>
     <Reference Include="ReactiveUI">
-      <HintPath>..\packages\ReactiveUI.10.0.1-preview.6\lib\xamarinmac20\ReactiveUI.dll</HintPath>
+      <HintPath>..\packages\ReactiveUI.10.5.7\lib\xamarinmac20\ReactiveUI.dll</HintPath>
     </Reference>
     <Reference Include="netstandard" />
     <Reference Include="ReactiveUI.XamForms">
-      <HintPath>..\packages\ReactiveUI.XamForms.10.0.1-preview.6\lib\netstandard2.0\ReactiveUI.XamForms.dll</HintPath>
+      <HintPath>..\packages\ReactiveUI.XamForms.10.5.7\lib\netstandard2.0\ReactiveUI.XamForms.dll</HintPath>
     </Reference>
+    <Reference Include="Splat.Drawing">
+      <HintPath>..\packages\Splat.Drawing.9.1.1\lib\xamarinmac20\Splat.Drawing.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Drawing.Common.dll" />
   </ItemGroup>
   <ItemGroup>
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json" />
@@ -146,5 +150,5 @@
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
   <Import Project="CustomBuildActions.targets" />
-  <Import Project="..\packages\Xamarin.Forms.4.2.0.709249\build\Xamarin.Forms.targets" Condition="Exists('..\packages\Xamarin.Forms.4.2.0.709249\build\Xamarin.Forms.targets')" />
+  <Import Project="..\packages\Xamarin.Forms.4.2.0.848062\build\Xamarin.Forms.targets" Condition="Exists('..\packages\Xamarin.Forms.4.2.0.848062\build\Xamarin.Forms.targets')" />
 </Project>

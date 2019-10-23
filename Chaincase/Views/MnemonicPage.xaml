@@ -13,7 +13,7 @@
         <Label Text="{Binding MnemonicString}"
                />
         <Label Text="Write this down. Your keys are generated from this and your passphrase together." />
-        <Button Text="Submit"
-                    Command="{Binding AcceptCommand}" />
+        <Button Text="Accept"
+                x:Name="Accept" />
     </StackLayout>
 </rxui:ReactiveContentPage>

@@ -1,0 +1,83 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <ProduceAssemblyReference>true</ProduceAssemblyReference>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>pdbonly</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <LangVersion>7.3</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <LangVersion>7.3</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Xamarin.Forms" Version="4.3.0.851321-pre3" />
+    <PackageReference Include="Xamarin.Essentials" Version="1.3.1" />
+    <PackageReference Include="Xam.Plugins.Settings" Version="4.0.0.10-beta" />
+    <PackageReference Include="ReactiveUI" Version="10.5.7" />
+    <PackageReference Include="NBitcoin" Version="4.2.15" />
+    <PackageReference Include="ReactiveUI.XamForms" Version="10.5.7" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Crypto\StringCipher.cs" />
+    <Compile Remove="Crypto\TokenGenerator.cs" />
+    <Compile Remove="Helpers\ByteArrayBuilder.cs" />
+    <Compile Remove="Helpers\ByteHelpers.cs" />
+    <Compile Remove="Helpers\Constants.cs" />
+    <Compile Remove="JsonConverters\BigIntegerJsonConverter.cs" />
+    <Compile Remove="JsonConverters\BitcoinAddressJsonConverter.cs" />
+    <Compile Remove="JsonConverters\OutPointJsonConverter.cs" />
+    <Compile Remove="JsonConverters\PubKeyJsonConverter.cs" />
+    <Compile Remove="JsonConverters\ScriptJsonConverter.cs" />
+    <Compile Remove="JsonConverters\TransactionJsonConverter.cs" />
+    <Compile Remove="JsonConverters\Uint256JsonConverter.cs" />
+    <Compile Remove="JsonConverters\UnblindedSignatureJsonConverter.cs" />
+    <Compile Remove="Logging\LogLevel.cs" />
+    <Compile Remove="Logging\LogMode.cs" />
+    <Compile Remove="Logging\Logger.cs" />
+    <Compile Remove="Nito\AsyncEx\AsyncLock.cs" />
+    <Compile Remove="Nito\AsyncEx\AsyncMutex.cs" />
+    <Compile Remove="Nito\AsyncEx\AsyncWaitQueueExtensions.cs" />
+    <Compile Remove="Nito\AsyncEx\AwaitableDisposable.cs" />
+    <Compile Remove="Nito\AsyncEx\DefaultAsyncWaitQueue.cs" />
+    <Compile Remove="Nito\AsyncEx\ExceptionHelpers.cs" />
+    <Compile Remove="Nito\AsyncEx\IAsyncWaitQueue.cs" />
+    <Compile Remove="Nito\AsyncEx\IdManager.cs" />
+    <Compile Remove="Nito\AsyncEx\TaskCompletionSourceExtensions.cs" />
+    <Compile Remove="Nito\AsyncEx\Synchronous\SynchronousTaskExtensions.cs" />
+    <Compile Remove="Nito\Collections\CollectionHelpers.cs" />
+    <Compile Remove="Nito\Collections\Deque.cs" />
+    <Compile Remove="Nito\Disposables\SingleDisposable.cs" />
+    <Compile Remove="Nito\Disposables\Internals\BoundAction.cs" />
+    <Compile Remove="BlockCypher\Models\BlockCypherGeneralInformation.cs" />
+    <Compile Remove="UiConfig.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Navigation\" />
+    <Folder Include="Views\" />
+    <Folder Include="Controllers\" />
+    <Folder Include="ViewModels\" />
+    <Folder Include="Models\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Views\MainPage.xaml.cs">
+      <DependentUpon>MainPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Condition=" '$(EnableDefaultCompileItems)' == 'true' " Update="Views\Templates\CoinViewTemplate.xaml.cs">
+      <DependentUpon>CoinViewTemplate.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="CustomBuildActions.targets" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Remove="Views\Templates\CoinViewTemplate %28copy%29.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WalletWasabi\WalletWasabi.Standard\WalletWasabi.Standard.csproj" />
+  </ItemGroup>
+</Project>

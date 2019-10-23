@@ -10,13 +10,23 @@ namespace Chaincase.Navigation
 {
 	public class AppBootstrapper : ReactiveObject, IScreen
 	{
-		public AppBootstrapper(IMutableDependencyResolver dependencyResolver = null, RoutingState router = null)
+		public AppBootstrapper(
+			bool walletExists,
+			IMutableDependencyResolver dependencyResolver = null,
+			RoutingState router = null)
 		{
 			Router = router ?? new RoutingState();
 
 			RegisterParts(dependencyResolver ?? Locator.CurrentMutable);
 
-			Router.Navigate.Execute(new MainViewModel(this));
+			if (walletExists)
+			{
+				Router.Navigate.Execute(new MainViewModel(this));
+			}
+			else
+			{
+				Router.Navigate.Execute(new PassphraseViewModel(this));
+			}
 		}
 
 		public RoutingState Router { get; private set; }
@@ -29,8 +39,8 @@ namespace Chaincase.Navigation
 			dependencyResolver.Register(() => new ReceivePage(), typeof(IViewFor<ReceiveViewModel>));
 			dependencyResolver.Register(() => new SendPage(), typeof(IViewFor<SendViewModel>));
 			dependencyResolver.Register(() => new PassphrasePage(), typeof(IViewFor<PassphraseViewModel>));
-			dependencyResolver.Register(() => new MnemonicPage(), typeof(IViewFor<MnemonicPage>));
-			dependencyResolver.Register(() => new VerifyMnemonicPage(), typeof(IViewFor<VerifyMnemonicPage>));
+			dependencyResolver.Register(() => new MnemonicPage(), typeof(IViewFor<MnemonicViewModel>));
+			dependencyResolver.Register(() => new VerifyMnemonicPage(), typeof(IViewFor<VerifyMnemonicViewModel>));
 		}
 
 		public Page CreateMainPage()

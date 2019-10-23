@@ -129,14 +129,14 @@
     <Reference Include="System.Numerics.Vectors" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Xamarin.Forms" Version="4.2.0.709249" />
-    <PackageReference Include="Xamarin.Essentials" Version="1.3.0" />
+    <PackageReference Include="Xamarin.Forms" Version="4.2.0.848062" />
+    <PackageReference Include="Xamarin.Essentials" Version="1.3.1" />
     <PackageReference Include="Xam.Plugins.Settings">
       <Version>4.0.0.10-beta</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Wasabi\Chaincase.csproj">
+    <ProjectReference Include="..\Chaincase\Chaincase.csproj">
       <Project>{E5B08CDB-EB96-43F3-8480-590552BAF744}</Project>
       <Name>Chaincase</Name>
     </ProjectReference>
