@@ -9,20 +9,19 @@
     <StackLayout>
         <Label Text="PAY TO THE ORDER OF:" />
         <Entry Placeholder="bc1qa24tsgchvuxsaccp8vrnkfd85hrcpafg20kmjw"
-               Text="{Binding PayToTheOrderOf}" />
+               x:Name="Address" />
         <Label Text="BTC" />
         <Entry BackgroundColor="#ccc"
-               Text="{Binding Amount}"
-               x:Name="Amount"/>
+               x:Name="Amount" />
         <Label Text="MEMO:" />
         <Entry Placeholder="BTCPayServer Hosting 2020"
-               Text="{Binding Memo}" />
+               x:Name="Memo" />
         <Label Text="PASSWORD" />
         <Entry IsPassword="true"
-               Text="{Binding Password}"
-               Placeholder="+9m{S5>aegs?*MZ^" />
+               Placeholder="+9m{S5>aegs?*MZ^"
+               x:Name="Password" />
         <Button Text="Send"
-                Command="{Binding SendCommand}" />
+                x:Name="Send" />
         <templates:CoinListTemplate x:Name="CoinList"
                                     VerticalOptions="FillAndExpand" />
     </StackLayout>

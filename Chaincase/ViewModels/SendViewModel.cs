@@ -21,15 +21,10 @@ namespace Chaincase.ViewModels
 		private string _password;
 		private string _address;
 		private bool _isBusy;
-		private string _label;
+		private string _memo;
 		private string _amountText;
 		private CoinListViewModel _coinList;
-
-		public string Address
-		{
-			get => Address;
-			set => this.RaiseAndSetIfChanged(ref _address, value);
-		}
+		private string _warning;
 
 		public SendViewModel(IScreen hostScreen) : base(hostScreen)
 		{
@@ -72,7 +67,7 @@ namespace Chaincase.ViewModels
 				{
 					IsBusy = true;
 					Password = Guard.Correct(Password);
-					Label = Label.Trim(',', ' ').Trim();
+					Memo = Memo.Trim(',', ' ').Trim();
 
 					var selectedCoinViewModels = CoinList.Coins.Where(cvm => cvm.IsSelected);
 					var selectedCoinReferences = selectedCoinViewModels.Select(cvm => new TxoRef(cvm.Model.TransactionId, cvm.Model.Index)).ToList();
@@ -107,8 +102,8 @@ namespace Chaincase.ViewModels
 						return;
 					}
 
-					var label = Label;
-					var operation = new WalletService.Operation(script, amount, label);
+					var memo = Memo;
+					var operation = new WalletService.Operation(script, amount, memo);
 
 					var feeTarget = 500;
 					var result = await Task.Run(() => Global.WalletService.BuildTransaction(Password, new[] { operation }, feeTarget, allowUnconfirmed: true, allowedInputs: selectedCoinReferences));
@@ -131,9 +126,10 @@ namespace Chaincase.ViewModels
 				{
 					IsBusy = false;
 				}
-			});
+			},
 			this.WhenAny(x => x.AmountText, x => x.Address, x => x.IsBusy,
-				(amountText, address, busy) => !string.IsNullOrWhiteSpace(amountText.Value) && !string.IsNullOrWhiteSpace(Address) && !IsBusy);
+				(amountText, address, busy) => !string.IsNullOrWhiteSpace(amountText.Value) && !string.IsNullOrWhiteSpace(address.Value) && !busy.Value)
+				.ObserveOn(RxApp.MainThreadScheduler));
 		}
 
 		public string Password
@@ -142,6 +138,11 @@ namespace Chaincase.ViewModels
 			set => this.RaiseAndSetIfChanged(ref _password, value);
 		}
 
+		public string Address
+		{
+			get => _address;
+			set => this.RaiseAndSetIfChanged(ref _address, value);
+		}
 
 		public bool IsBusy
 		{
@@ -155,10 +156,10 @@ namespace Chaincase.ViewModels
 			set => this.RaiseAndSetIfChanged(ref _amountText, value);
 		}
 
-		public string Label
+		public string Memo
 		{
-			get => _label;
-			set => this.RaiseAndSetIfChanged(ref _label, value);
+			get => _memo;
+			set => this.RaiseAndSetIfChanged(ref _memo, value);
 		}
 
 		public CoinListViewModel CoinList
