@@ -39,7 +39,7 @@ namespace Chaincase.ViewModels
 
 			GenerateCommand = new Command(() =>
 			{
-				Label = Label.Trim(',', ' ').Trim();
+				Label = Label == null ? "" : Label.Trim(',', ' ').Trim();
 				// Require label in next iteration
 
 				Device.BeginInvokeOnMainThread(() =>

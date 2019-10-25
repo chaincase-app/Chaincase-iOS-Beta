@@ -17,7 +17,7 @@ namespace Chaincase.Views
                     v => v.Generate)
                     .DisposeWith(disposables);
 
-                this.Bind(ViewModel, x => x.Label, x => x.LabelField)
+                this.Bind(ViewModel, x => x.Label, x => x.LabelField.Text)
                 .DisposeWith(disposables);
             });
         }

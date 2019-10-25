@@ -18,7 +18,7 @@ namespace Chaincase.Views
 					v => v.Accept)
 					.DisposeWith(disposables);
 
-                this.Bind(ViewModel, x => x.MnemonicString, x => x.MnemonicStringLabel)
+                this.Bind(ViewModel, x => x.MnemonicString, x => x.MnemonicStringLabel.Text)
                 .DisposeWith(disposables);
             });
 		}
