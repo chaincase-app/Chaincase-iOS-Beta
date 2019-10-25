@@ -17,8 +17,9 @@ namespace Chaincase.Views
 					vm => vm.SubmitCommand,
 					v => v.Submit)
 					.DisposeWith(disposables);
-
-                this.Bind(ViewModel, x => x.Passphrase, x => x.Passphrase.Text)
+                this.Bind(ViewModel,
+					vm => vm.Passphrase,
+					v => v.Passphrase.Text)
                 .DisposeWith(disposables);
             });
 		}

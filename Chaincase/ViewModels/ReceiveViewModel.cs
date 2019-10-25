@@ -12,7 +12,7 @@ namespace Chaincase.ViewModels
 	{
 		private ObservableCollection<AddressViewModel> _addresses;
 		private AddressViewModel _selectedAddress;
-		private string _label;
+		private string _memo;
 		public ObservableCollection<AddressViewModel> Addresses
 		{
 			get => _addresses;
@@ -23,10 +23,10 @@ namespace Chaincase.ViewModels
 			get => _selectedAddress;
 			set => this.RaiseAndSetIfChanged(ref _selectedAddress, value);
 		}
-		public string Label
+		public string Memo
 		{
-			get => _label;
-			set => this.RaiseAndSetIfChanged(ref _label, value);
+			get => _memo;
+			set => this.RaiseAndSetIfChanged(ref _memo, value);
 		}
 
 		public ICommand GenerateCommand { get; }
@@ -39,27 +39,22 @@ namespace Chaincase.ViewModels
 
 			GenerateCommand = new Command(() =>
 			{
-				Label = Label == null ? "" : Label.Trim(',', ' ').Trim();
+				Memo = Memo.Trim(',', ' ').Trim();
 				// Require label in next iteration
 
 				Device.BeginInvokeOnMainThread(() =>
 				{
-					var label = Label;
-					HdPubKey newKey = Global.WalletService.GetReceiveKey(label, Addresses.Select(x => x.Model).Take(7)); // Never touch the first 7 keys.
+					HdPubKey newKey = Global.WalletService.GetReceiveKey(Memo, Addresses.Select(x => x.Model).Take(7)); // Never touch the first 7 keys.
+					Memo = null;
 
 					AddressViewModel found = Addresses.FirstOrDefault(x => x.Model == newKey);
 					if (found != default)
 					{
 						Addresses.Remove(found);
 					}
-
 					var newAddress = new AddressViewModel(_hostScreen, newKey);
-
 					Addresses.Insert(0, newAddress);
-
 					SelectedAddress = newAddress;
-
-					Label = "";
 				});
 			});
 		}

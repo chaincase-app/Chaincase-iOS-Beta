@@ -20,27 +20,21 @@
 
             </Grid.ColumnDefinitions>
             <Entry Text=""
-                   x:Name="Recall0"
-               />
+                   x:Name="Recall0" />
             <Entry Grid.Column="1"
                    Text=""
-                   x:Name="Recall1"
-                   />
+                   x:Name="Recall1" />
             <Entry Grid.Column="2"
                     Text=""
-                    x:Name="Recall2"
-                   />
+                    x:Name="Recall2" />
             <Entry Grid.Column="3"
                    Text=""
-                   x:Name="Recall3"
-                   />
-            
+                   x:Name="Recall3" />
         </Grid>
         <Entry Grid.Column="3"
-               Text="{Binding Passphrase}"
+               x:Name="Passphrase"
                Placeholder="thIsisAPaSsPhrAseToGenerateKeys"
-               IsPassword="true"
-                   />
+               IsPassword="true" />
         <Button Text="Continue"
                 x:Name="Continue" />
         <Label Text="Hello World!">

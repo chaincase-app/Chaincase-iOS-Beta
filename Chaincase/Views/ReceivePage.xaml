@@ -12,12 +12,10 @@
             <!-- ADDRESSES -->
             <StackLayout>
 
-            <Entry x:Name="LabelField"
-               Placeholder="something unique"
-               />
+            <Entry Placeholder="the source of income"
+                   x:Name="Memo" />
             <Button Text="New Address"
-                    x:Name="Generate"
-                    />
+                    x:Name="Generate" />
             </StackLayout>
             <ListView  
                 ItemsSource="{Binding Addresses}">

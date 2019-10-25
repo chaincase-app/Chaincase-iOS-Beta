@@ -17,9 +17,7 @@ namespace Chaincase
 		public App()
 		{
 			InitializeComponent();
-
-          
-            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+			AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 			TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
 
 			Logger.InitializeDefaults(Path.Combine(Global.DataDir, "Logs.txt"));

@@ -14,21 +14,35 @@ namespace Chaincase.Views
 			{
 				this.BindCommand(ViewModel,
 					vm => vm.TryCompleteInitializationCommand,
-					x => x.Continue)
+					v => v.Continue)
 					.DisposeWith(disposables);
-
-                this.Bind(ViewModel, x => x.Recall0, x => x.Recall0.Text)
+				this.Bind(ViewModel,
+					vm => vm .Recall[0],
+					v => v.Recall0.Text)
                     .DisposeWith(disposables);
-                this.Bind(ViewModel, x => x.Recall3, x => x.Recall1.Text)
+                this.Bind(ViewModel,
+					vm => vm .Recall[1],
+					v => v.Recall1.Text)
                     .DisposeWith(disposables);
-                this.Bind(ViewModel, x => x.Recall3, x => x.Recall2.Text)
+                this.Bind(ViewModel,
+					vm => vm.Recall[2],
+					v => v.Recall2.Text)
                     .DisposeWith(disposables);
-                this.Bind(ViewModel, x => x.Recall3, x => x.Recall3.Text)
+                this.Bind(ViewModel,
+					vm => vm.Recall[3],
+					v => v.Recall3.Text)
                     .DisposeWith(disposables);
-
-                this.Bind(ViewModel, x => x.IsVerified, x => x.IsVerifiedTriggerTrue)
+				this.Bind(ViewModel,
+					vm => vm.Passphrase,
+					v => v.Passphrase.Text)
+				.DisposeWith(disposables);
+                this.Bind(ViewModel,
+					vm => vm.IsVerified,
+					v => v.IsVerifiedTriggerTrue)
                     .DisposeWith(disposables);
-                this.Bind(ViewModel, x => x.IsVerified, x => x.IsVerifiedTriggerFalse)
+                this.Bind(ViewModel,
+					vm => !vm.IsVerified,
+					v => v.IsVerifiedTriggerFalse)
                     .DisposeWith(disposables);
             });
 		}

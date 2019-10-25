@@ -12,34 +12,15 @@ namespace Chaincase.ViewModels
 {
 	public class VerifyMnemonicViewModel : ViewModelBase
 	{
-		public string MnemonicString { get; }
-		public string[] MnemonicWords { get; }
-		public string[] Recall { get; set; }
+		private string _mnemonicString { get; }
+		private string[] _mnemonicWords { get; }
 
-        //Recall words
-        public string Recall0 
-        {
-            get => Recall[0];
-            set => this.RaiseAndSetIfChanged(ref Recall[0], value);
-        }
-
-        public string Recall1
-        {
-            get => Recall[1];
-            set => this.RaiseAndSetIfChanged(ref Recall[1], value);
-        }
-
-        public string Recall2
-        {
-            get => Recall[2];
-            set => this.RaiseAndSetIfChanged(ref Recall[2], value);
-        }
-
-        public string Recall3
-        {
-            get => Recall[3];
-            set => this.RaiseAndSetIfChanged(ref Recall[3], value);
-        }
+		private string[] _recall;
+		public string[] Recall
+		{
+			get => _recall;
+			set => this.RaiseAndSetIfChanged(ref _recall, value);
+		}
 
         private bool _isVerified;
 		public bool IsVerified
@@ -57,8 +38,8 @@ namespace Chaincase.ViewModels
 
 		public VerifyMnemonicViewModel(IScreen hostScreen, string mnemonicString) : base(hostScreen)
 		{
-			MnemonicString = mnemonicString;
-			MnemonicWords = mnemonicString.Split(" ");
+			_mnemonicString = mnemonicString;
+			_mnemonicWords = mnemonicString.Split(" ");
 			Recall = new string[4];
 			IsVerified = false;
 
@@ -76,11 +57,11 @@ namespace Chaincase.ViewModels
 		{
 			System.Diagnostics.Debug.WriteLine(string.Join(" ", Recall));
 
-			IsVerified = string.Equals(Recall[0], MnemonicWords[0], StringComparison.CurrentCultureIgnoreCase) &&
-				string.Equals(Recall[1], MnemonicWords[3], StringComparison.CurrentCultureIgnoreCase) &&
-				string.Equals(Recall[2], MnemonicWords[6], StringComparison.CurrentCultureIgnoreCase) &&
-				string.Equals(Recall[3], MnemonicWords[9], StringComparison.CurrentCultureIgnoreCase) &&
-				WalletController.VerifyWalletCredentials(MnemonicString, _passphrase, Global.Network);
+			IsVerified = string.Equals(Recall[0], _mnemonicWords[0], StringComparison.CurrentCultureIgnoreCase) &&
+				string.Equals(Recall[1], _mnemonicWords[3], StringComparison.CurrentCultureIgnoreCase) &&
+				string.Equals(Recall[2], _mnemonicWords[6], StringComparison.CurrentCultureIgnoreCase) &&
+				string.Equals(Recall[3], _mnemonicWords[9], StringComparison.CurrentCultureIgnoreCase) &&
+				WalletController.VerifyWalletCredentials(_mnemonicString, _passphrase, Global.Network);
 			if (!IsVerified) return;
 			WalletController.LoadWalletAsync(Global.Network);
 			NavMainCommand.Execute();
