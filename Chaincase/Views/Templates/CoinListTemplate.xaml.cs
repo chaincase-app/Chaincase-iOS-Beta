@@ -11,12 +11,16 @@ namespace Chaincase.Views.Templates
 		{
 			InitializeComponent();
 
-			this.WhenActivated(disposable =>
+			this.WhenActivated(d =>
 			{
 				this.OneWayBind(ViewModel,
 					vm => vm.Coins,
 					v => v.Coins.ItemsSource)
-					.DisposeWith(disposable);
+					.DisposeWith(d);
+				this.OneWayBind(ViewModel,
+					vm => vm.SelectedAmountText,
+					v => v.SelectedAmountText.Text)
+					.DisposeWith(d);
 			});
 			
 		}

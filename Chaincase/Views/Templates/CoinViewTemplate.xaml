@@ -6,9 +6,17 @@
     xmlns:rxui="clr-namespace:ReactiveUI.XamForms;assembly=ReactiveUI.XamForms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns="http://xamarin.com/schemas/2014/forms">
-    <StackLayout Grid.Column="1" >
-        <Label x:Name="Amount" />
-        <Label x:Name="AnonymitySet" />
-        <Label x:Name="Clusters" />
-    </StackLayout>
+     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Switch x:Name="IsSelected" Grid.Column="0" /> 
+        <Label Grid.Column="1" x:Name="Amount" />
+        <Label Grid.Column="2" x:Name="AnonymitySet" />
+        <Label Grid.Column="3" x:Name="Clusters" />
+    </Grid> 
+    
 </rxui:ReactiveContentView>
