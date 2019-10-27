@@ -12,10 +12,17 @@ namespace Chaincase.ViewModels
 {
 	public class VerifyMnemonicViewModel : ViewModelBase
 	{
-		public string MnemonicString { get; }
-		public string[] MnemonicWords { get; }
-		public string[] Recall { get; }
-		private bool _isVerified;
+		private string _mnemonicString { get; }
+		private string[] _mnemonicWords { get; }
+
+		private string[] _recall;
+		public string[] Recall
+		{
+			get => _recall;
+			set => this.RaiseAndSetIfChanged(ref _recall, value);
+		}
+
+        private bool _isVerified;
 		public bool IsVerified
 		{
 			get => _isVerified;
@@ -31,8 +38,8 @@ namespace Chaincase.ViewModels
 
 		public VerifyMnemonicViewModel(IScreen hostScreen, string mnemonicString) : base(hostScreen)
 		{
-			MnemonicString = mnemonicString;
-			MnemonicWords = mnemonicString.Split(" ");
+			_mnemonicString = mnemonicString;
+			_mnemonicWords = mnemonicString.Split(" ");
 			Recall = new string[4];
 			IsVerified = false;
 
@@ -50,11 +57,11 @@ namespace Chaincase.ViewModels
 		{
 			System.Diagnostics.Debug.WriteLine(string.Join(" ", Recall));
 
-			IsVerified = string.Equals(Recall[0], MnemonicWords[0], StringComparison.CurrentCultureIgnoreCase) &&
-				string.Equals(Recall[1], MnemonicWords[3], StringComparison.CurrentCultureIgnoreCase) &&
-				string.Equals(Recall[2], MnemonicWords[6], StringComparison.CurrentCultureIgnoreCase) &&
-				string.Equals(Recall[3], MnemonicWords[9], StringComparison.CurrentCultureIgnoreCase) &&
-				WalletController.VerifyWalletCredentials(MnemonicString, _passphrase, Global.Network);
+			IsVerified = string.Equals(Recall[0], _mnemonicWords[0], StringComparison.CurrentCultureIgnoreCase) &&
+				string.Equals(Recall[1], _mnemonicWords[3], StringComparison.CurrentCultureIgnoreCase) &&
+				string.Equals(Recall[2], _mnemonicWords[6], StringComparison.CurrentCultureIgnoreCase) &&
+				string.Equals(Recall[3], _mnemonicWords[9], StringComparison.CurrentCultureIgnoreCase) &&
+				WalletController.VerifyWalletCredentials(_mnemonicString, _passphrase, Global.Network);
 			if (!IsVerified) return;
 			WalletController.LoadWalletAsync(Global.Network);
 			NavMainCommand.Execute();

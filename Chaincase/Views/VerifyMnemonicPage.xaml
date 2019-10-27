@@ -19,32 +19,30 @@
                 <ColumnDefinition Width="*" />
 
             </Grid.ColumnDefinitions>
-            <Entry Text="{Binding Recall[0]}"
-               />
+            <Entry Text=""
+                   x:Name="Recall0" />
             <Entry Grid.Column="1"
-                   Text="{Binding Recall[1]}"
-                   />
+                   Text=""
+                   x:Name="Recall1" />
             <Entry Grid.Column="2"
-                    Text="{Binding Recall[2]}"
-                   />
+                    Text=""
+                    x:Name="Recall2" />
             <Entry Grid.Column="3"
-                   Text="{Binding Recall[3]}"
-                   />
-            
+                   Text=""
+                   x:Name="Recall3" />
         </Grid>
         <Entry Grid.Column="3"
-               Text="{Binding Passphrase}"
+               x:Name="Passphrase"
                Placeholder="thIsisAPaSsPhrAseToGenerateKeys"
-               IsPassword="true"
-                   />
+               IsPassword="true" />
         <Button Text="Continue"
                 x:Name="Continue" />
         <Label Text="Hello World!">
             <Label.Triggers>
-                <DataTrigger TargetType="Label" Binding="{Binding IsVerified}" Value="false">
+                <DataTrigger TargetType="Label" x:Name="IsVerifiedTriggerFalse" Value="false">
                     <Setter Property="Text"  Value="Not Verified" />
                 </DataTrigger>
-                <DataTrigger TargetType="Label" Binding="{Binding IsVerified}" Value="true">
+                <DataTrigger TargetType="Label" x:Name="IsVerifiedTriggerTrue" Value="true">
                     <Setter Property="Text"  Value="Verified" />
                 </DataTrigger>
             </Label.Triggers>

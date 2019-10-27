@@ -10,7 +10,7 @@
         <Label Text="Passphrase"
                HorizontalOptions="Center"
                FontAttributes="Bold" />
-        <Entry Text="{Binding Passphrase}"
+        <Entry x:Name="Passphrase"
                Placeholder="thIsisAPaSsPhrAseToGenerateKeys"
                IsPassword="true"
                />

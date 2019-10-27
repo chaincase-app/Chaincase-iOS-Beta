@@ -17,7 +17,11 @@ namespace Chaincase.Views
 					vm => vm.AcceptCommand,
 					v => v.Accept)
 					.DisposeWith(disposables);
-			});
+                this.OneWayBind(ViewModel,
+					vm => vm.MnemonicString,
+					v => v.Mnemonic.Text)
+                .DisposeWith(disposables);
+            });
 		}
 	}
 }
