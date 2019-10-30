@@ -51,7 +51,7 @@ namespace Chaincase
 
 		static Global()
 		{
-			DataDir = EnvironmentHelpers.GetDataDir(Path.Combine("XWasabi", "Client"));
+			DataDir = EnvironmentHelpers.GetDataDir(Path.Combine("Chaincase", "Client"));
 			TorLogsFile = Path.Combine(DataDir, "TorLogs.txt");
 			WalletsDir = Path.Combine(DataDir, "Wallets");
 			WalletBackupsDir = Path.Combine(DataDir, "WalletBackups");

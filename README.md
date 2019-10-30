@@ -18,6 +18,6 @@ git submodule update --init --recursive
 
 The macOS version should be stable to build and recieve coins.
 
-To use testnet, go to `/Users/<youruser>/.xwasabi/Client/Config.json` and make sure the Network line reads: `Network": "TestNet`. Beware, anything lower than the `DustThreshold` amount will not show up in the UI.
+To use testnet, go to `/Users/<youruser>/.chaincase/Client/Config.json` and make sure the Network line reads: `Network": "TestNet`. Beware, anything lower than the `DustThreshold` amount will not show up in the UI.
 
 _This software is experimental. Use at your own risk. You may lose coins._
