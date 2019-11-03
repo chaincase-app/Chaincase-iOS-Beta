@@ -22,7 +22,7 @@ namespace Chaincase.ViewModels
 			set => this.RaiseAndSetIfChanged(ref _recall, value);
 		}
 
-        private bool _isVerified;
+		private bool _isVerified;
 		public bool IsVerified
 		{
 			get => _isVerified;

@@ -69,7 +69,7 @@ namespace Chaincase.Controllers
 				).Sum(c => (long?)c.Amount) ?? 0;
 		}
 
-		public static Boolean SendTransaction (string addressString, FeeRate rate)
+		public static Boolean SendTransaction(string addressString, FeeRate rate)
 		{
 			BitcoinAddress address;
 			try

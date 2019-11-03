@@ -6,23 +6,23 @@
                           xmlns:templates="clr-namespace:Chaincase.Views.Templates;assembly=Chaincase"
                           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                           xmlns="http://xamarin.com/schemas/2014/forms">
-    <StackLayout>
-        <Label Text="PAY TO THE ORDER OF:" />
-        <Entry Placeholder="bc1qa24tsgchvuxsaccp8vrnkfd85hrcpafg20kmjw"
-               x:Name="Address" />
-        <Label Text="BTC" />
-        <Entry BackgroundColor="#ccc"
-               x:Name="Amount" />
-        <Label Text="MEMO:" />
-        <Entry Placeholder="BTCPayServer Hosting 2020"
-               x:Name="Memo" />
-        <Label Text="PASSWORD" />
-        <Entry IsPassword="true"
-               Placeholder="+9m{S5>aegs?*MZ^"
-               x:Name="Password" />
-        <Button Text="Send"
-                x:Name="Send" />
-        <templates:CoinListTemplate x:Name="CoinList"
-                                    VerticalOptions="FillAndExpand" />
-    </StackLayout>
+  <StackLayout>
+    <Label Text="PAY TO THE ORDER OF:" />
+    <Entry Placeholder="bc1qa24tsgchvuxsaccp8vrnkfd85hrcpafg20kmjw"
+           x:Name="Address" />
+    <Label Text="BTC" />
+    <Entry BackgroundColor="#ccc"
+           x:Name="Amount" />
+    <Label Text="MEMO:" />
+    <Entry Placeholder="BTCPayServer Hosting 2020"
+           x:Name="Memo" />
+    <Label Text="PASSWORD" />
+    <Entry IsPassword="true"
+           Placeholder="+9m{S5>aegs?*MZ^"
+           x:Name="Password" />
+    <Button Text="Send"
+            x:Name="Send" />
+    <templates:CoinListTemplate x:Name="CoinList"
+                                VerticalOptions="FillAndExpand" />
+  </StackLayout>
 </rxui:ReactiveContentPage>
