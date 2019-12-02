@@ -77,30 +77,37 @@ namespace TorFramework
 
         // -(void)authenticateWithData:(NSData * _Nonnull)data completion:(void (^ _Nullable)(BOOL, NSError * _Nullable))completion;
         [Export("authenticateWithData:completion:")]
+        [Async]
         void AuthenticateWithData(NSData data, [NullAllowed] Action<bool, NSError> completion);
 
         // -(void)resetConfForKey:(NSString * _Nonnull)key completion:(void (^ _Nullable)(BOOL, NSError * _Nullable))completion;
         [Export("resetConfForKey:completion:")]
+        [Async]
         void ResetConfForKey(string key, [NullAllowed] Action<bool, NSError> completion);
 
         // -(void)setConfForKey:(NSString * _Nonnull)key withValue:(NSString * _Nonnull)value completion:(void (^ _Nullable)(BOOL, NSError * _Nullable))completion;
         [Export("setConfForKey:withValue:completion:")]
+        [Async]
         void SetConfForKey(string key, string value, [NullAllowed] Action<bool, NSError> completion);
 
         // -(void)setConfs:(NSArray<NSDictionary *> * _Nonnull)configs completion:(void (^ _Nullable)(BOOL, NSError * _Nullable))completion;
         [Export("setConfs:completion:")]
+        [Async]
         void SetConfs(NSDictionary[] configs, [NullAllowed] Action<bool, NSError> completion);
 
         // -(void)listenForEvents:(NSArray<NSString *> * _Nonnull)events completion:(void (^ _Nullable)(BOOL, NSError * _Nullable))completion;
         [Export("listenForEvents:completion:")]
+        [Async]
         void ListenForEvents(string[] events, [NullAllowed] Action<bool, NSError> completion);
 
         // -(void)getInfoForKeys:(NSArray<NSString *> * _Nonnull)keys completion:(void (^ _Nonnull)(NSArray<NSString *> * _Nonnull))completion;
         [Export("getInfoForKeys:completion:")]
+        [Async]
         void GetInfoForKeys(string[] keys, Action<NSArray<NSString>> completion);
 
         // -(void)getSessionConfiguration:(void (^ _Nonnull)(NSURLSessionConfiguration * _Nullable))completion;
         [Export("getSessionConfiguration:")]
+        [Async]
         void GetSessionConfiguration(Action<NSUrlSessionConfiguration> completion);
 
         // TODO: fix "/Users/dan/Desktop/root/chaincase/app/TorFramework/BTOUCH: Error BI1001:
