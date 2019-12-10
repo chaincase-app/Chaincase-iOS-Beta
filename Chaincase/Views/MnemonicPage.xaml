@@ -6,12 +6,11 @@
                           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                           xmlns="http://xamarin.com/schemas/2014/forms">
   <StackLayout Margin="10,35,10,10">
-    <Label Text="Deterministic Seed (Mnemonic)"
-           HorizontalOptions="Center"
+    <Label Text="Create wallet"
            FontAttributes="Bold" />
     <Label x:Name="Mnemonic" />
-    <Label Text="Write this down. Your keys are generated from this and your passphrase together." />
-    <Button Text="Accept"
+    <Label Text="Write down these words in order and keep them safe. If your device breaks or becomes corrupted, you have these words and know your passphrase which together get your bitcoins back." />
+    <Button Text="I wrote down my seed words"
             x:Name="Accept" />
   </StackLayout>
 </rxui:ReactiveContentPage>

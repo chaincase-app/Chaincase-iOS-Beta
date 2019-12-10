@@ -6,9 +6,9 @@
                           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                           xmlns="http://xamarin.com/schemas/2014/forms">
   <StackLayout Margin="10,35,10,10">
-    <Label Text="Verify the Mnemonic"
-           HorizontalOptions="Center"
+    <Label Text="Create wallet"
            FontAttributes="Bold" />
+    <Label Text="Verify the Mnemonic" />
 
     <Grid>
       <Grid.ColumnDefinitions>
@@ -19,20 +19,24 @@
 
       </Grid.ColumnDefinitions>
       <Entry Text=""
+             Placeholder="1st seed word"
              x:Name="Recall0" />
       <Entry Grid.Column="1"
              Text=""
+             Placeholder="4th seed word"
              x:Name="Recall1" />
       <Entry Grid.Column="2"
+             Placeholder="7th seed word"
              Text=""
              x:Name="Recall2" />
       <Entry Grid.Column="3"
+             Placeholder="10th seed word"
              Text=""
              x:Name="Recall3" />
     </Grid>
     <Entry Grid.Column="3"
            x:Name="Passphrase"
-           Placeholder="thIsisAPaSsPhrAseToGenerateKeys"
+           Placeholder="something I know"
            IsPassword="true" />
     <Button Text="Continue"
             x:Name="Continue" />

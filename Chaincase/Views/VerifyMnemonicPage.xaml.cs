@@ -17,7 +17,7 @@ namespace Chaincase.Views
 					v => v.Continue)
 					.DisposeWith(disposables);
 				this.Bind(ViewModel,
-					vm => vm .Recall[0],
+					vm => vm.Recall[0],
 					v => v.Recall0.Text)
                     .DisposeWith(disposables);
                 this.Bind(ViewModel,

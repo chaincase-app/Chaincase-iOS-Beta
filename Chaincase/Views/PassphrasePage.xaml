@@ -6,13 +6,13 @@
                           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                           xmlns="http://xamarin.com/schemas/2014/forms">
   <StackLayout Margin="10,35,10,10">
-    <Label Text="Passphrase"
-           HorizontalOptions="Center"
+    <Label Text="Create wallet"
            FontAttributes="Bold" />
+    <Label Text="Passphrase" />
     <Entry x:Name="Passphrase"
-           Placeholder="thIsisAPaSsPhrAseToGenerateKeys"
            IsPassword="true" />
+    <Label Text="Pick a passphrase you know and will never forget. You need this to send." />
     <Button x:Name="Submit"
-            Text="Submit" />
+            Text="Next" />
   </StackLayout>
 </rxui:ReactiveContentPage>

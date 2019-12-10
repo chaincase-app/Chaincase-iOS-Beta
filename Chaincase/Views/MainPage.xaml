@@ -9,9 +9,9 @@
     <Label x:Name="Balance"
            HorizontalOptions="Center"
            FontAttributes="Bold" />
-    <Button Text="Send"
-            x:Name="NavSendCommand" />
     <Button Text="Receive"
             x:Name="NavReceiveCommand" />
+    <Button Text="Non-Private Send"
+            x:Name="NavSendCommand" />
   </StackLayout>
 </rxui:ReactiveContentPage>

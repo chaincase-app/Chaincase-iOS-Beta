@@ -10,10 +10,12 @@
     <StackLayout>
       <!-- ADDRESSES -->
       <StackLayout>
-
-        <Entry Placeholder="the source of income"
+        <Label Text="+ Receive"
+           FontAttributes="Bold" />
+        <Label Text="Memo" />
+        <Entry Placeholder="to whom/for what"
                x:Name="Memo" />
-        <Button Text="New Address"
+        <Button Text="Generate Address"
                 x:Name="Generate" />
       </StackLayout>
       <ListView ItemsSource="{Binding Addresses}">
