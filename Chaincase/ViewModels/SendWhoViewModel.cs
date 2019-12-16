@@ -16,51 +16,18 @@ using WalletWasabi.Services;
 
 namespace Chaincase.ViewModels
 {
-	public class SendViewModel : ViewModelBase
+	public class SendWhoViewModel : ViewModelBase
 	{
 		private string _password;
 		private string _address;
 		private bool _isBusy;
 		private string _memo;
-		private string _amountText;
 		private CoinListViewModel _coinList;
 		private string _warning;
+		private SendAmountViewModel _sendAmountViewModel;
 
-		public SendViewModel(IScreen hostScreen) : base(hostScreen)
+		public SendWhoViewModel(IScreen hostScreen, SendAmountViewModel savm) : base(hostScreen)
 		{
-			CoinList = new CoinListViewModel(hostScreen);
-			AmountText = "0.0";
-
-			this.WhenAnyValue(x => x.AmountText)
-				.ObserveOn(RxApp.MainThreadScheduler)
-				.Subscribe(amount =>
-				{
-					// Correct amount
-					Regex digitsOnly = new Regex(@"[^\d,.]");
-					string betterAmount = digitsOnly.Replace(amount, ""); // Make it digits , and . only.
-
-					betterAmount = betterAmount.Replace(',', '.');
-					int countBetterAmount = betterAmount.Count(x => x == '.');
-					if (countBetterAmount > 1) // Do not enable typing two dots.
-					{
-						var index = betterAmount.IndexOf('.', betterAmount.IndexOf('.') + 1);
-						if (index > 0)
-						{
-							betterAmount = betterAmount.Substring(0, index);
-						}
-					}
-					var dotIndex = betterAmount.IndexOf('.');
-					if (dotIndex != -1 && betterAmount.Length - dotIndex > 8) // Enable max 8 decimals.
-					{
-						betterAmount = betterAmount.Substring(0, dotIndex + 1 + 8);
-					}
-
-					if (betterAmount != amount)
-					{
-						AmountText = betterAmount;
-					}
-				});
-
 			BuildTransactionCommand = ReactiveCommand.CreateFromTask(async () =>
 			{
 				try
@@ -69,7 +36,7 @@ namespace Chaincase.ViewModels
 					Password = Guard.Correct(Password);
 					Memo = Memo.Trim(',', ' ').Trim();
 
-					var selectedCoinViewModels = CoinList.Coins.Where(cvm => cvm.IsSelected);
+					var selectedCoinViewModels = savm.CoinList.Coins.Where(cvm => cvm.IsSelected);
 					var selectedCoinReferences = selectedCoinViewModels.Select(cvm => new TxoRef(cvm.Model.TransactionId, cvm.Model.Index)).ToList();
 					if (!selectedCoinReferences.Any())
 					{
@@ -90,7 +57,7 @@ namespace Chaincase.ViewModels
 
 					var script = address.ScriptPubKey;
 					var amount = Money.Zero;
-					if (!Money.TryParse(AmountText, out amount) || amount == Money.Zero)
+					if (!Money.TryParse(savm.AmountText, out amount) || amount == Money.Zero)
 					{
 						// SetWarningMessage($"Invalid amount.");
 						return;
@@ -114,22 +81,19 @@ namespace Chaincase.ViewModels
 				catch (InsufficientBalanceException ex)
 				{
 					Money needed = ex.Minimum - ex.Actual;
-					Logger.LogDebug<SendViewModel>(ex);
+					Logger.LogDebug<SendWhoViewModel>(ex);
 					//SetWarningMessage($"Not enough coins selected. You need an estimated {needed.ToString(false, true)} BTC more to make this transaction.");
 				}
 				catch (Exception ex)
 				{
-					Logger.LogDebug<SendViewModel>(ex);
+					Logger.LogDebug<SendWhoViewModel>(ex);
 					//SetWarningMessage(ex.ToTypeMessageString());
 				}
 				finally
 				{
 					IsBusy = false;
 				}
-			},
-			this.WhenAny(x => x.AmountText, x => x.Address, x => x.IsBusy,
-				(amountText, address, busy) => !string.IsNullOrWhiteSpace(amountText.Value) && !string.IsNullOrWhiteSpace(address.Value) && !busy.Value)
-				.ObserveOn(RxApp.MainThreadScheduler));
+			});
 		}
 
 		public string Password
@@ -150,22 +114,10 @@ namespace Chaincase.ViewModels
 			set => this.RaiseAndSetIfChanged(ref _isBusy, value);
 		}
 
-		public string AmountText
-		{
-			get => _amountText;
-			set => this.RaiseAndSetIfChanged(ref _amountText, value);
-		}
-
 		public string Memo
 		{
 			get => _memo;
 			set => this.RaiseAndSetIfChanged(ref _memo, value);
-		}
-
-		public CoinListViewModel CoinList
-		{
-			get => _coinList;
-			set => this.RaiseAndSetIfChanged(ref _coinList, value);
 		}
 
 		public ReactiveCommand<Unit, Unit> BuildTransactionCommand { get; }

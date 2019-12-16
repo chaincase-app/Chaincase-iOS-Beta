@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rxui:ReactiveContentPage x:Class="Chaincase.Views.SendWhoPage"
+                          x:TypeArguments="vm:SendWhoViewModel"
+                          xmlns:vm="clr-namespace:Chaincase.ViewModels;assembly=Chaincase"
+                          xmlns:rxui="clr-namespace:ReactiveUI.XamForms;assembly=ReactiveUI.XamForms"
+                          xmlns:templates="clr-namespace:Chaincase.Views.Templates;assembly=Chaincase"
+                          xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                          xmlns="http://xamarin.com/schemas/2014/forms">
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*" />
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+    <StackLayout>
+      <Label Text="Non-private Send"
+             FontAttributes="Bold" /> 
+      <Label Text="memo" />
+      <Entry Placeholder="to whom/for what"
+             x:Name="Memo" />
+      <Label Text="pay to the order of" />
+      <Entry x:Name="Address" />
+      <Button Text="Send"
+              Clicked="ShowPasswordEntry" />
+      <Button Text="Back"
+              x:Name="BackButton" />
+    </StackLayout>
+    <StackLayout Grid.Row="0"
+                 Grid.Column="0"
+                 HorizontalOptions="Center"
+                 VerticalOptions="Center"
+                 IsVisible="False"
+                 x:Name="PasswordModal">
+       <Entry IsPassword="true"
+              x:Name="Password" />
+       <Button Text="Send"
+               x:Name="Send" />
+       <Button Text="Cancel"
+               Clicked="HidePasswordEntry" />
+    </StackLayout>
+  </Grid>
+</rxui:ReactiveContentPage>

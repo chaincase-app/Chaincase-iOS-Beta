@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<rxui:ReactiveContentPage x:Class="Chaincase.Views.SendPage"
-                          x:TypeArguments="vm:SendViewModel"
+<rxui:ReactiveContentPage x:Class="Chaincase.Views.SendAmountPage"
+                          x:TypeArguments="vm:SendAmountViewModel"
                           xmlns:vm="clr-namespace:Chaincase.ViewModels;assembly=Chaincase"
                           xmlns:rxui="clr-namespace:ReactiveUI.XamForms;assembly=ReactiveUI.XamForms"
                           xmlns:templates="clr-namespace:Chaincase.Views.Templates;assembly=Chaincase"
@@ -8,22 +8,14 @@
                           xmlns="http://xamarin.com/schemas/2014/forms">
   <StackLayout>
     <Label Text="Non-private Send"
-           FontAttributes="Bold" />
-     <Label Text="memo" />
-    <Entry Placeholder="to whom/for what"
-           x:Name="Memo" />
-    <Label Text="pay to the order of" />
-    <Entry Placeholder="a bitcoin invoice address"
-           x:Name="Address" />
+            FontAttributes="Bold" />
     <Label Text="amount (BTC)" />
-    <Entry BackgroundColor="#ccc"
-           x:Name="Amount" />
-    <Label Text="passphrase" />
-    <Entry IsPassword="true"
-           x:Name="Password" />
-    <Button Text="Send"
-            x:Name="Send" />
+    <Entry x:Name="Amount" />
     <templates:CoinListTemplate x:Name="CoinList"
                                 VerticalOptions="FillAndExpand" />
+    <Button Text="Next"
+            x:Name="NextButton" />
+    <Button Text="Back"
+            x:Name="BackButton" />
   </StackLayout>
 </rxui:ReactiveContentPage>

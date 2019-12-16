@@ -55,6 +55,13 @@
     <Compile Remove="Nito\Disposables\Internals\BoundAction.cs" />
     <Compile Remove="BlockCypher\Models\BlockCypherGeneralInformation.cs" />
     <Compile Remove="UiConfig.cs" />
+    <Compile Remove="Views\ReceivePage %28copy%29.xaml.cs" />
+    <Compile Remove="Views\RecieveAddressPage.xaml.cs" />
+    <Compile Remove="Views\SendAmountPage %28copy%29.xaml.cs" />
+    <Compile Remove="Views\MyView.cs" />
+    <Compile Remove="Views\MyPage.xaml.cs" />
+    <Compile Remove="Views\SpendWhoPage.cs" />
+    <Compile Remove="Views\SendAmountPage %28copy%29.xaml.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Navigation\" />
@@ -76,6 +83,15 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Remove="Views\Templates\CoinViewTemplate %28copy%29.xaml" />
+    <EmbeddedResource Remove="Views\ReceivePage %28copy%29.xaml" />
+    <EmbeddedResource Remove="Views\ReceivePage %28copy%29.xaml" />
+    <EmbeddedResource Remove="Views\ReceivePage %28copy%29.xaml" />
+    <EmbeddedResource Remove="Views\RecieveAddressPage.xaml" />
+    <EmbeddedResource Remove="Views\SendAmountPage %28copy%29.xaml" />
+    <EmbeddedResource Remove="Views\ReceivePage %28copy%29.xaml" />
+    <EmbeddedResource Remove="Views\MyPage.xaml" />
+    <EmbeddedResource Remove="Views\SendPage.xaml" />
+    <EmbeddedResource Remove="Views\ReceivePage %28copy%29.xaml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WalletWasabi\WalletWasabi.Standard\WalletWasabi.Standard.csproj" />
