@@ -94,9 +94,11 @@ namespace Chaincase.ViewModels
 					IsBusy = false;
 				}
 			});
-		}
 
-		public string Password
+            NavigateBack = HostScreen.Router.NavigateBack;
+        }
+
+        public string Password
 		{
 			get => _password;
 			set => this.RaiseAndSetIfChanged(ref _password, value);
@@ -121,5 +123,7 @@ namespace Chaincase.ViewModels
 		}
 
 		public ReactiveCommand<Unit, Unit> BuildTransactionCommand { get; }
-	}
+        public ReactiveCommand<Unit, Unit> NavigateBack;
+
+    }
 }
