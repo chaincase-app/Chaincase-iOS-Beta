@@ -2,17 +2,13 @@
 using ReactiveUI;
 using ReactiveUI.XamForms;
 using Chaincase.ViewModels;
-using Xamarin.Forms;
-using System.Reactive.Linq;
-using System.Reactive;
-using System;
 
 namespace Chaincase.Views
 {
-	public partial class MainPage : ReactiveContentPage<MainViewModel>
+	public partial class CoinJoinPage : ReactiveContentPage<CoinJoinViewModel>
 	{
 
-        public MainPage()
+        public CoinJoinPage()
         {
             InitializeComponent();
 
@@ -27,16 +23,12 @@ namespace Chaincase.Views
                     v => v.CoinList.ViewModel)
                     .DisposeWith(d);
                 this.BindCommand(ViewModel,
-                    vm => vm.NavSendCommand,
-                    v => v.NavSendCommand)
+                    vm => vm.CoinJoin,
+                    v => v.ConfirmButton)
                     .DisposeWith(d);
                 this.BindCommand(ViewModel,
-                    vm => vm.NavReceiveCommand,
-                    v => v.NavReceiveCommand)
-                    .DisposeWith(d);
-                this.BindCommand(ViewModel,
-                    vm => vm.InitCoinJoin,
-                    v => v.CoinJoinButton)
+                    vm => vm.NavigateBack,
+                    v => v.CancelButton)
                     .DisposeWith(d);
             });
         }

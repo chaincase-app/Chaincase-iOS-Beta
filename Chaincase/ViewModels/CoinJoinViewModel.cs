@@ -15,7 +15,7 @@ using Splat;
 
 namespace Chaincase.ViewModels
 {
-	public class MainViewModel : ViewModelBase
+	public class CoinJoinViewModel : ViewModelBase
 	{
 		private CompositeDisposable Disposables { get; set; }
         private CoinListViewModel _coinList;
@@ -32,16 +32,12 @@ namespace Chaincase.ViewModels
 			set => this.RaiseAndSetIfChanged(ref _balance, value);
 		}
 
-        public ReactiveCommand<Unit, Unit> NavReceiveCommand;
-		public ReactiveCommand<Unit, Unit> NavSendCommand;
-
-        public ReactiveCommand<Unit, Unit> InitCoinJoin { get; private set; }
+		public ReactiveCommand<Unit, Unit> NavigateBack { get; private set; }
+        public ReactiveCommand<Unit, Unit> CoinJoin { get; private set; }
         readonly ObservableAsPropertyHelper<bool> _isJoining;
         public bool IsJoining { get { return _isJoining.Value; } }
 
-        public Label Deq;
-
-        public MainViewModel(IScreen hostScreen) : base(hostScreen)
+        public CoinJoinViewModel(IScreen hostScreen) : base(hostScreen)
         {
             SetBalance();
 
@@ -53,23 +49,11 @@ namespace Chaincase.ViewModels
             Disposables = new CompositeDisposable();
             CoinList = new CoinListViewModel(hostScreen);
 
-            NavReceiveCommand = ReactiveCommand.CreateFromObservable(() =>
-            {
-                HostScreen.Router.Navigate.Execute(new ReceiveViewModel(hostScreen)).Subscribe();
-                return Observable.Return(Unit.Default);
-            });
+            NavigateBack = HostScreen.Router.NavigateBack;
 
-            NavSendCommand = ReactiveCommand.CreateFromObservable(() =>
-            {
-                HostScreen.Router.Navigate.Execute(new SendAmountViewModel(hostScreen)).Subscribe();
-                return Observable.Return(Unit.Default);
-            });
-
-            InitCoinJoin = ReactiveCommand.CreateFromObservable(() =>
-            {
-                HostScreen.Router.Navigate.Execute(new CoinJoinViewModel(hostScreen)).Subscribe();
-                return Observable.Return(Unit.Default);
-            });
+            CoinJoin = ReactiveCommand.CreateFromObservable(CoinJoinImpl);
+            CoinJoin.IsExecuting.ToProperty(this, x => x.IsJoining, out _isJoining);
+            CoinJoin.ThrownExceptions.Subscribe(ex => Logger.LogError<MainViewModel>(ex));
 
             Observable.FromEventPattern(Global.WalletService.Coins, nameof(Global.WalletService.Coins.CollectionChanged))
 				.Merge(Observable.FromEventPattern(Global.WalletService, nameof(Global.WalletService.CoinSpentOrSpenderConfirmed)))
@@ -82,5 +66,13 @@ namespace Chaincase.ViewModels
 		{
 			Balance = WalletController.GetBalance().ToString();
 		}
+
+        public IObservable<Unit> CoinJoinImpl()
+        {
+            return Observable.Start(() =>
+            {
+                Task.Delay(500);
+            });
+        }
     }
 }

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<rxui:ReactiveContentPage x:Class="Chaincase.Views.MainPage"
-                          x:TypeArguments="vm:MainViewModel"
+<rxui:ReactiveContentPage x:Class="Chaincase.Views.CoinJoinPage"
+                          x:TypeArguments="vm:CoinJoinViewModel"
                           xmlns:vm="clr-namespace:Chaincase.ViewModels;assembly=Chaincase"
                           xmlns:rxui="clr-namespace:ReactiveUI.XamForms;assembly=ReactiveUI.XamForms"
                           xmlns:templates="clr-namespace:Chaincase.Views.Templates;assembly=Chaincase"
@@ -11,14 +11,11 @@
            FontAttributes="Bold" />
     <templates:CoinListTemplate x:Name="CoinList"
                                 VerticalOptions="FillAndExpand" />
-    <Button Text="Receive"
-            x:Name="NavReceiveCommand"
+    <Button Text="Confirm"
+            x:Name="ConfirmButton"
             VerticalOptions="End" />
-    <Button Text="CoinJoin"
-            x:Name="CoinJoinButton"
-            VerticalOptions="End" />
-    <Button Text="Non-private Send"
-            x:Name="NavSendCommand"
+    <Button Text="Cancel"
+            x:Name="CancelButton"
             VerticalOptions="End" />
   </StackLayout>
 </rxui:ReactiveContentPage>
