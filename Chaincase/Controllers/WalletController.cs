@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using NBitcoin;
-using WalletWasabi.KeyManagement;
+using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Logging;
 using WalletWasabi.Models;
 
