@@ -50,6 +50,8 @@ namespace Chaincase
         public static FeeProviders FeeProviders { get; private set; }
         public static CoinJoinClient ChaumianClient { get; private set; }
 		public static WalletService WalletService { get; private set; }
+        public static TransactionBroadcaster TransactionBroadcaster { get; set; }
+        public static CoinJoinProcessor CoinJoinProcessor { get; set; }
 		public static Node RegTestMempoolServingNode { get; private set; }
 		public static TorProcessManager TorManager { get; private set; }
 
@@ -116,153 +118,173 @@ namespace Chaincase
 
 		public static async Task InitializeNoWalletAsync()
 		{
-			WalletService = null;
-			ChaumianClient = null;
-			AddressManager = null;
-			TorManager = null;
+            try
+            {
+                WalletService = null;
+                ChaumianClient = null;
+                AddressManager = null;
+                TorManager = null;
 
-			#region ConfigInitialization
+                #region ConfigInitialization
 
-			Config = new Config(Path.Combine(DataDir, "Config.json"));
-			await Config.LoadOrCreateDefaultFileAsync();
-			Logger.LogInfo($"{nameof(Config)} is successfully initialized.");
+                Config = new Config(Path.Combine(DataDir, "Config.json"));
+                await Config.LoadOrCreateDefaultFileAsync();
+                Logger.LogInfo($"{nameof(Config)} is successfully initialized.");
 
-			#endregion ConfigInitialization
+                #endregion ConfigInitialization
 
-			BitcoinStore = new BitcoinStore();
-			var bstoreInitTask = BitcoinStore.InitializeAsync(Path.Combine(DataDir, "BitcoinStore"), Network);
+                BitcoinStore = new BitcoinStore();
+                var bstoreInitTask = BitcoinStore.InitializeAsync(Path.Combine(DataDir, "BitcoinStore"), Network);
 
-			var addressManagerFolderPath = Path.Combine(DataDir, "AddressManager");
-			AddressManagerFilePath = Path.Combine(addressManagerFolderPath, $"AddressManager{Network}.dat");
-            var addrManTask = Global.InitializeAddressManagerBehaviorAsync(this);
+                var addressManagerFolderPath = Path.Combine(DataDir, "AddressManager");
+                AddressManagerFilePath = Path.Combine(addressManagerFolderPath, $"AddressManager{Network}.dat");
+                var addrManTask = Global.InitializeAddressManagerBehaviorAsync();
 
-            var blocksFolderPath = Path.Combine(DataDir, $"Blocks{Network}");
-			var connectionParameters = new NodeConnectionParameters();
+                var blocksFolderPath = Path.Combine(DataDir, $"Blocks{Network}");
+                var connectionParameters = new NodeConnectionParameters();
 
-			if (Config.UseTor)
-			{
-				Synchronizer = new WasabiSynchronizer(Network, BitcoinStore, () => Config.GetCurrentBackendUri(), Config.GetTorSocks5EndPoint());
-			}
-			else
-			{
-				Synchronizer = new WasabiSynchronizer(Network, BitcoinStore, Config.GetFallbackBackendUri(), null);
-			}
-
-			#region ProcessKillSubscription
-
-			AppDomain.CurrentDomain.ProcessExit += async (s, e) => await TryDesperateDequeueAllCoinsAsync();
-
-			#endregion ProcessKillSubscription
-
-			#region TorProcessInitialization
-
-			if (Config.UseTor)
-			{
-				TorManager = new TorProcessManager(Config.GetTorSocks5EndPoint(), TorLogsFile);
-			}
-			else
-			{
-				TorManager = TorProcessManager.Mock();
-			}
-			TorManager.Start(false, DataDir);
-
-			var fallbackRequestTestUri = new Uri(Config.GetFallbackBackendUri(), "/api/software/versions");
-			TorManager.StartMonitor(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(7), DataDir, fallbackRequestTestUri);
-
-			Logger.LogInfo($"{nameof(TorProcessManager)} is initialized.");
-
-			#endregion TorProcessInitialization
-
-			#region BitcoinStoreInitialization
-
-			await bstoreInitTask;
-
-            #endregion BitcoinStoreInitialization
-
-            #region MempoolInitialization
-
-            connectionParameters.TemplateBehaviors.Add(BitcoinStore.CreateUntrustedP2pBehavior());
-
-            #endregion MempoolInitialization
-
-            #region AddressManagerInitialization
-
-            AddressManagerBehavior addressManagerBehavior = await addrManTask;
-            connectionParameters.TemplateBehaviors.Add(addressManagerBehavior);
-           
-            #endregion AddressManagerInitialization
-
-            #region P2PInitialization
-
-            if (Network == Network.RegTest)
-			{
-				Nodes = new NodesGroup(Network, requirements: Constants.NodeRequirements);
-				try
-				{
-					Node node = await Node.ConnectAsync(Network.RegTest, new IPEndPoint(IPAddress.Loopback, 18444));
-					Nodes.ConnectedNodes.Add(node);
-
-					RegTestMempoolServingNode = await Node.ConnectAsync(Network.RegTest, new IPEndPoint(IPAddress.Loopback, 18444));
-
-                    RegTestMempoolServingNode.Behaviors.Add(BitcoinStore.CreateUntrustedP2pBehavior());
-                }
-				catch (SocketException ex)
-				{
-					Logger.LogError(ex, nameof(Global));
-				}
-			}
-			else
-			{
-				if (Config.UseTor is true)
-				{
-					// onlyForOnionHosts: false - Connect to clearnet IPs through Tor, too.
-					connectionParameters.TemplateBehaviors.Add(new SocksSettingsBehavior(Config.GetTorSocks5EndPoint(), onlyForOnionHosts: false, networkCredential: null, streamIsolation: true));
-					// allowOnlyTorEndpoints: true - Connect only to onions and don't connect to clearnet IPs at all.
-					// This of course makes the first setting unneccessary, but it's better if that's around, in case someone wants to tinker here.
-					connectionParameters.EndpointConnector = new DefaultEndpointConnector(allowOnlyTorEndpoints: Network == Network.Main);
-
-					await AddKnownBitcoinFullNodeAsHiddenServiceAsync(AddressManager);
-				}
-				Nodes = new NodesGroup(Network, connectionParameters, requirements: Constants.NodeRequirements);
-
-				RegTestMempoolServingNode = null;
-			}
-
-			Nodes.Connect();
-			Logger.LogInfo("Start connecting to nodes...");
-
-			if (RegTestMempoolServingNode != null)
-			{
-				RegTestMempoolServingNode.VersionHandshake();
-				Logger.LogInfo("Start connecting to mempool serving regtest node...");
-			}
-
-			#endregion P2PInitialization
-
-			#region SynchronizerInitialization
-
-			var requestInterval = TimeSpan.FromSeconds(30);
-			if (Network == Network.RegTest)
-			{
-				requestInterval = TimeSpan.FromSeconds(5);
-			}
-
-			int maxFiltSyncCount = Network == Network.Main ? 1000 : 10000; // On testnet, filters are empty, so it's faster to query them together
-
-			Synchronizer.Start(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
-			Logger.LogInfo("Start synchronizing filters...");
-
-
-            var feeProviderList = new List<IFeeProvider>
+                if (Config.UseTor)
                 {
-                    Synchronizer
-                };
+                    Synchronizer = new WasabiSynchronizer(Network, BitcoinStore, () => Config.GetCurrentBackendUri(), Config.GetTorSocks5EndPoint());
+                }
+                else
+                {
+                    Synchronizer = new WasabiSynchronizer(Network, BitcoinStore, Config.GetFallbackBackendUri(), null);
+                }
 
-            FeeProviders = new FeeProviders(feeProviderList);
+                #region ProcessKillSubscription
 
-            #endregion SynchronizerInitialization
+                AppDomain.CurrentDomain.ProcessExit += async (s, e) => await TryDesperateDequeueAllCoinsAsync();
 
-            Initialized = true;
+                #endregion ProcessKillSubscription
+
+                #region TorProcessInitialization
+
+                if (Config.UseTor)
+                {
+                    TorManager = new TorProcessManager(Config.GetTorSocks5EndPoint(), TorLogsFile);
+                }
+                else
+                {
+                    TorManager = TorProcessManager.Mock();
+                }
+                TorManager.Start(false, DataDir);
+
+                var fallbackRequestTestUri = new Uri(Config.GetFallbackBackendUri(), "/api/software/versions");
+                TorManager.StartMonitor(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(7), DataDir, fallbackRequestTestUri);
+
+                Logger.LogInfo($"{nameof(TorProcessManager)} is initialized.");
+
+                #endregion TorProcessInitialization
+
+                #region BitcoinStoreInitialization
+
+                await bstoreInitTask;
+
+                #endregion BitcoinStoreInitialization
+
+                #region BitcoinCoreInitialization
+
+                var feeProviderList = new List<IFeeProvider>
+            {
+                Synchronizer
+                // wasabiwallet.io's implementation also gets fees from a core node initialized in this region
+            };
+
+                FeeProviders = new FeeProviders(feeProviderList);
+
+                #endregion BitcoinCoreInitialization
+
+                #region MempoolInitialization
+
+                connectionParameters.TemplateBehaviors.Add(BitcoinStore.CreateUntrustedP2pBehavior());
+
+                #endregion MempoolInitialization
+
+                #region AddressManagerInitialization
+
+                AddressManagerBehavior addressManagerBehavior = await addrManTask;
+                connectionParameters.TemplateBehaviors.Add(addressManagerBehavior);
+
+                #endregion AddressManagerInitialization
+
+                #region P2PInitialization
+
+                if (Network == Network.RegTest)
+                {
+                    Nodes = new NodesGroup(Network, requirements: Constants.NodeRequirements);
+                    try
+                    {
+                        Node node = await Node.ConnectAsync(Network.RegTest, new IPEndPoint(IPAddress.Loopback, 18444));
+                        Nodes.ConnectedNodes.Add(node);
+
+                        RegTestMempoolServingNode = await Node.ConnectAsync(Network.RegTest, new IPEndPoint(IPAddress.Loopback, 18444));
+
+                        RegTestMempoolServingNode.Behaviors.Add(BitcoinStore.CreateUntrustedP2pBehavior());
+                    }
+                    catch (SocketException ex)
+                    {
+                        Logger.LogError(ex, nameof(Global));
+                    }
+                }
+                else
+                {
+                    if (Config.UseTor is true)
+                    {
+                        // onlyForOnionHosts: false - Connect to clearnet IPs through Tor, too.
+                        connectionParameters.TemplateBehaviors.Add(new SocksSettingsBehavior(Config.GetTorSocks5EndPoint(), onlyForOnionHosts: false, networkCredential: null, streamIsolation: true));
+                        // allowOnlyTorEndpoints: true - Connect only to onions and don't connect to clearnet IPs at all.
+                        // This of course makes the first setting unneccessary, but it's better if that's around, in case someone wants to tinker here.
+                        connectionParameters.EndpointConnector = new DefaultEndpointConnector(allowOnlyTorEndpoints: Network == Network.Main);
+
+                        await AddKnownBitcoinFullNodeAsHiddenServiceAsync(AddressManager);
+                    }
+                    Nodes = new NodesGroup(Network, connectionParameters, requirements: Constants.NodeRequirements);
+
+                    RegTestMempoolServingNode = null;
+                }
+
+                Nodes.Connect();
+                Logger.LogInfo("Start connecting to nodes...");
+
+                var regTestMempoolServingNode = RegTestMempoolServingNode;
+                if (regTestMempoolServingNode != null)
+                {
+                    regTestMempoolServingNode.VersionHandshake();
+                    Logger.LogInfo("Start connecting to mempool serving regtest node...");
+                }
+
+                #endregion P2PInitialization
+
+                #region SynchronizerInitialization
+
+                var requestInterval = TimeSpan.FromSeconds(30);
+                if (Network == Network.RegTest)
+                {
+                    requestInterval = TimeSpan.FromSeconds(5);
+                }
+
+                int maxFiltSyncCount = Network == Network.Main ? 1000 : 10000; // On testnet, filters are empty, so it's faster to query them together
+
+                Synchronizer.Start(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
+                Logger.LogInfo("Start synchronizing filters...");
+
+                #endregion SynchronizerInitialization
+
+                TransactionBroadcaster = new TransactionBroadcaster(Network, BitcoinStore, Synchronizer, Nodes, null);
+                CoinJoinProcessor = new CoinJoinProcessor(Synchronizer, null);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogCritical(ex);
+                InitializationCompleted = true;
+                await DisposeAsync().ConfigureAwait(false);
+                Environment.Exit(1);
+            }
+            finally
+            {
+                InitializationCompleted = true;
+            }
 		}
 
         private static async Task<AddressManagerBehavior> InitializeAddressManagerBehaviorAsync()
