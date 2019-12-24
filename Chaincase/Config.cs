@@ -40,7 +40,7 @@ namespace Chaincase
 		public string RegTestBackendUriV3 { get; private set; }
 
 		[JsonProperty(PropertyName = "UseTor")]
-		public bool? UseTor { get; internal set; }
+		public bool UseTor { get; internal set; }
 
 		[JsonProperty(PropertyName = "TorHost")]
 		public string TorHost { get; internal set; }
