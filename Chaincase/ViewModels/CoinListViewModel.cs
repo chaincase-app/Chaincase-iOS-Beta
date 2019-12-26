@@ -114,7 +114,7 @@ namespace Chaincase.ViewModels
 					}
 					catch (Exception ex)
 					{
-						Logger.LogDebug<CoinListViewModel>(ex);
+						Logger.LogDebug(ex);
 					}
 				}).DisposeWith(Disposables);
 		}
