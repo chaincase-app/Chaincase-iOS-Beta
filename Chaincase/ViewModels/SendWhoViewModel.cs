@@ -81,12 +81,12 @@ namespace Chaincase.ViewModels
 				catch (InsufficientBalanceException ex)
 				{
 					Money needed = ex.Minimum - ex.Actual;
-					Logger.LogDebug<SendWhoViewModel>(ex);
+					Logger.LogDebug(ex);
 					//SetWarningMessage($"Not enough coins selected. You need an estimated {needed.ToString(false, true)} BTC more to make this transaction.");
 				}
 				catch (Exception ex)
 				{
-					Logger.LogDebug<SendWhoViewModel>(ex);
+					Logger.LogDebug(ex);
 					//SetWarningMessage(ex.ToTypeMessageString());
 				}
 				finally
