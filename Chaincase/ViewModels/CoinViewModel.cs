@@ -1,20 +1,20 @@
-﻿using NBitcoin;
+﻿using Chaincase.Models;
+using NBitcoin;
 using ReactiveUI;
 using System;
 using System.Globalization;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using Chaincase.Models;
+using WalletWasabi.Blockchain.TransactionOutputs;
+using WalletWasabi.CoinJoin.Client.Rounds;
+using WalletWasabi.CoinJoin.Common.Models;
 using WalletWasabi.Models;
-using WalletWasabi.Models.ChaumianCoinJoin;
-using Chaincase.Navigation;
-using System.Windows.Input;
-using Xamarin.Forms;
 
 namespace Chaincase.ViewModels
 {
-	public class CoinViewModel : ViewModelBase
+	public class CoinViewModel : ViewModelBase, IDisposable
 	{
 		public CompositeDisposable Disposables { get; set; }
 
@@ -24,7 +24,8 @@ namespace Chaincase.ViewModels
 		private ObservableAsPropertyHelper<bool> _unspent;
 		private ObservableAsPropertyHelper<bool> _confirmed;
 		private ObservableAsPropertyHelper<bool> _unavailable;
-		private CoinListViewModel _owner;
+        private ObservableAsPropertyHelper<string> _cluster;    
+        private CoinListViewModel _owner;
 
 		public CoinViewModel(CoinListViewModel owner, SmartCoin model, IScreen hostScreen) : base(hostScreen)
 		{
@@ -82,13 +83,14 @@ namespace Chaincase.ViewModels
 					RefreshSmartCoinStatus();
 				}).DisposeWith(Disposables);
 
-			Global.BitcoinStore.HashChain.WhenAnyValue(x => x.ServerTipHeight)
-				.ObserveOn(RxApp.MainThreadScheduler)
-				.Subscribe(_ =>
-				{
-					this.RaisePropertyChanged(nameof(Confirmations));
-				}).DisposeWith(Disposables);
-		}
+            Global.BitcoinStore.SmartHeaderChain
+                .WhenAnyValue(x => x.TipHeight).Select(_ => Unit.Default)
+                .Merge(Model.WhenAnyValue(x => x.Height).Select(_ => Unit.Default))
+                .Throttle(TimeSpan.FromSeconds(0.1)) // DO NOT TAKE THIS THROTTLE OUT, OTHERWISE SYNCING WITH COINS IN THE WALLET WILL STACKOVERFLOW!
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(_ => this.RaisePropertyChanged(nameof(Confirmations)))
+                .DisposeWith(Disposables);
+        }
 
 		public void UnsubscribeEvents()
 		{
@@ -108,11 +110,11 @@ namespace Chaincase.ViewModels
 
 		public string Address => Model.ScriptPubKey.GetDestinationAddress(Global.Network).ToString();
 
-		public int Confirmations => Model.Height.Type == HeightType.Chain
-			? Global.BitcoinStore.HashChain.TipHeight - Model.Height.Value + 1
-			: 0;
+        public int Confirmations => Model.Height.Type == HeightType.Chain
+            ? (int)Global.BitcoinStore.SmartHeaderChain.TipHeight - Model.Height.Value + 1
+            : 0;
 
-		public bool IsSelected
+        public bool IsSelected
 		{
 			get => _isSelected;
 			set => this.RaiseAndSetIfChanged(ref _isSelected, value);
@@ -155,9 +157,9 @@ namespace Chaincase.ViewModels
 
 		public string InCoinJoin => Model.CoinJoinInProgress ? "Yes" : "No";
 
-		public string Clusters => string.IsNullOrEmpty(Model.Clusters) ? "" : Model.Clusters; //If the value is null the bind do not update the view. It shows the previous state for example: ##### even if PrivMode false.
+		public string Clusters => _cluster?.Value ?? "";
 
-		public string PubKey => Model.HdPubKey.PubKey.ToString();
+        public string PubKey => Model.HdPubKey.PubKey.ToString();
 
 		public string KeyPath => Model.HdPubKey.FullKeyPath.ToString();
 
@@ -174,42 +176,38 @@ namespace Chaincase.ViewModels
 
 		private SmartCoinStatus GetSmartCoinStatus()
 		{
-			if (Model.IsBanned)
+            Model.SetIsBanned(); // Recheck if the coin's ban has expired.
+            if (Model.IsBanned)
 			{
 				return SmartCoinStatus.MixingBanned;
 			}
 
-			CcjClientState clientState = Global.ChaumianClient.State;
-
-			if (Model.CoinJoinInProgress)
+			if (Model.CoinJoinInProgress && Global.ChaumianClient != null)
 			{
-				foreach (long roundId in clientState.GetAllMixingRounds())
-				{
-					CcjClientRound round = clientState.GetSingleOrDefaultRound(roundId);
-					if (round != default)
-					{
-						if (round.CoinsRegistered.Contains(Model))
-						{
-							if (round.State.Phase == CcjRoundPhase.InputRegistration)
-							{
-								return SmartCoinStatus.MixingInputRegistration;
-							}
-							else if (round.State.Phase == CcjRoundPhase.ConnectionConfirmation)
-							{
-								return SmartCoinStatus.MixingConnectionConfirmation;
-							}
-							else if (round.State.Phase == CcjRoundPhase.OutputRegistration)
-							{
-								return SmartCoinStatus.MixingOutputRegistration;
-							}
-							else if (round.State.Phase == CcjRoundPhase.Signing)
-							{
-								return SmartCoinStatus.MixingSigning;
-							}
-						}
-					}
-				}
-			}
+                ClientState clientState = Global.ChaumianClient.State;
+                foreach (var round in clientState.GetAllMixingRounds())
+                {
+                    if (round.CoinsRegistered.Contains(Model))
+                    {
+                        if (round.State.Phase == RoundPhase.InputRegistration)
+                        {
+                            return SmartCoinStatus.MixingInputRegistration;
+                        }
+                        else if (round.State.Phase == RoundPhase.ConnectionConfirmation)
+                        {
+                            return SmartCoinStatus.MixingConnectionConfirmation;
+                        }
+                        else if (round.State.Phase == RoundPhase.OutputRegistration)
+                        {
+                            return SmartCoinStatus.MixingOutputRegistration;
+                        }
+                        else if (round.State.Phase == RoundPhase.Signing)
+                        {
+                            return SmartCoinStatus.MixingSigning;
+                        }
+                    }
+                }
+            }
 
 			if (Model.SpentAccordingToBackend)
 			{
@@ -239,5 +237,32 @@ namespace Chaincase.ViewModels
 				}
 			}
 		}
-	}
+
+        public CompositeDisposable GetDisposables() => Disposables;
+
+        #region IDisposable Support
+
+        private volatile bool _disposedValue = false;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                if (disposing)
+                {
+                    Disposables?.Dispose();
+                }
+
+                Disposables = null;
+                _disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        #endregion IDisposable Support
+    }
 }

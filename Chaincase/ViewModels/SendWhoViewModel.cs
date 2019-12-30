@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 using DynamicData;
 using NBitcoin;
 using ReactiveUI;
+using WalletWasabi.Blockchain.TransactionBuilding;
+using WalletWasabi.Blockchain.TransactionOutputs;
+using WalletWasabi.Blockchain.Transactions;
 using WalletWasabi.Exceptions;
 using WalletWasabi.Helpers;
 using WalletWasabi.Logging;
@@ -20,7 +23,8 @@ namespace Chaincase.ViewModels
 	{
 		private string _password;
 		private string _address;
-		private bool _isBusy;
+        private FeeRate _feeRate;
+        private bool _isBusy;
 		private string _memo;
 		private CoinListViewModel _coinList;
 		private string _warning;
@@ -69,14 +73,15 @@ namespace Chaincase.ViewModels
 						return;
 					}
 
-					var memo = Memo;
-					var operation = new WalletService.Operation(script, amount, memo);
+                    var feeStrategy = FeeStrategy.CreateFromFeeRate(FeeRate);
 
-					var feeTarget = 500;
-					var result = await Task.Run(() => Global.WalletService.BuildTransaction(Password, new[] { operation }, feeTarget, allowUnconfirmed: true, allowedInputs: selectedCoinReferences));
+                    var memo = Memo;
+					var intent = new PaymentIntent(script, amount, false, memo);
+
+					var result = await Task.Run(() => Global.WalletService.BuildTransaction(Password, intent, feeStrategy, allowUnconfirmed: true, allowedInputs: selectedCoinReferences));
 					SmartTransaction signedTransaction = result.Transaction;
 
-					await Task.Run(async () => await Global.WalletService.SendTransactionAsync(signedTransaction));
+					await Task.Run(async () => await Global.TransactionBroadcaster.SendTransactionAsync(signedTransaction));
 				}
 				catch (InsufficientBalanceException ex)
 				{
@@ -110,7 +115,13 @@ namespace Chaincase.ViewModels
 			set => this.RaiseAndSetIfChanged(ref _address, value);
 		}
 
-		public bool IsBusy
+        public FeeRate FeeRate
+        {
+            get => _feeRate;
+            set => this.RaiseAndSetIfChanged(ref _feeRate, value);
+        }
+
+        public bool IsBusy
 		{
 			get => _isBusy;
 			set => this.RaiseAndSetIfChanged(ref _isBusy, value);

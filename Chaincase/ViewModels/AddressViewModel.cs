@@ -1,8 +1,7 @@
 ﻿using Gma.QrCodeNet.Encoding;
 using ReactiveUI;
 using System.Threading.Tasks;
-using WalletWasabi.KeyManagement;
-using Chaincase.Navigation;
+using WalletWasabi.Blockchain.Keys;
 
 namespace Chaincase.ViewModels
 {

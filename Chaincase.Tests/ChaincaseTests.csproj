@@ -13,7 +13,7 @@
 <PrivateAssets>all</PrivateAssets>
 </PackageReference>
     <PackageReference Include="Xam.Plugins.Settings" Version="4.0.0.10-beta" />
-    <PackageReference Include="NBitcoin" Version="4.2.15" />
+    <PackageReference Include="NBitcoin" Version="5.0.13" />
   </ItemGroup>
 
   <ItemGroup>

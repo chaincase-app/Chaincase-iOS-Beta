@@ -49,11 +49,12 @@ namespace Chaincase.ViewModels
             CoinJoin.IsExecuting.ToProperty(this, x => x.IsJoining, out _isJoining);
             CoinJoin.ThrownExceptions.Subscribe(ex => Logger.LogError(ex));
 
-            Observable.FromEventPattern(Global.WalletService.Coins, nameof(Global.WalletService.Coins.CollectionChanged))
-				.Merge(Observable.FromEventPattern(Global.WalletService, nameof(Global.WalletService.CoinSpentOrSpenderConfirmed)))
-				.ObserveOn(RxApp.MainThreadScheduler)
-				.Subscribe(o => SetBalance())
-				.DisposeWith(Disposables);
+            Observable.FromEventPattern(Global.ChaumianClient, nameof(Global.ChaumianClient.CoinQueued))
+                .Merge(Observable.FromEventPattern(Global.ChaumianClient, nameof(Global.ChaumianClient.OnDequeue)))
+                .Merge(Observable.FromEventPattern(Global.ChaumianClient, nameof(Global.ChaumianClient.StateUpdated)))
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(_ => UpdateStates())
+                .DisposeWith(Disposables);
 
             OnOpen();
 		}
@@ -64,7 +65,6 @@ namespace Chaincase.ViewModels
 
 
         }
-
 
 		private void SetBalance()
 		{
@@ -77,6 +77,40 @@ namespace Chaincase.ViewModels
             {
                 Task.Delay(500);
             });
+        }
+
+        private void UpdateStates()
+        {
+            var chaumianClient = Global.ChaumianClient;
+            if (chaumianClient is null)
+            {
+                return;
+            }
+            /*
+            AmountQueued = chaumianClient.State.SumAllQueuedCoinAmounts();
+            MainWindowViewModel.Instance.CanClose = AmountQueued == Money.Zero;
+
+            var registrableRound = chaumianClient.State.GetRegistrableRoundOrDefault();
+            if (registrableRound != default)
+            {
+                CoordinatorFeePercent = registrableRound.State.CoordinatorFeePercent.ToString();
+                UpdateRequiredBtcLabel(registrableRound);
+            }
+            var mostAdvancedRound = chaumianClient.State.GetMostAdvancedRoundOrDefault();
+            if (mostAdvancedRound != default)
+            {
+                RoundId = mostAdvancedRound.State.RoundId;
+                if (!chaumianClient.State.IsInErrorState)
+                {
+                    Phase = mostAdvancedRound.State.Phase;
+                    RoundTimesout = mostAdvancedRound.State.Phase == RoundPhase.InputRegistration ? mostAdvancedRound.State.InputRegistrationTimesout : DateTimeOffset.UtcNow;
+                }
+                this.RaisePropertyChanged(nameof(Phase));
+                this.RaisePropertyChanged(nameof(RoundTimesout));
+                PeersRegistered = mostAdvancedRound.State.RegisteredPeerCount;
+                PeersNeeded = mostAdvancedRound.State.RequiredPeerCount;
+            }
+            */
         }
 
         public CoinListViewModel CoinList

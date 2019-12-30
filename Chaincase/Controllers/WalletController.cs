@@ -1,11 +1,10 @@
-﻿using System;
+﻿using NBitcoin;
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using NBitcoin;
 using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Logging;
-using WalletWasabi.Models;
 
 namespace Chaincase.Controllers
 {
