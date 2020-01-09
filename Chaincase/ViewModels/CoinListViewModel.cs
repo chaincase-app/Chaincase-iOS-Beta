@@ -12,6 +12,7 @@ using WalletWasabi.Logging;
 using Xamarin.Forms;
 using NBitcoin;
 using WalletWasabi.Blockchain.TransactionOutputs;
+using WalletWasabi.Blockchain.TransactionProcessing;
 
 namespace Chaincase.ViewModels
 {
@@ -67,7 +68,7 @@ namespace Chaincase.ViewModels
 			}
 
 			Observable
-                .Merge(Observable.FromEventPattern<NotifyCollectionChangedEventArgs>(Global.WalletService.TransactionProcessor, nameof(Global.WalletService.TransactionProcessor.WalletRelevantTransactionProcessed)).Select(_ => Unit.Default))
+                .Merge(Observable.FromEventPattern<ProcessedResult>(Global.WalletService.TransactionProcessor, nameof(Global.WalletService.TransactionProcessor.WalletRelevantTransactionProcessed)).Select(_ => Unit.Default))
                 .Throttle(TimeSpan.FromSeconds(1)) // Throttle TransactionProcessor events adds/removes.
                 .Merge(Observable.FromEventPattern(this, nameof(CoinListShown), RxApp.MainThreadScheduler).Select(_ => Unit.Default)) // Load the list immediately.
                 .ObserveOn(RxApp.MainThreadScheduler)

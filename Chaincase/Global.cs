@@ -12,7 +12,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using WalletWasabi.Blockchain.Analysis.FeesEstimation;
 using WalletWasabi.Blockchain.Keys;
-using WalletWasabi.Blockchain.Mempool;
 using WalletWasabi.Blockchain.TransactionBroadcasting;
 using WalletWasabi.Blockchain.TransactionOutputs;
 using WalletWasabi.CoinJoin.Client;
@@ -26,7 +25,7 @@ using WalletWasabi.TorSocks5;
 
 namespace Chaincase
 {
-	public static class Global
+    public static class Global
 	{
 		public static string DataDir { get; }
 		public static string TorLogsFile { get; }
@@ -49,7 +48,7 @@ namespace Chaincase
 		public static Node RegTestMempoolServingNode { get; private set; }
 		public static TorProcessManager TorManager { get; private set; }
 
-		public static bool KillRequested { get; private set; } = false;
+        public static bool KillRequested { get; private set; } = false;
 
 		public static Network Network => Config.Network;
 
@@ -63,9 +62,9 @@ namespace Chaincase
 			Directory.CreateDirectory(DataDir);
 			Directory.CreateDirectory(WalletsDir);
 			Directory.CreateDirectory(WalletBackupsDir);
-		}
+        }
 
-		private static int _isDesperateDequeuing = 0;
+        private static int _isDesperateDequeuing = 0;
 
 		public static async Task TryDesperateDequeueAllCoinsAsync()
 		{
@@ -110,7 +109,9 @@ namespace Chaincase
 
 		private static bool InitializationCompleted { get; set; } = false;
 
-		public static async Task InitializeNoWalletAsync()
+        private static CancellationTokenSource StoppingCts { get; set; } = new CancellationTokenSource();
+
+        public static async Task InitializeNoWalletAsync()
 		{
             try
             {
@@ -180,10 +181,10 @@ namespace Chaincase
                 #region BitcoinCoreInitialization
 
                 var feeProviderList = new List<IFeeProvider>
-            {
-                Synchronizer
-                // wasabiwallet.io's implementation also gets fees from a core node initialized in this region
-            };
+                {
+                    Synchronizer
+                    // wasabiwallet.io's implementation also gets fees from a core node initialized in this region
+                };
 
                 FeeProviders = new FeeProviders(feeProviderList);
 
@@ -523,37 +524,42 @@ namespace Chaincase
                     Logger.LogInfo($"Disposed {nameof(FeeProviders)}.");
                 }
                 var synchronizer = Synchronizer;
-                if (synchronizer != null)
+                if (synchronizer is { })
                 {
                     await synchronizer.StopAsync();
                     Logger.LogInfo($"{nameof(Synchronizer)} is stopped.");
                 }
 
-                if (AddressManagerFilePath != null)
+                var addressManagerFilePath = AddressManagerFilePath;
+                if (addressManagerFilePath is { })
 				{
 					IoHelpers.EnsureContainingDirectoryExists(AddressManagerFilePath);
-					if (AddressManager != null)
+                    var addressManager = AddressManager;
+                    if (addressManager is { })
 					{
-						AddressManager?.SavePeerFile(AddressManagerFilePath, Config.Network);
+						addressManager?.SavePeerFile(AddressManagerFilePath, Config.Network);
 						Logger.LogInfo($"{nameof(AddressManager)} is saved to `{AddressManagerFilePath}`.");
 					}
 				}
 
-				if (Nodes != null)
+                var nodes = Nodes;
+                if (nodes != null)
 				{
-					Nodes?.Dispose();
+					nodes?.Dispose();
 					Logger.LogInfo($"{nameof(Nodes)} are disposed.");
 				}
 
-				if (RegTestMempoolServingNode != null)
+                var regTestMempoolServingNode = RegTestMempoolServingNode;
+                if (regTestMempoolServingNode is { })
 				{
-					RegTestMempoolServingNode.Disconnect();
+					regTestMempoolServingNode.Disconnect();
 					Logger.LogInfo($"{nameof(RegTestMempoolServingNode)} is disposed.");
 				}
 
-				if (TorManager != null)
+                var torManager = TorManager;
+                if (torManager != null)
 				{
-					TorManager?.StopAsync();
+					torManager?.StopAsync();
 					Logger.LogInfo($"{nameof(TorManager)} is stopped.");
 				}
 			}
