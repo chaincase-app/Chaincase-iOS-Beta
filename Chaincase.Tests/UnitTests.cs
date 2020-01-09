@@ -1,7 +1,6 @@
 using System.IO;
-using System.Threading.Tasks;
 using NBitcoin;
-using WalletWasabi.KeyManagement;
+using WalletWasabi.Blockchain.Keys;
 using Chaincase.Controllers;
 using Xunit;
 

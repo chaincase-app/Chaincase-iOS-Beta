@@ -71,8 +71,8 @@ namespace Chaincase.ViewModels
                 return Observable.Return(Unit.Default);
             });
 
-            Observable.FromEventPattern(Global.WalletService.Coins, nameof(Global.WalletService.Coins.CollectionChanged))
-				.Merge(Observable.FromEventPattern(Global.WalletService, nameof(Global.WalletService.CoinSpentOrSpenderConfirmed)))
+            Observable.FromEventPattern(Global.WalletService.TransactionProcessor, nameof(Global.WalletService.TransactionProcessor.WalletRelevantTransactionProcessed))
+				.Merge(Observable.FromEventPattern(Global.ChaumianClient, nameof(Global.ChaumianClient.OnDequeue)))
 				.ObserveOn(RxApp.MainThreadScheduler)
 				.Subscribe(o => SetBalance())
 				.DisposeWith(Disposables);

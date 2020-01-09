@@ -1,9 +1,9 @@
 ﻿using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reactive;
 using System.Windows.Input;
 using ReactiveUI;
-using WalletWasabi.KeyManagement;
+using WalletWasabi.Blockchain.Analysis.Clustering;
+using WalletWasabi.Blockchain.Keys;
 using Xamarin.Forms;
 
 namespace Chaincase.ViewModels
@@ -39,22 +39,23 @@ namespace Chaincase.ViewModels
 
 			GenerateCommand = new Command(() =>
 			{
-				Memo = Memo.Trim(',', ' ').Trim();
+
+                var memo = new SmartLabel();
 				// Require label in next iteration
 
 				Device.BeginInvokeOnMainThread(() =>
 				{
-					HdPubKey newKey = Global.WalletService.GetReceiveKey(Memo, Addresses.Select(x => x.Model).Take(7)); // Never touch the first 7 keys.
-					Memo = null;
+                    var newKey = Global.WalletService.KeyManager.GetNextReceiveKey(Memo, out bool minGapLimitIncreased);
+                    if (minGapLimitIncreased)
+                    {
+                        int minGapLimit = Global.WalletService.KeyManager.MinGapLimit.Value;
+                        int prevMinGapLimit = minGapLimit - 1;
+                    }
 
-					AddressViewModel found = Addresses.FirstOrDefault(x => x.Model == newKey);
-					if (found != default)
-					{
-						Addresses.Remove(found);
-					}
-					var newAddress = new AddressViewModel(_hostScreen, newKey);
-					Addresses.Insert(0, newAddress);
-					SelectedAddress = newAddress;
+                    var newAddress = new AddressViewModel(_hostScreen, newKey);
+                    Addresses.Insert(0, newAddress);
+                    SelectedAddress = newAddress;
+                    Memo = null;
 				});
 			});
 		}
@@ -64,8 +65,8 @@ namespace Chaincase.ViewModels
 			_addresses?.Clear();
 
 			foreach (HdPubKey key in Global.WalletService.KeyManager.GetKeys(x =>
-																		x.HasLabel
-																		&& !x.IsInternal
+																		!x.Label.IsEmpty
+                                                                        && !x.IsInternal
 																		&& x.KeyState == KeyState.Clean)
 																	.Reverse())
 			{
