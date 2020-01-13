@@ -50,7 +50,7 @@ namespace Chaincase
 
         public static bool KillRequested { get; private set; } = false;
 
-		public static Network Network => Config.Network;
+		public static NBitcoin.Network Network => Config.Network;
 
 		static Global()
 		{
@@ -205,15 +205,15 @@ namespace Chaincase
 
                 #region P2PInitialization
 
-                if (Network == Network.RegTest)
+                if (Network == NBitcoin.Network.RegTest)
                 {
                     Nodes = new NodesGroup(Network, requirements: Constants.NodeRequirements);
                     try
                     {
-                        Node node = await Node.ConnectAsync(Network.RegTest, new IPEndPoint(IPAddress.Loopback, 18444));
+                        Node node = await Node.ConnectAsync(NBitcoin.Network.RegTest, new IPEndPoint(IPAddress.Loopback, 18444));
                         Nodes.ConnectedNodes.Add(node);
 
-                        RegTestMempoolServingNode = await Node.ConnectAsync(Network.RegTest, new IPEndPoint(IPAddress.Loopback, 18444));
+                        RegTestMempoolServingNode = await Node.ConnectAsync(NBitcoin.Network.RegTest, new IPEndPoint(IPAddress.Loopback, 18444));
 
                         RegTestMempoolServingNode.Behaviors.Add(BitcoinStore.CreateUntrustedP2pBehavior());
                     }
@@ -230,7 +230,7 @@ namespace Chaincase
                         connectionParameters.TemplateBehaviors.Add(new SocksSettingsBehavior(Config.TorSocks5EndPoint, onlyForOnionHosts: false, networkCredential: null, streamIsolation: true));
                         // allowOnlyTorEndpoints: true - Connect only to onions and don't connect to clearnet IPs at all.
                         // This of course makes the first setting unneccessary, but it's better if that's around, in case someone wants to tinker here.
-                        connectionParameters.EndpointConnector = new DefaultEndpointConnector(allowOnlyTorEndpoints: Network == Network.Main);
+                        connectionParameters.EndpointConnector = new DefaultEndpointConnector(allowOnlyTorEndpoints: Network == NBitcoin.Network.Main);
 
                         await AddKnownBitcoinFullNodeAsHiddenServiceAsync(AddressManager);
                     }
@@ -254,12 +254,12 @@ namespace Chaincase
                 #region SynchronizerInitialization
 
                 var requestInterval = TimeSpan.FromSeconds(30);
-                if (Network == Network.RegTest)
+                if (Network == NBitcoin.Network.RegTest)
                 {
                     requestInterval = TimeSpan.FromSeconds(5);
                 }
 
-                int maxFiltSyncCount = Network == Network.Main ? 1000 : 10000; // On testnet, filters are empty, so it's faster to query them together
+                int maxFiltSyncCount = Network == NBitcoin.Network.Main ? 1000 : 10000; // On testnet, filters are empty, so it's faster to query them together
 
                 Synchronizer.Start(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
                 Logger.LogInfo("Start synchronizing filters...");
@@ -285,7 +285,7 @@ namespace Chaincase
         private static async Task<AddressManagerBehavior> InitializeAddressManagerBehaviorAsync()
         {
             var needsToDiscoverPeers = true;
-            if (Network == Network.RegTest)
+            if (Network == NBitcoin.Network.RegTest)
             {
                 AddressManager = new AddressManager();
                 Logger.LogInfo($"Fake {nameof(AddressManager)} is initialized on the RegTest.");
@@ -348,7 +348,7 @@ namespace Chaincase
 
         private static async Task AddKnownBitcoinFullNodeAsHiddenServiceAsync(AddressManager addressManager)
 		{
-			if (Network == Network.RegTest)
+			if (Network == NBitcoin.Network.RegTest)
 			{
 				return;
 			}

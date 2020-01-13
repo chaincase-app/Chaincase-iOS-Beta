@@ -29,7 +29,7 @@ namespace Chaincase
 
         [JsonProperty(PropertyName = "Network")]
         [JsonConverter(typeof(NetworkJsonConverter))]
-        public Network Network { get; internal set; } = Network.Main;
+        public NBitcoin.Network Network { get; internal set; } = NBitcoin.Network.Main;
 
         [DefaultValue("http://wasabiukrxmkdgve5kynjztuovbg43uxcbcxn6y2okcrsg7gb6jdmbad.onion/")]
         [JsonProperty(PropertyName = "MainNetBackendUriV3", DefaultValueHandling = DefaultValueHandling.Populate)]
@@ -174,15 +174,15 @@ namespace Chaincase
                 return _backendUri;
             }
 
-            if (Network == Network.Main)
+            if (Network == NBitcoin.Network.Main)
             {
                 _backendUri = new Uri(MainNetBackendUriV3);
             }
-            else if (Network == Network.TestNet)
+            else if (Network == NBitcoin.Network.TestNet)
             {
                 _backendUri = new Uri(TestNetBackendUriV3);
             }
-            else if (Network == Network.RegTest)
+            else if (Network == NBitcoin.Network.RegTest)
             {
                 _backendUri = new Uri(RegTestBackendUriV3);
             }
@@ -201,15 +201,15 @@ namespace Chaincase
                 return _fallbackBackendUri;
             }
 
-            if (Network == Network.Main)
+            if (Network == NBitcoin.Network.Main)
             {
                 _fallbackBackendUri = new Uri(MainNetFallbackBackendUri);
             }
-            else if (Network == Network.TestNet)
+            else if (Network == NBitcoin.Network.TestNet)
             {
                 _fallbackBackendUri = new Uri(TestNetFallbackBackendUri);
             }
-            else if (Network == Network.RegTest)
+            else if (Network == NBitcoin.Network.RegTest)
             {
                 _fallbackBackendUri = new Uri(RegTestBackendUriV3);
             }
@@ -228,15 +228,15 @@ namespace Chaincase
 
         public EndPoint GetBitcoinP2pEndPoint()
         {
-            if (Network == Network.Main)
+            if (Network == NBitcoin.Network.Main)
             {
                 return MainNetBitcoinP2pEndPoint;
             }
-            else if (Network == Network.TestNet)
+            else if (Network == NBitcoin.Network.TestNet)
             {
                 return TestNetBitcoinP2pEndPoint;
             }
-            else if (Network == Network.RegTest)
+            else if (Network == NBitcoin.Network.RegTest)
             {
                 return RegTestBitcoinP2pEndPoint;
             }
@@ -268,15 +268,15 @@ namespace Chaincase
 
         public void SetP2PEndpoint(EndPoint endPoint)
         {
-            if (Network == Network.Main)
+            if (Network == NBitcoin.Network.Main)
             {
                 MainNetBitcoinP2pEndPoint = endPoint;
             }
-            else if (Network == Network.TestNet)
+            else if (Network == NBitcoin.Network.TestNet)
             {
                 TestNetBitcoinP2pEndPoint = endPoint;
             }
-            else if (Network == Network.RegTest)
+            else if (Network == NBitcoin.Network.RegTest)
             {
                 RegTestBitcoinP2pEndPoint = endPoint;
             }
@@ -288,15 +288,15 @@ namespace Chaincase
 
         public EndPoint GetP2PEndpoint()
         {
-            if (Network == Network.Main)
+            if (Network == NBitcoin.Network.Main)
             {
                 return MainNetBitcoinP2pEndPoint;
             }
-            else if (Network == Network.TestNet)
+            else if (Network == NBitcoin.Network.TestNet)
             {
                 return TestNetBitcoinP2pEndPoint;
             }
-            else if (Network == Network.RegTest)
+            else if (Network == NBitcoin.Network.RegTest)
             {
                 return RegTestBitcoinP2pEndPoint;
             }

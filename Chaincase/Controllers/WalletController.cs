@@ -10,14 +10,14 @@ namespace Chaincase.Controllers
 {
 	public static class WalletController
 	{
-		public static Mnemonic GenerateMnemonic(string passphrase, Network network)
+		public static Mnemonic GenerateMnemonic(string passphrase, NBitcoin.Network network)
 		{
 			string walletFilePath = Path.Combine(Global.WalletsDir, $"{network.ToString()}.json");
 			KeyManager.CreateNew(out Mnemonic mnemonic, passphrase, walletFilePath);
 			return mnemonic;
 		}
 
-		public static bool VerifyWalletCredentials(string mnemonicString, string passphrase, Network network)
+		public static bool VerifyWalletCredentials(string mnemonicString, string passphrase, NBitcoin.Network network)
 		{
 			Mnemonic mnemonic = new Mnemonic(mnemonicString);
 			ExtKey derivedExtKey = mnemonic.DeriveExtKey(passphrase);
@@ -36,7 +36,7 @@ namespace Chaincase.Controllers
 			return keyOnDisk.Equals(derivedExtKey);
 		}
 
-		public static async Task LoadWalletAsync(Network network)
+		public static async Task LoadWalletAsync(NBitcoin.Network network)
 		{
 			// TODO Nono backup wallet folder!!
 			string walletFilePath = Global.GetWalletFullPath(network.ToString());
@@ -53,7 +53,7 @@ namespace Chaincase.Controllers
 			}
 		}
 
-		public static bool WalletExists(Network network)
+		public static bool WalletExists(NBitcoin.Network network)
 		{
 			string walletFilePath = Global.GetWalletFullPath(network.ToString());
 			return File.Exists(walletFilePath);
