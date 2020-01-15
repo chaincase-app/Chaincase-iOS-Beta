@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using WalletWasabi.Blockchain.Analysis.FeesEstimation;
@@ -138,7 +139,11 @@ namespace Chaincase
                 var blocksFolderPath = Path.Combine(DataDir, $"Blocks{Network}");
                 var connectionParameters = new NodeConnectionParameters();
 
-                if (Config.UseTor)
+                var isMobile = false;
+#if __MOBILE__
+                isMobile = true;
+#endif
+                if (!isMobile && Config.UseTor)
                 {
                     Synchronizer = new WasabiSynchronizer(Network, BitcoinStore, () => Config.GetCurrentBackendUri(), Config.TorSocks5EndPoint);
                 }
@@ -147,13 +152,13 @@ namespace Chaincase
                     Synchronizer = new WasabiSynchronizer(Network, BitcoinStore, Config.GetFallbackBackendUri(), null);
                 }
 
-                #region ProcessKillSubscription
+#region ProcessKillSubscription
 
                 AppDomain.CurrentDomain.ProcessExit += async (s, e) => await TryDesperateDequeueAllCoinsAsync();
 
-                #endregion ProcessKillSubscription
+#endregion ProcessKillSubscription
 
-                #region TorProcessInitialization
+#region TorProcessInitialization
 
                 if (Config.UseTor)
                 {
@@ -170,15 +175,15 @@ namespace Chaincase
 
                 Logger.LogInfo($"{nameof(TorProcessManager)} is initialized.");
 
-                #endregion TorProcessInitialization
+#endregion TorProcessInitialization
 
-                #region BitcoinStoreInitialization
+#region BitcoinStoreInitialization
 
                 await bstoreInitTask;
 
-                #endregion BitcoinStoreInitialization
+#endregion BitcoinStoreInitialization
 
-                #region BitcoinCoreInitialization
+#region BitcoinCoreInitialization
 
                 var feeProviderList = new List<IFeeProvider>
                 {
@@ -188,22 +193,22 @@ namespace Chaincase
 
                 FeeProviders = new FeeProviders(feeProviderList);
 
-                #endregion BitcoinCoreInitialization
+#endregion BitcoinCoreInitialization
 
-                #region MempoolInitialization
+#region MempoolInitialization
 
                 connectionParameters.TemplateBehaviors.Add(BitcoinStore.CreateUntrustedP2pBehavior());
 
-                #endregion MempoolInitialization
+#endregion MempoolInitialization
 
-                #region AddressManagerInitialization
+#region AddressManagerInitialization
 
                 AddressManagerBehavior addressManagerBehavior = await addrManTask;
                 connectionParameters.TemplateBehaviors.Add(addressManagerBehavior);
 
-                #endregion AddressManagerInitialization
+#endregion AddressManagerInitialization
 
-                #region P2PInitialization
+#region P2PInitialization
 
                 if (Network == NBitcoin.Network.RegTest)
                 {
@@ -249,9 +254,9 @@ namespace Chaincase
                     Logger.LogInfo("Start connecting to mempool serving regtest node...");
                 }
 
-                #endregion P2PInitialization
+#endregion P2PInitialization
 
-                #region SynchronizerInitialization
+#region SynchronizerInitialization
 
                 var requestInterval = TimeSpan.FromSeconds(30);
                 if (Network == NBitcoin.Network.RegTest)
@@ -264,7 +269,7 @@ namespace Chaincase
                 Synchronizer.Start(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
                 Logger.LogInfo("Start synchronizing filters...");
 
-                #endregion SynchronizerInitialization
+#endregion SynchronizerInitialization
 
                 TransactionBroadcaster = new TransactionBroadcaster(Network, BitcoinStore, Synchronizer, Nodes, null);
                 CoinJoinProcessor = new CoinJoinProcessor(Synchronizer, null);
