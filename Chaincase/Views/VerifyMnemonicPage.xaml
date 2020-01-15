@@ -40,22 +40,5 @@
            IsPassword="true" />
     <Button Text="Continue"
             x:Name="Continue" />
-    <Label Text="Hello World!">
-      <Label.Triggers>
-        <DataTrigger TargetType="Label"
-                     x:Name="IsVerifiedTriggerFalse"
-                     Value="false">
-          <Setter Property="Text"
-                  Value="Not Verified" />
-        </DataTrigger>
-        <DataTrigger TargetType="Label"
-                     x:Name="IsVerifiedTriggerTrue"
-                     Value="true">
-          <Setter Property="Text"
-                  Value="Verified" />
-        </DataTrigger>
-      </Label.Triggers>
-
-    </Label>
   </StackLayout>
 </rxui:ReactiveContentPage>
