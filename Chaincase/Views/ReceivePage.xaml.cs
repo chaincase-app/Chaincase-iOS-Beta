@@ -10,16 +10,17 @@ namespace Chaincase.Views
 		public ReceivePage()
 		{
 			InitializeComponent();
-            this.WhenActivated(disposables =>
+
+            this.WhenActivated(d =>
             {
-                this.BindCommand(ViewModel,
-                    vm => vm.GenerateCommand,
-                    v => v.Generate)
-                    .DisposeWith(disposables);
                 this.Bind(ViewModel,
 					vm => vm.Memo,
 					v => v.Memo.Text)
-                .DisposeWith(disposables);
+                    .DisposeWith(d);
+                this.BindCommand(ViewModel,
+                    vm => vm.GenerateCommand,
+                    v => v.GenerateButton)
+                    .DisposeWith(d);
             });
         }
 	}

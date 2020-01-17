@@ -6,27 +6,14 @@
                           xmlns:templates="clr-namespace:Chaincase.Views.Templates;assembly=Chaincase"
                           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                           xmlns="http://xamarin.com/schemas/2014/forms">
-  <ScrollView>
-    <StackLayout>
-      <!-- ADDRESSES -->
-      <StackLayout>
-        <Label Text="+ Receive"
-           FontAttributes="Bold" />
-        <Label Text="Memo" />
-        <Entry Placeholder="to whom/for what"
-               x:Name="Memo" />
-        <Button Text="Generate Address"
-                x:Name="Generate" />
-      </StackLayout>
-      <ListView ItemsSource="{Binding Addresses}">
-        <ListView.ItemTemplate>
-          <DataTemplate>
-            <ViewCell>
-              <templates:AddressTemplate />
-            </ViewCell>
-          </DataTemplate>
-        </ListView.ItemTemplate>
-      </ListView>
-    </StackLayout>
-  </ScrollView>
+
+  <StackLayout>
+    <Label Text="+ Receive"
+        FontAttributes="Bold" />
+    <Label Text="Memo" />
+    <Entry Placeholder="to whom/for what"
+            x:Name="Memo" />
+    <Button Text="Generate Address"
+            x:Name="GenerateButton" />
+  </StackLayout>
 </rxui:ReactiveContentPage>
