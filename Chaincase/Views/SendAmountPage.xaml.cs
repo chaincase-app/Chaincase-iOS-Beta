@@ -28,10 +28,6 @@ namespace Chaincase.Views
                     vm => vm.GoNext,
                     v => v.NextButton)
                     .DisposeWith(d);
-                this.BindCommand(ViewModel,
-                    vm => vm.NavigateBack,
-                    v => v.BackButton)
-                    .DisposeWith(d);
 			}); 
 		}
     }

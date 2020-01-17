@@ -22,7 +22,6 @@ namespace Chaincase.ViewModels
 		private CoinListViewModel _coinList;
 
         public ReactiveCommand<Unit, Unit> GoNext;
-        public ReactiveCommand<Unit, Unit> NavigateBack;
 
         public SendAmountViewModel(IScreen hostScreen) : base(hostScreen)
         {
@@ -64,8 +63,6 @@ namespace Chaincase.ViewModels
                 HostScreen.Router.Navigate.Execute(new SendWhoViewModel(hostScreen, this)).Subscribe();
                 return Observable.Return(Unit.Default);
             });
-
-            NavigateBack = HostScreen.Router.NavigateBack;
         }
 
         public string AmountText

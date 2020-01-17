@@ -15,7 +15,5 @@
                                 VerticalOptions="FillAndExpand" />
     <Button Text="Next"
             x:Name="NextButton" />
-    <Button Text="Back"
-            x:Name="BackButton" />
   </StackLayout>
 </rxui:ReactiveContentPage>
