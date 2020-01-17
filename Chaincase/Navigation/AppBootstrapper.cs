@@ -25,7 +25,7 @@ namespace Chaincase.Navigation
 			}
 			else
 			{
-				Router.Navigate.Execute(new PassphraseViewModel(this));
+				Router.Navigate.Execute(new LandingViewModel(this));
 			}
 		}
 
@@ -36,6 +36,7 @@ namespace Chaincase.Navigation
 			dependencyResolver.RegisterConstant(this, typeof(IScreen));
 
 			dependencyResolver.Register(() => new MainPage(), typeof(IViewFor<MainViewModel>));
+			dependencyResolver.Register(() => new LandingPage(), typeof(IViewFor<LandingViewModel>));
 			dependencyResolver.Register(() => new ReceivePage(), typeof(IViewFor<ReceiveViewModel>));
 			dependencyResolver.Register(() => new SendAmountPage(), typeof(IViewFor<SendAmountViewModel>));
             dependencyResolver.Register(() => new SendWhoPage(), typeof(IViewFor<SendWhoViewModel>));
