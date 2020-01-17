@@ -1,7 +1,9 @@
 ﻿using Gma.QrCodeNet.Encoding;
 using ReactiveUI;
+using System.Reactive;
 using System.Threading.Tasks;
 using WalletWasabi.Blockchain.Keys;
+using Xamarin.Essentials;
 
 namespace Chaincase.ViewModels
 {
@@ -34,6 +36,18 @@ namespace Chaincase.ViewModels
 			{
 				QrCode = x.Result;
 			});
+
+			ShareCommand = ReactiveCommand.CreateFromTask<string>(ShareAddress);
 		}
+
+		public ReactiveCommand<string, Unit> ShareCommand;
+
+        public async Task ShareAddress(string address)
+        {
+			await Share.RequestAsync(new ShareTextRequest
+			{
+				Text = address
+			});
+        }
 	}
 }

@@ -22,6 +22,11 @@ namespace Chaincase.Views
 					vm => vm.Address,
 					v => v.Address.Text)
 					.DisposeWith(d);
+				this.BindCommand(ViewModel,
+					vm => vm.ShareCommand,
+					v => v.ShareButton,
+                    vm => vm.Address)
+					.DisposeWith(d);
 			});
 		}
 	}
