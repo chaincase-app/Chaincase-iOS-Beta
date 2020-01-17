@@ -8,7 +8,7 @@
                           xmlns="http://xamarin.com/schemas/2014/forms">
 
   <StackLayout>
-    <Label Text="+ Receive"
+    <Label Text="A memo is for you to tell coins apart"
         FontAttributes="Bold" />
     <Label Text="Memo" />
     <Entry Placeholder="to whom/for what"

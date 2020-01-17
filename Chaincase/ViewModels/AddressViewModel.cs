@@ -9,7 +9,7 @@ namespace Chaincase.ViewModels
 	{
 		private bool[,] _qrCode;
 
-		public string Label => Model.Label;
+		public string Memo => Model.Label;
 		public string Address => Model.GetP2wpkhAddress(Global.Network).ToString();
 		public string Pubkey => Model.PubKey.ToString();
 		public string KeyPath => Model.FullKeyPath.ToString();
@@ -24,7 +24,6 @@ namespace Chaincase.ViewModels
 		{
 			Model = model;
 
-			// TODO fix this performance issue this should only be generated when accessed.
 			Task.Run(() =>
 			{
 				var encoder = new QrEncoder(ErrorCorrectionLevel.M);

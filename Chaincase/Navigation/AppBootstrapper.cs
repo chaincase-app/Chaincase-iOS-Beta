@@ -38,6 +38,7 @@ namespace Chaincase.Navigation
 			dependencyResolver.Register(() => new MainPage(), typeof(IViewFor<MainViewModel>));
 			dependencyResolver.Register(() => new LandingPage(), typeof(IViewFor<LandingViewModel>));
 			dependencyResolver.Register(() => new ReceivePage(), typeof(IViewFor<ReceiveViewModel>));
+			dependencyResolver.Register(() => new AddressPage(), typeof(IViewFor<AddressViewModel>));
 			dependencyResolver.Register(() => new SendAmountPage(), typeof(IViewFor<SendAmountViewModel>));
             dependencyResolver.Register(() => new SendWhoPage(), typeof(IViewFor<SendWhoViewModel>));
             dependencyResolver.Register(() => new CoinJoinPage(), typeof(IViewFor<CoinJoinViewModel>));
