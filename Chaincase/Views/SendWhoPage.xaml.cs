@@ -24,5 +24,11 @@ namespace Chaincase.Views
                     .DisposeWith(d);
             });
         }
+
+        async void Send(object sender, EventArgs e)
+        {
+            string password = await DisplayPromptAsync("Confirm Send", "Enter your password.", "Confirm");
+            ViewModel.BuildTransactionCommand.Execute(password);
+        }
     }
 }

@@ -15,6 +15,7 @@
     <Label Text="pay to the order of" />
     <Entry x:Name="Address" />
     <Button Text="Send"
+            Clicked="Send"
             VerticalOptions="EndAndExpand" />
   </StackLayout>
 </rxui:ReactiveContentPage>
