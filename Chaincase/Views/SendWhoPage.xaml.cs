@@ -19,24 +19,10 @@ namespace Chaincase.Views
                     v => v.Address.Text)
                     .DisposeWith(d);
                 this.Bind(ViewModel,
-                    vm => vm.Password,
-                    v => v.Password.Text)
-                    .DisposeWith(d);
-                this.Bind(ViewModel,
                     vm => vm.Memo,
                     v => v.Memo.Text)
                     .DisposeWith(d);
             });
-        }
-
-        public void ShowPasswordEntry(object sender, EventArgs args)
-        {
-            PasswordModal.IsVisible = true;
-        }
-
-        public void HidePasswordEntry(object sender, EventArgs args)
-        {
-            PasswordModal.IsVisible = false;
         }
     }
 }

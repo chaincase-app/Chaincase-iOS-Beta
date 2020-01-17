@@ -14,6 +14,7 @@
     <templates:CoinListTemplate x:Name="CoinList"
                                 VerticalOptions="FillAndExpand" />
     <Button Text="Next"
-            x:Name="NextButton" />
+            x:Name="NextButton"
+            VerticalOptions="End" />
   </StackLayout>
 </rxui:ReactiveContentPage>
