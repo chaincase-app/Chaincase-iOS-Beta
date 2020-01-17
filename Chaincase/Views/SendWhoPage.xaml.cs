@@ -3,6 +3,7 @@ using ReactiveUI;
 using ReactiveUI.XamForms;
 using Chaincase.ViewModels;
 using System;
+using Xamarin.Forms;
 
 namespace Chaincase.Views
 {
@@ -11,6 +12,7 @@ namespace Chaincase.Views
         public SendWhoPage()
         {
             InitializeComponent();
+            SetButtonBorders();
 
             this.WhenActivated(d =>
             {
@@ -25,10 +27,24 @@ namespace Chaincase.Views
             });
         }
 
+        void SetButtonBorders()
+        {
+
+            SlowButton.BorderWidth = 1;
+            StandardButton.BorderWidth = 1;
+            FastButton.BorderWidth = 1;
+        }
+
         async void Send(object sender, EventArgs e)
         {
             string password = await DisplayPromptAsync("Confirm Send", "Enter your password.", "Confirm");
             ViewModel.BuildTransactionCommand.Execute(password);
+        }
+
+        void SetFee(object sender, EventArgs e)
+        {
+            SetButtonBorders();
+            ((Button)sender).BorderWidth = 2;
         }
     }
 }

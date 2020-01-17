@@ -14,6 +14,18 @@
             x:Name="Memo" />
     <Label Text="pay to the order of" />
     <Entry x:Name="Address" />
+    <Label Text="network fee" />
+    <Grid ColumnSpacing="8" HorizontalOptions="FillAndExpand">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="33.33*" />
+            <ColumnDefinition Width="33.33*" />
+            <ColumnDefinition Width="33.33*" />
+        </Grid.ColumnDefinitions>
+        <Button x:Name="SlowButton" Clicked="SetFee" Text="SLOW" Grid.Column="0" HorizontalOptions="FillAndExpand"/>
+        <Button x:Name="StandardButton" Clicked="SetFee" Text="STANDARD" Grid.Column="1" HorizontalOptions="FillAndExpand"/>
+        <Button x:Name="FastButton" Clicked="SetFee" Text="FAST" Grid.Column="2" HorizontalOptions="FillAndExpand"/>          
+     </Grid>
+
     <Button Text="Send"
             Clicked="Send"
             VerticalOptions="EndAndExpand" />
