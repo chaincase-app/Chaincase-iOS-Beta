@@ -31,8 +31,6 @@ namespace Chaincase.ViewModels
         private object SelectionChangedLock { get; } = new object();
         private object StateChangedLock { get; } = new object();
 
-        public ReactiveCommand<Unit, Unit> BackCommand { get; }
-
         public event EventHandler CoinListShown;
 		public event EventHandler<CoinViewModel> SelectionChanged;
 
@@ -42,30 +40,21 @@ namespace Chaincase.ViewModels
 		public CoinListViewModel(IScreen hostScreen) : base(hostScreen)
 		{
 			SelectedAmountText = "0";
-			RootList = new SourceList<CoinViewModel>();
-			RootList.Connect()
-				.OnItemRemoved(x => x.UnsubscribeEvents())
-				.Bind(out _coinViewModels)
-				.ObserveOn(RxApp.MainThreadScheduler)
-				.Subscribe();
+            RootList = new SourceList<CoinViewModel>();
+            RootList
+                .Connect()
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Bind(out _coinViewModels)
+                .Subscribe();
 
-
-			BackCommand = hostScreen.Router.NavigateBack;
 			OnOpen();
-
 		}
 
 		public void OnOpen()
 		{
-
-			Disposables = new CompositeDisposable();
-
-			foreach (var sc in Global.WalletService.Coins.Where(sc => sc.Unspent))
-			{
-				var newCoinVm = new CoinViewModel(this, sc, _hostScreen);
-				newCoinVm.SubscribeEvents();
-				RootList.Add(newCoinVm);
-			}
+            Disposables = Disposables is null ?
+                new CompositeDisposable() :
+                throw new NotSupportedException($"Cannot open {GetType().Name} before closing it.");
 
 			Observable
                 .Merge(Observable.FromEventPattern<ProcessedResult>(Global.WalletService.TransactionProcessor, nameof(Global.WalletService.TransactionProcessor.WalletRelevantTransactionProcessed)).Select(_ => Unit.Default))
@@ -151,8 +140,6 @@ namespace Chaincase.ViewModels
                     }
                 })
                 .DisposeWith(cvm.GetDisposables()); // Subscription will be disposed with the coinViewModel.
-
-            // TODO Update coin status
         }
 
         public String SelectedAmountText

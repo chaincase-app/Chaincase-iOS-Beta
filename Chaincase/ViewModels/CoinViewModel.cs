@@ -31,18 +31,9 @@ namespace Chaincase.ViewModels
 		{
 			Model = model;
 			_owner = owner;
-		}
-
-		public void SubscribeEvents()
-		{
-			if (Disposables != null)
-			{
-				throw new Exception("Please report to Dan");
-			}
 
 			Disposables = new CompositeDisposable();
 
-			//TODO defer subscription to when accessed (will be faster in ui.)
 			_coinJoinInProgress = Model.WhenAnyValue(x => x.CoinJoinInProgress)
 				.ObserveOn(RxApp.MainThreadScheduler)
 				.ToProperty(this, x => x.CoinJoinInProgress)
@@ -57,45 +48,24 @@ namespace Chaincase.ViewModels
 			_unavailable = Model.WhenAnyValue(x => x.Unavailable).ToProperty(this, x => x.Unavailable, scheduler: RxApp.MainThreadScheduler)
 				.DisposeWith(Disposables);
 
-			this.WhenAnyValue(x => x.IsSelected)
-				.ObserveOn(RxApp.MainThreadScheduler)
-				.Subscribe(_ => _owner.OnCoinIsSelectedChanged(this));
-
 			this.WhenAnyValue(x => x.Status)
 				.Subscribe(_ => this.RaisePropertyChanged(nameof(ToolTip)));
 
-			this.WhenAnyValue(x => x.Confirmed, x => x.CoinJoinInProgress, x => x.Confirmations)
-				.ObserveOn(RxApp.MainThreadScheduler)
-				.Subscribe(_ => RefreshSmartCoinStatus());
-
-
-			Model.WhenAnyValue(x => x.IsBanned, x => x.SpentAccordingToBackend)
+			Observable
+                .Merge(Model.WhenAnyValue(x => x.IsBanned, x => x.SpentAccordingToBackend, x=> x.CoinJoinInProgress).Select(_ => Unit.Default))
+				.Merge(Observable.FromEventPattern(Global.ChaumianClient, nameof(Global.ChaumianClient.StateUpdated)).Select(_ => Unit.Default))
 				.ObserveOn(RxApp.MainThreadScheduler)
 				.Subscribe(_ => RefreshSmartCoinStatus())
 				.DisposeWith(Disposables);
 
-			Observable.FromEventPattern(
-				Global.ChaumianClient,
-				nameof(Global.ChaumianClient.StateUpdated))
+			Global.BitcoinStore.SmartHeaderChain
+				.WhenAnyValue(x => x.TipHeight).Select(_ => Unit.Default)
+				.Merge(Model.WhenAnyValue(x => x.Height).Select(_ => Unit.Default))
+				.Throttle(TimeSpan.FromSeconds(0.1)) // DO NOT TAKE THIS THROTTLE OUT, OTHERWISE SYNCING WITH COINS IN THE WALLET WILL STACKOVERFLOW!
 				.ObserveOn(RxApp.MainThreadScheduler)
-				.Subscribe(_ =>
-				{
-					RefreshSmartCoinStatus();
-				}).DisposeWith(Disposables);
+				.Subscribe(_ => this.RaisePropertyChanged(nameof(Confirmations)))
+				.DisposeWith(Disposables);
 
-            Global.BitcoinStore.SmartHeaderChain
-                .WhenAnyValue(x => x.TipHeight).Select(_ => Unit.Default)
-                .Merge(Model.WhenAnyValue(x => x.Height).Select(_ => Unit.Default))
-                .Throttle(TimeSpan.FromSeconds(0.1)) // DO NOT TAKE THIS THROTTLE OUT, OTHERWISE SYNCING WITH COINS IN THE WALLET WILL STACKOVERFLOW!
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(_ => this.RaisePropertyChanged(nameof(Confirmations)))
-                .DisposeWith(Disposables);
-        }
-
-		public void UnsubscribeEvents()
-		{
-			Disposables.Dispose();
-			Disposables = null;
 		}
 
 		public SmartCoin Model { get; }

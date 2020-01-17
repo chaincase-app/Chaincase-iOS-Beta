@@ -15,7 +15,7 @@
     <LangVersion>default</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Xamarin.Forms" Version="4.3.0.851321-pre3" />
+    <PackageReference Include="Xamarin.Forms" Version="4.4.0.991477" />
     <PackageReference Include="Xamarin.Essentials" Version="1.3.1" />
     <PackageReference Include="Xam.Plugins.Settings" Version="4.0.0.10-beta" />
     <PackageReference Include="ReactiveUI" Version="10.5.7" />
@@ -95,5 +95,10 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WalletWasabi\WalletWasabi.Standard\WalletWasabi.Standard.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Xamarin.Mac">
+      <HintPath>..\..\..\..\..\..\..\Library\Frameworks\Xamarin.Mac.framework\Versions\6.8.3.0\lib\reference\mobile\Xamarin.Mac.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>
