@@ -12,6 +12,8 @@ using Chaincase.Controllers;
 using Chaincase.Navigation;
 using Xamarin.Forms;
 using Splat;
+using System.Reactive.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Chaincase.ViewModels
 {
@@ -24,12 +26,10 @@ namespace Chaincase.ViewModels
         private int _peersNeeded;
         private Money _requiredBTC;
         
-        private String _balance;
+        private string _balance;
+        private string accept;
 
-		public ReactiveCommand<Unit, Unit> NavigateBack { get; private set; }
-        public ReactiveCommand<Unit, Unit> CoinJoin { get; private set; }
-        readonly ObservableAsPropertyHelper<bool> _isJoining;
-        public bool IsJoining { get { return _isJoining.Value; } }
+        private readonly Interaction<Unit, string> confirmPassword;
 
         public CoinJoinViewModel(IScreen hostScreen) : base(hostScreen)
         {
@@ -43,11 +43,9 @@ namespace Chaincase.ViewModels
             Disposables = new CompositeDisposable();
             CoinList = new CoinListViewModel(hostScreen);
 
-            NavigateBack = HostScreen.Router.NavigateBack;
+            this.confirmPassword = new Interaction<Unit, string>();
 
-            CoinJoin = ReactiveCommand.CreateFromObservable(CoinJoinImpl);
-            CoinJoin.IsExecuting.ToProperty(this, x => x.IsJoining, out _isJoining);
-            CoinJoin.ThrownExceptions.Subscribe(ex => Logger.LogError(ex));
+            CoinJoinCommand = ReactiveCommand.CreateFromTask<string>(this.CoinJoin); 
 
             Observable.FromEventPattern(Global.ChaumianClient, nameof(Global.ChaumianClient.CoinQueued))
                 .Merge(Observable.FromEventPattern(Global.ChaumianClient, nameof(Global.ChaumianClient.OnDequeue)))
@@ -62,22 +60,12 @@ namespace Chaincase.ViewModels
         private void OnOpen()
         {
             var registrableRound = Global.ChaumianClient.State.GetRegistrableRoundOrDefault();
-
-
         }
 
 		private void SetBalance()
 		{
 			Balance = WalletController.GetBalance().ToString();
 		}
-
-        public IObservable<Unit> CoinJoinImpl()
-        {
-            return Observable.Start(() =>
-            {
-                Task.Delay(500);
-            });
-        }
 
         private void UpdateStates()
         {
@@ -119,10 +107,26 @@ namespace Chaincase.ViewModels
             set => this.RaiseAndSetIfChanged(ref _coinList, value);
         }
 
-        public String Balance
+        public string Balance
         {
             get => _balance;
             set => this.RaiseAndSetIfChanged(ref _balance, value);
+        }
+
+        public ReactiveCommand<string, Unit> CoinJoinCommand;
+
+        public Interaction<Unit, string> ConfirmPassword => this.confirmPassword;
+
+        public async Task CoinJoin(string password)
+        {
+            Debug.WriteLine(password);
+            if (password.Equals("bosco"))
+            {
+                await Task.Delay(4444);
+            } else
+            {
+                await Task.Delay(200);
+            }
         }
     }
 }

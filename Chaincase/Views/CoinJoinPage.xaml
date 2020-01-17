@@ -12,10 +12,7 @@
     <templates:CoinListTemplate x:Name="CoinList"
                                 VerticalOptions="FillAndExpand" />
     <Button Text="Confirm"
-            x:Name="ConfirmButton"
-            VerticalOptions="End" />
-    <Button Text="Cancel"
-            x:Name="CancelButton"
+            Clicked="Confirm"
             VerticalOptions="End" />
   </StackLayout>
 </rxui:ReactiveContentPage>

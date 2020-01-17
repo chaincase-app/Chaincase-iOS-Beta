@@ -2,6 +2,11 @@
 using ReactiveUI;
 using ReactiveUI.XamForms;
 using Chaincase.ViewModels;
+using System.Diagnostics;
+using System.Threading.Tasks;
+using AppKit;
+using CoreGraphics;
+using System;
 
 namespace Chaincase.Views
 {
@@ -22,15 +27,13 @@ namespace Chaincase.Views
                     vm => vm.CoinList,
                     v => v.CoinList.ViewModel)
                     .DisposeWith(d);
-                this.BindCommand(ViewModel,
-                    vm => vm.CoinJoin,
-                    v => v.ConfirmButton)
-                    .DisposeWith(d);
-                this.BindCommand(ViewModel,
-                    vm => vm.NavigateBack,
-                    v => v.CancelButton)
-                    .DisposeWith(d);
             });
+        }
+
+        async void Confirm(object sender, EventArgs e)
+        {
+            string password = await DisplayPromptAsync("Confirm CoinJoin", "Enter your password.", "Confirm");
+            ViewModel.CoinJoinCommand.Execute(password);
         }
     }
 }
