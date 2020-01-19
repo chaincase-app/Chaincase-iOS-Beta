@@ -96,12 +96,11 @@ namespace Chaincase.ViewModels
 					return;
 				}
 
-				var unspentCoins = SendAmountViewModel.CoinList.Coins.Select(cvm => cvm.Model.GetCoin()).ToList();
-				var selector = new DefaultCoinSelector();
-				var selectedCoins = selector.Select(unspentCoins, amount);
-				var selectedInputs = selectedCoins.Select(c => new TxoRef(c.Outpoint));
-
-				var feeStrategy = FeeStrategy.CreateFromFeeRate(FeeRate);
+				var selectedInputs = Global.WalletService.Coins.Select(c => new TxoRef(c.GetCoin().Outpoint));
+				// This gives us a suggestion
+				var feeEstimate = Global.FeeProviders.AllFeeEstimate;
+                var feeTarget = feeEstimate.Estimations.Max(x => x.Key);
+				var feeStrategy = FeeStrategy.CreateFromFeeRate(new FeeRate(feeTarget));
 
 				var memo = Memo;
 				var intent = new PaymentIntent(script, amount, false, memo);
