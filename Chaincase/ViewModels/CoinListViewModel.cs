@@ -24,22 +24,14 @@ namespace Chaincase.ViewModels
 
         private ReadOnlyObservableCollection<CoinViewModel> _coinViewModels;
 
-		private string _selectedAmountText;
-        private Money _selectedAmount;
         private bool _isCoinListLoading;
-        private bool _isAnyCoinSelected;
-        private object SelectionChangedLock { get; } = new object();
-        private object StateChangedLock { get; } = new object();
 
         public event EventHandler CoinListShown;
-		public event EventHandler<CoinViewModel> SelectionChanged;
-
 
         public ReadOnlyObservableCollection<CoinViewModel> Coins => _coinViewModels;
 
 		public CoinListViewModel(IScreen hostScreen) : base(hostScreen)
 		{
-			SelectedAmountText = "0";
             RootList = new SourceList<CoinViewModel>();
             RootList
                 .Connect()
@@ -74,10 +66,6 @@ namespace Chaincase.ViewModels
                         RootList.RemoveMany(coinToRemove.Select(kp => kp.Value));
 
                         var newCoinViewModels = coinToAdd.Select(c => new CoinViewModel(this, c, HostScreen)).ToArray();
-                        foreach (var cvm in newCoinViewModels)
-                        {
-                            SubscribeToCoinEvents(cvm);
-                        }
                         RootList.AddRange(newCoinViewModels);
 
                         var allCoins = RootList.Items.ToArray();
@@ -108,62 +96,10 @@ namespace Chaincase.ViewModels
 			Disposables?.Dispose();
 		}
 
-		public void OnCoinIsSelectedChanged(CoinViewModel cvm)
-		{
-			SelectionChanged?.Invoke(this, cvm);
-			SelectedAmount = Coins.Where(x => x.IsSelected).Sum(x => x.Amount);
-			SelectedAmountText = SelectedAmount.ToString();
-		}
-
-        private void SubscribeToCoinEvents(CoinViewModel cvm)
-        {
-            cvm.WhenAnyValue(x => x.IsSelected)
-                .Synchronize(SelectionChangedLock) // Use the same lock to ensure thread safety.
-                .Throttle(TimeSpan.FromMilliseconds(100))
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(x =>
-                {
-                    try
-                    {
-                        var coins = RootList.Items.ToArray();
-
-                        var selectedCoins = coins.Where(c => c.IsSelected).ToArray();
-
-                        SelectedAmount = selectedCoins.Sum(c => c.Amount);
-                        IsAnyCoinSelected = selectedCoins.Any();
-
-                        SelectionChanged?.Invoke(this, null);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogError(ex);
-                    }
-                })
-                .DisposeWith(cvm.GetDisposables()); // Subscription will be disposed with the coinViewModel.
-        }
-
-        public String SelectedAmountText
-        {
-            get => _selectedAmountText;
-            set => this.RaiseAndSetIfChanged(ref _selectedAmountText, $"{value} BTC Selected");
-        }
-
-        public Money SelectedAmount
-        {
-            get => _selectedAmount;
-            set => this.RaiseAndSetIfChanged(ref _selectedAmount, value);
-        }
-
         public bool IsCoinListLoading
         {
             get => _isCoinListLoading;
             set => this.RaiseAndSetIfChanged(ref _isCoinListLoading, value);
-        }
-
-        public bool IsAnyCoinSelected
-        {
-            get => _isAnyCoinSelected;
-            set => this.RaiseAndSetIfChanged(ref _isAnyCoinSelected, value);
         }
     }
 }

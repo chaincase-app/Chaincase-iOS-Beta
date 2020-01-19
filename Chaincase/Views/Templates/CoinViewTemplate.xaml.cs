@@ -13,10 +13,6 @@ namespace Chaincase.Views.Templates
 
 			this.WhenActivated(disposable =>
 			{
-				this.Bind(ViewModel,
-								vm => vm.IsSelected,
-								v => v.IsSelected.IsToggled)
-					.DisposeWith(disposable);
 				this.OneWayBind(ViewModel,
 								x => x.Amount,
 								x => x.Amount.Text)

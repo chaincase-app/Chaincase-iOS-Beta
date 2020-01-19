@@ -18,7 +18,6 @@ namespace Chaincase.ViewModels
 	{
 		public CompositeDisposable Disposables { get; set; }
 
-		private bool _isSelected;
 		private SmartCoinStatus _status;
 		private ObservableAsPropertyHelper<bool> _coinJoinInProgress;
 		private ObservableAsPropertyHelper<bool> _unspent;
@@ -83,12 +82,6 @@ namespace Chaincase.ViewModels
         public int Confirmations => Model.Height.Type == HeightType.Chain
             ? (int)Global.BitcoinStore.SmartHeaderChain.TipHeight - Model.Height.Value + 1
             : 0;
-
-        public bool IsSelected
-		{
-			get => _isSelected;
-			set => this.RaiseAndSetIfChanged(ref _isSelected, value);
-		}
 
 		public string ToolTip
 		{

@@ -10,15 +10,12 @@
       <ColumnDefinition Width="*" />
       <ColumnDefinition Width="*" />
       <ColumnDefinition Width="*" />
-      <ColumnDefinition Width="*" />
     </Grid.ColumnDefinitions>
-    <Switch x:Name="IsSelected"
-            Grid.Column="0" />
-    <Label Grid.Column="1"
+    <Label Grid.Column="0"
            x:Name="Amount" />
-    <Label Grid.Column="2"
+    <Label Grid.Column="1"
            x:Name="AnonymitySet" />
-    <Label Grid.Column="3"
+    <Label Grid.Column="2"
            x:Name="Clusters" />
   </Grid>
 

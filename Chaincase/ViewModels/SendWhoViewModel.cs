@@ -77,14 +77,6 @@ namespace Chaincase.ViewModels
 				Password = Guard.Correct(password);
 				Memo = Memo.Trim(',', ' ').Trim();
 
-				var selectedCoinViewModels = SendAmountViewModel.CoinList.Coins.Where(cvm => cvm.IsSelected);
-				var selectedCoinReferences = selectedCoinViewModels.Select(cvm => new TxoRef(cvm.Model.TransactionId, cvm.Model.Index)).ToList();
-				if (!selectedCoinReferences.Any())
-				{
-					//SetWarningMessage("No coins are selected to spend.");
-					return;
-				}
-
 				BitcoinAddress address;
 				try
 				{
@@ -104,18 +96,17 @@ namespace Chaincase.ViewModels
 					return;
 				}
 
-				if (amount == selectedCoinViewModels.Sum(x => x.Amount))
-				{
-					// SetWarningMessage("Looks like you want to spend a whole coin. Try Max button instead.");
-					return;
-				}
+				var unspentCoins = SendAmountViewModel.CoinList.Coins.Select(cvm => cvm.Model.GetCoin()).ToList();
+				var selector = new DefaultCoinSelector();
+				var selectedCoins = selector.Select(unspentCoins, amount);
+				var selectedInputs = selectedCoins.Select(c => new TxoRef(c.Outpoint));
 
 				var feeStrategy = FeeStrategy.CreateFromFeeRate(FeeRate);
 
 				var memo = Memo;
 				var intent = new PaymentIntent(script, amount, false, memo);
 
-				var result = await Task.Run(() => Global.WalletService.BuildTransaction(Password, intent, feeStrategy, allowUnconfirmed: true, allowedInputs: selectedCoinReferences));
+				var result = await Task.Run(() => Global.WalletService.BuildTransaction(Password, intent, feeStrategy, allowUnconfirmed: true, allowedInputs: selectedInputs));
 				SmartTransaction signedTransaction = result.Transaction;
 
 				await Task.Run(async () => await Global.TransactionBroadcaster.SendTransactionAsync(signedTransaction));
