@@ -20,10 +20,6 @@ namespace Chaincase.Views
 					vm => vm.AmountText,
 					v => v.Amount.Text)
 					.DisposeWith(d);
-				this.OneWayBind(ViewModel,
-					vm => vm.CoinList,
-					v => v.CoinList.ViewModel)
-					.DisposeWith(d);
                 this.BindCommand(ViewModel,
                     vm => vm.GoNext,
                     v => v.NextButton)

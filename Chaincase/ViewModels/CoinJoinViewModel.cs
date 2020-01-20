@@ -3,33 +3,28 @@ using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using NBitcoin;
 using ReactiveUI;
-using WalletWasabi.Models;
-using WalletWasabi.Logging;
 using Chaincase.Controllers;
-using Chaincase.Navigation;
-using Xamarin.Forms;
-using Splat;
-using System.Reactive.Threading.Tasks;
 using System.Diagnostics;
+using System.Linq;
+using WalletWasabi.CoinJoin.Client.Rounds;
 
 namespace Chaincase.ViewModels
 {
-	public class CoinJoinViewModel : ViewModelBase
+    public class CoinJoinViewModel : ViewModelBase
 	{
 		private CompositeDisposable Disposables { get; set; }
 
         private CoinListViewModel _coinList;
         private string _coordinatorFeePercent;
-        private int _peersNeeded;
+        private int _requiredPeerCount;
         private Money _requiredBTC;
-        
+        private Money _amountQueued;
+
+
         private string _balance;
         private string accept;
-
-        private readonly Interaction<Unit, string> confirmPassword;
 
         public CoinJoinViewModel(IScreen hostScreen) : base(hostScreen)
         {
@@ -43,7 +38,11 @@ namespace Chaincase.ViewModels
             Disposables = new CompositeDisposable();
             CoinList = new CoinListViewModel(hostScreen);
 
-            this.confirmPassword = new Interaction<Unit, string>();
+            AmountQueued = Money.Zero;
+
+            var registrableRound = Global.ChaumianClient.State.GetRegistrableRoundOrDefault();
+            
+            CoordinatorFeePercent = registrableRound?.State?.CoordinatorFeePercent.ToString() ?? "0.003";
 
             CoinJoinCommand = ReactiveCommand.CreateFromTask<string>(this.CoinJoin); 
 
@@ -53,6 +52,17 @@ namespace Chaincase.ViewModels
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(_ => UpdateStates())
                 .DisposeWith(Disposables);
+
+            ClientRound mostAdvancedRound = Global.ChaumianClient?.State?.GetMostAdvancedRoundOrDefault();
+
+            if (mostAdvancedRound != default)
+            {
+                RequiredPeerCount = mostAdvancedRound.State.RequiredPeerCount;
+            }
+            else
+            {
+                RequiredPeerCount = 100;
+            }
 
             OnOpen();
 		}
@@ -74,9 +84,8 @@ namespace Chaincase.ViewModels
             {
                 return;
             }
-            /*
+
             AmountQueued = chaumianClient.State.SumAllQueuedCoinAmounts();
-            MainWindowViewModel.Instance.CanClose = AmountQueued == Money.Zero;
 
             var registrableRound = chaumianClient.State.GetRegistrableRoundOrDefault();
             if (registrableRound != default)
@@ -87,18 +96,40 @@ namespace Chaincase.ViewModels
             var mostAdvancedRound = chaumianClient.State.GetMostAdvancedRoundOrDefault();
             if (mostAdvancedRound != default)
             {
-                RoundId = mostAdvancedRound.State.RoundId;
-                if (!chaumianClient.State.IsInErrorState)
-                {
-                    Phase = mostAdvancedRound.State.Phase;
-                    RoundTimesout = mostAdvancedRound.State.Phase == RoundPhase.InputRegistration ? mostAdvancedRound.State.InputRegistrationTimesout : DateTimeOffset.UtcNow;
-                }
-                this.RaisePropertyChanged(nameof(Phase));
-                this.RaisePropertyChanged(nameof(RoundTimesout));
-                PeersRegistered = mostAdvancedRound.State.RegisteredPeerCount;
-                PeersNeeded = mostAdvancedRound.State.RequiredPeerCount;
+                RequiredPeerCount = mostAdvancedRound.State.RequiredPeerCount;
             }
-            */
+        }
+
+        private void UpdateRequiredBtcLabel(ClientRound registrableRound)
+        {
+            if (Global.WalletService is null)
+            {
+                return; // Otherwise NullReferenceException at shutdown.
+            }
+
+            if (registrableRound == default)
+            {
+                if (RequiredBTC == default)
+                {
+                    RequiredBTC = Money.Zero;
+                }
+            }
+            else
+            {
+                var coins = Global.WalletService.Coins;
+                var queued = coins.CoinJoinInProcess();
+                if (queued.Any())
+                {
+                    RequiredBTC = registrableRound.State.CalculateRequiredAmount(Global.ChaumianClient.State.GetAllQueuedCoinAmounts().ToArray());
+                }
+                else
+                {
+                    var available = coins.Confirmed().Available();
+                    RequiredBTC = available.Any()
+                        ? registrableRound.State.CalculateRequiredAmount(available.Where(x => x.AnonymitySet < Global.Config.PrivacyLevelStrong).Select(x => x.Amount).ToArray())
+                        : registrableRound.State.CalculateRequiredAmount();
+                }
+            }
         }
 
         public CoinListViewModel CoinList
@@ -107,15 +138,37 @@ namespace Chaincase.ViewModels
             set => this.RaiseAndSetIfChanged(ref _coinList, value);
         }
 
+        public Money AmountQueued
+        {
+            get => _amountQueued;
+            set => this.RaiseAndSetIfChanged(ref _amountQueued, value);
+        }
+
+        public Money RequiredBTC
+        {
+            get => _requiredBTC;
+            set => this.RaiseAndSetIfChanged(ref _requiredBTC, value);
+        }
+
+        public string CoordinatorFeePercent
+        {
+            get => _coordinatorFeePercent;
+            set => this.RaiseAndSetIfChanged(ref _coordinatorFeePercent, value);
+        }
+
         public string Balance
         {
             get => _balance;
             set => this.RaiseAndSetIfChanged(ref _balance, value);
         }
 
-        public ReactiveCommand<string, Unit> CoinJoinCommand;
+        public int RequiredPeerCount
+        {
+            get => _requiredPeerCount;
+            set => this.RaiseAndSetIfChanged(ref _requiredPeerCount, value);
+        }
 
-        public Interaction<Unit, string> ConfirmPassword => this.confirmPassword;
+        public ReactiveCommand<string, Unit> CoinJoinCommand;
 
         public async Task CoinJoin(string password)
         {

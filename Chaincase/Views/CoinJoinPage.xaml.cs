@@ -2,15 +2,11 @@
 using ReactiveUI;
 using ReactiveUI.XamForms;
 using Chaincase.ViewModels;
-using System.Diagnostics;
-using System.Threading.Tasks;
-using AppKit;
-using CoreGraphics;
 using System;
 
 namespace Chaincase.Views
 {
-	public partial class CoinJoinPage : ReactiveContentPage<CoinJoinViewModel>
+    public partial class CoinJoinPage : ReactiveContentPage<CoinJoinViewModel>
 	{
 
         public CoinJoinPage()
