@@ -11,16 +11,24 @@ namespace Chaincase.Views.Templates
 		{
 			InitializeComponent();
 
-			this.WhenActivated(disposable =>
+			this.WhenActivated(d =>
 			{
 				this.OneWayBind(ViewModel,
-								x => x.Amount,
-								x => x.Amount.Text)
-					.DisposeWith(disposable);
-				this.OneWayBind(ViewModel, x => x.AnonymitySet, x => x.AnonymitySet.Text)
-					.DisposeWith(disposable);
-				this.OneWayBind(ViewModel, x => x.Clusters, x => x.Clusters.Text)
-					.DisposeWith(disposable);
+								vm => vm.Amount,
+								v => v.Amount.Text)
+					.DisposeWith(d);
+				this.OneWayBind(ViewModel,
+                    vm => vm.AnonymitySet,
+                    v => v.AnonymitySet.Text)
+					.DisposeWith(d);
+				this.OneWayBind(ViewModel,
+                    vm => vm.Clusters,
+                    v => v.Clusters.Text)
+					.DisposeWith(d);
+				this.OneWayBind(ViewModel,
+					vm => vm.Status,
+					v => v.Status.Text)
+					.DisposeWith(d);
 			});
 		}
 	}
