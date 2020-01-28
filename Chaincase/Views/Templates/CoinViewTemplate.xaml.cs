@@ -27,7 +27,8 @@ namespace Chaincase.Views.Templates
 					.DisposeWith(d);
 				this.OneWayBind(ViewModel,
 					vm => vm.Status,
-					v => v.Status.Text)
+					v => v.Status.Text,
+					vmToViewConverterOverride: new CoinStatusStringConverter())
 					.DisposeWith(d);
 			});
 		}
