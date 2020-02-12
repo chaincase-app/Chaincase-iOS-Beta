@@ -9,6 +9,14 @@ using Chaincase.Controllers;
 using System.Diagnostics;
 using System.Linq;
 using WalletWasabi.CoinJoin.Client.Rounds;
+using System.Collections.Generic;
+using WalletWasabi.Blockchain.TransactionOutputs;
+using WalletWasabi.Blockchain.Keys;
+using WalletWasabi.Helpers;
+using WalletWasabi.Services;
+using System.Security;
+using System.Text;
+using WalletWasabi.Logging;
 
 namespace Chaincase.ViewModels
 {
@@ -19,6 +27,7 @@ namespace Chaincase.ViewModels
         private CoinListViewModel _coinList;
         private string _coordinatorFeePercent;
         private int _requiredPeerCount;
+        
         private Money _requiredBTC;
         private Money _amountQueued;
 
@@ -44,7 +53,7 @@ namespace Chaincase.ViewModels
             
             CoordinatorFeePercent = registrableRound?.State?.CoordinatorFeePercent.ToString() ?? "0.003";
 
-            CoinJoinCommand = ReactiveCommand.CreateFromTask<string>(this.CoinJoin); 
+            CoinJoinCommand = ReactiveCommand.CreateFromTask<string>(async (password) => await  DoEnqueueAsync(CoinList.Coins.Select(c => c.Model), password)); 
 
             Observable.FromEventPattern(Global.ChaumianClient, nameof(Global.ChaumianClient.CoinQueued))
                 .Merge(Observable.FromEventPattern(Global.ChaumianClient, nameof(Global.ChaumianClient.OnDequeue)))
@@ -76,6 +85,53 @@ namespace Chaincase.ViewModels
 		{
 			Balance = WalletController.GetBalance().ToString();
 		}
+
+        private async Task DoEnqueueAsync(IEnumerable<SmartCoin> coins, string password)
+        {
+            IsEnqueueBusy = true;
+            try
+            {
+                if (!coins.Any())
+                {
+                    // should never get to this page if there aren't sufficient coins
+                    // NotificationHelpers.Warning("No coins are selected.", "");
+                    return;
+                }
+                try
+                {
+                    PasswordHelper.GetMasterExtKey(Global.WalletService.KeyManager, password, out string compatiblityPassword); // If the password is not correct we throw.
+
+                    if (compatiblityPassword != null)
+                    {
+                        password = compatiblityPassword;
+                        // NotificationHelpers.Warning(PasswordHelper.CompatibilityPasswordWarnMessage);
+                    }
+
+                    await Global.ChaumianClient.QueueCoinsToMixAsync(password, coins.ToArray());
+                }
+                catch (SecurityException ex)
+                {
+                    // NotificationHelpers.Error(ex.Message, "");
+                }
+                catch (Exception ex)
+                {
+                    var builder = new StringBuilder(ex.ToTypeMessageString());
+                    if (ex is AggregateException aggex)
+                    {
+                        foreach (var iex in aggex.InnerExceptions)
+                        {
+                            builder.Append(Environment.NewLine + iex.ToTypeMessageString());
+                        }
+                    }
+                    // NotificationHelpers.Error(builder.ToString());
+                    Logger.LogError(ex);
+                }
+            }
+            finally
+            {
+                IsEnqueueBusy = false;
+            }
+        }
 
         private void UpdateStates()
         {
@@ -167,6 +223,7 @@ namespace Chaincase.ViewModels
             get => _requiredPeerCount;
             set => this.RaiseAndSetIfChanged(ref _requiredPeerCount, value);
         }
+        public bool IsEnqueueBusy { get; private set; }
 
         public ReactiveCommand<string, Unit> CoinJoinCommand;
 

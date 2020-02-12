@@ -11,10 +11,10 @@
            FontAttributes="Bold" />
     <templates:CoinListTemplate x:Name="CoinList"
                                 VerticalOptions="FillAndExpand" />
-    <Label Text="{Binding RequiredBTC}" />
-    <Label Text="{Binding RequiredPeerCount}" />
-    <Label Text="{Binding CoordinatorFeePercent}" />
-    
+    <Label Text="{Binding RequiredBTC, StringFormat='You will get {0} private coin'}" />
+    <Label Text="{Binding RequiredPeerCount, StringFormat='exchanged with at least {0} peers'}" />
+    <Label Text="{Binding CoordinatorFeePercent, StringFormat='for the low price of {0}'}" />
+
     <Button Text="Confirm"
             Clicked="Confirm"
             VerticalOptions="End" />

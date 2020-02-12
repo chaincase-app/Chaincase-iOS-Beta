@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Reactive;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
 using NBitcoin;
 using ReactiveUI;
@@ -100,7 +99,7 @@ namespace Chaincase.ViewModels
 				// This gives us a suggestion
 				var feeEstimate = Global.FeeProviders.AllFeeEstimate;
                 var feeTarget = feeEstimate.Estimations.Max(x => x.Key);
-				var feeStrategy = FeeStrategy.CreateFromFeeRate(new FeeRate(feeTarget));
+                var feeStrategy = FeeStrategy.CreateFromFeeRate(new FeeRate((Money) feeTarget));
 
 				var memo = Memo;
 				var intent = new PaymentIntent(script, amount, false, memo);

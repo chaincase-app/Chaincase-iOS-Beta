@@ -1,8 +1,6 @@
 using System;
-using System.Globalization;
 using Chaincase.Models;
 using ReactiveUI;
-using WalletWasabi.Exceptions;
 
 namespace Chaincase
 {

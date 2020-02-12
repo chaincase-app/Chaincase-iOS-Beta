@@ -2,16 +2,9 @@
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using NBitcoin;
 using ReactiveUI;
-using WalletWasabi.Models;
-using WalletWasabi.Logging;
 using Chaincase.Controllers;
-using Chaincase.Navigation;
 using Xamarin.Forms;
-using Splat;
 
 namespace Chaincase.ViewModels
 {
