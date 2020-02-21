@@ -48,7 +48,10 @@
     <ObjcBindingCoreSource Include="Structs.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ObjcBindingNativeFramework Include="..\Tor.framework" />
+    <NativeReference Include="Tor.framework">
+      <Kind>Framework</Kind>
+      <ForceLoad>True</ForceLoad>
+    </NativeReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.ObjCBinding.CSharp.targets" />
 </Project>
