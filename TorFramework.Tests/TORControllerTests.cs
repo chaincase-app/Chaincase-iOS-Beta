@@ -4,6 +4,7 @@ using System;
 using NUnit.Framework;
 using System.Runtime.InteropServices;
 using System.Threading;
+using NUnitLite;
 using TorFramework;
 using System.IO;
 using System.Linq;
@@ -11,67 +12,86 @@ using ObjCRuntime;
 
 namespace TorFramework.Tests
 {
+
+    interface ITORControllerTests
+    {
+        TORController controller { get;  }// @property (nonatomic, strong) TORController *controller;
+        NSData cookie { get; } // @property (readonly) NSData *cookie;
+    }
+
 	[TestFixture]
 	public class TORControllerTests
 	{
-		private TORConfiguration configuration;
-        private TORController controller;
 
-        [TestFixtureSetUp]
-		protected void SetUp()
-		{
-            string homeDirectory = null;
-
-            if (Runtime.Arch == Arch.SIMULATOR)
+        static TORConfiguration configuration
+        {
+            get
             {
-                foreach (string var in new string[] { "IPHONE_SIMULATOR_HOST_HOME", "SIMULATOR_HOST_HOME" })
+                string homeDirectory = null;
+
+                if (Runtime.Arch == Arch.SIMULATOR)
                 {
-                    string val = Environment.GetEnvironmentVariable(var);
-                    if (val != null)
+                    foreach (string var in new string[] { "IPHONE_SIMULATOR_HOST_HOME", "SIMULATOR_HOST_HOME" })
                     {
-                        homeDirectory = val;
-                        break;
+                        string val = Environment.GetEnvironmentVariable(var);
+                        if (val != null)
+                        {
+                            homeDirectory = val;
+                            break;
+                        }
                     }
                 }
-            }
-            else
-            {
-               homeDirectory = NSHomeDirectory();
-            }
+                else
+                {
+                    homeDirectory = NSHomeDirectory();
+                }
 
 
-            configuration = new TORConfiguration();
-			configuration.CookieAuthentication = new NSNumber(true); //@YES
-			// This goes contrary to the TARGET_IPHONE_SIMULATOR in iCepa's tests.
-			configuration.DataDirectory = new NSUrl(Path.GetTempPath());
-			configuration.ControlSocket = NSUrl.CreateFileUrl(new string[] { homeDirectory, ".Trash/control_port"});
-			configuration.Arguments = new string[] { "--ignore-missing-torrc" };
+                TORConfiguration configuration = new TORConfiguration();
+                configuration.CookieAuthentication = new NSNumber(true); //@YES
+                                                                         // This goes contrary to the TARGET_IPHONE_SIMULATOR in iCepa's tests.
+                configuration.DataDirectory = new NSUrl(Path.GetTempPath());
+                configuration.ControlSocket = NSUrl.CreateFileUrl(new string[] { homeDirectory, ".tor/control_port" });
+                configuration.Arguments = new string[] { "--ignore-missing-torrc" };
+                return configuration;
+            }
+        }
+
+        [TestFixtureSetUp]
+		protected static void SetUpOnce()
+		{
 
 			TORThread thread = new TORThread(configuration);
 			thread.Start();
-			NSRunLoop.Main.RunUntil(NSDate.FromTimeIntervalSinceNow(2f));
 
+			NSRunLoop.Main.RunUntil(NSDate.FromTimeIntervalSinceNow(0.5f));
+        }
+
+        public TORController controller;
+
+        [SetUp]
+        public void SetUp()
+        {
             controller = new TORController(configuration.ControlSocket);
         }
 
-        //[Test]
-        //public void TestCookieAutheniticationFailure()
-        //{
-        //    //Action<bool, NSError> callback =
-        //    var (success, error) = controller.AuthenticateWithDataAsync(new NSString("invalid").Encode(NSStringEncoding.UTF8)).Result;
-        //    Assert.False(success);
-        //    Assert.True(string.Equals(error.Domain, Constants.TORControllerErrorDomain.ToString()));
-        //    Assert.True(error.Code != new nint(250));
-
-            // timeout
-        //}
+        [Test]
+        public async void TestCookieAutheniticationFailure()
+        {
+            //Action<bool, NSError> callback =
+            var (success, error) = await controller.AuthenticateWithDataAsync(new NSString("invalid").Encode(NSStringEncoding.UTF8));
+            Assert.False(success);
+            Assert.True(string.Equals(error.Domain, Constants.TORControllerErrorDomain.ToString()));
+            Assert.True(error.Code != new nint(250));
+            //Assert.(error.LocalizedDescription.Equals("Authentication Failed: Wrong length of authentication cookie."));
+        }
 
         [Test]
-        public void TestCookieAuthenticationSuccess()
+        public async void TestCookieAuthenticationSuccess()
         {
             NSUrl cookieUrl = configuration.DataDirectory.Append("control_auth_cookie", false);
             NSData cookie = NSData.FromUrl(cookieUrl);
-            var (success, error) = controller.AuthenticateWithDataAsync(cookie).Result;
+            var (success, error) = await controller.AuthenticateWithDataAsync(cookie);
             Assert.True(success);
             Assert.True(error is null);
         }
@@ -79,49 +99,48 @@ namespace TorFramework.Tests
 
 
         //- (void) testSessionConfiguration
-                //{
-                //    XCTestExpectation *expectation = [self expectationWithDescription:@"tor callback"];
+        //{
+        //    XCTestExpectation *expectation = [self expectationWithDescription:@"tor callback"];
 
-                //        TORController *controller = self.controller;
+        //        TORController *controller = self.controller;
 
-                //void (^test)(void) = ^{
-                //    [controller getSessionConfiguration:^(NSURLSessionConfiguration* configuration) {
-                //        NSURLSession* session = [NSURLSession sessionWithConfiguration: configuration];
-                //    [[session dataTaskWithURL:[NSURL URLWithString:@"https://facebookcorewwwi.onion/"] completionHandler:^(NSData* data, NSURLResponse* response, NSError* error) {
-                //            XCTAssertEqual([(NSHTTPURLResponse *)response statusCode], 200);
-                //    XCTAssertNil(error);
-                //    [expectation fulfill];
-                //        }] resume];
-                //    }];
-                //};
+        //void (^test)(void) = ^{
+        //    [controller getSessionConfiguration:^(NSURLSessionConfiguration* configuration) {
+        //        NSURLSession* session = [NSURLSession sessionWithConfiguration: configuration];
+        //    [[session dataTaskWithURL:[NSURL URLWithString:@"https://facebookcorewwwi.onion/"] completionHandler:^(NSData* data, NSURLResponse* response, NSError* error) {
+        //            XCTAssertEqual([(NSHTTPURLResponse *)response statusCode], 200);
+        //    XCTAssertNil(error);
+        //    [expectation fulfill];
+        //        }] resume];
+        //    }];
+        //};
 
-                //NSURL* cookieURL = [[[[self class] configuration] dataDirectory] URLByAppendingPathComponent:@"control_auth_cookie"];
-                //NSData* cookie = [NSData dataWithContentsOfURL: cookieURL];
-                //[controller authenticateWithData:cookie completion:^(BOOL success, NSError *error) {
-                //    if (!success)
-                //        return;
-
-
-                //    [controller addObserverForCircuitEstablished:^(BOOL established) {
-                //        if (!established)
-                //            return;
+        //NSURL* cookieURL = [[[[self class] configuration] dataDirectory] URLByAppendingPathComponent:@"control_auth_cookie"];
+        //NSData* cookie = [NSData dataWithContentsOfURL: cookieURL];
+        //[controller authenticateWithData:cookie completion:^(BOOL success, NSError *error) {
+        //    if (!success)
+        //        return;
 
 
-                //    test();
-                //    }];
-                //}];
+        //    [controller addObserverForCircuitEstablished:^(BOOL established) {
+        //        if (!established)
+        //            return;
 
 
-        [Test]
-		public void TestSessionConfiguration()
-		{
-			Assert.True(false);
-		}
+        //    test();
+        //    }];
+        //}];
 
-        private string NSHomeDirectory()
-        {
-            return Directory.GetParent(NSFileManager.DefaultManager.GetUrls(NSSearchPathDirectory.LibraryDirectory, NSSearchPathDomain.User).First().Path).FullName;
-        }
-	}
+
+        //      [Test]
+        //public void TestSessionConfiguration()
+        //{
+        //	Assert.True(false);
+        //}
+
+        public NSData cookie => NSData.FromUrl(NSUrl.CreateFileUrl(new string[] { configuration.DataDirectory.ToString(), "control_auth_cookie" }));
+
+        static string NSHomeDirectory() => Directory.GetParent(NSFileManager.DefaultManager.GetUrls(NSSearchPathDirectory.LibraryDirectory, NSSearchPathDomain.User).First().Path).FullName;
+    }
 }
 
