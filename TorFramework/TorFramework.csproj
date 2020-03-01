@@ -50,7 +50,7 @@
   <ItemGroup>
     <NativeReference Include="Tor.framework">
       <Kind>Framework</Kind>
-      <ForceLoad>True</ForceLoad>
+      <SmartLink>False</SmartLink>
     </NativeReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.ObjCBinding.CSharp.targets" />
