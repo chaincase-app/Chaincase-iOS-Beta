@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace TorFramework.Tests
 {
-    public class TORControllerFixture : IDisposable
+    public class TORControllerFixture
     {
         public TORConfiguration Configuration
         {
@@ -48,18 +48,17 @@ namespace TorFramework.Tests
 
         public TORControllerFixture()
         {
-            thread = new TORThread(Configuration);
-            thread.Start();
+            // TORThread won't stop til the process does
+            if (TORThread.ActiveThread is null)
+            {
+                thread = new TORThread(Configuration);
+                thread.Start();
+            }
 
             NSRunLoop.Main.RunUntil(NSDate.FromTimeIntervalSinceNow(0.5f));
         }
 
         static string NSHomeDirectory() => Directory.GetParent(NSFileManager.DefaultManager.GetUrls(NSSearchPathDirectory.LibraryDirectory, NSSearchPathDomain.User).First().Path).FullName;
-
-        public void Dispose()
-        {
-            thread.Cancel();
-        }
     }
 
     public class ControllerTests : IClassFixture<TORControllerFixture>
@@ -91,6 +90,43 @@ namespace TorFramework.Tests
             var (success, error) = await Controller.AuthenticateWithDataAsync(Cookie);
             Assert.True(success);
             Assert.Null(error);
+        }
+
+        [Fact]
+        public void TestSessionConfiguration()
+        {
+            Exec(() =>
+            {
+                Controller.GetSessionConfiguration((NSUrlSessionConfiguration configuration) =>
+                {
+                    NSUrlSession session = NSUrlSession.FromConfiguration(configuration);
+                    session.CreateDataTask(NSUrl.FromString("https://facebookcorewwwi.onion/"), (NSData data, NSUrlResponse response, NSError error) =>
+                    {
+                        Assert.Equal(((NSHttpUrlResponse)response).StatusCode, 200);
+                        Assert.True(error is null);
+                    }).Resume();
+                });
+            });
+        }
+
+        public delegate void Callback();
+
+        public void Exec(Callback callback)
+        {
+            TORController controller = this.Controller;
+
+            var (success, error) = controller.AuthenticateWithDataAsync(Cookie).Result;
+            Assert.True(success);
+            Assert.Null(error);
+
+            controller.AddObserverForCircuitEstablished((bool established) =>
+            {
+                if (!established)
+                {
+                    return;
+                }
+                callback();
+            });
         }
     }
 }
