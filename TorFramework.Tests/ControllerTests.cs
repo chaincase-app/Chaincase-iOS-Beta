@@ -6,6 +6,7 @@ using ObjCRuntime;
 using Foundation;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace TorFramework.Tests
 {
@@ -95,6 +96,7 @@ namespace TorFramework.Tests
         [Fact]
         public void TestSessionConfiguration()
         {
+            EventWaitHandle ewh = new EventWaitHandle(false, EventResetMode.AutoReset);
             Exec(() =>
             {
                 Controller.GetSessionConfiguration((NSUrlSessionConfiguration configuration) =>
@@ -104,9 +106,11 @@ namespace TorFramework.Tests
                     {
                         Assert.Equal(((NSHttpUrlResponse)response).StatusCode, 200);
                         Assert.True(error is null);
+                        ewh.Set();
                     }).Resume();
                 });
             });
+            ewh.WaitOne();
         }
 
         public delegate void Callback();
@@ -119,6 +123,7 @@ namespace TorFramework.Tests
             Assert.True(success);
             Assert.Null(error);
 
+            // This can't be async'd
             controller.AddObserverForCircuitEstablished((bool established) =>
             {
                 if (!established)
