@@ -113,6 +113,35 @@ namespace TorFramework.Tests
             ewh.WaitOne();
         }
 
+        [Fact]
+        public void TestGetAndCloseCircuits()
+        {
+            EventWaitHandle ewh = new EventWaitHandle(false, EventResetMode.AutoReset);
+            Exec(() =>
+            {
+                Controller.GetCircuits((NSArray<TORCircuit> circuits) =>
+                {
+                    Console.WriteLine("Circuits {0}", circuits);
+
+                    foreach (TORCircuit circuit in circuits)
+                    {
+                        foreach (TORNode node in circuit.Nodes)
+                        {
+                            Assert.True(node.Fingerprint.Length > 0, "A circuit should have a fingerprint.");
+                            Assert.True(node.Ipv4Address.Length > 0 || node.Ipv6Address.Length > 0, "A circuit should have an IPv4 or IPv6 address.");
+                        }
+                    }
+
+                    Controller.CloseCircuits(circuits.ToArray(), (bool success) =>
+                    {
+                        Assert.True(success, "Circuits were closed successfully");
+                        ewh.Set();
+                    });
+                });
+            });
+            ewh.WaitOne();
+        }
+
         public delegate void Callback();
 
         public void Exec(Callback callback)
