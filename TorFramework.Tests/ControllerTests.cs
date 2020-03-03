@@ -100,7 +100,8 @@ namespace TorFramework.Tests
             Assert.Null(error);
         }
 
-        [Fact(Timeout = 2 * 1000)]
+        // hack This, and all, timeouts will just succeed after 120 seconds. If we hang, it's really a failure.
+        [Fact(Timeout = 120 * 1000)]
         public void TestSessionConfiguration()
         {
             EventWaitHandle ewh = new EventWaitHandle(false, EventResetMode.AutoReset);
@@ -122,7 +123,7 @@ namespace TorFramework.Tests
             ewh.WaitOne();
         }
 
-        [Fact(Timeout = 2 * 1000)]
+        [Fact(Timeout = 120 * 1000)]
         public void TestGetAndCloseCircuits()
         {
             EventWaitHandle ewh = new EventWaitHandle(false, EventResetMode.AutoReset);
@@ -154,7 +155,7 @@ namespace TorFramework.Tests
             ewh.WaitOne();
         }
 
-        [Fact(Timeout = 2 * 1000)]
+        [Fact(Timeout = 120 * 1000)]
         public void TestReset()
         {
             EventWaitHandle ewh = new EventWaitHandle(false, EventResetMode.AutoReset);
