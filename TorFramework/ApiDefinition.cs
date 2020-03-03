@@ -381,79 +381,80 @@ namespace TorFramework
 		[Field("TORControllerErrorDomain", "__Internal")]
 		NSString TORControllerErrorDomain { get; }
 	}
-	
+
 	// @interface TORController : NSObject
 	[BaseType(typeof(NSObject))]
 	[DisableDefaultCtor]
 	interface TORController
 	{
-        // @property (readonly, copy, nonatomic) NSOrderedSet<NSString *> * _Nonnull events;
-        [Export("events", ArgumentSemantic.Copy)]
-        NSOrderedSet<NSString> Events { get; }
+		// @property (readonly, copy, nonatomic) NSOrderedSet<NSString *> * _Nonnull events;
+		[Export("events", ArgumentSemantic.Copy)]
+		NSOrderedSet<NSString> Events { get; }
 
-        // @property (readonly, getter = isConnected, nonatomic) BOOL connected;
-        [Export("connected")]
-        bool Connected { [Bind("isConnected")] get; }
+		// @property (readonly, getter = isConnected, nonatomic) BOOL connected;
+		[Export("connected")]
+		bool Connected { [Bind("isConnected")] get; }
 
-        // -(instancetype _Nonnull)initWithSocketURL:(NSURL * _Nonnull)url __attribute__((objc_designated_initializer));
-        [Export("initWithSocketURL:")]
-        [DesignatedInitializer]
-        IntPtr Constructor(NSUrl url);
+		// -(instancetype _Nonnull)initWithSocketURL:(NSURL * _Nonnull)url __attribute__((objc_designated_initializer));
+		[Export("initWithSocketURL:")]
+		[DesignatedInitializer]
+		IntPtr Constructor(NSUrl url);
 
-        // -(instancetype _Nonnull)initWithSocketHost:(NSString * _Nonnull)host port:(in_port_t)port __attribute__((objc_designated_initializer));
-        [Export("initWithSocketHost:port:")]
-        [DesignatedInitializer]
-        IntPtr Constructor(string host, ushort port);
+		// -(instancetype _Nonnull)initWithSocketHost:(NSString * _Nonnull)host port:(in_port_t)port __attribute__((objc_designated_initializer));
+		[Export("initWithSocketHost:port:")]
+		[DesignatedInitializer]
+		IntPtr Constructor(string host, ushort port);
 
-        // -(BOOL)connect:(NSError * _Nullable * _Nullable)error;
-        [Export("connect:")]
-        bool Connect([NullAllowed] out NSError error);
+		// -(BOOL)connect:(NSError * _Nullable * _Nullable)error;
+		[Export("connect:")]
+		bool Connect([NullAllowed] out NSError error);
 
-        // -(void)disconnect;
-        [Export("disconnect")]
-        void Disconnect();
+		// -(void)disconnect;
+		[Export("disconnect")]
+		void Disconnect();
 
-        // -(void)authenticateWithData:(NSData * _Nonnull)data completion:(void (^ _Nullable)(BOOL, NSError * _Nullable))completion;
-        [Export("authenticateWithData:completion:")]
-        [Async]
-        void AuthenticateWithData(NSData data, [NullAllowed] Action<bool, NSError> completion);
+		// -(void)authenticateWithData:(NSData * _Nonnull)data completion:(void (^ _Nullable)(BOOL, NSError * _Nullable))completion;
+		[Export("authenticateWithData:completion:")]
+		[Async]
+		void AuthenticateWithData(NSData data, [NullAllowed] Action<bool, NSError> completion);
 
-        // -(void)resetConfForKey:(NSString * _Nonnull)key completion:(void (^ _Nullable)(BOOL, NSError * _Nullable))completion;
-        [Export("resetConfForKey:completion:")]
-        [Async]
-        void ResetConfForKey(string key, [NullAllowed] Action<bool, NSError> completion);
+		// -(void)resetConfForKey:(NSString * _Nonnull)key completion:(void (^ _Nullable)(BOOL, NSError * _Nullable))completion;
+		[Export("resetConfForKey:completion:")]
+		[Async]
+		void ResetConfForKey(string key, [NullAllowed] Action<bool, NSError> completion);
 
-        // -(void)setConfForKey:(NSString * _Nonnull)key withValue:(NSString * _Nonnull)value completion:(void (^ _Nullable)(BOOL, NSError * _Nullable))completion;
-        [Export("setConfForKey:withValue:completion:")]
-        [Async]
-        void SetConfForKey(string key, string value, [NullAllowed] Action<bool, NSError> completion);
+		// -(void)setConfForKey:(NSString * _Nonnull)key withValue:(NSString * _Nonnull)value completion:(void (^ _Nullable)(BOOL, NSError * _Nullable))completion;
+		[Export("setConfForKey:withValue:completion:")]
+		[Async]
+		void SetConfForKey(string key, string value, [NullAllowed] Action<bool, NSError> completion);
 
-        // -(void)setConfs:(NSArray<NSDictionary *> * _Nonnull)configs completion:(void (^ _Nullable)(BOOL, NSError * _Nullable))completion;
-        [Export("setConfs:completion:")]
-        [Async]
-        void SetConfs(NSDictionary[] configs, [NullAllowed] Action<bool, NSError> completion);
+		// -(void)setConfs:(NSArray<NSDictionary *> * _Nonnull)configs completion:(void (^ _Nullable)(BOOL, NSError * _Nullable))completion;
+		[Export("setConfs:completion:")]
+		[Async]
+		void SetConfs(NSDictionary[] configs, [NullAllowed] Action<bool, NSError> completion);
 
-        // -(void)listenForEvents:(NSArray<NSString *> * _Nonnull)events completion:(void (^ _Nullable)(BOOL, NSError * _Nullable))completion;
-        [Export("listenForEvents:completion:")]
-        [Async]
-        void ListenForEvents(string[] events, [NullAllowed] Action<bool, NSError> completion);
+		// -(void)listenForEvents:(NSArray<NSString *> * _Nonnull)events completion:(void (^ _Nullable)(BOOL, NSError * _Nullable))completion;
+		[Export("listenForEvents:completion:")]
+		[Async]
+		void ListenForEvents(string[] events, [NullAllowed] Action<bool, NSError> completion);
 
-        // -(void)getInfoForKeys:(NSArray<NSString *> * _Nonnull)keys completion:(void (^ _Nonnull)(NSArray<NSString *> * _Nonnull))completion;
-        [Export("getInfoForKeys:completion:")]
-        [Async]
-        void GetInfoForKeys(string[] keys, Action<NSArray<NSString>> completion);
+		// -(void)getInfoForKeys:(NSArray<NSString *> * _Nonnull)keys completion:(void (^ _Nonnull)(NSArray<NSString *> * _Nonnull))completion;
+		[Export("getInfoForKeys:completion:")]
+		[Async]
+		void GetInfoForKeys(string[] keys, Action<NSArray<NSString>> completion);
 
-        // -(void)getSessionConfiguration:(void (^ _Nonnull)(NSURLSessionConfiguration * _Nullable))completion;
-        [Export("getSessionConfiguration:")]
-        [Async]
-        void GetSessionConfiguration(Action<NSUrlSessionConfiguration> completion);
+		// -(void)getSessionConfiguration:(void (^ _Nonnull)(NSURLSessionConfiguration * _Nullable))completion;
+		[Export("getSessionConfiguration:")]
+		[Async]
+		void GetSessionConfiguration(Action<NSUrlSessionConfiguration> completion);
 
 		// TODO Fix: /Users/dan/Desktop/root/chaincase/app/TorFramework/BTOUCH: Error BI1001: bgen: Do not know how to make a trampoline for System.Boolean* (BI1001) (TorFramework)
 		//[Export("sendCommand:arguments:data:observer:")]
-        //void SendCommand(string command, [NullAllowed] string[] arguments, [NullAllowed] NSData data, TORObserverBlock observer);
+		//void SendCommand(string command, [NullAllowed] string[] arguments, [NullAllowed] NSData data, TORObserverBlock observer);
 
-        // -(void)getCircuits:(void (^ _Nonnull)(NSArray<TORCircuit *> * _Nonnull))completion;
-        [Export("getCircuits:")]
+		// -(void)getCircuits:(void (^ _Nonnull)(NSArray<TORCircuit *> * _Nonnull))completion;
+		[Export("getCircuits:")]
+		[Async]
         void GetCircuits(Action<NSArray<TORCircuit>> completion);
 
         // -(void)resetConnection:(void (^ _Nullable)(BOOL))completion;

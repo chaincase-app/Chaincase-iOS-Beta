@@ -62,6 +62,13 @@ namespace TorFramework.Tests
         static string NSHomeDirectory() => Directory.GetParent(NSFileManager.DefaultManager.GetUrls(NSSearchPathDirectory.LibraryDirectory, NSSearchPathDomain.User).First().Path).FullName;
     }
 
+    [CollectionDefinition("TORControllerCollection", DisableParallelization = true)]
+    public class TORControllerCollection : ICollectionFixture<TORControllerFixture>
+    {
+        // No code, just definition
+    }
+
+    [Collection("TORControllerCollection")]
     public class ControllerTests : IClassFixture<TORControllerFixture>
     {
         TORControllerFixture fixture;
@@ -93,10 +100,11 @@ namespace TorFramework.Tests
             Assert.Null(error);
         }
 
-        [Fact]
+        [Fact(Timeout = 2 * 1000)]
         public void TestSessionConfiguration()
         {
             EventWaitHandle ewh = new EventWaitHandle(false, EventResetMode.AutoReset);
+
             Exec(() =>
             {
                 Controller.GetSessionConfiguration((NSUrlSessionConfiguration configuration) =>
@@ -110,18 +118,20 @@ namespace TorFramework.Tests
                     }).Resume();
                 });
             });
+
             ewh.WaitOne();
         }
 
-        [Fact]
+        [Fact(Timeout = 2 * 1000)]
         public void TestGetAndCloseCircuits()
         {
             EventWaitHandle ewh = new EventWaitHandle(false, EventResetMode.AutoReset);
+
             Exec(() =>
             {
                 Controller.GetCircuits((NSArray<TORCircuit> circuits) =>
                 {
-                    Console.WriteLine("Circuits {0}", circuits);
+                    Console.WriteLine("circuits={0}", circuits);
 
                     foreach (TORCircuit circuit in circuits)
                     {
@@ -135,10 +145,32 @@ namespace TorFramework.Tests
                     Controller.CloseCircuits(circuits.ToArray(), (bool success) =>
                     {
                         Assert.True(success, "Circuits were closed successfully");
+
                         ewh.Set();
                     });
                 });
             });
+
+            ewh.WaitOne();
+        }
+
+        [Fact(Timeout = 2 * 1000)]
+        public void TestReset()
+        {
+            EventWaitHandle ewh = new EventWaitHandle(false, EventResetMode.AutoReset);
+
+            Exec(() =>
+            {
+                Controller.ResetConnection((bool success) =>
+                {
+                    Console.WriteLine("success={0}", success);
+
+                    Assert.True(success, "Reset should work correctly");
+
+                    ewh.Set();
+                });
+            });
+
             ewh.WaitOne();
         }
 
