@@ -1,4 +1,5 @@
-﻿using NBitcoin;
+﻿using Chaincase;
+using NBitcoin;
 using NBitcoin.Protocol;
 using NBitcoin.Protocol.Behaviors;
 using NBitcoin.Protocol.Connectors;
@@ -22,7 +23,7 @@ using WalletWasabi.Helpers;
 using WalletWasabi.Logging;
 using WalletWasabi.Services;
 using WalletWasabi.Stores;
-using WalletWasabi.TorSocks5;
+using Xamarin.Forms;
 
 namespace Chaincase
 {
@@ -47,7 +48,7 @@ namespace Chaincase
         public static TransactionBroadcaster TransactionBroadcaster { get; set; }
         public static CoinJoinProcessor CoinJoinProcessor { get; set; }
 		public static Node RegTestMempoolServingNode { get; private set; }
-		public static TorProcessManager TorManager { get; private set; }
+		public static ITorManager TorManager { get; private set; }
 
         public static bool KillRequested { get; private set; } = false;
 
@@ -162,18 +163,19 @@ namespace Chaincase
 
                 if (Config.UseTor)
                 {
-                    TorManager = new TorProcessManager(Config.TorSocks5EndPoint, TorLogsFile);
+                    TorManager = DependencyService.Get<ITorManager>();
+                    //TorManager = new TorProcessManager(Config.TorSocks5EndPoint, TorLogsFile);
                 }
                 else
                 {
-                    TorManager = TorProcessManager.Mock();
+                    TorManager = DependencyService.Get<ITorManager>().Mock();
                 }
                 TorManager.Start(false, DataDir);
 
                 var fallbackRequestTestUri = new Uri(Config.GetFallbackBackendUri(), "/api/software/versions");
-                TorManager.StartMonitor(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(7), DataDir, fallbackRequestTestUri);
+                //TorManager.StartMonitor(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(7), DataDir, fallbackRequestTestUri);
 
-                Logger.LogInfo($"{nameof(TorProcessManager)} is initialized.");
+                Logger.LogInfo($"{nameof(TorManager)} is initialized.");
 
 #endregion TorProcessInitialization
 
@@ -564,7 +566,7 @@ namespace Chaincase
                 var torManager = TorManager;
                 if (torManager != null)
 				{
-					torManager?.StopAsync();
+					torManager?.Stop();
 					Logger.LogInfo($"{nameof(TorManager)} is stopped.");
 				}
 			}
