@@ -17,9 +17,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chaincase.macOS", "Chaincas
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WalletWasabi.Standard", "WalletWasabi\WalletWasabi.Standard\WalletWasabi.Standard.csproj", "{356C3722-D86F-4524-B01B-68041A6AFFD3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TorFramework", "TorFramework\TorFramework.csproj", "{4B9C81E8-049C-425D-BD7A-BFBF586A7F64}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TorFramework.Tests", "TorFramework.Tests\TorFramework.Tests.csproj", "{AB0BE8BB-12F5-438B-A850-F5409B78654F}"
+EndProject
+Project("{9344BDBB-3E7F-41FC-A0DD-8665D75EE146}") = "TorFramework", "TorFramework\TorFramework.csproj", "{87FE5A35-22ED-421F-9EEB-336456A92C30}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
