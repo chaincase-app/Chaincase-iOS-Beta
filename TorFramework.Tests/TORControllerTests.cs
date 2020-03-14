@@ -1,17 +1,12 @@
 using Foundation;
 using System;
-using NUnit.Framework;
-using System.Runtime.InteropServices;
 using System.Threading;
-using NUnitLite;
 using Xunit;
 using TorFramework;
 using System.Threading.Tasks;
 using ObjCRuntime;
-using Foundation;
 using System.IO;
 using System.Linq;
-using System.Threading;
 
 namespace TorFramework.Tests
 {

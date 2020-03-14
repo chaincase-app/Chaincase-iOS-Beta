@@ -147,7 +147,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Chaincase\Chaincase.csproj">
-      <Project>{BA57806D-C883-4D04-8A30-1134DDDE23A0}</Project>
+      <Project>{37F3D097-35F5-46BC-BDFE-F11DFD310926}</Project>
       <Name>Chaincase</Name>
     </ProjectReference>
     <ProjectReference Include="..\TorFramework\TorFramework.csproj">
