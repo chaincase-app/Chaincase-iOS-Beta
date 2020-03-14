@@ -140,11 +140,7 @@ namespace Chaincase
                 var blocksFolderPath = Path.Combine(DataDir, $"Blocks{Network}");
                 var connectionParameters = new NodeConnectionParameters();
 
-                var isMobile = false;
-#if __MOBILE__
-                isMobile = true;
-#endif
-                if (!isMobile && Config.UseTor)
+                if (Config.UseTor)
                 {
                     Synchronizer = new WasabiSynchronizer(Network, BitcoinStore, () => Config.GetCurrentBackendUri(), Config.TorSocks5EndPoint);
                 }
