@@ -10,23 +10,29 @@
       <ColumnDefinition Width="*" />
       <ColumnDefinition Width="*" />
       <ColumnDefinition Width="*" />
+      <ColumnDefinition Width="*" />
     </Grid.ColumnDefinitions>
     <Grid.RowDefinitions>
       <RowDefinition Height="*" />
       <RowDefinition Height="*" />
     </Grid.RowDefinitions>
-    <Label Grid.Column="0"
-           Grid.Row="0"
-           x:Name="Amount" />
+    <Switch x:Name="IsSelected"
+            Grid.Column="0"
+            Grid.Row="0"
+            Grid.RowSpan="2"
+            VerticalOptions="CenterAndExpand" />
     <Label Grid.Column="1"
            Grid.Row="0"
-           x:Name="AnonymitySet" />
+           x:Name="Amount" />
     <Label Grid.Column="2"
+           Grid.Row="0"
+           x:Name="AnonymitySet" />
+    <Label Grid.Column="3"
            Grid.Row="0"
            x:Name="Clusters" />
     <Label Grid.Row="1"
-           Grid.Column="0"
-           Grid.ColumnSpan="2"
+           Grid.Column="1"
+           Grid.ColumnSpan="3"
            x:Name="Status" />
   </Grid>
 </rxui:ReactiveContentView>

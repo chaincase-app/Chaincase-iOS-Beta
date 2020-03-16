@@ -12,12 +12,13 @@
         <ColumnDefinition Width="*" />
         <ColumnDefinition Width="*" />
         <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="*" />
       </Grid.ColumnDefinitions>
-      <Label Grid.Column="0"
-             Text="Amount" />
       <Label Grid.Column="1"
-             Text="AnonymitySet" />
+             Text="Amount" />
       <Label Grid.Column="2"
+             Text="AnonymitySet" />
+      <Label Grid.Column="3"
              Text="Clusters" />
     </Grid>
     <ListView x:Name="Coins">
@@ -29,5 +30,6 @@
         </DataTemplate>
       </ListView.ItemTemplate>
     </ListView>
+    <Label x:Name="SelectedAmount" />
   </StackLayout>
 </rxui:ReactiveContentView>

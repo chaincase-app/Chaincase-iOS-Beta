@@ -54,13 +54,13 @@ namespace Chaincase.ViewModels
 
             NavSendCommand = ReactiveCommand.CreateFromObservable(() =>
             {
-                HostScreen.Router.Navigate.Execute(new SendAmountViewModel(hostScreen)).Subscribe();
+                HostScreen.Router.Navigate.Execute(new SendAmountViewModel(hostScreen, CoinList)).Subscribe();
                 return Observable.Return(Unit.Default);
             });
 
             InitCoinJoin = ReactiveCommand.CreateFromObservable(() =>
             {
-                HostScreen.Router.Navigate.Execute(new CoinJoinViewModel(hostScreen)).Subscribe();
+                HostScreen.Router.Navigate.Execute(new CoinJoinViewModel(hostScreen, CoinList)).Subscribe();
                 return Observable.Return(Unit.Default);
             });
 

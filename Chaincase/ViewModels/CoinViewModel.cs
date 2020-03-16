@@ -18,6 +18,7 @@ namespace Chaincase.ViewModels
 	{
 		public CompositeDisposable Disposables { get; set; }
 
+		private bool _isSelected;
 		private SmartCoinStatus _status;
 		private ObservableAsPropertyHelper<bool> _coinJoinInProgress;
 		private ObservableAsPropertyHelper<bool> _unspent;
@@ -48,7 +49,14 @@ namespace Chaincase.ViewModels
 				.DisposeWith(Disposables);
 
 			this.WhenAnyValue(x => x.Status)
+				.ObserveOn(RxApp.MainThreadScheduler)
 				.Subscribe(_ => this.RaisePropertyChanged(nameof(ToolTip)));
+
+			_cluster = Model
+	            .WhenAnyValue(x => x.Clusters, x => x.Clusters.Labels)
+	            .Select(x => x.Item2.ToString())
+	            .ToProperty(this, x => x.Clusters, scheduler: RxApp.MainThreadScheduler)
+	            .DisposeWith(Disposables);
 
 			Observable
                 .Merge(Model.WhenAnyValue(x => x.IsBanned, x => x.SpentAccordingToBackend, x=> x.CoinJoinInProgress).Select(_ => Unit.Default))
@@ -130,6 +138,12 @@ namespace Chaincase.ViewModels
 		{
 			get => _status;
 			set => this.RaiseAndSetIfChanged(ref _status, value);
+		}
+
+		public bool IsSelected
+		{
+			get => _isSelected;
+			set => this.RaiseAndSetIfChanged(ref _isSelected, value);
 		}
 
 		private void RefreshSmartCoinStatus()

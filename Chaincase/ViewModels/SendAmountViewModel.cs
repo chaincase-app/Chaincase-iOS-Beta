@@ -23,9 +23,9 @@ namespace Chaincase.ViewModels
 
         public ReactiveCommand<Unit, Unit> GoNext;
 
-        public SendAmountViewModel(IScreen hostScreen) : base(hostScreen)
+        public SendAmountViewModel(IScreen hostScreen, CoinListViewModel coinList) : base(hostScreen)
         {
-            CoinList = new CoinListViewModel(hostScreen);
+            CoinList = coinList;
             AmountText = "0.0";
 
             this.WhenAnyValue(x => x.AmountText)

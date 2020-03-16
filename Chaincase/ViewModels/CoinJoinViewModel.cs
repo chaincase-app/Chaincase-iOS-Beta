@@ -35,7 +35,7 @@ namespace Chaincase.ViewModels
         private string _balance;
         private string accept;
 
-        public CoinJoinViewModel(IScreen hostScreen) : base(hostScreen)
+        public CoinJoinViewModel(IScreen hostScreen, CoinListViewModel coinList) : base(hostScreen)
         {
             SetBalance();
 
@@ -45,7 +45,7 @@ namespace Chaincase.ViewModels
             }
 
             Disposables = new CompositeDisposable();
-            CoinList = new CoinListViewModel(hostScreen);
+            CoinList = coinList;
 
             AmountQueued = Money.Zero;
 

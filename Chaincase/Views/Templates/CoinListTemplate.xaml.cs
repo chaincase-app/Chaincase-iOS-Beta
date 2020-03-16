@@ -17,6 +17,10 @@ namespace Chaincase.Views.Templates
 					vm => vm.Coins,
 					v => v.Coins.ItemsSource)
 					.DisposeWith(d);
+				this.OneWayBind(ViewModel,
+					vm => vm.SelectedAmountText,
+					v => v.SelectedAmount.Text)
+					.DisposeWith(d);
 			});
 			
 		}

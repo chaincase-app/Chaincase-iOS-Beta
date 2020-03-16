@@ -24,9 +24,15 @@ namespace Chaincase.ViewModels
 
         private ReadOnlyObservableCollection<CoinViewModel> _coinViewModels;
 
+        private string _selectedAmountText;
+        private Money _selectedAmount;
         private bool _isCoinListLoading;
+        private bool _isAnyCoinSelected;
+        private object SelectionChangedLock { get; } = new object();
+        private object StateChangedLock { get; } = new object();
 
         public event EventHandler CoinListShown;
+        public event EventHandler<CoinViewModel> SelectionChanged;
 
         public ReadOnlyObservableCollection<CoinViewModel> Coins => _coinViewModels;
 
@@ -39,21 +45,16 @@ namespace Chaincase.ViewModels
                 .Bind(out _coinViewModels)
                 .Subscribe();
 
-			OnOpen();
-		}
-
-		public void OnOpen()
-		{
             Disposables = Disposables is null ?
-                new CompositeDisposable() :
-                throw new NotSupportedException($"Cannot open {GetType().Name} before closing it.");
+               new CompositeDisposable() :
+               throw new NotSupportedException($"Cannot open {GetType().Name} before closing it.");
 
-			Observable
+            Observable
                 .Merge(Observable.FromEventPattern<ProcessedResult>(Global.WalletService.TransactionProcessor, nameof(Global.WalletService.TransactionProcessor.WalletRelevantTransactionProcessed)).Select(_ => Unit.Default))
                 .Throttle(TimeSpan.FromSeconds(1)) // Throttle TransactionProcessor events adds/removes.
                 .Merge(Observable.FromEventPattern(this, nameof(CoinListShown), RxApp.MainThreadScheduler).Select(_ => Unit.Default)) // Load the list immediately.
                 .ObserveOn(RxApp.MainThreadScheduler)
-				.Subscribe(args =>
+                .Subscribe(args =>
                 {
                     try
                     {
@@ -89,17 +90,43 @@ namespace Chaincase.ViewModels
 
 		private void ClearRootList() => RootList.Clear();
 
-		public void OnClose()
+		public void AfterDismissed()
 		{
 			ClearRootList();
 
 			Disposables?.Dispose();
 		}
 
+        public void OnCoinIsSelectedChanged(CoinViewModel cvm)
+        {
+            SelectionChanged?.Invoke(this, cvm);
+            SelectedAmount = Coins.Where(x => x.IsSelected).Sum(x => x.Amount);
+            SelectedAmountText = SelectedAmount.ToString();
+        }
+
+        public string SelectedAmountText
+        {
+            get => _selectedAmountText;
+            set => this.RaiseAndSetIfChanged(ref _selectedAmountText, $"{value} BTC Selected");
+        }
+
+        public Money SelectedAmount
+        {
+            get => _selectedAmount;
+            set => this.RaiseAndSetIfChanged(ref _selectedAmount, value);
+        }
+
         public bool IsCoinListLoading
         {
             get => _isCoinListLoading;
             set => this.RaiseAndSetIfChanged(ref _isCoinListLoading, value);
         }
+
+        public bool IsAnyCoinSelected
+        {
+            get => _isAnyCoinSelected;
+            set => this.RaiseAndSetIfChanged(ref _isAnyCoinSelected, value);
+        }
+
     }
 }
