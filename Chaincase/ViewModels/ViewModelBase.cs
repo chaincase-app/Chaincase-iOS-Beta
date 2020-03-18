@@ -4,7 +4,7 @@ using Chaincase.Navigation;
 
 namespace Chaincase.ViewModels
 {
-	public class ViewModelBase : ReactiveObject, IViewModelLifecycle, IRoutableViewModel
+	public class ViewModelBase : ReactiveObject, IRoutableViewModel
 	{
 		protected readonly IScreen _hostScreen;
 		public IScreen HostScreen => _hostScreen;

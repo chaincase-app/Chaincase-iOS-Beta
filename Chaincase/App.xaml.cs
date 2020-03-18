@@ -9,36 +9,50 @@ using Xamarin.Forms;
 using System.Diagnostics;
 using Chaincase.ViewModels;
 using ReactiveUI;
+using Splat;
 
 namespace Chaincase
 {
 	public partial class App : Application
 	{
-		public App()
+		private static App instance;
+        private readonly Func<MainView> _mainView;
+
+		public App(Func<MainView> mainView)
 		{
+			instance = this;
 			InitializeComponent();
+			_mainView = mainView;
+
 			AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 			TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
 
+			
+		}
+
+        // Probably asyncify and add everything after "Logger" above here
+        // TODO Invert this so UI is created FIRST then app internals
+        public void Initialize()
+		{
 			Logger.InitializeDefaults(Path.Combine(Global.DataDir, "Logs.txt"));
 			Task.Run(async () => { await Global.InitializeNoWalletAsync(); }).Wait();
 			var walletExists = WalletController.WalletExists(Global.Network);
 			if (walletExists) WalletController.LoadWalletAsync(Global.Network);
-			var bs = new AppBootstrapper(walletExists);
-			MainPage = bs.CreateMainPage();
+
+            MainPage = _mainView();
 		}
 
 		protected override void OnStart()
 		{
 
 
-			/*
+
 			if (!WalletController.WalletExists(Global.Network))
 			{
 				System.Diagnostics.Debug.WriteLine("no wallet");
-				Navigator.NavigateTo(new PassphraseViewModel(Navigator));
+				//Navigator.NavigateTo(new PassphraseViewModel(Navigator));
 			}
-			*/
+
 		}
 
 		protected override void OnSleep()

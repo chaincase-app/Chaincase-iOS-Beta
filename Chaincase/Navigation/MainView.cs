@@ -19,7 +19,8 @@ namespace Chaincase.Navigation
         public MainView(
         IScheduler backgroundScheduler,
         IScheduler mainScheduler,
-        IViewLocator viewLocator)
+        IViewLocator viewLocator,
+        Page firstPage) : base(new Page())
         {
             Guard.NotNull(nameof(backgroundScheduler), backgroundScheduler);
             Guard.NotNull(nameof(mainScheduler), mainScheduler);
@@ -36,7 +37,6 @@ namespace Chaincase.Navigation
         }
 
         public IObservable<IViewModel> PagePopped => this.pagePopped;
-
 
         public IObservable<Unit> PushModal(IViewModel modalViewModel, string contract)
         {

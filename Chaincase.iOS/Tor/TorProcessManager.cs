@@ -36,7 +36,7 @@ namespace Chaincase.iOS.Tor
 
         public void Start(bool ensureRunning, string dataDir)
         {
-            if (TorSocks5EndPoint is null)
+            if (dataDir == "mock")
             {
                 return;
             }

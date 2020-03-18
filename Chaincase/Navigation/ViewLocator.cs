@@ -1,7 +1,7 @@
 ﻿using ReactiveUI;
 using System;
 
-namespace Chaincase.ViewModels
+namespace Chaincase.Navigation
 {
 	public class ViewLocator : IViewLocator
 	{

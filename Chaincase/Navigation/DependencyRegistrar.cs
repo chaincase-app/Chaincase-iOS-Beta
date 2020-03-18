@@ -8,31 +8,30 @@ using Xamarin.Forms;
 
 namespace Chaincase.Navigation
 {
-	public class AppBootstrapper : ReactiveObject, IScreen
+	public class DependencyRegistrar
 	{
-		public AppBootstrapper(
-			bool walletExists,
-			IMutableDependencyResolver dependencyResolver = null,
-			RoutingState router = null)
+        public void Register(IMutableDependencyResolver dependencyResolver, CompositionRoot compositionRoot)
 		{
-			Router = router ?? new RoutingState();
-
-			RegisterParts(dependencyResolver ?? Locator.CurrentMutable);
-
-			if (walletExists)
-			{
-				Router.Navigate.Execute(new MainViewModel(this));
-			}
-			else
-			{
-				Router.Navigate.Execute(new LandingViewModel(this));
-			}
+			dependencyResolver.RegisterLazySingleton(() => new ViewLocator(), typeof(IViewLocator));
+			RegisterViews(dependencyResolver);
+			RegisterScreen(dependencyResolver, compositionRoot);
 		}
 
-		public RoutingState Router { get; private set; }
-
-		private void RegisterParts(IMutableDependencyResolver dependencyResolver)
+		private void RegisterScreen(IMutableDependencyResolver dependencyResolver, CompositionRoot compositionRoot)
 		{
+			dependencyResolver.RegisterLazySingleton(compositionRoot.ResolveMainView, typeof(IView));
+		}
+
+		protected T CreateView<T>()
+	    where T : new()
+		{
+			return new T();
+		}
+
+		private void RegisterViews(IMutableDependencyResolver dependencyResolver)
+		{
+			dependencyResolver.Register(CreateView<MainPage>, typeof(IViewFor<MainViewModel>));
+            /*
 			dependencyResolver.RegisterConstant(this, typeof(IScreen));
 
 			dependencyResolver.Register(() => new MainPage(), typeof(IViewFor<MainViewModel>));
@@ -45,11 +44,7 @@ namespace Chaincase.Navigation
             dependencyResolver.Register(() => new PassphrasePage(), typeof(IViewFor<PassphraseViewModel>));
 			dependencyResolver.Register(() => new MnemonicPage(), typeof(IViewFor<MnemonicViewModel>));
 			dependencyResolver.Register(() => new VerifyMnemonicPage(), typeof(IViewFor<VerifyMnemonicViewModel>));
-		}
-
-		public Page CreateMainPage()
-		{
-			return new RoutedViewHost();
+            */
 		}
 	}
 }

@@ -160,13 +160,13 @@ namespace Chaincase
                 if (Config.UseTor)
                 {
                     TorManager = DependencyService.Get<ITorManager>();
-                    //TorManager = new TorProcessManager(Config.TorSocks5EndPoint, TorLogsFile);
+                    TorManager.Start(false, DataDir);
                 }
                 else
                 {
                     TorManager = DependencyService.Get<ITorManager>().Mock();
+                    TorManager.Start(false, "mock");
                 }
-                TorManager.Start(false, DataDir);
 
                 var fallbackRequestTestUri = new Uri(Config.GetFallbackBackendUri(), "/api/software/versions");
                 //TorManager.StartMonitor(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(7), DataDir, fallbackRequestTestUri);

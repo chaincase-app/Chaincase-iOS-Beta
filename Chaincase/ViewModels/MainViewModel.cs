@@ -5,10 +5,11 @@ using System.Reactive.Linq;
 using ReactiveUI;
 using Chaincase.Controllers;
 using Xamarin.Forms;
+using Chaincase.Navigation;
 
 namespace Chaincase.ViewModels
 {
-	public class MainViewModel : ViewModelBase
+	public class MainViewModel : BaseViewModel
 	{
 		private CompositeDisposable Disposables { get; set; }
         private CoinListViewModel _coinList;
@@ -34,7 +35,7 @@ namespace Chaincase.ViewModels
 
         public Label Deq;
 
-        public MainViewModel(IScreen hostScreen) : base(hostScreen)
+        public MainViewModel(IViewStackService viewStackService) : base(viewStackService)
         {
             SetBalance();
 
@@ -44,25 +45,25 @@ namespace Chaincase.ViewModels
             }
 
             Disposables = new CompositeDisposable();
-            CoinList = new CoinListViewModel(hostScreen);
+            //CoinList = new CoinListViewModel(hostScreen);
 
-            NavReceiveCommand = ReactiveCommand.CreateFromObservable(() =>
-            {
-                HostScreen.Router.Navigate.Execute(new ReceiveViewModel(hostScreen)).Subscribe();
-                return Observable.Return(Unit.Default);
-            });
+            //NavReceiveCommand = ReactiveCommand.CreateFromObservable(() =>
+            //{
+            //    HostScreen.Router.Navigate.Execute(new ReceiveViewModel(hostScreen)).Subscribe();
+            //    return Observable.Return(Unit.Default);
+            //});
 
-            NavSendCommand = ReactiveCommand.CreateFromObservable(() =>
-            {
-                HostScreen.Router.Navigate.Execute(new SendAmountViewModel(hostScreen, CoinList)).Subscribe();
-                return Observable.Return(Unit.Default);
-            });
+            //NavSendCommand = ReactiveCommand.CreateFromObservable(() =>
+            //{
+            //    HostScreen.Router.Navigate.Execute(new SendAmountViewModel(hostScreen, CoinList)).Subscribe();
+            //    return Observable.Return(Unit.Default);
+            //});
 
-            InitCoinJoin = ReactiveCommand.CreateFromObservable(() =>
-            {
-                HostScreen.Router.Navigate.Execute(new CoinJoinViewModel(hostScreen, CoinList)).Subscribe();
-                return Observable.Return(Unit.Default);
-            });
+            //InitCoinJoin = ReactiveCommand.CreateFromObservable(() =>
+            //{
+            //    HostScreen.Router.Navigate.Execute(new CoinJoinViewModel(hostScreen, CoinList)).Subscribe();
+            //    return Observable.Return(Unit.Default);
+            //});
 
             Observable.FromEventPattern(Global.WalletService.TransactionProcessor, nameof(Global.WalletService.TransactionProcessor.WalletRelevantTransactionProcessed))
 				.Merge(Observable.FromEventPattern(Global.ChaumianClient, nameof(Global.ChaumianClient.OnDequeue)))

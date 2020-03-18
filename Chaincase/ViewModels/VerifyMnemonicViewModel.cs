@@ -65,7 +65,7 @@ namespace Chaincase.ViewModels
 
 			NavMainCommand = ReactiveCommand.CreateFromObservable(() =>
 			{
-				HostScreen.Router.Navigate.Execute(new MainViewModel(hostScreen)).Subscribe();
+				//HostScreen.Router.Navigate.Execute(new MainViewModel(hostScreen)).Subscribe();
 				return Observable.Return(Unit.Default);
 			});
 		}

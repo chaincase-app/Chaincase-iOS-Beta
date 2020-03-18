@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Chaincase.Navigation;
 
 using Foundation;
+using Splat;
 using UIKit;
 
 namespace Chaincase.iOS
@@ -20,12 +19,17 @@ namespace Chaincase.iOS
 		//
 		// You have 17 seconds to return from this method, or iOS will terminate your application.
 		//
-		public override bool FinishedLaunching(UIApplication app, NSDictionary options)
+		public override bool FinishedLaunching(UIApplication application, NSDictionary options)
 		{
 			global::Xamarin.Forms.Forms.Init();
-			LoadApplication(new App());
+			var compositionRoot = new CompositionRoot();
+			var app = compositionRoot.ResolveApp();
+			var registrar = new DependencyRegistrar();
+			registrar.Register(Locator.CurrentMutable, compositionRoot);
+			app.Initialize();
 
-			return base.FinishedLaunching(app, options);
+			LoadApplication(app);
+			return base.FinishedLaunching(application, options);
 		}
 	}
 }
