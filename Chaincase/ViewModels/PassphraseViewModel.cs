@@ -3,19 +3,20 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System;
 using Chaincase.Controllers;
+using Chaincase.Navigation;
 
 namespace Chaincase.ViewModels
 {
-	public class PassphraseViewModel : ViewModelBase
+	public class PassphraseViewModel : BaseViewModel
 	{
 		public ReactiveCommand<Unit, Unit> SubmitCommand;
 
-		public PassphraseViewModel(IScreen hostScreen) : base(hostScreen)
+		public PassphraseViewModel(IViewStackService viewStackService) : base(viewStackService)
 		{
 			SubmitCommand = ReactiveCommand.CreateFromObservable(() =>
 			{
 				var mnemonic = WalletController.GenerateMnemonic(Passphrase, Global.Network).ToString();
-				HostScreen.Router.Navigate.Execute(new MnemonicViewModel(hostScreen, mnemonic)).Subscribe();
+				viewStackService.PushPage(new MnemonicViewModel(viewStackService, mnemonic)).Subscribe();
 				return Observable.Return(Unit.Default);
 			});
 		}

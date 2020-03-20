@@ -4,31 +4,40 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using ReactiveUI;
+using Splat;
 using WalletWasabi.Helpers;
 using Xamarin.Forms;
 
 namespace Chaincase.Navigation
 {
-    public sealed class MainView : NavigationPage, IView
+    public sealed class NavigationView : NavigationPage, IView
     {
-        private readonly IScheduler backgroundScheduler;
-        private readonly IScheduler mainScheduler;
-        private readonly IViewLocator viewLocator;
+        private readonly IScheduler _backgroundScheduler;
+        private readonly IScheduler _mainScheduler;
+        private readonly IViewLocator _viewLocator;
         private readonly IObservable<IViewModel> pagePopped;
 
-        public MainView(
-        IScheduler backgroundScheduler,
-        IScheduler mainScheduler,
-        IViewLocator viewLocator,
-        Page firstPage) : base(new Page())
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NavigationView"/> class.
+        /// </summary>
+        public NavigationView()
+            : this(RxApp.MainThreadScheduler, RxApp.TaskpoolScheduler, Locator.Current.GetService<IViewLocator>())
         {
-            Guard.NotNull(nameof(backgroundScheduler), backgroundScheduler);
-            Guard.NotNull(nameof(mainScheduler), mainScheduler);
-            Guard.NotNull(nameof(viewLocator), viewLocator);
+        }
 
-            this.backgroundScheduler = backgroundScheduler;
-            this.mainScheduler = mainScheduler;
-            this.viewLocator = viewLocator;
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NavigationView"/> class.
+        /// </summary>
+        /// <param name="mainScheduler">The main scheduler to scheduler UI tasks on.</param>
+        /// <param name="backgroundScheduler">The background scheduler.</param>
+        /// <param name="viewLocator">The view locator which will find views associated with view models.</param>
+        /// <param name="rootPage">The starting root page.</param>
+        public NavigationView(IScheduler backgroundScheduler, IScheduler mainScheduler, IViewLocator viewLocator, Page rootPage)
+            : base(rootPage)
+        {
+            _backgroundScheduler = backgroundScheduler;
+            _mainScheduler = mainScheduler;
+            _viewLocator = viewLocator;
 
             this.pagePopped = Observable
                 .FromEventPattern<NavigationEventArgs>(x => this.Popped += x, x => this.Popped -= x)
@@ -36,7 +45,26 @@ namespace Chaincase.Navigation
                 .Where(e => e != null);
         }
 
-        public IObservable<IViewModel> PagePopped => this.pagePopped;
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NavigationView"/> class.
+        /// </summary>
+        /// <param name="mainScheduler">The main scheduler to scheduler UI tasks on.</param>
+        /// <param name="backgroundScheduler">The background scheduler.</param>
+        /// <param name="viewLocator">The view locator which will find views associated with view models.</param>
+        public NavigationView(IScheduler mainScheduler, IScheduler backgroundScheduler, IViewLocator viewLocator)
+        {
+            _backgroundScheduler = backgroundScheduler;
+            _mainScheduler = mainScheduler;
+            _viewLocator = viewLocator;
+
+            PagePopped =
+                Observable
+                    .FromEventPattern<NavigationEventArgs>(x => Popped += x, x => Popped -= x)
+                    .Select(ep => ep.EventArgs.Page.BindingContext as IViewModel)
+                    .Where(x => x != null);
+        }
+
+        public IObservable<IViewModel?> PagePopped { get; }
 
         public IObservable<Unit> PushModal(IViewModel modalViewModel, string contract)
         {
@@ -50,8 +78,8 @@ namespace Chaincase.Navigation
                         this.SetPageTitle(page, modalViewModel.Id);
                         return page;
                     },
-                    this.backgroundScheduler)
-                .ObserveOn(this.mainScheduler)
+                    _backgroundScheduler)
+                .ObserveOn(_mainScheduler)
                 .SelectMany(
                     page =>
                         this
@@ -67,7 +95,7 @@ namespace Chaincase.Navigation
                 .ToObservable()
                 .Select(_ => Unit.Default)
                 // XF completes the pop operation on a background thread :/
-                .ObserveOn(this.mainScheduler);
+                .ObserveOn(_mainScheduler);
 
         public IObservable<Unit> PushPage(IViewModel pageViewModel, string contract, bool resetStack, bool animate)
         {
@@ -76,8 +104,8 @@ namespace Chaincase.Navigation
             // If we don't have a root page yet, be sure we create one and assign one immediately because otherwise we'll get an exception.
             // Otherwise, create it off the main thread to improve responsiveness and perceived performance.
             var hasRoot = this.Navigation.NavigationStack.Count > 0;
-            var mainScheduler = hasRoot ? this.mainScheduler : CurrentThreadScheduler.Instance;
-            var backgroundScheduler = hasRoot ? this.backgroundScheduler : CurrentThreadScheduler.Instance;
+            var mainScheduler = hasRoot ? _mainScheduler : CurrentThreadScheduler.Instance;
+            var backgroundScheduler = hasRoot ? _backgroundScheduler : CurrentThreadScheduler.Instance;
 
             return Observable
                 .Start(
@@ -131,13 +159,13 @@ namespace Chaincase.Navigation
                 .ToObservable()
                 .Select(_ => Unit.Default)
                 // XF completes the pop operation on a background thread :/
-                .ObserveOn(this.mainScheduler);
+                .ObserveOn(_mainScheduler);
 
         private Page LocatePageFor(object viewModel, string contract)
         {
             Guard.NotNull(nameof(viewModel), viewModel);
 
-            var view = viewLocator.ResolveView(viewModel, contract);
+            var view = _viewLocator.ResolveView(viewModel, contract);
             var viewFor = view as IViewFor;
             var page = view as Page;
 
@@ -163,9 +191,9 @@ namespace Chaincase.Navigation
 
         private void SetPageTitle(Page page, string resourceKey)
         {
-            // Localize, if possible e.g. Localize.GetString(resourceKey)
-            var title = resourceKey;
-            page.Title = title;
+            // var title = Localize.GetString(resourceKey);
+            // TODO: ensure resourceKey isn't null and is localized.
+            page.Title = resourceKey;
         }
     }
 }

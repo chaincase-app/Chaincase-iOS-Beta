@@ -11,16 +11,15 @@ using System.Linq;
 using WalletWasabi.CoinJoin.Client.Rounds;
 using System.Collections.Generic;
 using WalletWasabi.Blockchain.TransactionOutputs;
-using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Helpers;
-using WalletWasabi.Services;
 using System.Security;
 using System.Text;
 using WalletWasabi.Logging;
+using Chaincase.Navigation;
 
 namespace Chaincase.ViewModels
 {
-    public class CoinJoinViewModel : ViewModelBase
+    public class CoinJoinViewModel : BaseViewModel
 	{
 		private CompositeDisposable Disposables { get; set; }
 
@@ -35,7 +34,7 @@ namespace Chaincase.ViewModels
         private string _balance;
         private string accept;
 
-        public CoinJoinViewModel(IScreen hostScreen, CoinListViewModel coinList) : base(hostScreen)
+        public CoinJoinViewModel(IViewStackService viewStackService, CoinListViewModel coinList) : base(viewStackService)
         {
             SetBalance();
 

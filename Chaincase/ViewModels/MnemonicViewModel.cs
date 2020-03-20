@@ -9,7 +9,7 @@ using System.Reactive.Linq;
 
 namespace Chaincase.ViewModels
 {
-	public class MnemonicViewModel : ViewModelBase
+	public class MnemonicViewModel : BaseViewModel
 	{
 		private string _mnemonicString;
 		public string MnemonicString
@@ -20,12 +20,12 @@ namespace Chaincase.ViewModels
 
 		public ReactiveCommand<Unit, Unit> AcceptCommand;
 
-		public MnemonicViewModel(IScreen hostScreen, string mnemonicString) : base(hostScreen)
+		public MnemonicViewModel(IViewStackService viewStackService, string mnemonicString) : base(viewStackService)
 		{
 			MnemonicString = mnemonicString;
 			AcceptCommand = ReactiveCommand.CreateFromObservable(() =>
 			{
-				HostScreen.Router.Navigate.Execute(new VerifyMnemonicViewModel(hostScreen, MnemonicString)).Subscribe();
+				viewStackService.PushPage(new VerifyMnemonicViewModel(viewStackService, MnemonicString)).Subscribe();
 				return Observable.Return(Unit.Default);
 			});
 		}

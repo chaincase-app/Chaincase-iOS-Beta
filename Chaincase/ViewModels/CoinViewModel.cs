@@ -1,4 +1,5 @@
 ﻿using Chaincase.Models;
+using Chaincase.Navigation;
 using NBitcoin;
 using ReactiveUI;
 using System;
@@ -14,7 +15,7 @@ using WalletWasabi.Models;
 
 namespace Chaincase.ViewModels
 {
-	public class CoinViewModel : ViewModelBase, IDisposable
+	public class CoinViewModel : BaseViewModel, IDisposable
 	{
 		public CompositeDisposable Disposables { get; set; }
 
@@ -27,7 +28,7 @@ namespace Chaincase.ViewModels
         private ObservableAsPropertyHelper<string> _cluster;    
         private CoinListViewModel _owner;
 
-		public CoinViewModel(CoinListViewModel owner, SmartCoin model, IScreen hostScreen) : base(hostScreen)
+		public CoinViewModel(CoinListViewModel owner, SmartCoin model, IViewStackService viewStackService) : base(viewStackService)
 		{
 			Model = model;
 			_owner = owner;

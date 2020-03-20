@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Windows.Input;
+using Chaincase.Navigation;
 using ReactiveUI;
 using WalletWasabi.Blockchain.Analysis.Clustering;
 using WalletWasabi.Blockchain.Keys;
@@ -11,7 +12,7 @@ using Xamarin.Forms;
 
 namespace Chaincase.ViewModels
 {
-	public class ReceiveViewModel : ViewModelBase
+	public class ReceiveViewModel : BaseViewModel
 	{
 		private string _memo;
 		public string Memo
@@ -22,7 +23,7 @@ namespace Chaincase.ViewModels
 
 		public ReactiveCommand<Unit, Unit> GenerateCommand { get; }
 
-		public ReceiveViewModel(IScreen hostScreen) : base(hostScreen)
+		public ReceiveViewModel(IViewStackService viewStackService) : base(viewStackService)
 		{
 			GenerateCommand = ReactiveCommand.CreateFromObservable(() =>
 			{
@@ -35,7 +36,7 @@ namespace Chaincase.ViewModels
                         int prevMinGapLimit = minGapLimit - 1;
                     }
                     Memo = null;
-					HostScreen.Router.Navigate.Execute(new AddressViewModel(hostScreen, toReceive)).Subscribe();
+					//viewStackService.Router.Navigate.Execute(new AddressViewModel(viewStackService, toReceive)).Subscribe();
 				});
 				return Observable.Return(Unit.Default);
 			});

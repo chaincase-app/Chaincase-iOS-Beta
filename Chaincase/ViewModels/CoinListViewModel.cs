@@ -13,10 +13,11 @@ using Xamarin.Forms;
 using NBitcoin;
 using WalletWasabi.Blockchain.TransactionOutputs;
 using WalletWasabi.Blockchain.TransactionProcessing;
+using Chaincase.Navigation;
 
 namespace Chaincase.ViewModels
 {
-	public class CoinListViewModel : ViewModelBase
+	public class CoinListViewModel : BaseViewModel
 	{
 		private CompositeDisposable Disposables { get; set; }
 
@@ -36,7 +37,7 @@ namespace Chaincase.ViewModels
 
         public ReadOnlyObservableCollection<CoinViewModel> Coins => _coinViewModels;
 
-		public CoinListViewModel(IScreen hostScreen) : base(hostScreen)
+		public CoinListViewModel(IViewStackService viewStackService) : base(viewStackService)
 		{
             RootList = new SourceList<CoinViewModel>();
             RootList
@@ -66,7 +67,7 @@ namespace Chaincase.ViewModels
 
                         RootList.RemoveMany(coinToRemove.Select(kp => kp.Value));
 
-                        var newCoinViewModels = coinToAdd.Select(c => new CoinViewModel(this, c, HostScreen)).ToArray();
+                        var newCoinViewModels = coinToAdd.Select(c => new CoinViewModel(this, c, viewStackService)).ToArray();
                         RootList.AddRange(newCoinViewModels);
 
                         var allCoins = RootList.Items.ToArray();

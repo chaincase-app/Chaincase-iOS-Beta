@@ -5,6 +5,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Chaincase.Navigation;
 using DynamicData;
 using NBitcoin;
 using ReactiveUI;
@@ -16,14 +17,14 @@ using WalletWasabi.Services;
 
 namespace Chaincase.ViewModels
 {
-	public class SendAmountViewModel : ViewModelBase
+	public class SendAmountViewModel : BaseViewModel
 	{
 		private string _amountText;
 		private CoinListViewModel _coinList;
 
         public ReactiveCommand<Unit, Unit> GoNext;
 
-        public SendAmountViewModel(IScreen hostScreen, CoinListViewModel coinList) : base(hostScreen)
+        public SendAmountViewModel(IViewStackService viewStackService, CoinListViewModel coinList) : base(viewStackService)
         {
             CoinList = coinList;
             AmountText = "0.0";
@@ -60,7 +61,7 @@ namespace Chaincase.ViewModels
 
             GoNext = ReactiveCommand.CreateFromObservable(() =>
             {
-                HostScreen.Router.Navigate.Execute(new SendWhoViewModel(hostScreen, this)).Subscribe();
+                ViewStackService.PushPage(new SendWhoViewModel(viewStackService, this)).Subscribe();
                 return Observable.Return(Unit.Default);
             });
         }

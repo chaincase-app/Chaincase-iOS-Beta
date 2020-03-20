@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace Chaincase.ViewModels
 {
-	public class VerifyMnemonicViewModel : ViewModelBase
+	public class VerifyMnemonicViewModel : BaseViewModel
 	{
 		private string _mnemonicString { get; }
 		private string[] _mnemonicWords { get; }
@@ -56,7 +56,7 @@ namespace Chaincase.ViewModels
 			set => this.RaiseAndSetIfChanged(ref _passphrase, value);
 		}
 
-		public VerifyMnemonicViewModel(IScreen hostScreen, string mnemonicString) : base(hostScreen)
+		public VerifyMnemonicViewModel(IViewStackService viewStackService, string mnemonicString) : base(viewStackService)
 		{
 			_mnemonicString = mnemonicString;
 			_mnemonicWords = mnemonicString.Split(" ");
@@ -65,7 +65,7 @@ namespace Chaincase.ViewModels
 
 			NavMainCommand = ReactiveCommand.CreateFromObservable(() =>
 			{
-				//HostScreen.Router.Navigate.Execute(new MainViewModel(hostScreen)).Subscribe();
+				//viewStackService.Router.Navigate.Execute(new MainViewModel(viewStackService)).Subscribe();
 				return Observable.Return(Unit.Default);
 			});
 		}

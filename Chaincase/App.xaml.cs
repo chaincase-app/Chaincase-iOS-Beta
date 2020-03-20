@@ -15,31 +15,36 @@ namespace Chaincase
 {
 	public partial class App : Application
 	{
-		private static App instance;
-        private readonly Func<MainView> _mainView;
 
-		public App(Func<MainView> mainView)
+		public App()
 		{
-			instance = this;
 			InitializeComponent();
-			_mainView = mainView;
 
-			AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-			TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
-
-			
-		}
-
-        // Probably asyncify and add everything after "Logger" above here
-        // TODO Invert this so UI is created FIRST then app internals
-        public void Initialize()
-		{
+			// Probably asyncify and add everything after "Logger" above here
+			// TODO Invert this so UI is created FIRST then app internals
 			Logger.InitializeDefaults(Path.Combine(Global.DataDir, "Logs.txt"));
 			Task.Run(async () => { await Global.InitializeNoWalletAsync(); }).Wait();
 			var walletExists = WalletController.WalletExists(Global.Network);
 			if (walletExists) WalletController.LoadWalletAsync(Global.Network);
 
-            MainPage = _mainView();
+			Locator
+				.CurrentMutable
+                .RegisterView<MainPage, MainViewModel>()
+                .RegisterView<LandingPage, LandingViewModel>()
+                .RegisterNavigationView(() => new NavigationView());
+
+			Locator
+				.Current
+				.GetService<IViewStackService>()
+				.PushPage(new MainViewModel(), null, true, false)
+				.Subscribe();
+
+			MainPage = Locator.Current.GetNavigationView();
+
+			AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+			TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
+
+			
 		}
 
 		protected override void OnStart()

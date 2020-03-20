@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Reactive;
 using System.Reactive.Linq;
+using Chaincase.Navigation;
 using ReactiveUI;
 
 namespace Chaincase.ViewModels
 {
-	public class LandingViewModel : ViewModelBase
+	public class LandingViewModel : BaseViewModel
 	{
-		public LandingViewModel(IScreen hostScreen) : base(hostScreen)
+		public LandingViewModel(IViewStackService viewStackService) : base(viewStackService)
 		{
 			NewWalletCommand = ReactiveCommand.CreateFromObservable(() =>
 			{
-				HostScreen.Router.Navigate.Execute(new PassphraseViewModel(hostScreen)).Subscribe();
+				viewStackService.PushPage(new PassphraseViewModel(viewStackService)).Subscribe();
 				return Observable.Return(Unit.Default);
 			});
 		}

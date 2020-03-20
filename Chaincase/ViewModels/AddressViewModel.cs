@@ -1,4 +1,5 @@
-﻿using Gma.QrCodeNet.Encoding;
+﻿using Chaincase.Navigation;
+using Gma.QrCodeNet.Encoding;
 using ReactiveUI;
 using System.Reactive;
 using System.Threading.Tasks;
@@ -7,7 +8,7 @@ using Xamarin.Essentials;
 
 namespace Chaincase.ViewModels
 {
-	public class AddressViewModel : ViewModelBase
+	public class AddressViewModel : BaseViewModel
 	{
 		private bool[,] _qrCode;
 
@@ -22,7 +23,7 @@ namespace Chaincase.ViewModels
 		}
 		public HdPubKey Model { get; }
 
-		public AddressViewModel(IScreen hostScreen, HdPubKey model) : base(hostScreen)
+		public AddressViewModel(IViewStackService viewStackService, HdPubKey model) : base(viewStackService)
 		{
 			Model = model;
 

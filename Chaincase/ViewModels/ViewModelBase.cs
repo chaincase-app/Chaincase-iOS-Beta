@@ -6,14 +6,14 @@ namespace Chaincase.ViewModels
 {
 	public class ViewModelBase : ReactiveObject, IRoutableViewModel
 	{
-		protected readonly IScreen _hostScreen;
-		public IScreen HostScreen => _hostScreen;
+		protected readonly IScreen _viewStackService;
+		public IScreen HostScreen => _viewStackService;
 
 		public string UrlPathSegment => this.GetType().BaseType.Name.Replace("ViewModel", "");
 
-		public ViewModelBase(IScreen hostScreen)
+		public ViewModelBase(IScreen viewStackService)
 		{
-			_hostScreen = hostScreen;
+			_viewStackService = viewStackService;
 		}
 
 		public virtual Task BeforeFirstShown()

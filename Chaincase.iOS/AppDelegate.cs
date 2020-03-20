@@ -22,13 +22,8 @@ namespace Chaincase.iOS
 		public override bool FinishedLaunching(UIApplication application, NSDictionary options)
 		{
 			global::Xamarin.Forms.Forms.Init();
-			var compositionRoot = new CompositionRoot();
-			var app = compositionRoot.ResolveApp();
-			var registrar = new DependencyRegistrar();
-			registrar.Register(Locator.CurrentMutable, compositionRoot);
-			app.Initialize();
+			LoadApplication(new App());
 
-			LoadApplication(app);
 			return base.FinishedLaunching(application, options);
 		}
 	}

@@ -4,7 +4,7 @@ using Chaincase.Navigation;
 
 namespace Chaincase.ViewModels
 {
-	public class BaseViewModel : ReactiveObject
+	public class BaseViewModel : ReactiveObject, IViewModel
 	{
 		protected readonly IViewStackService ViewStackService;
 
@@ -14,5 +14,10 @@ namespace Chaincase.ViewModels
 		}
 
 		public string UrlPathSegment => this.GetType().BaseType.Name.Replace("ViewModel", "");
-	}
+
+        string IViewModel.Id
+        {
+			get;
+        }
+    }
 }

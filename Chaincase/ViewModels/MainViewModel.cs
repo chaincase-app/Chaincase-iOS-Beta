@@ -6,6 +6,7 @@ using ReactiveUI;
 using Chaincase.Controllers;
 using Xamarin.Forms;
 using Chaincase.Navigation;
+using Splat;
 
 namespace Chaincase.ViewModels
 {
@@ -35,7 +36,8 @@ namespace Chaincase.ViewModels
 
         public Label Deq;
 
-        public MainViewModel(IViewStackService viewStackService) : base(viewStackService)
+        public MainViewModel()
+            : base(Locator.Current.GetService<IViewStackService>())
         {
             SetBalance();
 
@@ -45,23 +47,23 @@ namespace Chaincase.ViewModels
             }
 
             Disposables = new CompositeDisposable();
-            //CoinList = new CoinListViewModel(hostScreen);
+            //CoinList = new CoinListViewModel();
 
             //NavReceiveCommand = ReactiveCommand.CreateFromObservable(() =>
             //{
-            //    HostScreen.Router.Navigate.Execute(new ReceiveViewModel(hostScreen)).Subscribe();
+            //    ViewStackService.PushPage(new ReceiveViewModel(viewStackService)).Subscribe();
             //    return Observable.Return(Unit.Default);
             //});
 
             //NavSendCommand = ReactiveCommand.CreateFromObservable(() =>
             //{
-            //    HostScreen.Router.Navigate.Execute(new SendAmountViewModel(hostScreen, CoinList)).Subscribe();
+            //    ViewStackService.Router.Navigate.Execute(new SendAmountViewModel(viewStackService, CoinList)).Subscribe();
             //    return Observable.Return(Unit.Default);
             //});
 
             //InitCoinJoin = ReactiveCommand.CreateFromObservable(() =>
             //{
-            //    HostScreen.Router.Navigate.Execute(new CoinJoinViewModel(hostScreen, CoinList)).Subscribe();
+            //    ViewStackService.Router.Navigate.Execute(new CoinJoinViewModel(viewStackService, CoinList)).Subscribe();
             //    return Observable.Return(Unit.Default);
             //});
 
