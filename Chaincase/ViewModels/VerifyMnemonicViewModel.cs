@@ -8,10 +8,11 @@ using ReactiveUI;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Linq;
+using Splat;
 
 namespace Chaincase.ViewModels
 {
-	public class VerifyMnemonicViewModel : BaseViewModel
+	public class VerifyMnemonicViewModel : ViewModelBase
 	{
 		private string _mnemonicString { get; }
 		private string[] _mnemonicWords { get; }
@@ -56,7 +57,8 @@ namespace Chaincase.ViewModels
 			set => this.RaiseAndSetIfChanged(ref _passphrase, value);
 		}
 
-		public VerifyMnemonicViewModel(IViewStackService viewStackService, string mnemonicString) : base(viewStackService)
+		public VerifyMnemonicViewModel(string mnemonicString)
+            : base(Locator.Current.GetService<IViewStackService>())
 		{
 			_mnemonicString = mnemonicString;
 			_mnemonicWords = mnemonicString.Split(" ");

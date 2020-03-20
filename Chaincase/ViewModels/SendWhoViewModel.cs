@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Chaincase.Navigation;
 using NBitcoin;
 using ReactiveUI;
+using Splat;
 using WalletWasabi.Blockchain.TransactionBuilding;
 using WalletWasabi.Blockchain.TransactionOutputs;
 using WalletWasabi.Blockchain.Transactions;
@@ -14,7 +15,7 @@ using WalletWasabi.Logging;
 
 namespace Chaincase.ViewModels
 {
-    public class SendWhoViewModel : BaseViewModel
+    public class SendWhoViewModel : ViewModelBase
 	{
 		private string _password;
 		private string _address;
@@ -25,7 +26,8 @@ namespace Chaincase.ViewModels
 		private string _warning;
 		private SendAmountViewModel _sendAmountViewModel;
 
-		public SendWhoViewModel(IViewStackService viewStackService, SendAmountViewModel savm) : base(viewStackService)
+		public SendWhoViewModel(SendAmountViewModel savm)
+            : base(Locator.Current.GetService<IViewStackService>())
 		{
 			SendAmountViewModel = savm;
 			BuildTransactionCommand = ReactiveCommand.CreateFromTask<string>(BuildTransaction);

@@ -4,26 +4,20 @@ using Chaincase.Navigation;
 
 namespace Chaincase.ViewModels
 {
-	public class ViewModelBase : ReactiveObject, IRoutableViewModel
+	public class ViewModelBase : ReactiveObject, IViewModel
 	{
-		protected readonly IScreen _viewStackService;
-		public IScreen HostScreen => _viewStackService;
+		protected readonly IViewStackService ViewStackService;
+
+		public ViewModelBase(IViewStackService viewStackService)
+		{
+			ViewStackService = viewStackService;
+		}
 
 		public string UrlPathSegment => this.GetType().BaseType.Name.Replace("ViewModel", "");
 
-		public ViewModelBase(IScreen viewStackService)
-		{
-			_viewStackService = viewStackService;
-		}
-
-		public virtual Task BeforeFirstShown()
-		{
-			return Task.CompletedTask;
-		}
-
-		public virtual Task AfterDismissed()
-		{
-			return Task.CompletedTask;
-		}
-	}
+        string IViewModel.Id
+        {
+			get;
+        }
+    }
 }

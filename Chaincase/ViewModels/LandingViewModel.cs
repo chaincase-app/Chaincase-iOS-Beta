@@ -3,16 +3,18 @@ using System.Reactive;
 using System.Reactive.Linq;
 using Chaincase.Navigation;
 using ReactiveUI;
+using Splat;
 
 namespace Chaincase.ViewModels
 {
-	public class LandingViewModel : BaseViewModel
+	public class LandingViewModel : ViewModelBase
 	{
-		public LandingViewModel(IViewStackService viewStackService) : base(viewStackService)
+		public LandingViewModel()
+            : base(Locator.Current.GetService<IViewStackService>())
 		{
 			NewWalletCommand = ReactiveCommand.CreateFromObservable(() =>
 			{
-				viewStackService.PushPage(new PassphraseViewModel(viewStackService)).Subscribe();
+				ViewStackService.PushPage(new PassphraseViewModel()).Subscribe();
 				return Observable.Return(Unit.Default);
 			});
 		}

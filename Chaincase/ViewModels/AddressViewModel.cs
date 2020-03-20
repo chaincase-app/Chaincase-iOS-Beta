@@ -1,6 +1,7 @@
 ﻿using Chaincase.Navigation;
 using Gma.QrCodeNet.Encoding;
 using ReactiveUI;
+using Splat;
 using System.Reactive;
 using System.Threading.Tasks;
 using WalletWasabi.Blockchain.Keys;
@@ -8,7 +9,7 @@ using Xamarin.Essentials;
 
 namespace Chaincase.ViewModels
 {
-	public class AddressViewModel : BaseViewModel
+	public class AddressViewModel : ViewModelBase
 	{
 		private bool[,] _qrCode;
 
@@ -23,7 +24,8 @@ namespace Chaincase.ViewModels
 		}
 		public HdPubKey Model { get; }
 
-		public AddressViewModel(IViewStackService viewStackService, HdPubKey model) : base(viewStackService)
+		public AddressViewModel(HdPubKey model)
+            : base(Locator.Current.GetService<IViewStackService>())
 		{
 			Model = model;
 

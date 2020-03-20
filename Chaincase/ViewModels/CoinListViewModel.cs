@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
@@ -9,15 +8,14 @@ using System.Reactive.Linq;
 using DynamicData;
 using ReactiveUI;
 using WalletWasabi.Logging;
-using Xamarin.Forms;
 using NBitcoin;
-using WalletWasabi.Blockchain.TransactionOutputs;
 using WalletWasabi.Blockchain.TransactionProcessing;
 using Chaincase.Navigation;
+using Splat;
 
 namespace Chaincase.ViewModels
 {
-	public class CoinListViewModel : BaseViewModel
+	public class CoinListViewModel : ViewModelBase
 	{
 		private CompositeDisposable Disposables { get; set; }
 
@@ -37,7 +35,8 @@ namespace Chaincase.ViewModels
 
         public ReadOnlyObservableCollection<CoinViewModel> Coins => _coinViewModels;
 
-		public CoinListViewModel(IViewStackService viewStackService) : base(viewStackService)
+		public CoinListViewModel()
+            : base(Locator.Current.GetService<IViewStackService>())
 		{
             RootList = new SourceList<CoinViewModel>();
             RootList
@@ -67,7 +66,7 @@ namespace Chaincase.ViewModels
 
                         RootList.RemoveMany(coinToRemove.Select(kp => kp.Value));
 
-                        var newCoinViewModels = coinToAdd.Select(c => new CoinViewModel(this, c, viewStackService)).ToArray();
+                        var newCoinViewModels = coinToAdd.Select(c => new CoinViewModel(this, c)).ToArray();
                         RootList.AddRange(newCoinViewModels);
 
                         var allCoins = RootList.Items.ToArray();

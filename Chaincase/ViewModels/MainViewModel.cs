@@ -10,7 +10,7 @@ using Splat;
 
 namespace Chaincase.ViewModels
 {
-	public class MainViewModel : BaseViewModel
+	public class MainViewModel : ViewModelBase
 	{
 		private CompositeDisposable Disposables { get; set; }
         private CoinListViewModel _coinList;
@@ -47,25 +47,25 @@ namespace Chaincase.ViewModels
             }
 
             Disposables = new CompositeDisposable();
-            //CoinList = new CoinListViewModel();
+            CoinList = new CoinListViewModel();
 
-            //NavReceiveCommand = ReactiveCommand.CreateFromObservable(() =>
-            //{
-            //    ViewStackService.PushPage(new ReceiveViewModel(viewStackService)).Subscribe();
-            //    return Observable.Return(Unit.Default);
-            //});
+            NavReceiveCommand = ReactiveCommand.CreateFromObservable(() =>
+            {
+                ViewStackService.PushPage(new ReceiveViewModel()).Subscribe();
+                return Observable.Return(Unit.Default);
+            });
 
-            //NavSendCommand = ReactiveCommand.CreateFromObservable(() =>
-            //{
-            //    ViewStackService.Router.Navigate.Execute(new SendAmountViewModel(viewStackService, CoinList)).Subscribe();
-            //    return Observable.Return(Unit.Default);
-            //});
+            NavSendCommand = ReactiveCommand.CreateFromObservable(() =>
+            {
+                ViewStackService.PushPage(new SendAmountViewModel(CoinList)).Subscribe();
+                return Observable.Return(Unit.Default);
+            });
 
-            //InitCoinJoin = ReactiveCommand.CreateFromObservable(() =>
-            //{
-            //    ViewStackService.Router.Navigate.Execute(new CoinJoinViewModel(viewStackService, CoinList)).Subscribe();
-            //    return Observable.Return(Unit.Default);
-            //});
+            InitCoinJoin = ReactiveCommand.CreateFromObservable(() =>
+            {
+                ViewStackService.PushPage(new CoinJoinViewModel(CoinList)).Subscribe();
+                return Observable.Return(Unit.Default);
+            });
 
             Observable.FromEventPattern(Global.WalletService.TransactionProcessor, nameof(Global.WalletService.TransactionProcessor.WalletRelevantTransactionProcessed))
 				.Merge(Observable.FromEventPattern(Global.ChaumianClient, nameof(Global.ChaumianClient.OnDequeue)))

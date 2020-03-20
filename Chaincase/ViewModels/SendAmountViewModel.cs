@@ -9,6 +9,7 @@ using Chaincase.Navigation;
 using DynamicData;
 using NBitcoin;
 using ReactiveUI;
+using Splat;
 using WalletWasabi.Exceptions;
 using WalletWasabi.Helpers;
 using WalletWasabi.Logging;
@@ -17,14 +18,15 @@ using WalletWasabi.Services;
 
 namespace Chaincase.ViewModels
 {
-	public class SendAmountViewModel : BaseViewModel
+	public class SendAmountViewModel : ViewModelBase
 	{
 		private string _amountText;
 		private CoinListViewModel _coinList;
 
         public ReactiveCommand<Unit, Unit> GoNext;
 
-        public SendAmountViewModel(IViewStackService viewStackService, CoinListViewModel coinList) : base(viewStackService)
+        public SendAmountViewModel(CoinListViewModel coinList)
+            : base(Locator.Current.GetService<IViewStackService>())
         {
             CoinList = coinList;
             AmountText = "0.0";
@@ -61,7 +63,7 @@ namespace Chaincase.ViewModels
 
             GoNext = ReactiveCommand.CreateFromObservable(() =>
             {
-                ViewStackService.PushPage(new SendWhoViewModel(viewStackService, this)).Subscribe();
+                ViewStackService.PushPage(new SendWhoViewModel(this)).Subscribe();
                 return Observable.Return(Unit.Default);
             });
         }

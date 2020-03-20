@@ -16,17 +16,18 @@ using System.Security;
 using System.Text;
 using WalletWasabi.Logging;
 using Chaincase.Navigation;
+using Splat;
 
 namespace Chaincase.ViewModels
 {
-    public class CoinJoinViewModel : BaseViewModel
-	{
-		private CompositeDisposable Disposables { get; set; }
+    public class CoinJoinViewModel : ViewModelBase
+    {
+        private CompositeDisposable Disposables { get; set; }
 
         private CoinListViewModel _coinList;
         private string _coordinatorFeePercent;
         private int _requiredPeerCount;
-        
+
         private Money _requiredBTC;
         private Money _amountQueued;
 
@@ -34,7 +35,8 @@ namespace Chaincase.ViewModels
         private string _balance;
         private string accept;
 
-        public CoinJoinViewModel(IViewStackService viewStackService, CoinListViewModel coinList) : base(viewStackService)
+        public CoinJoinViewModel(CoinListViewModel coinList)
+            : base(Locator.Current.GetService<IViewStackService>())
         {
             SetBalance();
 
@@ -49,10 +51,10 @@ namespace Chaincase.ViewModels
             AmountQueued = Money.Zero;
 
             var registrableRound = Global.ChaumianClient.State.GetRegistrableRoundOrDefault();
-            
+
             CoordinatorFeePercent = registrableRound?.State?.CoordinatorFeePercent.ToString() ?? "0.003";
 
-            CoinJoinCommand = ReactiveCommand.CreateFromTask<string>(async (password) => await  DoEnqueueAsync(CoinList.Coins.Select(c => c.Model), password)); 
+            CoinJoinCommand = ReactiveCommand.CreateFromTask<string>(async (password) => await DoEnqueueAsync(CoinList.Coins.Select(c => c.Model), password));
 
             Observable.FromEventPattern(Global.ChaumianClient, nameof(Global.ChaumianClient.CoinQueued))
                 .Merge(Observable.FromEventPattern(Global.ChaumianClient, nameof(Global.ChaumianClient.OnDequeue)))
@@ -73,17 +75,17 @@ namespace Chaincase.ViewModels
             }
 
             OnOpen();
-		}
+        }
 
         private void OnOpen()
         {
             var registrableRound = Global.ChaumianClient.State.GetRegistrableRoundOrDefault();
         }
 
-		private void SetBalance()
-		{
-			Balance = WalletController.GetBalance().ToString();
-		}
+        private void SetBalance()
+        {
+            Balance = WalletController.GetBalance().ToString();
+        }
 
         private async Task DoEnqueueAsync(IEnumerable<SmartCoin> coins, string password)
         {
@@ -232,7 +234,8 @@ namespace Chaincase.ViewModels
             if (password.Equals("bosco"))
             {
                 await Task.Delay(4444);
-            } else
+            }
+            else
             {
                 await Task.Delay(200);
             }

@@ -6,10 +6,11 @@ using ReactiveUI;
 using System.Reactive;
 using System;
 using System.Reactive.Linq;
+using Splat;
 
 namespace Chaincase.ViewModels
 {
-	public class MnemonicViewModel : BaseViewModel
+	public class MnemonicViewModel : ViewModelBase
 	{
 		private string _mnemonicString;
 		public string MnemonicString
@@ -20,12 +21,13 @@ namespace Chaincase.ViewModels
 
 		public ReactiveCommand<Unit, Unit> AcceptCommand;
 
-		public MnemonicViewModel(IViewStackService viewStackService, string mnemonicString) : base(viewStackService)
+		public MnemonicViewModel(string mnemonicString)
+            : base(Locator.Current.GetService<IViewStackService>())
 		{
 			MnemonicString = mnemonicString;
 			AcceptCommand = ReactiveCommand.CreateFromObservable(() =>
 			{
-				viewStackService.PushPage(new VerifyMnemonicViewModel(viewStackService, MnemonicString)).Subscribe();
+				ViewStackService.PushPage(new VerifyMnemonicViewModel(MnemonicString)).Subscribe();
 				return Observable.Return(Unit.Default);
 			});
 		}

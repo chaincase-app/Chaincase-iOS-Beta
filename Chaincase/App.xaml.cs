@@ -31,6 +31,14 @@ namespace Chaincase
 				.CurrentMutable
                 .RegisterView<MainPage, MainViewModel>()
                 .RegisterView<LandingPage, LandingViewModel>()
+                .RegisterView<ReceivePage, ReceiveViewModel>()
+                .RegisterView<AddressPage, AddressViewModel>()
+                .RegisterView<SendAmountPage, SendAmountViewModel>()
+                .RegisterView<SendWhoPage, SendWhoViewModel>()
+                .RegisterView<CoinJoinPage, CoinJoinViewModel>()
+                .RegisterView<PassphrasePage, PassphraseViewModel>()
+                .RegisterView<MnemonicPage, MnemonicViewModel>()
+                .RegisterView<VerifyMnemonicPage, VerifyMnemonicViewModel>()
                 .RegisterNavigationView(() => new NavigationView());
 
 			Locator
