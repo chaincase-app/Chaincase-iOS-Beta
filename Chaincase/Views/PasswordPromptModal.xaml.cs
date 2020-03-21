@@ -30,7 +30,7 @@ namespace Chaincase.Views
                      vm => vm.Cancel,
                      v => v.Cancel)
                      .DisposeWith(d);
-                this.ViewModel.CommandRequiringPassword.Subscribe(_ => Shake());
+                ViewModel.CommandRequiringPassword.Subscribe(_ => Shake());
             });
 
         }
@@ -45,7 +45,6 @@ namespace Chaincase.Views
             await Password.TranslateTo(-5, 0, timeout);
             await Password.TranslateTo(5, 0, timeout);
             Password.TranslationX = 0;
-            Password.Text = "";
         }
     }
 }

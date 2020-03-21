@@ -1,21 +1,13 @@
 ﻿using System;
 using System.Reactive;
-using System.Reactive.Linq;
-using System.Threading.Tasks;
 using Chaincase.Navigation;
 using ReactiveUI;
 using Splat;
-using WalletWasabi.Helpers;
 
 namespace Chaincase.ViewModels
 {
 	public class PasswordPromptViewModel : ViewModelBase
 	{
-
-		private readonly Interaction<string, bool> _accept;
-
-		public Interaction<string, bool> Accept => _accept;
-
 		private string _password;
 
 		public PasswordPromptViewModel(ReactiveCommand<string, bool> commandRequiringPassword)
