@@ -30,6 +30,10 @@ namespace Chaincase.Views.Templates
 					v => v.Status.Text,
 					vmToViewConverterOverride: new CoinStatusStringConverter())
 					.DisposeWith(d);
+				this.BindCommand(ViewModel,
+					vm => vm.DequeueCoin,
+					v => v.DequeueButton)
+					.DisposeWith(d);
 			});
 		}
 	}

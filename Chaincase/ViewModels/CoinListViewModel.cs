@@ -12,14 +12,13 @@ using NBitcoin;
 using WalletWasabi.Blockchain.TransactionProcessing;
 using Chaincase.Navigation;
 using Splat;
+using WalletWasabi.Blockchain.TransactionOutputs;
 
 namespace Chaincase.ViewModels
 {
 	public class CoinListViewModel : ViewModelBase
 	{
 		private CompositeDisposable Disposables { get; set; }
-
-		public SourceList<CoinViewModel> RootList { get; private set; }
 
         private ReadOnlyObservableCollection<CoinViewModel> _coinViewModels;
 
@@ -32,8 +31,6 @@ namespace Chaincase.ViewModels
 
         public event EventHandler CoinListShown;
         public event EventHandler<CoinViewModel> SelectionChanged;
-
-        public ReadOnlyObservableCollection<CoinViewModel> Coins => _coinViewModels;
 
 		public CoinListViewModel()
             : base(Locator.Current.GetService<IViewStackService>())
@@ -88,7 +85,15 @@ namespace Chaincase.ViewModels
                 .DisposeWith(Disposables);
         }
 
-		private void ClearRootList() => RootList.Clear();
+        public SourceList<CoinViewModel> RootList { get; private set; }
+
+        public ReadOnlyObservableCollection<CoinViewModel> Coins => _coinViewModels;
+
+        public event EventHandler<SmartCoin> DequeueCoinsPressed;
+
+        public bool CanDequeueCoins { get; set; } = false;
+
+        private void ClearRootList() => RootList.Clear();
 
 		public void AfterDismissed()
 		{
@@ -102,6 +107,11 @@ namespace Chaincase.ViewModels
             SelectionChanged?.Invoke(this, cvm);
             SelectedAmount = Coins.Where(x => x.IsSelected).Sum(x => x.Amount);
             SelectedAmountText = SelectedAmount.ToString();
+        }
+
+        public void PressDequeue(SmartCoin coin)
+        {
+            DequeueCoinsPressed?.Invoke(this, coin);
         }
 
         public string SelectedAmountText

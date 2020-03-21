@@ -32,7 +32,11 @@
            x:Name="Clusters" />
     <Label Grid.Row="1"
            Grid.Column="1"
-           Grid.ColumnSpan="3"
+           Grid.ColumnSpan="2"
            x:Name="Status" />
+    <Button x:Name="DequeueButton"
+            Text="Dequeue"
+            Grid.Row="1"
+            Grid.Column="3" />
   </Grid>
 </rxui:ReactiveContentView>

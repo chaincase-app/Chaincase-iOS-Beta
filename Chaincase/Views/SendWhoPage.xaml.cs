@@ -37,7 +37,7 @@ namespace Chaincase.Views
 
         async void Send(object sender, EventArgs e)
         {
-            string password = await DisplayPromptAsync("Confirm Send", "Enter your password.", "Confirm");
+            string password = await DisplayPromptAsync("Confirm Send", "Enter your password.", "Confirm", "Cancel", null, -1, null, "");
             ViewModel.BuildTransactionCommand.Execute(password);
         }
 

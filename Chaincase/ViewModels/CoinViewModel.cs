@@ -27,13 +27,12 @@ namespace Chaincase.ViewModels
 		private ObservableAsPropertyHelper<bool> _confirmed;
 		private ObservableAsPropertyHelper<bool> _unavailable;
         private ObservableAsPropertyHelper<string> _cluster;    
-        private CoinListViewModel _owner;
 
 		public CoinViewModel(CoinListViewModel owner, SmartCoin model)
             : base(Locator.Current.GetService<IViewStackService>())
 		{
 			Model = model;
-			_owner = owner;
+			Owner = owner;
 
 			Disposables = new CompositeDisposable();
 
@@ -76,9 +75,15 @@ namespace Chaincase.ViewModels
 				.Subscribe(_ => this.RaisePropertyChanged(nameof(Confirmations)))
 				.DisposeWith(Disposables);
 
+			DequeueCoin = ReactiveCommand.Create(() => Owner.PressDequeue(Model), this.WhenAnyValue(x => x.CoinJoinInProgress));
+
 		}
 
+        public ReactiveCommand<Unit, Unit> DequeueCoin { get; }
+
 		public SmartCoin Model { get; }
+
+		public CoinListViewModel Owner { get; }
 
 		public bool Confirmed => _confirmed?.Value ?? false;
 

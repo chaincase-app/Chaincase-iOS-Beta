@@ -17,6 +17,7 @@ using System.Text;
 using WalletWasabi.Logging;
 using Chaincase.Navigation;
 using Splat;
+using WalletWasabi.CoinJoin.Client.Clients.Queuing;
 
 namespace Chaincase.ViewModels
 {
@@ -30,6 +31,8 @@ namespace Chaincase.ViewModels
 
         private Money _requiredBTC;
         private Money _amountQueued;
+        private bool _isDequeueBusy;
+        private bool _isEnqueueBusy;
 
 
         private string _balance;
@@ -47,6 +50,10 @@ namespace Chaincase.ViewModels
 
             Disposables = new CompositeDisposable();
             CoinList = coinList;
+
+            Observable
+                .FromEventPattern<SmartCoin>(CoinList, nameof(CoinList.DequeueCoinsPressed))
+                .Subscribe(async x => await DoDequeueAsync(x.EventArgs));
 
             AmountQueued = Money.Zero;
 
@@ -85,6 +92,34 @@ namespace Chaincase.ViewModels
         private void SetBalance()
         {
             Balance = WalletController.GetBalance().ToString();
+        }
+
+        private async Task DoDequeueAsync(params SmartCoin[] coins)
+            => await DoDequeueAsync(coins as IEnumerable<SmartCoin>);
+
+        private async Task DoDequeueAsync(IEnumerable<SmartCoin> coins)
+        {
+            IsDequeueBusy = true;
+            try
+            {
+                if (!coins.Any())
+                {
+                    return;
+                }
+
+                try
+                {
+                    await Global.ChaumianClient.DequeueCoinsFromMixAsync(coins.ToArray(), DequeueReason.UserRequested);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogWarning(ex);
+                }
+            }
+            finally
+            {
+                IsDequeueBusy = false;
+            }
         }
 
         private async Task DoEnqueueAsync(IEnumerable<SmartCoin> coins, string password)
@@ -224,9 +259,20 @@ namespace Chaincase.ViewModels
             get => _requiredPeerCount;
             set => this.RaiseAndSetIfChanged(ref _requiredPeerCount, value);
         }
-        public bool IsEnqueueBusy { get; private set; }
 
-        public ReactiveCommand<string, Unit> CoinJoinCommand;
+        public bool IsEnqueueBusy
+        {
+            get => _isEnqueueBusy;
+            set => this.RaiseAndSetIfChanged(ref _isEnqueueBusy, value);
+        }
+
+        public bool IsDequeueBusy
+        {
+            get => _isDequeueBusy;
+            set => this.RaiseAndSetIfChanged(ref _isDequeueBusy, value);
+        }
+
+        public ReactiveCommand<string, Unit> CoinJoinCommand { get;  }
 
         public async Task CoinJoin(string password)
         {
