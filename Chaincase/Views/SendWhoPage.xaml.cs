@@ -24,6 +24,10 @@ namespace Chaincase.Views
                     vm => vm.Memo,
                     v => v.Memo.Text)
                     .DisposeWith(d);
+                this.BindCommand(ViewModel,
+                    vm => vm.PromptCommand,
+                    v => v.Send)
+                    .DisposeWith(d);
             });
         }
 
@@ -34,12 +38,13 @@ namespace Chaincase.Views
             StandardButton.BorderWidth = 1;
             FastButton.BorderWidth = 1;
         }
-
+        /*
         async void Send(object sender, EventArgs e)
         {
             string password = await DisplayPromptAsync("Confirm Send", "Enter your password.", "Confirm", "Cancel", null, -1, null, "");
             ViewModel.BuildTransactionCommand.Execute(password);
         }
+        */
 
         void SetFee(object sender, EventArgs e)
         {

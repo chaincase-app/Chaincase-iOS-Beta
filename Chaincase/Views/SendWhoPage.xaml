@@ -26,8 +26,8 @@
         <Button x:Name="FastButton" Clicked="SetFee" Text="FAST" Grid.Column="2" HorizontalOptions="FillAndExpand"/>          
      </Grid>
 
-    <Button Text="Send"
-            Clicked="Send"
+    <Button x:Name="Send"
+            Text="Send"
             VerticalOptions="EndAndExpand" />
   </StackLayout>
 </rxui:ReactiveContentPage>

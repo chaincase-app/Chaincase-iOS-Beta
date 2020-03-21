@@ -39,6 +39,7 @@ namespace Chaincase
                 .RegisterView<PassphrasePage, PassphraseViewModel>()
                 .RegisterView<MnemonicPage, MnemonicViewModel>()
                 .RegisterView<VerifyMnemonicPage, VerifyMnemonicViewModel>()
+                .RegisterView<PasswordPromptModal, PasswordPromptViewModel>()
                 .RegisterNavigationView(() => new NavigationView());
 
 			Locator

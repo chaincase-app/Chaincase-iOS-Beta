@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Chaincase.Navigation;
 using NBitcoin;
@@ -17,7 +18,6 @@ namespace Chaincase.ViewModels
 {
     public class SendWhoViewModel : ViewModelBase
 	{
-		private string _password;
 		private string _address;
         private FeeRate _feeRate;
         private bool _isBusy;
@@ -25,18 +25,37 @@ namespace Chaincase.ViewModels
 		private CoinListViewModel _coinList;
 		private string _warning;
 		private SendAmountViewModel _sendAmountViewModel;
+		private PasswordPromptViewModel _promptVM;
 
 		public SendWhoViewModel(SendAmountViewModel savm)
             : base(Locator.Current.GetService<IViewStackService>())
 		{
-			SendAmountViewModel = savm;
-			BuildTransactionCommand = ReactiveCommand.CreateFromTask<string>(BuildTransaction);
-        }
+			Memo = "";
+			Address = "";
 
-        public string Password
-		{
-			get => _password;
-			set => this.RaiseAndSetIfChanged(ref _password, value);
+			SendAmountViewModel = savm;
+			BuildTransactionCommand = ReactiveCommand.CreateFromTask<string, bool>(BuildTransaction);
+
+			var canPromptPassword = this.WhenAnyValue(x => x.Memo, x => x.Address, (memo, addr) => {
+				BitcoinAddress address;
+				try
+				{
+					address = BitcoinAddress.Create(addr.Trim(), Global.Network);
+				}
+				catch (FormatException)
+				{
+					// SetWarningMessage("Invalid address.");
+					return false;
+				}
+				return memo.Length > 0 && address is BitcoinAddress;
+                });
+            
+			_promptVM = new PasswordPromptViewModel(BuildTransactionCommand);
+            PromptCommand = ReactiveCommand.CreateFromObservable(() =>
+			{
+				ViewStackService.PushModal(_promptVM).Subscribe();
+				return Observable.Return(Unit.Default);
+            }, canPromptPassword);
 		}
 
 		public string Address
@@ -69,14 +88,15 @@ namespace Chaincase.ViewModels
 			set => this.RaiseAndSetIfChanged(ref _sendAmountViewModel, value);
         }
 
-		public ReactiveCommand<string, Unit> BuildTransactionCommand { get; }
+		public ReactiveCommand<string, bool> BuildTransactionCommand { get; }
+		public ReactiveCommand<Unit, Unit> PromptCommand { get; }
 
-        public async Task BuildTransaction(string password)
+		public async Task<bool> BuildTransaction(string password)
         {
 			try
 			{
 				IsBusy = true;
-				Password = Guard.Correct(password);
+				password = Guard.Correct(password);
 				Memo = Memo.Trim(',', ' ').Trim();
 
 				BitcoinAddress address;
@@ -87,7 +107,7 @@ namespace Chaincase.ViewModels
 				catch (FormatException)
 				{
 					// SetWarningMessage("Invalid address.");
-					return;
+					return false;
 				}
 
 				var script = address.ScriptPubKey;
@@ -95,7 +115,7 @@ namespace Chaincase.ViewModels
 				if (!Money.TryParse(SendAmountViewModel.AmountText, out amount) || amount == Money.Zero)
 				{
 					// SetWarningMessage($"Invalid amount.");
-					return;
+					return false;
 				}
 
 				var selectedInputs = Global.WalletService.Coins.Select(c => new TxoRef(c.GetCoin().Outpoint));
@@ -107,10 +127,11 @@ namespace Chaincase.ViewModels
 				var memo = Memo;
 				var intent = new PaymentIntent(script, amount, false, memo);
 
-				var result = await Task.Run(() => Global.WalletService.BuildTransaction(Password, intent, feeStrategy, allowUnconfirmed: true, allowedInputs: selectedInputs));
+				var result = await Task.Run(() => Global.WalletService.BuildTransaction(password, intent, feeStrategy, allowUnconfirmed: true, allowedInputs: selectedInputs));
 				SmartTransaction signedTransaction = result.Transaction;
 
 				await Task.Run(async () => await Global.TransactionBroadcaster.SendTransactionAsync(signedTransaction));
+				return true;
 			}
 			catch (InsufficientBalanceException ex)
 			{
@@ -127,6 +148,7 @@ namespace Chaincase.ViewModels
 			{
 				IsBusy = false;
 			}
+			return false;
 		}
     }
 }
