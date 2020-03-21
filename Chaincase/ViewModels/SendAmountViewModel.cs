@@ -60,12 +60,25 @@ namespace Chaincase.ViewModels
                         AmountText = betterAmount;
                     }
                 });
+            var canExecute = this.WhenAnyValue(x => x.AmountText);
 
             GoNext = ReactiveCommand.CreateFromObservable(() =>
             {
                 ViewStackService.PushPage(new SendWhoViewModel(this)).Subscribe();
                 return Observable.Return(Unit.Default);
-            });
+            }, this.WhenAnyValue(x => x.AmountText, amount => AmountTextPositive(amount)));
+        }
+
+        private bool AmountTextPositive(string amountText)
+        {
+            try {
+                var amount = Money.Zero;
+                Money.TryParse(amountText, out amount);
+                return amount > 0;
+            } catch (Exception e)
+            {
+                return false;
+            }
         }
 
         public string AmountText
