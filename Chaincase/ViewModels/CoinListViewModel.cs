@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
@@ -26,13 +25,13 @@ namespace Chaincase.ViewModels
         private Money _selectedAmount;
         private bool _isCoinListLoading;
         private bool _isAnyCoinSelected;
+        private bool _warnCommonOwnership;
         private object SelectionChangedLock { get; } = new object();
-        private object StateChangedLock { get; } = new object();
 
         public event EventHandler CoinListShown;
         public event EventHandler<CoinViewModel> SelectionChanged;
 
-		public CoinListViewModel()
+        public CoinListViewModel()
             : base(Locator.Current.GetService<IViewStackService>())
 		{
             RootList = new SourceList<CoinViewModel>();
@@ -64,6 +63,10 @@ namespace Chaincase.ViewModels
                         RootList.RemoveMany(coinToRemove.Select(kp => kp.Value));
 
                         var newCoinViewModels = coinToAdd.Select(c => new CoinViewModel(this, c)).ToArray();
+                        foreach (var cvm in newCoinViewModels)
+                        {
+                            SubscribeToCoinEvents(cvm);
+                        }
                         RootList.AddRange(newCoinViewModels);
 
                         var allCoins = RootList.Items.ToArray();
@@ -83,6 +86,38 @@ namespace Chaincase.ViewModels
                     }
                 })
                 .DisposeWith(Disposables);
+
+        }
+
+        private void SubscribeToCoinEvents(CoinViewModel cvm)
+        {
+            cvm.WhenAnyValue(x => x.IsSelected)
+                .Synchronize(SelectionChangedLock) // Use the same lock to ensure thread safety.
+                .Throttle(TimeSpan.FromMilliseconds(100))
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(x =>
+                {
+                    try
+                    {
+                        var coins = RootList.Items.ToArray();
+
+                        var selectedCoins = coins.Where(x => x.IsSelected).ToArray();
+
+                        SelectedAmount = selectedCoins.Sum(x => x.Amount);
+                        IsAnyCoinSelected = selectedCoins.Any();
+
+                        WarnCommonOwnership = selectedCoins
+                                .Where(c => c.AnonymitySet == 1)
+                                .Any(x => selectedCoins.Any(x => x.AnonymitySet > 1));
+
+                        SelectionChanged?.Invoke(this, null);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError(ex);
+                    }
+                })
+                .DisposeWith(cvm.GetDisposables()); // Subscription will be disposed with the coinViewModel.
         }
 
         public SourceList<CoinViewModel> RootList { get; private set; }
@@ -101,13 +136,6 @@ namespace Chaincase.ViewModels
 
 			Disposables?.Dispose();
 		}
-
-        public void OnCoinIsSelectedChanged(CoinViewModel cvm)
-        {
-            SelectionChanged?.Invoke(this, cvm);
-            SelectedAmount = Coins.Where(x => x.IsSelected).Sum(x => x.Amount);
-            SelectedAmountText = SelectedAmount.ToString();
-        }
 
         public void PressDequeue(SmartCoin coin)
         {
@@ -136,6 +164,12 @@ namespace Chaincase.ViewModels
         {
             get => _isAnyCoinSelected;
             set => this.RaiseAndSetIfChanged(ref _isAnyCoinSelected, value);
+        }
+
+        public bool WarnCommonOwnership
+        {
+            get => _warnCommonOwnership;
+            set => this.RaiseAndSetIfChanged(ref _warnCommonOwnership, value);
         }
 
     }

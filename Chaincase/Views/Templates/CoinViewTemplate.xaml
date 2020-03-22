@@ -17,6 +17,7 @@
       <RowDefinition Height="*" />
     </Grid.RowDefinitions>
     <Switch x:Name="IsSelected"
+            IsToggled="{Binding IsSelected}"
             Grid.Column="0"
             Grid.Row="0"
             Grid.RowSpan="2"

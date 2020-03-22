@@ -23,13 +23,17 @@ namespace Chaincase.Views
                     vm => vm.CoinList,
                     v => v.CoinList.ViewModel)
                     .DisposeWith(d);
+                this.BindCommand(ViewModel,
+                    vm => vm.PromptCommand,
+                    v => v.ConfirmButton)
+                    .DisposeWith(d);
             });
         }
-
+        /*
         async void Confirm(object sender, EventArgs e)
         {
             string password = await DisplayPromptAsync("Confirm CoinJoin", "Enter your password.", "Confirm", "Cancel", null, -1, null, "");
             ViewModel.CoinJoinCommand.Execute(password);
-        }
+        }*/
     }
 }

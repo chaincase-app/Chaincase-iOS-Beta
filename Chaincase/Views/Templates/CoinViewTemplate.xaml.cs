@@ -13,6 +13,7 @@ namespace Chaincase.Views.Templates
 
 			this.WhenActivated(d =>
 			{
+                // IsSelected switch bound in XZML
 				this.OneWayBind(ViewModel,
 								vm => vm.Amount,
 								v => v.Amount.Text)

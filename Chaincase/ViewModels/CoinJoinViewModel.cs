@@ -26,6 +26,7 @@ namespace Chaincase.ViewModels
         private CompositeDisposable Disposables { get; set; }
 
         private CoinListViewModel _coinList;
+        private int _selectedCount;
         private string _coordinatorFeePercent;
         private int _requiredPeerCount;
 
@@ -36,7 +37,6 @@ namespace Chaincase.ViewModels
 
 
         private string _balance;
-        private string accept;
 
         public CoinJoinViewModel(CoinListViewModel coinList)
             : base(Locator.Current.GetService<IViewStackService>())
@@ -61,8 +61,6 @@ namespace Chaincase.ViewModels
 
             CoordinatorFeePercent = registrableRound?.State?.CoordinatorFeePercent.ToString() ?? "0.003";
 
-            CoinJoinCommand = ReactiveCommand.CreateFromTask<string>(async (password) => await DoEnqueueAsync(CoinList.Coins.Select(c => c.Model), password));
-
             Observable.FromEventPattern(Global.ChaumianClient, nameof(Global.ChaumianClient.CoinQueued))
                 .Merge(Observable.FromEventPattern(Global.ChaumianClient, nameof(Global.ChaumianClient.OnDequeue)))
                 .Merge(Observable.FromEventPattern(Global.ChaumianClient, nameof(Global.ChaumianClient.StateUpdated)))
@@ -81,12 +79,18 @@ namespace Chaincase.ViewModels
                 RequiredPeerCount = 100;
             }
 
-            OnOpen();
-        }
-
-        private void OnOpen()
-        {
-            var registrableRound = Global.ChaumianClient.State.GetRegistrableRoundOrDefault();
+            var canPromptPassword = this.WhenAnyValue(
+                x => x.CoinList.SelectedAmount,
+                x => x.RequiredBTC,
+                (amnt, rBTC) => {
+                   return !(rBTC is null) && !(amnt is null) && amnt >= rBTC;
+                }); 
+            _promptVM = new PasswordPromptViewModel(CoinJoinCommand);
+            PromptCommand = ReactiveCommand.CreateFromObservable(() =>
+            {
+                ViewStackService.PushModal(_promptVM).Subscribe();
+                return Observable.Return(Unit.Default);
+            }, canPromptPassword);
         }
 
         private void SetBalance()
@@ -122,7 +126,7 @@ namespace Chaincase.ViewModels
             }
         }
 
-        private async Task DoEnqueueAsync(IEnumerable<SmartCoin> coins, string password)
+        private async Task<bool> DoEnqueueAsync(IEnumerable<SmartCoin> coins, string password)
         {
             IsEnqueueBusy = true;
             try
@@ -131,7 +135,7 @@ namespace Chaincase.ViewModels
                 {
                     // should never get to this page if there aren't sufficient coins
                     // NotificationHelpers.Warning("No coins are selected.", "");
-                    return;
+                    return false;
                 }
                 try
                 {
@@ -144,6 +148,7 @@ namespace Chaincase.ViewModels
                     }
 
                     await Global.ChaumianClient.QueueCoinsToMixAsync(password, coins.ToArray());
+                    return true;
                 }
                 catch (SecurityException ex)
                 {
@@ -167,6 +172,7 @@ namespace Chaincase.ViewModels
             {
                 IsEnqueueBusy = false;
             }
+            return false;
         }
 
         private void UpdateStates()
@@ -272,19 +278,8 @@ namespace Chaincase.ViewModels
             set => this.RaiseAndSetIfChanged(ref _isDequeueBusy, value);
         }
 
-        public ReactiveCommand<string, Unit> CoinJoinCommand { get;  }
-
-        public async Task CoinJoin(string password)
-        {
-            Debug.WriteLine(password);
-            if (password.Equals("bosco"))
-            {
-                await Task.Delay(4444);
-            }
-            else
-            {
-                await Task.Delay(200);
-            }
-        }
+        public ReactiveCommand<string, bool> CoinJoinCommand { get;  }
+        private PasswordPromptViewModel _promptVM;
+        public ReactiveCommand<Unit, Unit> PromptCommand { get; }
     }
 }

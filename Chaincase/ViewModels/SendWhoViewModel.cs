@@ -99,6 +99,14 @@ namespace Chaincase.ViewModels
 				password = Guard.Correct(password);
 				Memo = Memo.Trim(',', ' ').Trim();
 
+				var selectedCoinViewModels = SendAmountViewModel.CoinList.Coins.Where(cvm => cvm.IsSelected);
+				var selectedCoinReferences = selectedCoinViewModels.Select(cvm => new TxoRef(cvm.Model.TransactionId, cvm.Model.Index)).ToList();
+				if (!selectedCoinReferences.Any())
+				{
+					//SetWarningMessage("No coins are selected to spend.");
+					return false;
+				}
+
 				BitcoinAddress address;
 				try
 				{
