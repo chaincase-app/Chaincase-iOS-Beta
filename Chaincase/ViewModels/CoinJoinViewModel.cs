@@ -79,6 +79,8 @@ namespace Chaincase.ViewModels
                 RequiredPeerCount = 100;
             }
 
+            CoinJoinCommand = ReactiveCommand.CreateFromTask<string, bool>(DoEnqueueAsync);
+
             var canPromptPassword = this.WhenAnyValue(
                 x => x.CoinList.SelectedAmount,
                 x => x.RequiredBTC,
@@ -126,15 +128,15 @@ namespace Chaincase.ViewModels
             }
         }
 
-        private async Task<bool> DoEnqueueAsync(IEnumerable<SmartCoin> coins, string password)
+        private async Task<bool> DoEnqueueAsync(string password)
         {
             IsEnqueueBusy = true;
+            var coins = CoinList.Coins.Where(c => c.IsSelected).Select(c => c.Model);
             try
             {
                 if (!coins.Any())
                 {
                     // should never get to this page if there aren't sufficient coins
-                    // NotificationHelpers.Warning("No coins are selected.", "");
                     return false;
                 }
                 try
@@ -144,7 +146,6 @@ namespace Chaincase.ViewModels
                     if (compatiblityPassword != null)
                     {
                         password = compatiblityPassword;
-                        // NotificationHelpers.Warning(PasswordHelper.CompatibilityPasswordWarnMessage);
                     }
 
                     await Global.ChaumianClient.QueueCoinsToMixAsync(password, coins.ToArray());
@@ -152,6 +153,7 @@ namespace Chaincase.ViewModels
                 }
                 catch (SecurityException ex)
                 {
+                    // pobably shaking in the view
                     // NotificationHelpers.Error(ex.Message, "");
                 }
                 catch (Exception ex)

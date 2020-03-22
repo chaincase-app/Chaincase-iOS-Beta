@@ -58,41 +58,9 @@ namespace Chaincase.ViewModels
             }, canPromptPassword);
 		}
 
-		public string Address
-		{
-			get => _address;
-			set => this.RaiseAndSetIfChanged(ref _address, value);
-		}
-
-        public FeeRate FeeRate
-        {
-            get => _feeRate;
-            set => this.RaiseAndSetIfChanged(ref _feeRate, value);
-        }
-
-        public bool IsBusy
-		{
-			get => _isBusy;
-			set => this.RaiseAndSetIfChanged(ref _isBusy, value);
-		}
-
-		public string Memo
-		{
-			get => _memo;
-			set => this.RaiseAndSetIfChanged(ref _memo, value);
-		}
-
-        public SendAmountViewModel SendAmountViewModel
-        {
-			get => _sendAmountViewModel;
-			set => this.RaiseAndSetIfChanged(ref _sendAmountViewModel, value);
-        }
-
-		public ReactiveCommand<string, bool> BuildTransactionCommand { get; }
-		public ReactiveCommand<Unit, Unit> PromptCommand { get; }
 
 		public async Task<bool> BuildTransaction(string password)
-        {
+		{
 			try
 			{
 				IsBusy = true;
@@ -126,16 +94,21 @@ namespace Chaincase.ViewModels
 					return false;
 				}
 
-				var selectedInputs = Global.WalletService.Coins.Select(c => new TxoRef(c.GetCoin().Outpoint));
+				var selectedInputs = selectedCoinViewModels.Select(c => new TxoRef(c.Model.GetCoin().Outpoint));
 				// This gives us a suggestion
 				var feeEstimate = Global.FeeProviders.AllFeeEstimate;
-                var feeTarget = feeEstimate.Estimations.Max(x => x.Key);
-                var feeStrategy = FeeStrategy.CreateFromFeeRate(new FeeRate((Money) feeTarget));
+				var feeTarget = feeEstimate.Estimations.Max(x => x.Key);
+				var feeStrategy = FeeStrategy.CreateFromFeeRate(new FeeRate((Money)feeTarget));
 
 				var memo = Memo;
 				var intent = new PaymentIntent(script, amount, false, memo);
 
-				var result = await Task.Run(() => Global.WalletService.BuildTransaction(password, intent, feeStrategy, allowUnconfirmed: true, allowedInputs: selectedInputs));
+				var result = await Task.Run(() => Global.WalletService.BuildTransaction(
+                    password,
+                    intent,
+                    feeStrategy,
+                    allowUnconfirmed: true,
+                    allowedInputs: selectedInputs));
 				SmartTransaction signedTransaction = result.Transaction;
 
 				await Task.Run(async () => await Global.TransactionBroadcaster.SendTransactionAsync(signedTransaction));
@@ -158,5 +131,38 @@ namespace Chaincase.ViewModels
 			}
 			return false;
 		}
+
+		public string Address
+		{
+			get => _address;
+			set => this.RaiseAndSetIfChanged(ref _address, value);
+		}
+
+        public FeeRate FeeRate
+        {
+            get => _feeRate;
+            set => this.RaiseAndSetIfChanged(ref _feeRate, value);
+        }
+
+        public bool IsBusy
+		{
+			get => _isBusy;
+			set => this.RaiseAndSetIfChanged(ref _isBusy, value);
+		}
+
+		public string Memo
+		{
+			get => _memo;
+			set => this.RaiseAndSetIfChanged(ref _memo, value);
+		}
+
+        public SendAmountViewModel SendAmountViewModel
+        {
+			get => _sendAmountViewModel;
+			set => this.RaiseAndSetIfChanged(ref _sendAmountViewModel, value);
+        }
+
+		public ReactiveCommand<string, bool> BuildTransactionCommand { get; }
+		public ReactiveCommand<Unit, Unit> PromptCommand { get; }
     }
 }

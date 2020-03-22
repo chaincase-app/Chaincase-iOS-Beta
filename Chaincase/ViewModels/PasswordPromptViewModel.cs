@@ -15,10 +15,16 @@ namespace Chaincase.ViewModels
 		{
 			Password = "";
 			Cancel = ReactiveCommand.CreateFromObservable(ViewStackService.PopModal);
-			CommandRequiringPassword = commandRequiringPassword;
+			CommandRequiringPassword = ReactiveCommand.Create(() =>
+			{
+			    commandRequiringPassword.Execute(Password).Subscribe(succ =>
+				{
+					if (succ) ViewStackService.PopModal().Subscribe();
+				});
+			});
 		}
 
-		public ReactiveCommand<string, bool> CommandRequiringPassword;
+		public ReactiveCommand<Unit, Unit> CommandRequiringPassword;
 		public ReactiveCommand<Unit, Unit> Cancel;
 		
 		public string Password
