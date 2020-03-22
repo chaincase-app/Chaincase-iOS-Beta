@@ -12,7 +12,6 @@ namespace Chaincase.Views
         public SendWhoPage()
         {
             InitializeComponent();
-            SetButtonBorders();
 
             this.WhenActivated(d =>
             {
@@ -28,27 +27,35 @@ namespace Chaincase.Views
                     vm => vm.PromptCommand,
                     v => v.Send)
                     .DisposeWith(d);
+                SetFee(Standard, null);
             });
         }
 
-        void SetButtonBorders()
+
+        void ResetButtonBorders()
         {
 
-            SlowButton.BorderWidth = 1;
-            StandardButton.BorderWidth = 1;
-            FastButton.BorderWidth = 1;
+            Economy.BorderWidth = 1;
+            Standard.BorderWidth = 1;
+            Priority.BorderWidth = 1;
         }
-        /*
-        async void Send(object sender, EventArgs e)
-        {
-            string password = await DisplayPromptAsync("Confirm Send", "Enter your password.", "Confirm", "Cancel", null, -1, null, "");
-            ViewModel.BuildTransactionCommand.Execute(password);
-        }
-        */
 
         void SetFee(object sender, EventArgs e)
         {
-            SetButtonBorders();
+            switch(((Button)sender).Text)
+            {
+                case "Economy":
+                    ViewModel.FeeChoice = Feenum.Economy;
+                    break;
+                case "Priority":
+                    ViewModel.FeeChoice = Feenum.Priority;
+                    break;
+                case "Standard":
+                default:
+                    ViewModel.FeeChoice = Feenum.Standard;
+                    break;
+            }
+            ResetButtonBorders();
             ((Button)sender).BorderWidth = 2;
         }
     }
