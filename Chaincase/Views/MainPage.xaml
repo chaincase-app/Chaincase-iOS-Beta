@@ -6,18 +6,24 @@
                           xmlns:templates="clr-namespace:Chaincase.Views.Templates;assembly=Chaincase"
                           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                           xmlns="http://xamarin.com/schemas/2014/forms">
+
   <StackLayout x:Name="Stackk">
+    <StackLayout.Resources>
+        
+    </StackLayout.Resources>
     <Label x:Name="Balance"
            FontAttributes="Bold" />
-    <templates:CoinListTemplate x:Name="CoinList"
-                                VerticalOptions="FillAndExpand" />
     <Button Text="Receive"
             x:Name="NavReceiveCommand"
-            VerticalOptions="End" />
+            VerticalOptions="EndAndExpand" />
     <Button Text="CoinJoin"
             x:Name="CoinJoinButton"
             VerticalOptions="End" />
-    <Button Text="Non-private Send"
+    <Button Text="Private Send"
+            x:Name="PrivateSendButton"
+            VerticalOptions="End" />
+    <Button Text="Ex Send"
+            BorderWidth="0"
             x:Name="NavSendCommand"
             VerticalOptions="End" />
   </StackLayout>
