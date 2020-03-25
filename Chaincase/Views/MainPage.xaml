@@ -22,9 +22,9 @@
     <Button Text="Private Send"
             x:Name="PrivateSendButton"
             VerticalOptions="End" />
-    <Button Text="Ex Send"
+    <Button Text="Exposed Send"
             BorderWidth="0"
-            x:Name="NavSendCommand"
+            x:Name="ExposedSendButton"
             VerticalOptions="End" />
   </StackLayout>
 </rxui:ReactiveContentPage>

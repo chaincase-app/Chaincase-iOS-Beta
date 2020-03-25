@@ -68,6 +68,15 @@ namespace Chaincase.Controllers
 				).Sum(c => (long?)c.Amount) ?? 0;
 		}
 
+        public static Money GetPrivateBalance()
+        {
+			return Enumerable.Where
+				(
+					Global.WalletService.Coins,
+					c => c.Unspent && !c.SpentAccordingToBackend && c.AnonymitySet > Global.Config.PrivacyLevelStrong
+				).Sum(c => (long?)c.Amount) ?? 0;
+		}
+
 		public static Boolean SendTransaction(string addressString, FeeRate rate)
 		{
 			BitcoinAddress address;

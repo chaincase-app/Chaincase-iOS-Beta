@@ -20,12 +20,19 @@ namespace Chaincase.ViewModels
             set => this.RaiseAndSetIfChanged(ref _coinList, value);
         }
 
-        private String _balance;
-		public String Balance
+        private string _balance;
+		public string Balance
 		{
 			get => _balance;
 			set => this.RaiseAndSetIfChanged(ref _balance, value);
 		}
+
+        private String _privateBalance;
+        public String PrivateBalance
+        {
+            get => _privateBalance;
+            set => this.RaiseAndSetIfChanged(ref _privateBalance, value);
+        }
 
         public ReactiveCommand<Unit, Unit> NavReceiveCommand;
 		public ReactiveCommand<Unit, Unit> NavSendCommand;
@@ -36,10 +43,24 @@ namespace Chaincase.ViewModels
 
         public Label Deq;
 
+        private bool _hasCoins;
+        public bool HasCoins
+        {
+            get => _hasCoins;
+            set => this.RaiseAndSetIfChanged(ref _hasCoins, value);
+        }
+
+        private bool _hasPrivateCoins;
+        public bool HasPrivateCoins
+        {
+            get => _hasPrivateCoins;
+            set => this.RaiseAndSetIfChanged(ref _hasPrivateCoins, value);
+        }
+
         public MainViewModel()
             : base(Locator.Current.GetService<IViewStackService>())
         {
-            SetBalance();
+            SetBalances();
 
             if (Disposables != null)
             {
@@ -70,13 +91,21 @@ namespace Chaincase.ViewModels
             Observable.FromEventPattern(Global.WalletService.TransactionProcessor, nameof(Global.WalletService.TransactionProcessor.WalletRelevantTransactionProcessed))
 				.Merge(Observable.FromEventPattern(Global.ChaumianClient, nameof(Global.ChaumianClient.OnDequeue)))
 				.ObserveOn(RxApp.MainThreadScheduler)
-				.Subscribe(o => SetBalance())
+				.Subscribe(o => {
+                    SetBalances();
+                })
 				.DisposeWith(Disposables);
 		}
 
-		private void SetBalance()
+		private void SetBalances()
 		{
-			Balance = WalletController.GetBalance().ToString();
-		}
+            var bal = WalletController.GetBalance();
+			Balance = bal.ToString();
+            HasCoins = bal > 0;
+
+            var pbal = WalletController.GetPrivateBalance();
+            PrivateBalance = pbal.ToString();
+            HasPrivateCoins = pbal > 0;
+        }
     }
 }

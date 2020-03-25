@@ -23,10 +23,6 @@ namespace Chaincase.Views
                     v => v.Balance.Text)
                     .DisposeWith(d);
                 this.BindCommand(ViewModel,
-                    vm => vm.NavSendCommand,
-                    v => v.PrivateSendButton)
-                    .DisposeWith(d);
-                this.BindCommand(ViewModel,
                     vm => vm.NavReceiveCommand,
                     v => v.NavReceiveCommand)
                     .DisposeWith(d);
@@ -34,6 +30,29 @@ namespace Chaincase.Views
                     vm => vm.InitCoinJoin,
                     v => v.CoinJoinButton)
                     .DisposeWith(d);
+                this.OneWayBind(ViewModel,
+                    vm => vm.HasCoins,
+                    v => v.CoinJoinButton.IsVisible)
+                    .DisposeWith(d);
+
+                this.BindCommand(ViewModel,
+                    vm => vm.NavSendCommand,
+                    v => v.PrivateSendButton)
+                    .DisposeWith(d);
+                this.OneWayBind(ViewModel,
+                    vm => vm.HasPrivateCoins,
+                    v => v.PrivateSendButton.IsVisible)
+                    .DisposeWith(d);
+
+                this.BindCommand(ViewModel,
+                    vm => vm.NavSendCommand,
+                    v => v.ExposedSendButton)
+                    .DisposeWith(d);
+                this.OneWayBind(ViewModel,
+                    vm => vm.HasCoins,
+                    v => v.ExposedSendButton.IsVisible)
+                    .DisposeWith(d);
+
             });
         }
     }
