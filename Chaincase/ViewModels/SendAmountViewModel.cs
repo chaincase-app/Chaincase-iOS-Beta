@@ -1,20 +1,12 @@
 ﻿using System;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Chaincase.Navigation;
-using DynamicData;
 using NBitcoin;
 using ReactiveUI;
 using Splat;
-using WalletWasabi.Exceptions;
-using WalletWasabi.Helpers;
-using WalletWasabi.Logging;
-using WalletWasabi.Models;
-using WalletWasabi.Services;
 
 namespace Chaincase.ViewModels
 {

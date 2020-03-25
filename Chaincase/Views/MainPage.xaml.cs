@@ -36,7 +36,7 @@ namespace Chaincase.Views
                     .DisposeWith(d);
 
                 this.BindCommand(ViewModel,
-                    vm => vm.NavSendCommand,
+                    vm => vm.PrivateSendCommand,
                     v => v.PrivateSendButton)
                     .DisposeWith(d);
                 this.OneWayBind(ViewModel,
@@ -45,7 +45,7 @@ namespace Chaincase.Views
                     .DisposeWith(d);
 
                 this.BindCommand(ViewModel,
-                    vm => vm.NavSendCommand,
+                    vm => vm.ExposedSendCommand,
                     v => v.ExposedSendButton)
                     .DisposeWith(d);
                 this.OneWayBind(ViewModel,

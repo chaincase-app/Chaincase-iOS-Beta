@@ -73,7 +73,7 @@ namespace Chaincase.Controllers
 			return Enumerable.Where
 				(
 					Global.WalletService.Coins,
-					c => c.Unspent && !c.SpentAccordingToBackend && c.AnonymitySet > Global.Config.PrivacyLevelStrong
+					c => c.Unspent && !c.SpentAccordingToBackend && c.AnonymitySet > 1
 				).Sum(c => (long?)c.Amount) ?? 0;
 		}
 

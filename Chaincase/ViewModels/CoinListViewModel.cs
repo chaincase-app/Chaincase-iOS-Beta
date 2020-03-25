@@ -31,7 +31,7 @@ namespace Chaincase.ViewModels
         public event EventHandler CoinListShown;
         public event EventHandler<CoinViewModel> SelectionChanged;
 
-        public CoinListViewModel()
+        public CoinListViewModel(bool isPrivate = false)
             : base(Locator.Current.GetService<IViewStackService>())
 		{
             RootList = new SourceList<CoinViewModel>();
@@ -54,7 +54,12 @@ namespace Chaincase.ViewModels
                 {
                     try
                     {
-                        var actual = Global.WalletService.TransactionProcessor.Coins.ToHashSet();
+                        var actual = (isPrivate ?
+                            Global.WalletService.TransactionProcessor.Coins
+                                .Where(c => c.AnonymitySet > 1) :
+                            Global.WalletService.TransactionProcessor.Coins)
+                                .ToHashSet();
+
                         var old = RootList.Items.ToDictionary(c => c.Model, c => c);
 
                         var coinToRemove = old.Where(c => !actual.Contains(c.Key)).ToArray();

@@ -7,9 +7,6 @@ namespace Chaincase.Views
 {
 	public partial class SendAmountPage : ReactiveContentPage<SendAmountViewModel>
 	{
-
-        private bool PasswordEntryIsVisible;
-
 		public SendAmountPage()
 		{
 			InitializeComponent();
@@ -20,6 +17,9 @@ namespace Chaincase.Views
 					vm => vm.AmountText,
 					v => v.Amount.Text)
 					.DisposeWith(d);
+				this.Bind(ViewModel,
+					vm => vm.CoinList,
+					v => v.CoinList.ViewModel);
                 this.BindCommand(ViewModel,
                     vm => vm.GoNext,
                     v => v.NextButton)

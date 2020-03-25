@@ -35,7 +35,9 @@ namespace Chaincase.ViewModels
         }
 
         public ReactiveCommand<Unit, Unit> NavReceiveCommand;
-		public ReactiveCommand<Unit, Unit> NavSendCommand;
+		public ReactiveCommand<Unit, Unit> ExposedSendCommand;
+        public ReactiveCommand<Unit, Unit> PrivateSendCommand;
+
 
         public ReactiveCommand<Unit, Unit> InitCoinJoin { get; private set; }
         readonly ObservableAsPropertyHelper<bool> _isJoining;
@@ -76,7 +78,13 @@ namespace Chaincase.ViewModels
                 return Observable.Return(Unit.Default);
             });
 
-            NavSendCommand = ReactiveCommand.CreateFromObservable(() =>
+            ExposedSendCommand = ReactiveCommand.CreateFromObservable(() =>
+            {
+                ViewStackService.PushPage(new SendAmountViewModel(CoinList)).Subscribe();
+                return Observable.Return(Unit.Default);
+            });
+
+            PrivateSendCommand = ReactiveCommand.CreateFromObservable(() =>
             {
                 ViewStackService.PushPage(new SendAmountViewModel(CoinList)).Subscribe();
                 return Observable.Return(Unit.Default);

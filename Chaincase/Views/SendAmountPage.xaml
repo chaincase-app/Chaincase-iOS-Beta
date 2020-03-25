@@ -11,6 +11,8 @@
             FontAttributes="Bold" />
     <Label Text="amount (BTC)" />
     <Entry x:Name="Amount" />
+    <templates:CoinListTemplate x:Name="CoinList"
+                                VerticalOptions="FillAndExpand" />
     <Button Text="Next"
             x:Name="NextButton"
             VerticalOptions="EndAndExpand" />
