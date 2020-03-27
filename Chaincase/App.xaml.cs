@@ -42,10 +42,12 @@ namespace Chaincase
                 .RegisterView<PasswordPromptModal, PasswordPromptViewModel>()
                 .RegisterNavigationView(() => new NavigationView());
 
+			var page = walletExists ? (IViewModel)new MainViewModel() : new LandingViewModel();
+
 			Locator
 				.Current
 				.GetService<IViewStackService>()
-				.PushPage(new MainViewModel(), null, true, false)
+				.PushPage(page, null, true, false)
 				.Subscribe();
 
 			MainPage = Locator.Current.GetNavigationView();
