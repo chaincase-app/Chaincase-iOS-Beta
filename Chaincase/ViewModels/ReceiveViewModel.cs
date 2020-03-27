@@ -1,21 +1,17 @@
 ﻿using System;
-using System.Collections.ObjectModel;
-using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
-using System.Windows.Input;
 using Chaincase.Navigation;
 using ReactiveUI;
 using Splat;
-using WalletWasabi.Blockchain.Analysis.Clustering;
 using WalletWasabi.Blockchain.Keys;
 using Xamarin.Forms;
 
 namespace Chaincase.ViewModels
 {
-	public class ReceiveViewModel : ViewModelBase
+    public class ReceiveViewModel : ViewModelBase
 	{
-		private string _memo;
+		private string _memo = "";
 		public string Memo
 		{
 			get => _memo;
@@ -41,7 +37,7 @@ namespace Chaincase.ViewModels
 					ViewStackService.PushPage(new AddressViewModel(toReceive)).Subscribe();
 				});
 				return Observable.Return(Unit.Default);
-			});
+			}, this.WhenAnyValue(vm => vm.Memo, memo => memo.Length > 0));
 		}
 	}
 }
