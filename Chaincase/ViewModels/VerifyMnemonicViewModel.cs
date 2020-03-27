@@ -67,24 +67,20 @@ namespace Chaincase.ViewModels
 
 			NavMainCommand = ReactiveCommand.CreateFromObservable(() =>
 			{
-				//viewStackService.Router.Navigate.Execute(new MainViewModel(viewStackService)).Subscribe();
+				WalletController.LoadWalletAsync(Global.Network);
+				ViewStackService.PushPage(new MainViewModel()).Subscribe();
 				return Observable.Return(Unit.Default);
-			});
+			}, this.WhenAnyValue(x => x.Recall0, x => x.Recall1, x => x.Recall2, x => x.Recall3,
+                // Looks vulnerable to a timing attack, but don't think it's useful in this scenario
+                (r0, r1, r2, r3) => {
+				    return   string.Equals(r0, _mnemonicWords[0], StringComparison.CurrentCultureIgnoreCase) &&
+						     string.Equals(r1, _mnemonicWords[3], StringComparison.CurrentCultureIgnoreCase) &&
+						     string.Equals(r2, _mnemonicWords[6], StringComparison.CurrentCultureIgnoreCase) &&
+						     string.Equals(r3, _mnemonicWords[9], StringComparison.CurrentCultureIgnoreCase) &&
+						     WalletController.VerifyWalletCredentials(_mnemonicString, _passphrase, Global.Network);
+			    }));
 		}
 
-		public ICommand TryCompleteInitializationCommand => new Command(async () => await TryCompleteInitializationAsync());
 		public ReactiveCommand<Unit, Unit> NavMainCommand;
-
-		private async Task TryCompleteInitializationAsync()
-		{
-			IsVerified = string.Equals(Recall0, _mnemonicWords[0], StringComparison.CurrentCultureIgnoreCase) &&
-				         string.Equals(Recall1, _mnemonicWords[3], StringComparison.CurrentCultureIgnoreCase) &&
-				         string.Equals(Recall2, _mnemonicWords[6], StringComparison.CurrentCultureIgnoreCase) &&
-				         string.Equals(Recall3, _mnemonicWords[9], StringComparison.CurrentCultureIgnoreCase) &&
-				         WalletController.VerifyWalletCredentials(_mnemonicString, _passphrase, Global.Network);
-			if (!IsVerified) return;
-			WalletController.LoadWalletAsync(Global.Network);
-			NavMainCommand.Execute();
-		}
 	}
 }
