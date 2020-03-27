@@ -33,7 +33,7 @@ namespace Chaincase.ViewModels
                         int minGapLimit = Global.WalletService.KeyManager.MinGapLimit.Value;
                         int prevMinGapLimit = minGapLimit - 1;
                     }
-                    Memo = null;
+                    Memo = "";
 					ViewStackService.PushPage(new AddressViewModel(toReceive)).Subscribe();
 				});
 				return Observable.Return(Unit.Default);

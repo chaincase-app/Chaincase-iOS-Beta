@@ -2,7 +2,9 @@
 using Gma.QrCodeNet.Encoding;
 using ReactiveUI;
 using Splat;
+using System;
 using System.Reactive;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using WalletWasabi.Blockchain.Keys;
 using Xamarin.Essentials;
@@ -25,7 +27,7 @@ namespace Chaincase.ViewModels
 		public HdPubKey Model { get; }
 
 		public AddressViewModel(HdPubKey model)
-            : base(Locator.Current.GetService<IViewStackService>())
+			: base(Locator.Current.GetService<IViewStackService>())
 		{
 			Model = model;
 
@@ -41,11 +43,17 @@ namespace Chaincase.ViewModels
 			});
 
 			ShareCommand = ReactiveCommand.CreateFromTask<string>(ShareAddress);
+			NavWalletCommand = ReactiveCommand.CreateFromObservable<Unit, Unit>(_ =>
+			{
+			    ViewStackService.PopPage(false);
+				return ViewStackService.PopPage();
+		    });
 		}
 
 		public ReactiveCommand<string, Unit> ShareCommand;
+		public ReactiveCommand<Unit, Unit> NavWalletCommand;
 
-        public async Task ShareAddress(string address)
+		public async Task ShareAddress(string address)
         {
 			await Share.RequestAsync(new ShareTextRequest
 			{

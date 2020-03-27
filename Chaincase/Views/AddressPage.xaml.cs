@@ -27,6 +27,10 @@ namespace Chaincase.Views
 					v => v.ShareButton,
                     vm => vm.Address)
 					.DisposeWith(d);
+				this.BindCommand(ViewModel,
+					vm => vm.NavWalletCommand,
+					v => v.WalletButton)
+					 .DisposeWith(d);
 			});
 		}
 	}
