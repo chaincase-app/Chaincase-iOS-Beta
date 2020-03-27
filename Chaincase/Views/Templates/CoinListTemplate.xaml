@@ -17,9 +17,9 @@
       <Label Grid.Column="1"
              Text="Amount" />
       <Label Grid.Column="2"
-             Text="AnonymitySet" />
+             Text="Set" />
       <Label Grid.Column="3"
-             Text="Clusters" />
+             Text="Memo" />
     </Grid>
     <ListView x:Name="Coins">
       <ListView.ItemTemplate>

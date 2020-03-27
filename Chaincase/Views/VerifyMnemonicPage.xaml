@@ -5,10 +5,10 @@
                           xmlns:rxui="clr-namespace:ReactiveUI.XamForms;assembly=ReactiveUI.XamForms"
                           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                           xmlns="http://xamarin.com/schemas/2014/forms">
-  <StackLayout Margin="10,35,10,10">
+  <StackLayout>
     <Label Text="Create wallet"
            FontAttributes="Bold" />
-    <Label Text="Verify the Mnemonic" />
+    <Label Text="Verify your recovery words" />
 
     <Grid>
       <Grid.ColumnDefinitions>
@@ -39,6 +39,7 @@
            Placeholder="something I know"
            IsPassword="true" />
     <Button Text="Continue"
-            x:Name="Continue" />
+            x:Name="Continue"
+            VerticalOptions="EndAndExpand"/>
   </StackLayout>
 </rxui:ReactiveContentPage>

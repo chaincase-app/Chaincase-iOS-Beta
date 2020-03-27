@@ -5,12 +5,10 @@
                           xmlns:rxui="clr-namespace:ReactiveUI.XamForms;assembly=ReactiveUI.XamForms"
                           xmlns:templates="clr-namespace:Chaincase.Views.Templates;assembly=Chaincase"
                           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-                          xmlns="http://xamarin.com/schemas/2014/forms">
+                          xmlns="http://xamarin.com/schemas/2014/forms"
+                          NavigationPage.HasBackButton="False">
 
-  <StackLayout x:Name="Stackk">
-    <StackLayout.Resources>
-        
-    </StackLayout.Resources>
+  <StackLayout x:Name="Stackk"> 
     <Label x:Name="Balance"
            FontAttributes="Bold" />
     <Button Text="Receive"

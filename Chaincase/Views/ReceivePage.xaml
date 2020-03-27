@@ -14,6 +14,7 @@
     <Entry Placeholder="to whom/for what"
             x:Name="Memo" />
     <Button Text="Generate Address"
-            x:Name="GenerateButton" />
+            x:Name="GenerateButton"
+            VerticalOptions="EndAndExpand"/>
   </StackLayout>
 </rxui:ReactiveContentPage>

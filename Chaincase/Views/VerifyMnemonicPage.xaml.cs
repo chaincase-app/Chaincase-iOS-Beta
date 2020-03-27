@@ -10,32 +10,32 @@ namespace Chaincase.Views
 		public VerifyMnemonicPage()
 		{
 			InitializeComponent();
-			this.WhenActivated(disposables =>
+			this.WhenActivated(d =>
 			{
 				this.BindCommand(ViewModel,
-					vm => vm.TryCompleteInitializationCommand,
+					vm => vm.NavMainCommand,
 					v => v.Continue)
-					.DisposeWith(disposables);
+					.DisposeWith(d);
 				this.Bind(ViewModel,
 					vm => vm.Recall0,
 					v => v.Recall0.Text)
-                    .DisposeWith(disposables);
+                    .DisposeWith(d);
                 this.Bind(ViewModel,
 					vm => vm .Recall1,
 					v => v.Recall1.Text)
-                    .DisposeWith(disposables);
+                    .DisposeWith(d);
                 this.Bind(ViewModel,
 					vm => vm.Recall2,
 					v => v.Recall2.Text)
-                    .DisposeWith(disposables);
+                    .DisposeWith(d);
                 this.Bind(ViewModel,
 					vm => vm.Recall3,
 					v => v.Recall3.Text)
-                    .DisposeWith(disposables);
+                    .DisposeWith(d);
 				this.Bind(ViewModel,
 					vm => vm.Passphrase,
 					v => v.Passphrase.Text)
-				.DisposeWith(disposables);
+				.DisposeWith(d);
             });
 		}
 	}

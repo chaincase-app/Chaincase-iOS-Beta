@@ -9,6 +9,11 @@
         <Setter Property="BorderWidth"
                 Value="1" />
       </Style>
+      <Style TargetType="ContentPage"
+             ApplyToDerivedTypes="True">
+        <Setter Property="Padding"
+                Value="10,35,10,35" />
+      </Style>
      </ResourceDictionary>
   </Application.Resources>
 </Application>

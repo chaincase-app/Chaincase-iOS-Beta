@@ -11,16 +11,16 @@ namespace Chaincase.Views
 		public PassphrasePage()
 		{
 			InitializeComponent();
-			this.WhenActivated(disposables =>
+			this.WhenActivated(d =>
 			{
 				this.BindCommand(ViewModel,
 					vm => vm.SubmitCommand,
 					v => v.Submit)
-					.DisposeWith(disposables);
+					.DisposeWith(d);
                 this.Bind(ViewModel,
 					vm => vm.Passphrase,
 					v => v.Passphrase.Text)
-                .DisposeWith(disposables);
+                .DisposeWith(d);
             });
 		}
 	}
