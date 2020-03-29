@@ -2,7 +2,7 @@ using System;
 using Chaincase.Models;
 using ReactiveUI;
 
-namespace Chaincase
+namespace Chaincase.Converters
 {
     
     public class CoinStatusStringConverter : IBindingTypeConverter

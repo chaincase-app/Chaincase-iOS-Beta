@@ -13,6 +13,21 @@
     <Entry x:Name="Amount" />
     <templates:CoinListTemplate x:Name="CoinList"
                                 VerticalOptions="FillAndExpand" />
+    
+    <Label Text="network fee" />
+    <Grid ColumnSpacing="8" HorizontalOptions="FillAndExpand">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Button x:Name="Economy" Clicked="SetFee"  Text="Economy" Grid.Column="0" HorizontalOptions="FillAndExpand"/>
+        <Button x:Name="Standard" Clicked="SetFee" Text="Standard" Grid.Column="1" HorizontalOptions="FillAndExpand"/>
+        <Button x:Name="Priority" Clicked="SetFee" Text="Priority" Grid.Column="2" HorizontalOptions="FillAndExpand"/>          
+    </Grid>
+    <Label x:Name="FeeLabel" />
+    <Label x:Name="FeeTargetTimeLabel" />
+
     <Button Text="Next"
             x:Name="NextButton"
             VerticalOptions="EndAndExpand" />

@@ -19,24 +19,11 @@ using WalletWasabi.Logging;
 
 namespace Chaincase.ViewModels
 {
-    public enum Feenum
-    {
-        Economy,
-        Standard,
-        Priority
-    }
-
     public class SendWhoViewModel : ViewModelBase
 	{
 		private string _address;
         private bool _isBusy;
 		private string _memo;
-        private Feenum _feeChoice;
-        private FeeRate _feeRate;
-		private Money _estimatedBtcFee;
-		private int _feeTarget;
-		private int _minimumFeeTarget;
-		private int _maximumFeeTarget;
 		private CoinListViewModel _coinList;
 		private string _warning;
 		private SendAmountViewModel _sendAmountViewModel;
@@ -72,109 +59,7 @@ namespace Chaincase.ViewModels
 				ViewStackService.PushModal(_promptVM).Subscribe();
 				return Observable.Return(Unit.Default);
             }, canPromptPassword);
-
-			FeeChoice = Feenum.Standard; // Default
-
-			Observable.FromEventPattern(SendAmountViewModel.CoinList, nameof(SendAmountViewModel.CoinList.SelectionChanged))
-				.ObserveOn(RxApp.MainThreadScheduler)
-				.Subscribe(_ => SetFees());
-
-			SetFees();
-			Observable
-				.FromEventPattern<AllFeeEstimate>(Global.FeeProviders, nameof(Global.FeeProviders.AllFeeEstimateChanged))
-				.ObserveOn(RxApp.MainThreadScheduler)
-				.Subscribe(_ =>
-				{
-					SetFeeTargetLimits();
-
-					if (FeeTarget < MinimumFeeTarget) // Should never happen.
-					{
-						FeeTarget = MinimumFeeTarget;
-					}
-					else if (FeeTarget > MaximumFeeTarget)
-					{
-						FeeTarget = MaximumFeeTarget;
-					}
-
-					SetFees();
-				})
-				.DisposeWith(Disposables);
 		}
-
-		private void SetFees()
-		{
-			AllFeeEstimate allFeeEstimate = Global.FeeProviders?.AllFeeEstimate;
-
-			if (!(allFeeEstimate is null))
-			{
-				int feeTarget = -1; // blocks: 1 => 10 minutes
-                switch (FeeChoice)
-                {
-					case Feenum.Economy:
-						feeTarget = MinimumFeeTarget;
-						break;
-					case Feenum.Priority:
-						feeTarget = MaximumFeeTarget;
-						break;
-					case Feenum.Standard: // average of the two
-                    default:
-						feeTarget = 6; // Standard include in 60 minutes
-						break;
-
-                }
-
-				int prevKey = allFeeEstimate.Estimations.Keys.First();
-				foreach (int target in allFeeEstimate.Estimations.Keys)
-				{
-					if (feeTarget == target)
-					{
-						break;
-					}
-					else if (feeTarget < target)
-					{
-						feeTarget = prevKey;
-						break;
-					}
-					prevKey = target;
-					}
-				
-				FeeRate = allFeeEstimate.GetFeeRate(feeTarget);
-
-				IEnumerable<SmartCoin> selectedCoins = SendAmountViewModel.CoinList.Coins.Where(cvm => cvm.IsSelected).Select(x => x.Model);
-
-				int vsize = 150;
-				if (selectedCoins.Any())
-				{
-					if (Money.TryParse(SendAmountViewModel.AmountText.TrimStart('~', ' '), out Money amount))
-					{
-						var inNum = 0;
-						var amountSoFar = Money.Zero;
-						foreach (SmartCoin coin in selectedCoins.OrderByDescending(x => x.Amount))
-						{
-							amountSoFar += coin.Amount;
-							inNum++;
-							if (amountSoFar > amount)
-							{
-								break;
-							}
-						}
-						vsize = NBitcoinHelpers.CalculateVsizeAssumeSegwit(inNum, 2);
-					}
-				}
-
-				if (FeeRate != null)
-				{
-					EstimatedBtcFee = FeeRate.GetTotalFee(vsize);
-				}
-				else
-				{
-					// This should not happen. Never.
-					// If FeeRate is null we will have problems when building the tx.
-					EstimatedBtcFee = Money.Zero;
-				}
-            }
-		}
-
 
 		public async Task<bool> BuildTransaction(string password)
 		{
@@ -212,22 +97,22 @@ namespace Chaincase.ViewModels
 				}
 
 				var selectedInputs = selectedCoinViewModels.Select(c => new TxoRef(c.Model.GetCoin().Outpoint));
-				if (FeeRate is null || FeeRate.SatoshiPerByte < 1)
+				if (SendAmountViewModel.FeeRate is null || SendAmountViewModel.FeeRate.SatoshiPerByte < 1)
 				{
 					return false;
 				}
 
-				var feeStrategy = FeeStrategy.CreateFromFeeRate(FeeRate);
+				var feeStrategy = FeeStrategy.CreateFromFeeRate(SendAmountViewModel.FeeRate);
 
 				var memo = Memo;
 				var intent = new PaymentIntent(script, amount, false, memo);
 
 				var result = await Task.Run(() => Global.WalletService.BuildTransaction(
-                    password,
-                    intent,
-                    feeStrategy,
-                    allowUnconfirmed: true,
-                    allowedInputs: selectedInputs));
+					password,
+					intent,
+					feeStrategy,
+					allowUnconfirmed: true,
+					allowedInputs: selectedInputs));
 				SmartTransaction signedTransaction = result.Transaction;
 
 				await Global.TransactionBroadcaster.SendTransactionAsync(signedTransaction);
@@ -251,60 +136,7 @@ namespace Chaincase.ViewModels
 			return false;
 		}
 
-		private void SetFeeTargetLimits()
-		{
-			var allFeeEstimate = Global.FeeProviders?.AllFeeEstimate;
 
-			if (allFeeEstimate != null)
-			{
-				MinimumFeeTarget = allFeeEstimate.Estimations.Min(x => x.Key); // This should be always 2, but bugs will be seen at least if it is not.
-				MaximumFeeTarget = allFeeEstimate.Estimations.Max(x => x.Key);
-			}
-			else
-			{
-				MinimumFeeTarget = 2;
-				MaximumFeeTarget = Constants.SevenDaysConfirmationTarget;
-			}
-		}
-
-		public FeeRate FeeRate
-		{
-			get => _feeRate;
-			set => this.RaiseAndSetIfChanged(ref _feeRate, value);
-		}
-
-        public Feenum FeeChoice
-        {
-			get => _feeChoice;
-			set => this.RaiseAndSetIfChanged(ref _feeChoice, value);
-        }
-
-		public Money EstimatedBtcFee
-		{
-			get => _estimatedBtcFee;
-			set => this.RaiseAndSetIfChanged(ref _estimatedBtcFee, value);
-		}
-
-		public int FeeTarget
-		{
-			get => _feeTarget;
-			set
-			{
-				this.RaiseAndSetIfChanged(ref _feeTarget, value);
-			}
-		}
-
-		public int MinimumFeeTarget
-		{
-			get => _minimumFeeTarget;
-			set => this.RaiseAndSetIfChanged(ref _minimumFeeTarget, value);
-		}
-
-		public int MaximumFeeTarget
-		{
-			get => _maximumFeeTarget;
-			set => this.RaiseAndSetIfChanged(ref _maximumFeeTarget, value);
-		}
 
 		public string Address
 		{

@@ -2,6 +2,7 @@
 using ReactiveUI;
 using ReactiveUI.XamForms;
 using Chaincase.ViewModels;
+using Chaincase.Converters;
 
 namespace Chaincase.Views.Templates
 {

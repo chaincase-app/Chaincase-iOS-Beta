@@ -69,6 +69,7 @@
     <Folder Include="Controllers\" />
     <Folder Include="ViewModels\" />
     <Folder Include="Models\" />
+    <Folder Include="Converters\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Views\MainPage.xaml.cs">
