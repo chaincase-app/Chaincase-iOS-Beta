@@ -22,6 +22,10 @@ namespace Chaincase.Views
                     vm => vm.Password,
                     v => v.Password.Text)
                     .DisposeWith(d);
+                this.OneWayBind(ViewModel,
+                    vm => vm.AcceptText,
+                    v => v.Accept.Text)
+                    .DisposeWith(d);
                 this.BindCommand(ViewModel,
                      vm => vm.CommandRequiringPassword,
                      v => v.Accept)

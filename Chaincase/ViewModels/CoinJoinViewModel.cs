@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using NBitcoin;
 using ReactiveUI;
 using Chaincase.Controllers;
-using System.Diagnostics;
 using System.Linq;
 using WalletWasabi.CoinJoin.Client.Rounds;
 using System.Collections.Generic;
@@ -87,10 +86,10 @@ namespace Chaincase.ViewModels
                 (amnt, rBTC) => {
                    return !(rBTC is null) && !(amnt is null) && amnt >= rBTC;
                 }); 
-            _promptVM = new PasswordPromptViewModel(CoinJoinCommand);
+            _promptViewModel = new PasswordPromptViewModel(CoinJoinCommand, "CoinJoin");
             PromptCommand = ReactiveCommand.CreateFromObservable(() =>
             {
-                ViewStackService.PushModal(_promptVM).Subscribe();
+                ViewStackService.PushModal(_promptViewModel).Subscribe();
                 return Observable.Return(Unit.Default);
             }, canPromptPassword);
         }
@@ -281,7 +280,7 @@ namespace Chaincase.ViewModels
         }
 
         public ReactiveCommand<string, bool> CoinJoinCommand { get;  }
-        private PasswordPromptViewModel _promptVM;
+        private PasswordPromptViewModel _promptViewModel;
         public ReactiveCommand<Unit, Unit> PromptCommand { get; }
     }
 }

@@ -15,7 +15,7 @@
     <Label Text="{Binding RequiredPeerCount, StringFormat='exchanged with at least {0} peers'}" />
     <Label Text="{Binding CoordinatorFeePercent, StringFormat='for the low price of {0}'}" />
 
-    <Button Text="Confirm"
+    <Button Text="CoinJoin Selected"
             x:Name="ConfirmButton"
             VerticalOptions="End" />
   </StackLayout>
