@@ -16,10 +16,6 @@ namespace Chaincase.Views
             this.WhenActivated(d =>
             {
                 this.OneWayBind(ViewModel,
-                    vm => vm.Balance,
-                    v => v.Balance.Text)
-                    .DisposeWith(d);
-                this.OneWayBind(ViewModel,
                     vm => vm.CoinList,
                     v => v.CoinList.ViewModel)
                     .DisposeWith(d);

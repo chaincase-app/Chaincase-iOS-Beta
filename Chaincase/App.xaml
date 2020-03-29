@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Chaincase.App">
   <Application.Resources>
+    <StyleSheet Source="./style.css" />
     <ResourceDictionary>
       <Style TargetType="Button"
              ApplyToDerivedTypes="True">

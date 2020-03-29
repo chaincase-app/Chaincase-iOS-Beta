@@ -30,6 +30,5 @@
         </DataTemplate>
       </ListView.ItemTemplate>
     </ListView>
-    <Label x:Name="SelectedAmount" />
   </StackLayout>
 </rxui:ReactiveContentView>

@@ -8,7 +8,8 @@
                           xmlns="http://xamarin.com/schemas/2014/forms"
                           NavigationPage.HasBackButton="False">
 
-  <StackLayout x:Name="Stackk"> 
+  <StackLayout>
+    <Label Text="My Chaincase Wallet" StyleClass="pageHeading" />
     <Label x:Name="Balance"
            FontAttributes="Bold" />
     <Button Text="Receive"

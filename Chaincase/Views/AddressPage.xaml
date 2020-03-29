@@ -7,6 +7,7 @@
                           xmlns="http://xamarin.com/schemas/2014/forms"
                           NavigationPage.HasBackButton="False">
   <StackLayout>
+    <Label Text="Receive" StyleClass="pageHeading" />
     <Label Text="Memo" />
     <Label x:Name="Memo" />
     <Label x:Name="Address" />

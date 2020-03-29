@@ -7,13 +7,12 @@
                           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                           xmlns="http://xamarin.com/schemas/2014/forms">
   <StackLayout>
-    <Label x:Name="Balance"
-           FontAttributes="Bold" />
+    <Label Text="CoinJoin" StyleClass="pageHeading" />
     <templates:CoinListTemplate x:Name="CoinList"
                                 VerticalOptions="FillAndExpand" />
-    <Label Text="{Binding RequiredBTC, StringFormat='You will get {0} private coin'}" />
-    <Label Text="{Binding RequiredPeerCount, StringFormat='exchanged with at least {0} peers'}" />
-    <Label Text="{Binding CoordinatorFeePercent, StringFormat='for the low price of {0}'}" />
+    <Label Text="{Binding RequiredBTC, StringFormat='{0} BTC Required to CoinJoin'}" />
+    <Label Text="{Binding RequiredPeerCount, StringFormat='Will join with at least {0} peers'}" />
+    <Label Text="{Binding CoordinatorFeePercent, StringFormat='Coordinator Fee: {0}% per anonymity set'}" />
 
     <Button Text="CoinJoin Selected"
             x:Name="ConfirmButton"
