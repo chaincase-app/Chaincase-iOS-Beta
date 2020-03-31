@@ -34,7 +34,8 @@ namespace Chaincase.ViewModels
 
 			SendAmountViewModel = savm;
 
-			var canPromptPassword = this.WhenAnyValue(x => x.Memo, x => x.Address, (memo, addr) => {
+			var canPromptPassword = this.WhenAnyValue(x => x.Memo, x => x.Address, x => x.IsBusy,
+                (memo, addr, isBusy) => {
 				BitcoinAddress address;
 				try
 				{
@@ -45,7 +46,7 @@ namespace Chaincase.ViewModels
 					// SetWarningMessage("Invalid address.");
 					return false;
 				}
-				return !IsBusy && memo.Length > 0 && address is BitcoinAddress;
+				return !isBusy && memo.Length > 0 && address is BitcoinAddress;
                 });
 
 			_promptViewModel = new PasswordPromptViewModel("Send 📤");
@@ -119,8 +120,8 @@ namespace Chaincase.ViewModels
 					allowedInputs: selectedInputs));
 				SmartTransaction signedTransaction = result.Transaction;
 
-				await Global.TransactionBroadcaster.SendTransactionAsync(signedTransaction);
-				return true;
+				await Global.TransactionBroadcaster.SendTransactionAsync(signedTransaction); // put this on non-ui theread?
+				return true; // seems not to get here
 			}
 			catch (InsufficientBalanceException ex)
 			{
