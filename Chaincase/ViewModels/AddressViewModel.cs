@@ -2,9 +2,7 @@
 using Gma.QrCodeNet.Encoding;
 using ReactiveUI;
 using Splat;
-using System;
 using System.Reactive;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
 using WalletWasabi.Blockchain.Keys;
 using Xamarin.Essentials;
@@ -45,8 +43,7 @@ namespace Chaincase.ViewModels
 			ShareCommand = ReactiveCommand.CreateFromTask<string>(ShareAddress);
 			NavWalletCommand = ReactiveCommand.CreateFromObservable<Unit, Unit>(_ =>
 			{
-			    ViewStackService.PopPage(false);
-				return ViewStackService.PopPage();
+				return ViewStackService.PushPage(new MainViewModel(), null, true);
 		    });
 		}
 

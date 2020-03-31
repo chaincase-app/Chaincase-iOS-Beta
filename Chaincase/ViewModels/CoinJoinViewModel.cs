@@ -25,7 +25,6 @@ namespace Chaincase.ViewModels
         private CompositeDisposable Disposables { get; set; }
 
         private CoinListViewModel _coinList;
-        private int _selectedCount;
         private string _coordinatorFeePercent;
         private int _requiredPeerCount;
 
@@ -86,7 +85,16 @@ namespace Chaincase.ViewModels
                 (amnt, rBTC) => {
                    return !(rBTC is null) && !(amnt is null) && amnt >= rBTC;
                 }); 
-            _promptViewModel = new PasswordPromptViewModel(CoinJoinCommand, "CoinJoin");
+            _promptViewModel = new PasswordPromptViewModel("CoinJoin");
+            _promptViewModel.ValidatePasswordCommand.Subscribe(async validPassword =>
+            {
+                if (validPassword != null)
+                {
+                    await DoEnqueueAsync(validPassword);
+                    await ViewStackService.PopModal();
+                }
+            });
+
             PromptCommand = ReactiveCommand.CreateFromObservable(() =>
             {
                 ViewStackService.PushModal(_promptViewModel).Subscribe();

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
@@ -9,7 +8,6 @@ using Chaincase.Navigation;
 using NBitcoin;
 using ReactiveUI;
 using Splat;
-using WalletWasabi.Blockchain.Analysis.FeesEstimation;
 using WalletWasabi.Blockchain.TransactionBuilding;
 using WalletWasabi.Blockchain.TransactionOutputs;
 using WalletWasabi.Blockchain.Transactions;
@@ -24,10 +22,8 @@ namespace Chaincase.ViewModels
 		private string _address;
         private bool _isBusy;
 		private string _memo;
-		private CoinListViewModel _coinList;
-		private string _warning;
 		private SendAmountViewModel _sendAmountViewModel;
-		private PasswordPromptViewModel _promptVM;
+		private PasswordPromptViewModel _promptViewModel;
 		protected CompositeDisposable Disposables { get; } = new CompositeDisposable();
 
 		public SendWhoViewModel(SendAmountViewModel savm)
@@ -37,7 +33,6 @@ namespace Chaincase.ViewModels
 			Address = "";
 
 			SendAmountViewModel = savm;
-			BuildTransactionCommand = ReactiveCommand.CreateFromTask<string, bool>(BuildTransaction);
 
 			var canPromptPassword = this.WhenAnyValue(x => x.Memo, x => x.Address, (memo, addr) => {
 				BitcoinAddress address;
@@ -50,13 +45,22 @@ namespace Chaincase.ViewModels
 					// SetWarningMessage("Invalid address.");
 					return false;
 				}
-				return memo.Length > 0 && address is BitcoinAddress;
+				return !IsBusy && memo.Length > 0 && address is BitcoinAddress;
                 });
-            
-			_promptVM = new PasswordPromptViewModel(BuildTransactionCommand);
+
+			_promptViewModel = new PasswordPromptViewModel("Send 📤");
+			_promptViewModel.ValidatePasswordCommand.Subscribe(async validPassword =>
+			{
+                if (validPassword != null)
+                {
+					await ViewStackService.PopModal();
+					await BuildTransaction(validPassword);
+					await ViewStackService.PushPage(new SentViewModel());
+                }
+			});
             PromptCommand = ReactiveCommand.CreateFromObservable(() =>
 			{
-				ViewStackService.PushModal(_promptVM).Subscribe();
+				ViewStackService.PushModal(_promptViewModel).Subscribe();
 				return Observable.Return(Unit.Default);
             }, canPromptPassword);
 		}
@@ -136,8 +140,6 @@ namespace Chaincase.ViewModels
 			return false;
 		}
 
-
-
 		public string Address
 		{
 			get => _address;
@@ -162,7 +164,6 @@ namespace Chaincase.ViewModels
 			set => this.RaiseAndSetIfChanged(ref _sendAmountViewModel, value);
         }
 
-		public ReactiveCommand<string, bool> BuildTransactionCommand { get; }
 		public ReactiveCommand<Unit, Unit> PromptCommand { get; }
     }
 }

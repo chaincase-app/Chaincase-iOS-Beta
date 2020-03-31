@@ -36,6 +36,22 @@ namespace Chaincase.Controllers
 			return keyOnDisk.Equals(derivedExtKey);
 		}
 
+		public static string IsValidPassword(string pass, Network network)
+		{
+			string walletFilePath = Path.Combine(Global.WalletsDir, $"{network.ToString()}.json");
+			ExtKey keyOnDisk;
+			try
+			{
+				keyOnDisk = KeyManager.FromFile(walletFilePath).GetMasterExtKey(pass);
+			}
+			catch
+			{
+				// bad password
+				return null;
+			}
+			return pass;
+		}
+
 		public static async Task LoadWalletAsync(NBitcoin.Network network)
 		{
 			// TODO Nono backup wallet folder!!

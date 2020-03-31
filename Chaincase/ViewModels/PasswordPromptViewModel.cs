@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Reactive;
+using System.Reactive.Linq;
+using Chaincase.Controllers;
 using Chaincase.Navigation;
 using ReactiveUI;
 using Splat;
@@ -11,23 +13,25 @@ namespace Chaincase.ViewModels
 		private string _password;
 		private string _acceptText;
 
-		public PasswordPromptViewModel(ReactiveCommand<string, bool> commandRequiringPassword, string acceptText = "Accept")
+		public PasswordPromptViewModel(string acceptText = "Accept")
             : base(Locator.Current.GetService<IViewStackService>())
 		{
 			Password = "";
-			CommandRequiringPassword = ReactiveCommand.Create(() =>
-			{
-			    commandRequiringPassword.Execute(Password).Subscribe(succ =>
-				{
-					if (succ) ViewStackService.PopModal().Subscribe();
-				});
-			});
-			Cancel = ReactiveCommand.CreateFromObservable(ViewStackService.PopModal);
+			ValidatePasswordCommand = ReactiveCommand.CreateFromObservable(ValidatePassword);
+
+			CancelCommand = ReactiveCommand.CreateFromObservable(ViewStackService.PopModal);
 			_acceptText = acceptText;
 		}
 
-		public ReactiveCommand<Unit, Unit> CommandRequiringPassword;
-		public ReactiveCommand<Unit, Unit> Cancel;
+        // subscribe to this function after this model is made from within
+        // the calling/pushing viewmodel
+        public IObservable<string> ValidatePassword()
+        {
+			return Observable.Start(() => WalletController.IsValidPassword(Password, Global.Network));
+        }
+
+		public ReactiveCommand<Unit, string> ValidatePasswordCommand;
+		public ReactiveCommand<Unit, Unit> CancelCommand;
 
 		public string AcceptText
 		{
