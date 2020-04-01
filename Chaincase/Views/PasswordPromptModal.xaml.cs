@@ -24,11 +24,11 @@ namespace Chaincase.Views
                     .DisposeWith(d);
                 this.OneWayBind(ViewModel,
                     vm => vm.AcceptText,
-                    v => v.Accept.Text)
+                    v => v.AcceptButton.Text)
                     .DisposeWith(d);
                 this.BindCommand(ViewModel,
                      vm => vm.ValidatePasswordCommand,
-                     v => v.Accept)
+                     v => v.AcceptButton)
                     .DisposeWith(d);
                 this.BindCommand(ViewModel,
                      vm => vm.CancelCommand,
