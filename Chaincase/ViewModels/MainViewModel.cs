@@ -80,12 +80,14 @@ namespace Chaincase.ViewModels
 
             ExposedSendCommand = ReactiveCommand.CreateFromObservable(() =>
             {
+                CoinList.SelectOnlyFromPrivate = false;
                 ViewStackService.PushPage(new SendAmountViewModel(CoinList)).Subscribe();
                 return Observable.Return(Unit.Default);
             });
 
             PrivateSendCommand = ReactiveCommand.CreateFromObservable(() =>
             {
+                CoinList.SelectOnlyFromPrivate = true;
                 ViewStackService.PushPage(new SendAmountViewModel(CoinList)).Subscribe();
                 return Observable.Return(Unit.Default);
             });

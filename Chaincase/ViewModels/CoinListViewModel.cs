@@ -12,6 +12,7 @@ using WalletWasabi.Blockchain.TransactionProcessing;
 using Chaincase.Navigation;
 using Splat;
 using WalletWasabi.Blockchain.TransactionOutputs;
+using System.Collections.Generic;
 
 namespace Chaincase.ViewModels
 {
@@ -54,11 +55,7 @@ namespace Chaincase.ViewModels
                 {
                     try
                     {
-                        var actual = (isPrivate ?
-                            Global.WalletService.TransactionProcessor.Coins
-                                .Where(c => c.AnonymitySet > 1) :
-                            Global.WalletService.TransactionProcessor.Coins)
-                                .ToHashSet();
+                        var actual = Global.WalletService.TransactionProcessor.Coins.ToHashSet();
 
                         var old = RootList.Items.ToDictionary(c => c.Model, c => c);
 
@@ -127,7 +124,7 @@ namespace Chaincase.ViewModels
 
         public SourceList<CoinViewModel> RootList { get; private set; }
 
-        public ReadOnlyObservableCollection<CoinViewModel> Coins => _coinViewModels;
+        public IEnumerable<CoinViewModel> Coins => _coinViewModels.Where(c => !SelectOnlyFromPrivate || c.AnonymitySet > 1);
 
         public event EventHandler<SmartCoin> DequeueCoinsPressed;
 
@@ -170,6 +167,8 @@ namespace Chaincase.ViewModels
             get => _isAnyCoinSelected;
             set => this.RaiseAndSetIfChanged(ref _isAnyCoinSelected, value);
         }
+
+        public bool SelectOnlyFromPrivate = false;
 
         public bool WarnCommonOwnership
         {

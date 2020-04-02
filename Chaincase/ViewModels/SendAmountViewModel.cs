@@ -66,7 +66,6 @@ namespace Chaincase.ViewModels
                         AmountText = betterAmount;
                     }
                 });
-            var canExecute = this.WhenAnyValue(x => x.AmountText);
 
 			FeeChoice = Feenum.Standard; // Default
 
@@ -100,7 +99,14 @@ namespace Chaincase.ViewModels
             {
                 ViewStackService.PushPage(new SendWhoViewModel(this)).Subscribe();
                 return Observable.Return(Unit.Default);
-            }, this.WhenAnyValue(x => x.AmountText, amount => AmountTextPositive(amount)));
+            }, this.WhenAnyValue(
+                x => x.AmountText,
+                x => x.CoinList.SelectedAmount,
+                (amountToSpend, selectedAmount) =>
+			    {
+				    return AmountTextPositive(amountToSpend) &&
+				    Money.Parse(amountToSpend) + EstimatedBtcFee <= selectedAmount;
+			    }));
         }
 
 		private void SetFees()
