@@ -170,6 +170,14 @@ namespace Chaincase.ViewModels
 
         public bool SelectOnlyFromPrivate = false;
 
+        public void SelectOnlyPrivateCoins(bool onlyPrivate)
+        {
+            SelectOnlyFromPrivate = onlyPrivate;
+            foreach (var c in Coins) {
+                c.IsSelected = !onlyPrivate || c.AnonymitySet > 1;
+            }
+        }
+
         public bool WarnCommonOwnership
         {
             get => _warnCommonOwnership;

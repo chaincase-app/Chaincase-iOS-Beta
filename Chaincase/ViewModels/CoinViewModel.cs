@@ -33,7 +33,6 @@ namespace Chaincase.ViewModels
 		{
 			Model = model;
 			Owner = owner;
-			IsSelected = true;
 
 			Disposables = new CompositeDisposable();
 

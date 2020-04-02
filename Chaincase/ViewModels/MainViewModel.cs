@@ -78,23 +78,23 @@ namespace Chaincase.ViewModels
                 return Observable.Return(Unit.Default);
             });
 
-            ExposedSendCommand = ReactiveCommand.CreateFromObservable(() =>
+            InitCoinJoin = ReactiveCommand.CreateFromObservable(() =>
             {
-                CoinList.SelectOnlyFromPrivate = false;
-                ViewStackService.PushPage(new SendAmountViewModel(CoinList)).Subscribe();
+                ViewStackService.PushPage(new CoinJoinViewModel(CoinList)).Subscribe();
                 return Observable.Return(Unit.Default);
             });
 
             PrivateSendCommand = ReactiveCommand.CreateFromObservable(() =>
             {
-                CoinList.SelectOnlyFromPrivate = true;
+                CoinList.SelectOnlyPrivateCoins(true);
                 ViewStackService.PushPage(new SendAmountViewModel(CoinList)).Subscribe();
                 return Observable.Return(Unit.Default);
             });
 
-            InitCoinJoin = ReactiveCommand.CreateFromObservable(() =>
+            ExposedSendCommand = ReactiveCommand.CreateFromObservable(() =>
             {
-                ViewStackService.PushPage(new CoinJoinViewModel(CoinList)).Subscribe();
+                CoinList.SelectOnlyPrivateCoins(false);
+                ViewStackService.PushPage(new SendAmountViewModel(CoinList)).Subscribe();
                 return Observable.Return(Unit.Default);
             });
 
