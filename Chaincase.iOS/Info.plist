@@ -20,10 +20,12 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>UIUserInterfaceStyle</key>
+	<string>Light</string>
 	<key>MinimumOSVersion</key>
 	<string>8.0</string>
 	<key>CFBundleDisplayName</key>
-	<string>Wasabi</string>
+	<string>Chaincase</string>
 	<key>CFBundleIdentifier</key>
 	<string>dev.dangould.chaincase</string>
 	<key>CFBundleVersion</key>
