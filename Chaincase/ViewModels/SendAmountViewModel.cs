@@ -119,10 +119,10 @@ namespace Chaincase.ViewModels
 				switch (FeeChoice)
 				{
 					case Feenum.Economy:
-						feeTarget = MinimumFeeTarget;
+						feeTarget = MaximumFeeTarget;
 						break;
 					case Feenum.Priority:
-						feeTarget = MaximumFeeTarget;
+						feeTarget = MinimumFeeTarget;
 						break;
 					case Feenum.Standard: // average of the two
 					default:
