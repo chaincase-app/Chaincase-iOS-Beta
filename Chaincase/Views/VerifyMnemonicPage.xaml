@@ -17,27 +17,27 @@
 
       </Grid.ColumnDefinitions>
       <Entry Text=""
-             Placeholder="1st seed word"
+             Placeholder="1st recovery word"
              x:Name="Recall0" />
       <Entry Grid.Column="1"
              Text=""
-             Placeholder="4th seed word"
+             Placeholder="4th recovery word"
              x:Name="Recall1" />
       <Entry Grid.Column="2"
-             Placeholder="7th seed word"
+             Placeholder="7th recovery word"
              Text=""
              x:Name="Recall2" />
       <Entry Grid.Column="3"
-             Placeholder="10th seed word"
+             Placeholder="10th recovery word"
              Text=""
              x:Name="Recall3" />
     </Grid>
     <Entry Grid.Column="3"
-           x:Name="Passphrase"
+           x:Name="Password"
            Placeholder="something I know"
            IsPassword="true" />
-    <Button Text="Continue"
-            x:Name="Continue"
+    <Button Text="Verify"
+            x:Name="VerifyButton"
             VerticalOptions="EndAndExpand"/>
   </StackLayout>
 </rxui:ReactiveContentPage>

@@ -27,13 +27,13 @@ namespace Chaincase.Views
                     v => v.AcceptButton.Text)
                     .DisposeWith(d);
                 this.BindCommand(ViewModel,
-                     vm => vm.ValidatePasswordCommand,
-                     v => v.AcceptButton)
+                vm => vm.ValidatePasswordCommand,
+                    v => v.AcceptButton)
                     .DisposeWith(d);
                 this.BindCommand(ViewModel,
-                     vm => vm.CancelCommand,
-                     v => v.CancelButton)
-                     .DisposeWith(d);
+                    vm => vm.CancelCommand,
+                    v => v.CancelButton)
+                    .DisposeWith(d);
                 ViewModel.ValidatePasswordCommand.Subscribe(validPassword => {
                     if (validPassword is null) Shake();
                 });

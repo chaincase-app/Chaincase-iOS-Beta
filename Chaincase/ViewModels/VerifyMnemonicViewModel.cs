@@ -43,11 +43,11 @@ namespace Chaincase.ViewModels
 			set => this.RaiseAndSetIfChanged(ref _recall3, value);
 		}
 
-		private bool _isVerified;
-		public bool IsVerified
+		private bool _triedVerifyWithoutChange;
+		public bool TriedVerifyWithoutChange
 		{
-			get => _isVerified;
-			set => this.RaiseAndSetIfChanged(ref _isVerified, value);
+			get => _triedVerifyWithoutChange;
+			set => this.RaiseAndSetIfChanged(ref _triedVerifyWithoutChange, value);
 		}
 
 		private string _passphrase;
@@ -63,24 +63,28 @@ namespace Chaincase.ViewModels
 			_mnemonicString = mnemonicString;
 			_mnemonicWords = mnemonicString.Split(" ");
 			Recall0 = Recall1 = Recall2 = Recall3 = "";
-			IsVerified = false;
 
-			NavMainCommand = ReactiveCommand.CreateFromObservable(() =>
+			VerifyCommand = ReactiveCommand.CreateFromObservable(Verify);
+			VerifyCommand.Subscribe(verified =>
 			{
-				WalletController.LoadWalletAsync(Global.Network);
-				ViewStackService.PushPage(new MainViewModel()).Subscribe();
-				return Observable.Return(Unit.Default);
-			}, this.WhenAnyValue(x => x.Recall0, x => x.Recall1, x => x.Recall2, x => x.Recall3,
-                // Looks vulnerable to a timing attack, but don't think it's useful in this scenario
-                (r0, r1, r2, r3) => {
-				    return   string.Equals(r0, _mnemonicWords[0], StringComparison.CurrentCultureIgnoreCase) &&
-						     string.Equals(r1, _mnemonicWords[3], StringComparison.CurrentCultureIgnoreCase) &&
-						     string.Equals(r2, _mnemonicWords[6], StringComparison.CurrentCultureIgnoreCase) &&
-						     string.Equals(r3, _mnemonicWords[9], StringComparison.CurrentCultureIgnoreCase) &&
-						     WalletController.VerifyWalletCredentials(_mnemonicString, _passphrase, Global.Network);
-			    }));
+				if (verified)
+                {
+					WalletController.LoadWalletAsync(Global.Network);
+				    ViewStackService.PushPage(new MainViewModel()).Subscribe();
+                }
+			});
 		}
-
-		public ReactiveCommand<Unit, Unit> NavMainCommand;
+        public IObservable<bool> Verify()
+        {
+			return Observable.Start(() =>
+			{
+				return string.Equals(Recall0, _mnemonicWords[0], StringComparison.CurrentCultureIgnoreCase) &&
+					 string.Equals(Recall1, _mnemonicWords[3], StringComparison.CurrentCultureIgnoreCase) &&
+					 string.Equals(Recall2, _mnemonicWords[6], StringComparison.CurrentCultureIgnoreCase) &&
+					 string.Equals(Recall3, _mnemonicWords[9], StringComparison.CurrentCultureIgnoreCase) &&
+					 WalletController.VerifyWalletCredentials(_mnemonicString, _passphrase, Global.Network);
+			});
+		}
+        public ReactiveCommand<Unit, bool> VerifyCommand;
 	}
 }

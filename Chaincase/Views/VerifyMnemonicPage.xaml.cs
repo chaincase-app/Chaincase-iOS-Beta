@@ -1,7 +1,9 @@
-﻿using ReactiveUI.XamForms;
+﻿using System;
 using Chaincase.ViewModels;
 using ReactiveUI;
+using ReactiveUI.XamForms;
 using System.Reactive.Disposables;
+using Xamarin.Forms;
 
 namespace Chaincase.Views
 {
@@ -12,10 +14,6 @@ namespace Chaincase.Views
 			InitializeComponent();
 			this.WhenActivated(d =>
 			{
-				this.BindCommand(ViewModel,
-					vm => vm.NavMainCommand,
-					v => v.Continue)
-					.DisposeWith(d);
 				this.Bind(ViewModel,
 					vm => vm.Recall0,
 					v => v.Recall0.Text)
@@ -34,9 +32,28 @@ namespace Chaincase.Views
                     .DisposeWith(d);
 				this.Bind(ViewModel,
 					vm => vm.Passphrase,
-					v => v.Passphrase.Text)
+					v => v.Password.Text)
 				.DisposeWith(d);
-            });
+				this.BindCommand(ViewModel,
+	                vm => vm.VerifyCommand,
+	                v => v.VerifyButton)
+	                .DisposeWith(d);
+                ViewModel.VerifyCommand.Subscribe(verified =>{
+					if (!verified) Shake();
+				});
+			});
+		}
+
+		async void Shake()
+		{
+			uint timeout = 50;
+			await VerifyButton.TranslateTo(-15, 0, timeout);
+			await VerifyButton.TranslateTo(15, 0, timeout);
+			await VerifyButton.TranslateTo(-10, 0, timeout);
+			await VerifyButton.TranslateTo(10, 0, timeout);
+			await VerifyButton.TranslateTo(-5, 0, timeout);
+			await VerifyButton.TranslateTo(5, 0, timeout);
+			VerifyButton.TranslationX = 0;
 		}
 	}
 }
