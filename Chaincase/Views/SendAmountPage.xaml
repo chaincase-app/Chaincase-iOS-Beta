@@ -5,15 +5,15 @@
                           xmlns:rxui="clr-namespace:ReactiveUI.XamForms;assembly=ReactiveUI.XamForms"
                           xmlns:templates="clr-namespace:Chaincase.Views.Templates;assembly=Chaincase"
                           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-                          xmlns="http://xamarin.com/schemas/2014/forms">
+                          xmlns="http://xamarin.com/schemas/2014/forms"
+                          Title="Send">
   <StackLayout>
-    <Label Text="Send" StyleClass="pageHeading"/>
-    <Label Text="amount (BTC)" />
+    <Label Text="Amount (₿)" />
     <Entry x:Name="Amount" />
     <templates:CoinListTemplate x:Name="CoinList"
                                 VerticalOptions="FillAndExpand" />
     
-    <Label Text="network fee" />
+    <Label Text="Network Fee (₿)" />
     <Grid ColumnSpacing="8" HorizontalOptions="FillAndExpand">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />

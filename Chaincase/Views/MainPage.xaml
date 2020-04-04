@@ -6,10 +6,12 @@
                           xmlns:templates="clr-namespace:Chaincase.Views.Templates;assembly=Chaincase"
                           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                           xmlns="http://xamarin.com/schemas/2014/forms"
-                          NavigationPage.HasBackButton="False">
+                          NavigationPage.HasBackButton="False"
+                          Title="Chaincase">
 
   <StackLayout>
-    <Label Text="My Chaincase Wallet" StyleClass="pageHeading" />
+    <Label Text="₿ Balance"
+        FontAttributes="Bold" />
     <Label x:Name="Balance"
            FontAttributes="Bold" />
     <Button Text="Receive"

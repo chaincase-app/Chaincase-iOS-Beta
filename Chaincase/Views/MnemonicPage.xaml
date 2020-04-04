@@ -4,9 +4,9 @@
                           xmlns:vm="clr-namespace:Chaincase.ViewModels;assembly=Chaincase"
                           xmlns:rxui="clr-namespace:ReactiveUI.XamForms;assembly=ReactiveUI.XamForms"
                           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-                          xmlns="http://xamarin.com/schemas/2014/forms">
+                          xmlns="http://xamarin.com/schemas/2014/forms"
+                          Title="Create Wallet">
   <StackLayout Padding="10,35,10,35">
-    <Label Text="Create Wallet" StyleClass="pageHeading" />
     <Label x:Name="Mnemonic" />
     <Label Text="Write down these words in order and keep them safe. If your device breaks or becomes corrupted, you have these words and know your passphrase which together get your bitcoins back." />
     <Button Text="I wrote down my seed words"

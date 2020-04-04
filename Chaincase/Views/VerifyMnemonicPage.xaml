@@ -4,11 +4,10 @@
                           xmlns:vm="clr-namespace:Chaincase.ViewModels;assembly=Chaincase"
                           xmlns:rxui="clr-namespace:ReactiveUI.XamForms;assembly=ReactiveUI.XamForms"
                           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-                          xmlns="http://xamarin.com/schemas/2014/forms">
+                          xmlns="http://xamarin.com/schemas/2014/forms"
+                          Title="Create Wallet">
   <StackLayout>
-    <Label Text="My Chaincase Wallet" StyleClass="pageHeading" />
     <Label Text="Verify your recovery words" />
-
     <Grid>
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*" />
