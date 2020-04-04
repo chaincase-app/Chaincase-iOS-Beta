@@ -75,7 +75,6 @@ namespace Chaincase.Navigation
                     () =>
                     {
                         var page = this.LocatePageFor(modalViewModel, contract);
-                        this.SetPageTitle(page, modalViewModel.Id);
                         return page;
                     },
                     _backgroundScheduler)
@@ -112,7 +111,6 @@ namespace Chaincase.Navigation
                     () =>
                     {
                         var page = this.LocatePageFor(pageViewModel, contract);
-                        this.SetPageTitle(page, pageViewModel.Id);
                         return page;
                     },
                     backgroundScheduler)
@@ -187,13 +185,6 @@ namespace Chaincase.Navigation
             viewFor.ViewModel = viewModel;
 
             return page;
-        }
-
-        private void SetPageTitle(Page page, string resourceKey)
-        {
-            // var title = Localize.GetString(resourceKey);
-            // TODO: ensure resourceKey isn't null and is localized.
-            page.Title = resourceKey;
         }
     }
 }
