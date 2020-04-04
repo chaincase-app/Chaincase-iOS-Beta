@@ -1,5 +1,4 @@
-﻿using Chaincase;
-using NBitcoin;
+﻿using NBitcoin;
 using NBitcoin.Protocol;
 using NBitcoin.Protocol.Behaviors;
 using NBitcoin.Protocol.Connectors;
@@ -9,7 +8,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using WalletWasabi.Blockchain.Analysis.FeesEstimation;
@@ -56,7 +54,15 @@ namespace Chaincase
 
 		static Global()
 		{
-			DataDir = EnvironmentHelpers.GetDataDir(Path.Combine("Chaincase", "Client"));
+            if (Device.RuntimePlatform == Device.iOS)
+            {
+                var documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                var library = Path.Combine(documents, "..", "Library", "Client");
+                DataDir = library;
+            } else
+            {
+			    DataDir = EnvironmentHelpers.GetDataDir(Path.Combine("Chaincase", "Client"));
+            }
 			TorLogsFile = Path.Combine(DataDir, "TorLogs.txt");
 			WalletsDir = Path.Combine(DataDir, "Wallets");
 			WalletBackupsDir = Path.Combine(DataDir, "WalletBackups");

@@ -75,8 +75,11 @@ namespace Chaincase.iOS.Tor
                 TORConfiguration configuration = new TORConfiguration();
                 configuration.CookieAuthentication = new NSNumber(true); //@YES
                 configuration.DataDirectory = new NSUrl(Path.GetTempPath());
-                configuration.ControlSocket = NSUrl.CreateFileUrl(new string[] { homeDirectory, ".tor/control_port" });
-                configuration.Arguments = new string[] { "--ignore-missing-torrc" };
+                configuration.Arguments = new string[] {
+                    "--allow-missing-torrc",
+                    "--ignore-missing-torrc",
+                    "--SocksPort", "localhost:9050"
+                };
                 return configuration;
             }
         }
