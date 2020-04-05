@@ -13,51 +13,13 @@ namespace Chaincase.ViewModels
 	public class MainViewModel : ViewModelBase
 	{
 		private CompositeDisposable Disposables { get; set; }
+        private StatusViewModel _status;
         private CoinListViewModel _coinList;
-        public CoinListViewModel CoinList
-        {
-            get => _coinList;
-            set => this.RaiseAndSetIfChanged(ref _coinList, value);
-        }
-
         private string _balance;
-		public string Balance
-		{
-			get => _balance;
-			set => this.RaiseAndSetIfChanged(ref _balance, value);
-		}
-
         private String _privateBalance;
-        public String PrivateBalance
-        {
-            get => _privateBalance;
-            set => this.RaiseAndSetIfChanged(ref _privateBalance, value);
-        }
-
-        public ReactiveCommand<Unit, Unit> NavReceiveCommand;
-		public ReactiveCommand<Unit, Unit> ExposedSendCommand;
-        public ReactiveCommand<Unit, Unit> PrivateSendCommand;
-
-
-        public ReactiveCommand<Unit, Unit> InitCoinJoin { get; private set; }
-        readonly ObservableAsPropertyHelper<bool> _isJoining;
-        public bool IsJoining { get { return _isJoining.Value; } }
-
-        public Label Deq;
-
         private bool _hasCoins;
-        public bool HasCoins
-        {
-            get => _hasCoins;
-            set => this.RaiseAndSetIfChanged(ref _hasCoins, value);
-        }
-
         private bool _hasPrivateCoins;
-        public bool HasPrivateCoins
-        {
-            get => _hasPrivateCoins;
-            set => this.RaiseAndSetIfChanged(ref _hasPrivateCoins, value);
-        }
+        readonly ObservableAsPropertyHelper<bool> _isJoining;
 
         public MainViewModel()
             : base(Locator.Current.GetService<IViewStackService>())
@@ -70,6 +32,9 @@ namespace Chaincase.ViewModels
             }
 
             Disposables = new CompositeDisposable();
+            Status = new StatusViewModel();
+            Status.Initialize(Global.Nodes.ConnectedNodes, Global.Synchronizer);
+
             CoinList = new CoinListViewModel();
 
             NavReceiveCommand = ReactiveCommand.CreateFromObservable(() =>
@@ -117,5 +82,52 @@ namespace Chaincase.ViewModels
             PrivateBalance = pbal.ToString();
             HasPrivateCoins = pbal > 0;
         }
+
+        public bool IsJoining { get { return _isJoining.Value; } }
+
+        public Label Deq;
+
+        public bool HasCoins
+        {
+            get => _hasCoins;
+            set => this.RaiseAndSetIfChanged(ref _hasCoins, value);
+        }
+
+        public bool HasPrivateCoins
+        {
+            get => _hasPrivateCoins;
+            set => this.RaiseAndSetIfChanged(ref _hasPrivateCoins, value);
+        }
+
+        public StatusViewModel Status
+        {
+            get => _status;
+            set => this.RaiseAndSetIfChanged(ref _status, value);
+        }
+
+        public CoinListViewModel CoinList
+        {
+            get => _coinList;
+            set => this.RaiseAndSetIfChanged(ref _coinList, value);
+        }
+
+		public string Balance
+		{
+			get => _balance;
+			set => this.RaiseAndSetIfChanged(ref _balance, value);
+		}
+
+        public String PrivateBalance
+        {
+            get => _privateBalance;
+            set => this.RaiseAndSetIfChanged(ref _privateBalance, value);
+        }
+
+        public ReactiveCommand<Unit, Unit> NavReceiveCommand;
+		public ReactiveCommand<Unit, Unit> ExposedSendCommand;
+        public ReactiveCommand<Unit, Unit> PrivateSendCommand;
+
+
+        public ReactiveCommand<Unit, Unit> InitCoinJoin { get; private set; }
     }
 }

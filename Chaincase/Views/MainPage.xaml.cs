@@ -22,6 +22,10 @@ namespace Chaincase.Views
                     vm => vm.Balance,
                     v => v.Balance.Text)
                     .DisposeWith(d);
+                this.OneWayBind(ViewModel,
+                    vm => vm.Status,
+                    v => v.Status.ViewModel)
+                    .DisposeWith(d);
                 this.BindCommand(ViewModel,
                     vm => vm.NavReceiveCommand,
                     v => v.NavReceiveCommand)
