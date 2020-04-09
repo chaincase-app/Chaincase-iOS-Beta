@@ -11,7 +11,7 @@
   <StackLayout>
     <Label Text="₿ Balance"
         FontAttributes="Bold" />
-    <templates:StatusTemplate x:Name="Status"/>
+    <templates:StatusTemplate x:Name="Status" />
     <Label x:Name="Balance"
            FontAttributes="Bold" />
     <Button Text="Receive"

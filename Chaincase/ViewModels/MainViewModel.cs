@@ -32,8 +32,7 @@ namespace Chaincase.ViewModels
             }
 
             Disposables = new CompositeDisposable();
-            Status = new StatusViewModel();
-            Status.Initialize(Global.Nodes.ConnectedNodes, Global.Synchronizer);
+            Status = new StatusViewModel(Global.Nodes.ConnectedNodes, Global.Synchronizer);
 
             CoinList = new CoinListViewModel();
 
@@ -117,7 +116,7 @@ namespace Chaincase.ViewModels
 			set => this.RaiseAndSetIfChanged(ref _balance, value);
 		}
 
-        public String PrivateBalance
+        public string PrivateBalance
         {
             get => _privateBalance;
             set => this.RaiseAndSetIfChanged(ref _privateBalance, value);
@@ -126,8 +125,6 @@ namespace Chaincase.ViewModels
         public ReactiveCommand<Unit, Unit> NavReceiveCommand;
 		public ReactiveCommand<Unit, Unit> ExposedSendCommand;
         public ReactiveCommand<Unit, Unit> PrivateSendCommand;
-
-
-        public ReactiveCommand<Unit, Unit> InitCoinJoin { get; private set; }
+        public ReactiveCommand<Unit, Unit> InitCoinJoin;
     }
 }
