@@ -184,32 +184,6 @@ namespace Chaincase.ViewModels
 						TryRemoveStatus(StatusType.Connecting);
 					}
 				});
-
-			this.WhenAnyValue(x => x.UpdateStatus)
-				.ObserveOn(RxApp.MainThreadScheduler)
-				.Subscribe(async x =>
-				{
-					if (x.BackendCompatible)
-					{
-						TryRemoveStatus(StatusType.CriticalUpdate);
-					}
-					else
-					{
-						TryAddStatus(StatusType.CriticalUpdate);
-					}
-
-					if (x.ClientUpToDate)
-					{
-						TryRemoveStatus(StatusType.OptionalUpdate);
-					}
-					else
-					{
-						TryAddStatus(StatusType.OptionalUpdate);
-					}
-
-					UpdateAvailable = !x.ClientUpToDate;
-					CriticalUpdateAvailable = !x.BackendCompatible;
-				});
 		}
 
 		public BackendStatus Backend
