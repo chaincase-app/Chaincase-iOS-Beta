@@ -13,7 +13,7 @@
     <templates:CoinListTemplate x:Name="CoinList"
                                 VerticalOptions="FillAndExpand" />
     
-    <Label Text="Network Fee (₿)" />
+    <Label Text="Network Fee" LineBreakMode="NoWrap" />
     <Grid ColumnSpacing="8" HorizontalOptions="FillAndExpand">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />

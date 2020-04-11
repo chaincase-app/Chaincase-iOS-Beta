@@ -5,6 +5,7 @@ using Chaincase.ViewModels;
 using System;
 using Xamarin.Forms;
 using Chaincase.Converters;
+using NBitcoin;
 
 namespace Chaincase.Views
 {
@@ -29,7 +30,8 @@ namespace Chaincase.Views
                     .DisposeWith(d);
                 this.OneWayBind(ViewModel,
                     vm => vm.EstimatedBtcFee,
-                    v => v.FeeLabel.Text)
+                    v => v.FeeLabel.Text,
+                    AddBalanceSymbol)
                     .DisposeWith(d);
                 this.OneWayBind(ViewModel,
                     vm => vm.FeeTarget,
@@ -46,6 +48,11 @@ namespace Chaincase.Views
             Economy.BorderWidth = 1;
             Standard.BorderWidth = 1;
             Priority.BorderWidth = 1;
+        }
+
+        private string AddBalanceSymbol(Money bal)
+        {
+            return "₿ " + bal.ToString();
         }
 
         void SetFee(object sender, EventArgs e)
