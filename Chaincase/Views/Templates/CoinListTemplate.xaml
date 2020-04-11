@@ -22,7 +22,8 @@
              Text="Memo" />
     </Grid>
     <ListView x:Name="Coins"
-              SelectionMode="None">
+              SelectionMode="None"
+              SeparatorVisibility="None">
       <ListView.ItemTemplate>
         <DataTemplate>
           <ViewCell>

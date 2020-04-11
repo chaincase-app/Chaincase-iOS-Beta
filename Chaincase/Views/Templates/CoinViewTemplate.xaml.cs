@@ -21,7 +21,8 @@ namespace Chaincase.Views.Templates
 					.DisposeWith(d);
 				this.OneWayBind(ViewModel,
                     vm => vm.AnonymitySet,
-                    v => v.AnonymitySet.Text)
+                    v => v.AnonymitySet.Text,
+                    ConvertAnonSet)
 					.DisposeWith(d);
 				this.OneWayBind(ViewModel,
                     vm => vm.Clusters,
@@ -42,5 +43,10 @@ namespace Chaincase.Views.Templates
 					.DisposeWith(d);
 			});
 		}
+
+        private string ConvertAnonSet(int anonSet)
+        {
+			return anonSet > Config.DefaultPrivacyLevelSome ? "🗽" : "⚠️";
+        }
 	}
 }
