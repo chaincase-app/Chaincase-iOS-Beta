@@ -61,15 +61,11 @@ namespace Chaincase
 
 		protected override void OnStart()
 		{
-
-
-
 			if (!WalletController.WalletExists(Global.Network))
 			{
 				System.Diagnostics.Debug.WriteLine("no wallet");
 				//Navigator.NavigateTo(new PassphraseViewModel(Navigator));
 			}
-
 		}
 
 		protected override void OnSleep()

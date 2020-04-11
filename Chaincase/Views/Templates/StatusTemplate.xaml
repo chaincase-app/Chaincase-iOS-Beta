@@ -6,7 +6,8 @@
                           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                           xmlns="http://xamarin.com/schemas/2014/forms">
   <StackLayout Spacing="10">
-    <ActivityIndicator IsRunning="True"></ActivityIndicator>
-    <Label Text="Syncing blockchain using Tor"></Label>
+    <ActivityIndicator x:Name="Indicator"
+                       IsRunning="True"></ActivityIndicator>
+    <Label x:Name="StatusLabel"></Label>
   </StackLayout>
 </rxui:ReactiveContentView>

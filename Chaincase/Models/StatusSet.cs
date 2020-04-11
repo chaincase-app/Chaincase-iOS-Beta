@@ -80,7 +80,11 @@ namespace Chaincase.Models
 				}
 			}
 
-			// if (updateWith is { }) we drop that for now, wasabi handles with Avalonia
+			if (updateWith is { })
+			{
+				//Avalonia.Dispatcher.UIThread.PostLogException(() => CurrentStatus = updateWith);
+				CurrentStatus = updateWith;
+			}
 		}
 	}
 }

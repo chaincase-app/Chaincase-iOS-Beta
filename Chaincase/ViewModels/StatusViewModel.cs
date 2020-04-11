@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Runtime.InteropServices;
 using Chaincase.Models;
 using Chaincase.Navigation;
 using NBitcoin.Protocol;
 using ReactiveUI;
 using Splat;
 using WalletWasabi.Blockchain.Blocks;
-using WalletWasabi.Helpers;
 using WalletWasabi.Logging;
 using WalletWasabi.Models;
 using WalletWasabi.Services;
@@ -29,7 +27,6 @@ namespace Chaincase.ViewModels
 		private bool _updateAvailable;
 		private bool _criticalUpdateAvailable;
 
-		private bool _useBitcoinCore;
 		private BackendStatus _backend;
 		private TorStatus _tor;
 		private int _peers;
@@ -39,8 +36,13 @@ namespace Chaincase.ViewModels
 		private bool _downloadingBlock;
 		private StatusSet ActiveStatuses { get; }
 
-		private bool _legalDocsLoading;
-		private bool _isReady;
+		private bool _isSynchronizing;
+        public bool IsSynchronizing
+        {
+            get => _isSynchronizing;
+            set => this.RaiseAndSetIfChanged(ref _isSynchronizing, value);
+        }
+
 
         public StatusViewModel(NodesCollection nodes, WasabiSynchronizer synchronizer)
             : base(Locator.Current.GetService<IViewStackService>())
@@ -51,6 +53,7 @@ namespace Chaincase.ViewModels
 			Peers = 0;
 			BtcPrice = "$0";
 			ActiveStatuses = new StatusSet();
+			IsSynchronizing = true;
 
 			Nodes = nodes;
 			Synchronizer = synchronizer;
