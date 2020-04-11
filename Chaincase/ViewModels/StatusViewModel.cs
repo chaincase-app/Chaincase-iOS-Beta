@@ -36,13 +36,6 @@ namespace Chaincase.ViewModels
 		private bool _downloadingBlock;
 		private StatusSet ActiveStatuses { get; }
 
-		private bool _isSynchronizing;
-        public bool IsSynchronizing
-        {
-            get => _isSynchronizing;
-            set => this.RaiseAndSetIfChanged(ref _isSynchronizing, value);
-        }
-
 
         public StatusViewModel(NodesCollection nodes, WasabiSynchronizer synchronizer)
             : base(Locator.Current.GetService<IViewStackService>())
@@ -53,7 +46,6 @@ namespace Chaincase.ViewModels
 			Peers = 0;
 			BtcPrice = "$0";
 			ActiveStatuses = new StatusSet();
-			IsSynchronizing = true;
 
 			Nodes = nodes;
 			Synchronizer = synchronizer;
