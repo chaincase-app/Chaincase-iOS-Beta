@@ -9,11 +9,9 @@
                           NavigationPage.HasBackButton="False"
                           Title="Chaincase">
   <StackLayout>
-    <Label Text="₿ Balance"
-        FontAttributes="Bold" />
-    <templates:StatusTemplate x:Name="Status" />
     <Label x:Name="Balance"
            FontAttributes="Bold" />
+    <templates:StatusTemplate x:Name="Status" />
     <Button Text="Receive"
             x:Name="NavReceiveCommand"
             VerticalOptions="EndAndExpand" />

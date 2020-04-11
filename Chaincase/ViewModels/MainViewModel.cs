@@ -13,7 +13,7 @@ namespace Chaincase.ViewModels
 	public class MainViewModel : ViewModelBase
 	{
 		private CompositeDisposable Disposables { get; set; }
-        private StatusViewModel _status;
+        private StatusViewModel _statusViewModel;
         private CoinListViewModel _coinList;
         private string _balance;
         private String _privateBalance;
@@ -32,7 +32,7 @@ namespace Chaincase.ViewModels
             }
 
             Disposables = new CompositeDisposable();
-            Status = new StatusViewModel(Global.Nodes.ConnectedNodes, Global.Synchronizer);
+            StatusViewModel = new StatusViewModel(Global.Nodes.ConnectedNodes, Global.Synchronizer);
 
             CoinList = new CoinListViewModel();
 
@@ -98,10 +98,10 @@ namespace Chaincase.ViewModels
             set => this.RaiseAndSetIfChanged(ref _hasPrivateCoins, value);
         }
 
-        public StatusViewModel Status
+        public StatusViewModel StatusViewModel
         {
-            get => _status;
-            set => this.RaiseAndSetIfChanged(ref _status, value);
+            get => _statusViewModel;
+            set => this.RaiseAndSetIfChanged(ref _statusViewModel, value);
         }
 
         public CoinListViewModel CoinList

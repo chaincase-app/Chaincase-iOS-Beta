@@ -20,10 +20,16 @@ namespace Chaincase.Views
             {
                 this.OneWayBind(ViewModel,
                     vm => vm.Balance,
-                    v => v.Balance.Text)
+                    v => v.Balance.Text,
+                    AddBalanceSymbol)
+                    .DisposeWith(d);
+                this.OneWayBind(ViewModel,
+                    vm => vm.StatusViewModel.Status, 
+                    v => v.Balance.TextColor,
+                    ConvertStatusToColor)
                     .DisposeWith(d);
                 this.Bind(ViewModel,
-                    vm => vm.Status,
+                    vm => vm.StatusViewModel,
                     v => v.Status.ViewModel);
                 this.BindCommand(ViewModel,
                     vm => vm.NavReceiveCommand,
@@ -55,8 +61,21 @@ namespace Chaincase.Views
                     vm => vm.HasCoins,
                     v => v.ExposedSendButton.IsVisible)
                     .DisposeWith(d);
-
             });
+        }
+
+        private string AddBalanceSymbol(string bal)
+        {
+            return "₿ " + bal;
+        }
+
+        private Color ConvertStatusToColor(string status)
+        {
+            if (status == "Ready")
+            {
+                return Color.Default;
+            }
+            return Color.LightGray;
         }
     }
 }
