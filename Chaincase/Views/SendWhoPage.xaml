@@ -4,15 +4,18 @@
                           xmlns:vm="clr-namespace:Chaincase.ViewModels;assembly=Chaincase"
                           xmlns:rxui="clr-namespace:ReactiveUI.XamForms;assembly=ReactiveUI.XamForms"
                           xmlns:templates="clr-namespace:Chaincase.Views.Templates;assembly=Chaincase"
+                          xmlns:Converters="clr-namespace:Chaincase.Converters;assembly=Chaincase"
                           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                           xmlns="http://xamarin.com/schemas/2014/forms"
-                          Title="Send">
+                          Title="Send"
+                          NavigationPage.HasBackButton="{Binding IsBusy, Converter={Converters:InverseBoolConverter}}">
   <StackLayout>
     <Label Text="memo" />
     <Entry Placeholder="to whom / for what"
             x:Name="Memo" />
     <Label Text="pay to the order of" />
     <Entry x:Name="Address" />
+    <ActivityIndicator x:Name="IsBusy"></ActivityIndicator>
     <Button x:Name="Send"
             Text="Send"
             VerticalOptions="EndAndExpand" />

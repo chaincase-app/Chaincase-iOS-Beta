@@ -21,11 +21,21 @@ namespace Chaincase.Views
                     vm => vm.Memo,
                     v => v.Memo.Text)
                     .DisposeWith(d);
+                this.OneWayBind(ViewModel,
+                    vm => vm.IsBusy,
+                    v => v.IsBusy.IsRunning)
+                    .DisposeWith(d);
                 this.BindCommand(ViewModel,
                     vm => vm.PromptCommand,
                     v => v.Send)
                     .DisposeWith(d);
             });
+        }
+
+        protected override bool OnBackButtonPressed()
+        {
+            // Android only; true -> do nothing
+            return ViewModel.IsBusy;
         }
     }
 }
