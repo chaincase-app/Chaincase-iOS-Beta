@@ -14,8 +14,9 @@ namespace Chaincase.ViewModels
         {
             NavWalletCommand = ReactiveCommand.CreateFromObservable(() =>
             {
-                ViewStackService.PushPage(new MainViewModel(), null, true).Subscribe();
-                return Observable.Return(Unit.Default);
+                ViewStackService.PopPage(false);
+                ViewStackService.PopPage(false);
+                return ViewStackService.PopPage(true);
             });
         }
 

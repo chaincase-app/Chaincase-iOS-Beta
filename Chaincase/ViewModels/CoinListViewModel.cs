@@ -56,7 +56,6 @@ namespace Chaincase.ViewModels
                     try
                     {
                         var actual = Global.WalletService.TransactionProcessor.Coins.ToHashSet();
-
                         var old = RootList.Items.ToDictionary(c => c.Model, c => c);
 
                         var coinToRemove = old.Where(c => !actual.Contains(c.Key)).ToArray();

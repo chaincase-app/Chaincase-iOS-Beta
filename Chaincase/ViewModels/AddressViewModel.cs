@@ -43,7 +43,8 @@ namespace Chaincase.ViewModels
 			ShareCommand = ReactiveCommand.CreateFromTask<string>(ShareAddress);
 			NavWalletCommand = ReactiveCommand.CreateFromObservable<Unit, Unit>(_ =>
 			{
-				return ViewStackService.PushPage(new MainViewModel(), null, true);
+				ViewStackService.PopPage(false);
+				return ViewStackService.PopPage(true);
 		    });
 		}
 
