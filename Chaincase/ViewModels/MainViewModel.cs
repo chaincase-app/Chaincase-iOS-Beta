@@ -44,6 +44,7 @@ namespace Chaincase.ViewModels
 
             InitCoinJoin = ReactiveCommand.CreateFromObservable(() =>
             {
+                CoinList.SelectOnlyPrivateCoins(false);
                 ViewStackService.PushPage(new CoinJoinViewModel(CoinList)).Subscribe();
                 return Observable.Return(Unit.Default);
             });
