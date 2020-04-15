@@ -6,6 +6,17 @@
                           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                           xmlns="http://xamarin.com/schemas/2014/forms"
                           Title="Create Wallet">
+  <rxui:ReactiveContentPage.Resources>
+    <ResourceDictionary>
+      <Keyboard x:Key="NoCapitalizationKeyboard"
+                x:FactoryMethod="Create">
+        <x:Arguments>
+          <KeyboardFlags>None</KeyboardFlags>
+        </x:Arguments>
+      </Keyboard>
+    </ResourceDictionary>
+  </rxui:ReactiveContentPage.Resources>
+
   <StackLayout>
     <Label Text="Verify your recovery words" />
     <Grid>
@@ -18,24 +29,29 @@
       </Grid.ColumnDefinitions>
       <Entry Text=""
              Placeholder="1st recovery word"
-             x:Name="Recall0" />
+             x:Name="Recall0"
+             Keyboard="{StaticResource NoCapitalizationKeyboard}" />
       <Entry Grid.Column="1"
              Text=""
              Placeholder="4th recovery word"
-             x:Name="Recall1" />
+             x:Name="Recall1"
+             Keyboard="{StaticResource NoCapitalizationKeyboard}" />
       <Entry Grid.Column="2"
              Placeholder="7th recovery word"
              Text=""
-             x:Name="Recall2" />
+             x:Name="Recall2"
+             Keyboard="{StaticResource NoCapitalizationKeyboard}" />
       <Entry Grid.Column="3"
              Placeholder="10th recovery word"
              Text=""
-             x:Name="Recall3" />
+             x:Name="Recall3"
+             Keyboard="{StaticResource NoCapitalizationKeyboard}" />
     </Grid>
     <Entry Grid.Column="3"
            x:Name="Password"
            Placeholder="something I know"
-           IsPassword="true" />
+           IsPassword="true"
+           Keyboard="{StaticResource NoCapitalizationKeyboard}" />
     <Button Text="Verify"
             x:Name="VerifyButton"
             VerticalOptions="EndAndExpand"/>

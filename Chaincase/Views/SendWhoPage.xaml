@@ -9,10 +9,22 @@
                           xmlns="http://xamarin.com/schemas/2014/forms"
                           Title="Send"
                           NavigationPage.HasBackButton="{Binding IsBusy, Converter={Converters:InverseBoolConverter}}">
+  <rxui:ReactiveContentPage.Resources>
+    <ResourceDictionary>
+      <Keyboard x:Key="NoCapitalizationKeyboard"
+                x:FactoryMethod="Create">
+        <x:Arguments>
+          <KeyboardFlags>None</KeyboardFlags>
+        </x:Arguments>
+      </Keyboard>
+    </ResourceDictionary>
+  </rxui:ReactiveContentPage.Resources>
+
   <StackLayout>
     <Label Text="memo" />
     <Entry Placeholder="to whom / for what"
-            x:Name="Memo" />
+            x:Name="Memo"
+            Keyboard="{StaticResource NoCapitalizationKeyboard}" />
     <Label Text="pay to the order of" />
     <Entry x:Name="Address" />
     <ActivityIndicator x:Name="IsBusy"></ActivityIndicator>

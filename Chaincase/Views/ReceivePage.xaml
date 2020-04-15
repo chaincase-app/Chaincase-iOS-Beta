@@ -7,12 +7,23 @@
                           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                           xmlns="http://xamarin.com/schemas/2014/forms"
                           Title="Receive">
+  <rxui:ReactiveContentPage.Resources>
+    <ResourceDictionary>
+      <Keyboard x:Key="NoCapitalizationKeyboard"
+                x:FactoryMethod="Create">
+        <x:Arguments>
+          <KeyboardFlags>None</KeyboardFlags>
+        </x:Arguments>
+      </Keyboard>
+    </ResourceDictionary>
+  </rxui:ReactiveContentPage.Resources>
 
   <StackLayout>
     <Label Text="Set a memo to remember where your coins come from" />
     <Label Text="Memo" />
     <Entry Placeholder="to whom/for what"
-            x:Name="Memo" />
+            x:Name="Memo"
+           Keyboard="{StaticResource NoCapitalizationKeyboard}" />
     <Button Text="Generate Address"
             x:Name="GenerateButton"
             VerticalOptions="EndAndExpand"/>
