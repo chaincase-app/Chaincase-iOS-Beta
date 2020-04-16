@@ -35,12 +35,6 @@
 	<string>Chaincase</string>
 	<key>CFBundleShortVersionString</key>
 	<string>0.2.0</string>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>fetch</string>
-		<string>remote-notification</string>
-		<string>processing</string>
-	</array>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/AppIcon.appiconset</string>
 </dict>

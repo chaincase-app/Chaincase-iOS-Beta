@@ -71,14 +71,14 @@
     <WarningLevel>4</WarningLevel>
     <MtouchArch>ARM64</MtouchArch>
     <ConsolePause>false</ConsolePause>
-    <CodesignKey>iPhone Distribution</CodesignKey>
+    <CodesignKey>iPhone Distribution: Chaincase LLC (9Z72DXKVXK)</CodesignKey>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <LangVersion>default</LangVersion>
     <IOSDebugOverWiFi></IOSDebugOverWiFi>
     <MtouchEnableSGenConc></MtouchEnableSGenConc>
     <IpaPackageName></IpaPackageName>
     <MtouchI18n></MtouchI18n>
-    <CodesignProvision>Chaincase App Store Distribution</CodesignProvision>
+    <CodesignProvision>Automatic:AppStore</CodesignProvision>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
