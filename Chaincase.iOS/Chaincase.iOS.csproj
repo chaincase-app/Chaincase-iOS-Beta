@@ -75,10 +75,11 @@
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <LangVersion>default</LangVersion>
     <IOSDebugOverWiFi></IOSDebugOverWiFi>
-    <MtouchEnableSGenConc></MtouchEnableSGenConc>
+    <MtouchEnableSGenConc>true</MtouchEnableSGenConc>
     <IpaPackageName></IpaPackageName>
     <MtouchI18n></MtouchI18n>
     <CodesignProvision>Automatic:AppStore</CodesignProvision>
+    <MtouchExtraArgs>--optimize=experimental-xforms-product-type </MtouchExtraArgs>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
