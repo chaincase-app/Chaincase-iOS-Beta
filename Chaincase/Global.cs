@@ -2,6 +2,7 @@
 using NBitcoin.Protocol;
 using NBitcoin.Protocol.Behaviors;
 using NBitcoin.Protocol.Connectors;
+using Nito.AsyncEx;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -73,7 +74,6 @@ namespace Chaincase
 
                 WalletManager = new WalletManager(Network, new WalletDirectories(DataDir));
 
-                WalletManager.OnDequeue += WalletManager_OnDequeue;
                 WalletManager.WalletRelevantTransactionProcessed += WalletManager_WalletRelevantTransactionProcessed;
             }
         }
@@ -362,149 +362,115 @@ namespace Chaincase
 					await addressManager.AddAsync(endpoint);
 				}
 			}
-		}
 
-		private static CancellationTokenSource _cancelWalletServiceInitialization = null;
+}
 
-		public static async Task InitializeWalletServiceAsync(KeyManager keyManager)
-		{
-            using(_cancelWalletServiceInitialization = new CancellationTokenSource())
+        private static void WalletManager_WalletRelevantTransactionProcessed(object sender, ProcessedResult e)
+        {
+            try
             {
-                var token = _cancelWalletServiceInitialization.Token;
-                while (!InitializationCompleted)
+                // If there are no news, then don't bother too.
+                if (!e.IsNews || (sender as Wallet).State != WalletState.Started)
                 {
-                    await Task.Delay(100);
+                    return;
                 }
 
-                if (Config.UseTor)
+                // ToDo
+                // Double spent.
+                // Anonymity set gained?
+                // Received dust
+
+                bool isSpent = e.NewlySpentCoins.Any();
+                bool isReceived = e.NewlyReceivedCoins.Any();
+                bool isConfirmedReceive = e.NewlyConfirmedReceivedCoins.Any();
+                bool isConfirmedSpent = e.NewlyConfirmedReceivedCoins.Any();
+                Money miningFee = e.Transaction.Transaction.GetFee(e.SpentCoins.Select(x => x.GetCoin()).ToArray());
+                if (isReceived || isSpent)
                 {
-                    ChaumianClient = new CoinJoinClient(Synchronizer, Network, keyManager, () => Config.GetCurrentBackendUri(), Config.TorSocks5EndPoint);
+                    Money receivedSum = e.NewlyReceivedCoins.Sum(x => x.Amount);
+                    Money spentSum = e.NewlySpentCoins.Sum(x => x.Amount);
+                    Money incoming = receivedSum - spentSum;
+                    Money receiveSpentDiff = incoming.Abs();
+                    string amountString = receiveSpentDiff.ToString(false, true);
+
+                    if (e.Transaction.Transaction.IsCoinBase)
+                    {
+                        NotifyAndLog($"{amountString} BTC", "Mined", NotificationType.Success, e);
+                    }
+                    else if (isSpent && receiveSpentDiff == miningFee)
+                    {
+                        NotifyAndLog($"Mining Fee: {amountString} BTC", "Self Spend", NotificationType.Information, e);
+                    }
+                    else if (isSpent && receiveSpentDiff.Almost(Money.Zero, Money.Coins(0.01m)) && e.IsLikelyOwnCoinJoin)
+                    {
+                        NotifyAndLog($"CoinJoin Completed!", "", NotificationType.Success, e);
+                    }
+                    else if (incoming > Money.Zero)
+                    {
+                        if (e.Transaction.IsRBF && e.Transaction.IsReplacement)
+                        {
+                            NotifyAndLog($"{amountString} BTC", "Received Replaceable Replacement Transaction", NotificationType.Information, e);
+                        }
+                        else if (e.Transaction.IsRBF)
+                        {
+                            NotifyAndLog($"{amountString} BTC", "Received Replaceable Transaction", NotificationType.Success, e);
+                        }
+                        else if (e.Transaction.IsReplacement)
+                        {
+                            NotifyAndLog($"{amountString} BTC", "Received Replacement Transaction", NotificationType.Information, e);
+                        }
+                        else
+                        {
+                            NotifyAndLog($"{amountString} BTC", "Received", NotificationType.Success, e);
+                        }
+                    }
+                    else if (incoming < Money.Zero)
+                    {
+                        NotifyAndLog($"{amountString} BTC", "Sent", NotificationType.Information, e);
+                    }
                 }
-                else
+                else if (isConfirmedReceive || isConfirmedSpent)
                 {
-                    ChaumianClient = new CoinJoinClient(Synchronizer, Network, keyManager, Config.GetFallbackBackendUri(), null);
+                    Money receivedSum = e.ReceivedCoins.Sum(x => x.Amount);
+                    Money spentSum = e.SpentCoins.Sum(x => x.Amount);
+                    Money incoming = receivedSum - spentSum;
+                    Money receiveSpentDiff = incoming.Abs();
+                    string amountString = receiveSpentDiff.ToString(false, true);
+
+                    if (isConfirmedSpent && receiveSpentDiff == miningFee)
+                    {
+                        NotifyAndLog($"Mining Fee: {amountString} BTC", "Self Spend Confirmed", NotificationType.Information, e);
+                    }
+                    else if (isConfirmedSpent && receiveSpentDiff.Almost(Money.Zero, Money.Coins(0.01m)) && e.IsLikelyOwnCoinJoin)
+                    {
+                        NotifyAndLog($"CoinJoin Confirmed!", "", NotificationType.Information, e);
+                    }
+                    else if (incoming > Money.Zero)
+                    {
+                        NotifyAndLog($"{amountString} BTC", "Receive Confirmed", NotificationType.Information, e);
+                    }
+                    else if (incoming < Money.Zero)
+                    {
+                        NotifyAndLog($"{amountString} BTC", "Send Confirmed", NotificationType.Information, e);
+                    }
                 }
-
-                WalletManager = new WalletService(BitcoinStore, keyManager, Synchronizer, ChaumianClient, Nodes, DataDir, Config.ServiceConfiguration, FeeProviders);
-
-                ChaumianClient.Start();
-                Logger.LogInfo("Start Chaumian CoinJoin service...");
-
-                Logger.LogInfo($"Starting {nameof(WalletManager)}...");
-                await WalletManager.InitializeAsync(token);
-                Logger.LogInfo($"{nameof(WalletManager)} started.");
-
-                token.ThrowIfCancellationRequested();
-
-                TransactionBroadcaster.AddWalletService(WalletManager);
-                CoinJoinProcessor.AddWalletService(WalletManager);
-
-                // TODO ui doesn't support notifications to handle these events yet:
-                // WalletService.TransactionProcessor.WalletRelevantTransactionProcessed += TransactionProcessor_WalletRelevantTransactionProcessed;
-                // ChaumianClient.OnDequeue += ChaumianClient_OnDequeued;
             }
-			_cancelWalletServiceInitialization = null; // Must make it null explicitly, because dispose won't make it null.
-		}
-
-        public static string GetWalletFullPath(string walletName)
-		{
-			walletName = walletName.TrimEnd(".json", StringComparison.OrdinalIgnoreCase);
-			return Path.Combine(WalletsDir, walletName + ".json");
-		}
-
-		public static string GetWalletBackupFullPath(string walletName)
-		{
-			walletName = walletName.TrimEnd(".json", StringComparison.OrdinalIgnoreCase);
-			return Path.Combine(WalletBackupsDir, walletName + ".json");
-		}
-
-		public static KeyManager LoadKeyManager(string walletFullPath, string walletBackupFullPath)
-		{
-			try
-			{
-				return LoadKeyManager(walletFullPath);
-			}
-			catch (Exception ex)
-			{
-				if (!File.Exists(walletBackupFullPath))
-				{
-					throw;
-				}
-
-				Logger.LogWarning($"Wallet got corrupted.\n" +
-					$"Wallet Filepath: {walletFullPath}\n" +
-					$"Trying to recover it from backup.\n" +
-					$"Backup path: {walletBackupFullPath}\n" +
-					$"Exception: {ex.ToString()}");
-				if (File.Exists(walletFullPath))
-				{
-					string corruptedWalletBackupPath = Path.Combine(WalletBackupsDir, $"{Path.GetFileName(walletFullPath)}_CorruptedBackup");
-					if (File.Exists(corruptedWalletBackupPath))
-					{
-						File.Delete(corruptedWalletBackupPath);
-						Logger.LogInfo($"Deleted previous corrupted wallet file backup from {corruptedWalletBackupPath}.");
-					}
-					File.Move(walletFullPath, corruptedWalletBackupPath);
-					Logger.LogInfo($"Backed up corrupted wallet file to {corruptedWalletBackupPath}.");
-				}
-				File.Copy(walletBackupFullPath, walletFullPath);
-
-				return LoadKeyManager(walletFullPath);
-			}
-		}
-
-		public static KeyManager LoadKeyManager(string walletFullPath)
-		{
-			KeyManager keyManager;
-
-			// Set the LastAccessTime.
-			new FileInfo(walletFullPath)
-			{
-				LastAccessTime = DateTime.Now
-			};
-
-			keyManager = KeyManager.FromFile(walletFullPath);
-			Logger.LogInfo($"Wallet loaded: {Path.GetFileNameWithoutExtension(keyManager.FilePath)}.");
-			return keyManager;
-		}
-
-		public static async Task DisposeInWalletDependentServicesAsync()
-		{
-			if (WalletManager != null)
-			{
-                // WalletService.TransactionProcessor.WalletRelevantTransactionProcessed -= TransactionProcessor_WalletRelevantTransactionProcessed;
-                // ChaumianClient.OnDequeue -= ChaumianClient_OnDequeued;
+            catch (Exception ex)
+            {
+                Logger.LogWarning(ex);
             }
-			try
-			{
-				_cancelWalletServiceInitialization?.Cancel();
-			}
-			catch (ObjectDisposedException)
-			{
-				Logger.LogWarning($"{nameof(_cancelWalletServiceInitialization)} is disposed. This can occur due to an error while processing the wallet.");
-			}
-			_cancelWalletServiceInitialization = null;
+        }
 
-			if (WalletManager != null)
-			{
-				if (WalletManager.KeyManager != null) // This should not ever happen.
-				{
-					string backupWalletFilePath = Path.Combine(WalletBackupsDir, Path.GetFileName(WalletManager.KeyManager.FilePath));
-					WalletManager.KeyManager?.ToFile(backupWalletFilePath);
-					Logger.LogInfo($"{nameof(KeyManager)} backup saved to {backupWalletFilePath}.");
-				}
-				WalletManager?.Dispose();
-				WalletManager = null;
-				Logger.LogInfo($"{nameof(WalletManager)} is stopped.");
-			}
+        /// <returns>If initialization is successful, otherwise it was interrupted which means stopping was requested.</returns>
+        public static async Task<bool> WaitForInitializationCompletedAsync(CancellationToken cancellationToken)
+        {
+            while (!InitializationCompleted)
+            {
+                await Task.Delay(100, cancellationToken).ConfigureAwait(false);
+            }
 
-			if (ChaumianClient != null)
-			{
-				await ChaumianClient.StopAsync();
-				ChaumianClient = null;
-				Logger.LogInfo($"{nameof(ChaumianClient)} is stopped.");
-			}
-		}
+            return !StoppingCts.IsCancellationRequested;
+        }
 
         /// <summary>
         /// Enumeration of types for <see cref="T:Avalonia.Controls.Notifications.INotification" />.
@@ -526,18 +492,72 @@ namespace Chaincase
             Logger.LogInfo($"Transaction Notification ({notificationType}): {title} - {message} - {e.Transaction.GetHash()}");
         }
 
+        private static long _dispose = 0;
+
         public static async Task DisposeAsync()
-		{
-			try
-			{
-				await DisposeInWalletDependentServicesAsync();
+        {
+            var compareRes = Interlocked.CompareExchange(ref _dispose, 1, 0);
+            if (compareRes == 1)
+            {
+                while (Interlocked.Read(ref _dispose) != 2)
+                {
+                    await Task.Delay(50);
+                }
+                return;
+            }
+            else if (compareRes == 2)
+            {
+                return;
+            }
+            Logger.LogWarning("Process is exiting.", nameof(Global));
+
+            try
+            {
+                StoppingCts?.Cancel();
+
+                if (!InitializationStarted)
+                {
+                    return;
+                }
+
+                try
+                {
+                    using var initCts = new CancellationTokenSource(TimeSpan.FromMinutes(6));
+                    await WaitForInitializationCompletedAsync(initCts.Token).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError($"Error during {nameof(WaitForInitializationCompletedAsync)}: {ex}");
+                }
+
+                try
+                {
+                    using var dequeueCts = new CancellationTokenSource(TimeSpan.FromMinutes(6));
+                    await WalletManager.RemoveAndStopAllAsync(dequeueCts.Token).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError($"Error during {nameof(WalletManager.RemoveAndStopAllAsync)}: {ex}");
+                }
+
+                //window?.close
+
+                WalletManager.WalletRelevantTransactionProcessed -= WalletManager_WalletRelevantTransactionProcessed;
 
                 var feeProviders = FeeProviders;
-                if (feeProviders != null)
+                if (feeProviders is { })
                 {
                     feeProviders.Dispose();
                     Logger.LogInfo($"Disposed {nameof(FeeProviders)}.");
                 }
+
+                var coinJoinProcessor = CoinJoinProcessor;
+                if (coinJoinProcessor is { })
+                {
+                    coinJoinProcessor.Dispose();
+                    Logger.LogInfo($"{nameof(CoinJoinProcessor)} is disposed.");
+                }
+
                 var synchronizer = Synchronizer;
                 if (synchronizer is { })
                 {
@@ -545,44 +565,79 @@ namespace Chaincase
                     Logger.LogInfo($"{nameof(Synchronizer)} is stopped.");
                 }
 
+                var backgroundServices = HostedServices;
+                if (backgroundServices is { })
+                {
+                    using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(21));
+                    await backgroundServices.StopAllAsync(cts.Token).ConfigureAwait(false);
+                    backgroundServices.Dispose();
+                    Logger.LogInfo("Stopped background services.");
+                }
+
                 var addressManagerFilePath = AddressManagerFilePath;
                 if (addressManagerFilePath is { })
-				{
-					IoHelpers.EnsureContainingDirectoryExists(AddressManagerFilePath);
+                {
+                    IoHelpers.EnsureContainingDirectoryExists(addressManagerFilePath);
                     var addressManager = AddressManager;
                     if (addressManager is { })
-					{
-						addressManager?.SavePeerFile(AddressManagerFilePath, Config.Network);
-						Logger.LogInfo($"{nameof(AddressManager)} is saved to `{AddressManagerFilePath}`.");
-					}
-				}
+                    {
+                        addressManager.SavePeerFile(AddressManagerFilePath, Config.Network);
+                        Logger.LogInfo($"{nameof(AddressManager)} is saved to `{AddressManagerFilePath}`.");
+                    }
+                }
 
                 var nodes = Nodes;
-                if (nodes != null)
-				{
-					nodes?.Dispose();
-					Logger.LogInfo($"{nameof(Nodes)} are disposed.");
-				}
+                if (nodes is { })
+                {
+                    nodes.Disconnect();
+                    while (nodes.ConnectedNodes.Any(x => x.IsConnected))
+                    {
+                        await Task.Delay(50);
+                    }
+                    nodes.Dispose();
+                    Logger.LogInfo($"{nameof(Nodes)} are disposed.");
+                }
 
                 var regTestMempoolServingNode = RegTestMempoolServingNode;
                 if (regTestMempoolServingNode is { })
-				{
-					regTestMempoolServingNode.Disconnect();
-					Logger.LogInfo($"{nameof(RegTestMempoolServingNode)} is disposed.");
-				}
+                {
+                    regTestMempoolServingNode.Disconnect();
+                    Logger.LogInfo($"{nameof(RegTestMempoolServingNode)} is disposed.");
+                }
 
                 var torManager = TorManager;
-                if (torManager != null)
-				{
-					torManager?.Stop();
-					Logger.LogInfo($"{nameof(TorManager)} is stopped.");
-				}
-			}
-			catch (Exception ex)
-			{
-				Logger.LogWarning(ex);
-			}
-		}
+                if (torManager is { })
+                {
+                    torManager.Stop();
+                    Logger.LogInfo($"{nameof(TorManager)} is stopped.");
+                }
+
+                if (AsyncMutex.IsAny)
+                {
+                    try
+                    {
+                        await AsyncMutex.WaitForAllMutexToCloseAsync();
+                        Logger.LogInfo($"{nameof(AsyncMutex)}(es) are stopped.");
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Error during stopping {nameof(AsyncMutex)}: {ex}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning(ex);
+            }
+            finally
+            {
+                StoppingCts?.Dispose();
+                Interlocked.Exchange(ref _dispose, 2);
+                Logger.LogSoftwareStopped("Wasabi");
+            }
+        }
+
+        #region Chaincase
 
         private static string GetDataDir()
         {
@@ -599,5 +654,7 @@ namespace Chaincase
             }
             return dataDir;
         }
+
+        #endregion
     }
 }
