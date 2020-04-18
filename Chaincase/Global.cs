@@ -14,6 +14,7 @@ using WalletWasabi.Blockchain.Analysis.FeesEstimation;
 using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Blockchain.TransactionBroadcasting;
 using WalletWasabi.Blockchain.TransactionOutputs;
+using WalletWasabi.Blockchain.TransactionProcessing;
 using WalletWasabi.CoinJoin.Client;
 using WalletWasabi.CoinJoin.Client.Clients;
 using WalletWasabi.CoinJoin.Client.Clients.Queuing;
@@ -251,6 +252,11 @@ namespace Chaincase
                 Logger.LogInfo("Start synchronizing filters...");
 
                 #endregion SynchronizerInitialization
+
+                cancel.ThrowIfCancellationRequested();
+
+                TransactionBroadcaster = new TransactionBroadcaster(Network, BitcoinStore, Synchronizer, Nodes, WalletManager, null);
+                CoinJoinProcessor = new CoinJoinProcessor(Synchronizer, WalletManager, null);
 
                 WalletManager.RegisterServices(BitcoinStore, Synchronizer, Nodes, Config.ServiceConfiguration, FeeProviders, null);
             }
@@ -500,7 +506,27 @@ namespace Chaincase
 			}
 		}
 
-		public static async Task DisposeAsync()
+        /// <summary>
+        /// Enumeration of types for <see cref="T:Avalonia.Controls.Notifications.INotification" />.
+        /// </summary>
+        public enum NotificationType
+        {
+            Information,
+            Success,
+            Warning,
+            Error
+        }
+
+        private static void NotifyAndLog(string message, string title, NotificationType notificationType, ProcessedResult e)
+        {
+            message = Guard.Correct(message);
+            title = Guard.Correct(title);
+            // TODO Notify
+            //NotificationHelpers.Notify(message, title, notificationType, async () => await FileHelpers.OpenFileInTextEditorAsync(Logger.FilePath));
+            Logger.LogInfo($"Transaction Notification ({notificationType}): {title} - {message} - {e.Transaction.GetHash()}");
+        }
+
+        public static async Task DisposeAsync()
 		{
 			try
 			{
