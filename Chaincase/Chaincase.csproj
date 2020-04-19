@@ -116,6 +116,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\WalletWasabi\WalletWasabi\WalletWasabi.Standard.csproj" />
+    <ProjectReference Include="..\WalletWasabi\WalletWasabi.Standard\WalletWasabi\WalletWasabi.Standard.csproj" />
   </ItemGroup>
 </Project>

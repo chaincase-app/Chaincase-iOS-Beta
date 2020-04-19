@@ -2,9 +2,11 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Reactive;
 using System.Threading.Tasks;
 using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Logging;
+using WalletWasabi.Wallets;
 
 namespace Chaincase.Controllers
 {
@@ -12,7 +14,7 @@ namespace Chaincase.Controllers
 	{
 		public static Mnemonic GenerateMnemonic(string passphrase, NBitcoin.Network network)
 		{
-			string walletFilePath = Path.Combine(Global.WalletsDir, $"{network.ToString()}.json");
+			string walletFilePath = Path.Combine(Global.WalletManager.WalletDirectories.WalletsDir, $"{network}.json");
 			KeyManager.CreateNew(out Mnemonic mnemonic, passphrase, walletFilePath);
 			return mnemonic;
 		}
@@ -22,7 +24,7 @@ namespace Chaincase.Controllers
 			Mnemonic mnemonic = new Mnemonic(mnemonicString);
 			ExtKey derivedExtKey = mnemonic.DeriveExtKey(passphrase);
 
-			string walletFilePath = Path.Combine(Global.WalletsDir, $"{network.ToString()}.json");
+			string walletFilePath = Path.Combine(Global.WalletManager.WalletDirectories.WalletsDir, $"{network}.json");
 			ExtKey keyOnDisk;
 			try
 			{
@@ -38,7 +40,7 @@ namespace Chaincase.Controllers
 
 		public static string IsValidPassword(string pass, Network network)
 		{
-			string walletFilePath = Path.Combine(Global.WalletsDir, $"{network.ToString()}.json");
+			string walletFilePath = Path.Combine(Global.WalletManager.WalletDirectories.WalletsDir, $"{network}.json");
 			ExtKey keyOnDisk;
 			try
 			{
@@ -52,48 +54,56 @@ namespace Chaincase.Controllers
 			return pass;
 		}
 
-		public static async Task LoadWalletAsync(NBitcoin.Network network)
+		public static async Task LoadWalletAsync(Network network)
 		{
-			// TODO Nono backup wallet folder!!
-			string walletFilePath = Global.GetWalletFullPath(network.ToString());
-			KeyManager keyManager = Global.LoadKeyManager(walletFilePath);
+			string walletName = network.ToString();
+			KeyManager keyManager = Global.WalletManager.GetWalletByName(walletName).KeyManager;
+			if (keyManager is null)
+			{
+				return;
+			}
+
 			try
 			{
-				await Global.InitializeWalletServiceAsync(keyManager);
+				var wallet = await Global.WalletManager.StartWalletAsync(keyManager);
+				// Successfully initialized.
+			}
+			catch (OperationCanceledException ex)
+			{
+				Logger.LogTrace(ex);
 			}
 			catch (Exception ex)
 			{
-				// Initialization failed.
-				Logger.LogError(ex, "WalletController");
-				await Global.DisposeInWalletDependentServicesAsync();
+				Logger.LogError(ex);
 			}
 		}
 
-		public static bool WalletExists(NBitcoin.Network network)
+		public static bool WalletExists(Network network)
 		{
-			string walletFilePath = Global.GetWalletFullPath(network.ToString());
-			return File.Exists(walletFilePath);
+			var walletName = network.ToString();
+			(string walletFullPath, _) = Global.WalletManager.WalletDirectories.GetWalletFilePaths(walletName);
+			return File.Exists(walletFullPath);
 		}
 
-		public static Money GetBalance()
+		public static Money GetBalance(Network network)
 		{
 			return Enumerable.Where
 				(
-					Global.WalletService.Coins,
+					Global.WalletManager.GetWalletByName(network.ToString()).Coins,
 					c => c.Unspent && !c.SpentAccordingToBackend
 				).Sum(c => (long?)c.Amount) ?? 0;
 		}
 
-        public static Money GetPrivateBalance()
+        public static Money GetPrivateBalance(Network network)
         {
 			return Enumerable.Where
 				(
-					Global.WalletService.Coins,
+					Global.WalletManager.GetWalletByName(network.ToString()).Coins,
 					c => c.Unspent && !c.SpentAccordingToBackend && c.AnonymitySet > 1
 				).Sum(c => (long?)c.Amount) ?? 0;
 		}
 
-		public static Boolean SendTransaction(string addressString, FeeRate rate)
+		public static bool SendTransaction(string addressString, FeeRate rate)
 		{
 			BitcoinAddress address;
 			try

@@ -39,7 +39,6 @@ namespace Chaincase
 		public static WasabiSynchronizer Synchronizer { get; private set; }
         public static FeeProviders FeeProviders { get; private set; }
 		public static WalletManager WalletManager { get; private set; }
-        public static CoinJoinClient ChaumianClient { get; private set; }
         public static TransactionBroadcaster TransactionBroadcaster { get; set; }
         public static CoinJoinProcessor CoinJoinProcessor { get; set; }
 		public static Node RegTestMempoolServingNode { get; private set; }

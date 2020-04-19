@@ -75,7 +75,7 @@ namespace Chaincase.ViewModels
 				Memo = Memo.Trim(',', ' ').Trim();
 
 				var selectedCoinViewModels = SendAmountViewModel.CoinList.Coins.Where(cvm => cvm.IsSelected);
-				var selectedCoinReferences = selectedCoinViewModels.Select(cvm => new TxoRef(cvm.Model.TransactionId, cvm.Model.Index)).ToList();
+				var selectedCoinReferences = selectedCoinViewModels.Select(cvm => cvm.Model.OutPoint).ToList();
 				if (!selectedCoinReferences.Any())
 				{
 					//SetWarningMessage("No coins are selected to spend.");
@@ -101,7 +101,6 @@ namespace Chaincase.ViewModels
 					return false;
 				}
 
-				var selectedInputs = selectedCoinViewModels.Select(c => new TxoRef(c.Model.GetCoin().Outpoint));
 				if (SendAmountViewModel.FeeRate is null || SendAmountViewModel.FeeRate.SatoshiPerByte < 1)
 				{
 					return false;
@@ -112,12 +111,12 @@ namespace Chaincase.ViewModels
 				var memo = Memo;
 				var intent = new PaymentIntent(script, amount, false, memo);
 
-				var result = await Task.Run(() => Global.WalletService.BuildTransaction(
+				var result = await Task.Run(() => Global.Wallet.BuildTransaction(
 					password,
 					intent,
 					feeStrategy,
 					allowUnconfirmed: true,
-					allowedInputs: selectedInputs));
+					allowedInputs: selectedCoinReferences));
 				SmartTransaction signedTransaction = result.Transaction;
 
 				await Global.TransactionBroadcaster.SendTransactionAsync(signedTransaction); // put this on non-ui theread?

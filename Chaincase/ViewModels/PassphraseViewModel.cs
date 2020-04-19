@@ -18,7 +18,7 @@ namespace Chaincase.ViewModels
 			SubmitCommand = ReactiveCommand.CreateFromObservable(() =>
 			{
 				var mnemonic = WalletController.GenerateMnemonic(Passphrase, Global.Network).ToString();
-				ViewStackService.PushPage(new MnemonicViewModel( mnemonic)).Subscribe();
+				ViewStackService.PushPage(new MnemonicViewModel(mnemonic)).Subscribe();
 				return Observable.Return(Unit.Default);
 			});
 		}

@@ -62,7 +62,7 @@ namespace Chaincase.ViewModels
 
 			Observable
                 .Merge(Model.WhenAnyValue(x => x.IsBanned, x => x.SpentAccordingToBackend, x=> x.CoinJoinInProgress).Select(_ => Unit.Default))
-				.Merge(Observable.FromEventPattern(Global.ChaumianClient, nameof(Global.ChaumianClient.StateUpdated)).Select(_ => Unit.Default))
+				.Merge(Observable.FromEventPattern(Global.Wallet.ChaumianClient, nameof(Global.Wallet.ChaumianClient.StateUpdated)).Select(_ => Unit.Default))
 				.ObserveOn(RxApp.MainThreadScheduler)
 				.Subscribe(_ => RefreshSmartCoinStatus())
 				.DisposeWith(Disposables);
@@ -167,9 +167,9 @@ namespace Chaincase.ViewModels
 				return SmartCoinStatus.MixingBanned;
 			}
 
-			if (Model.CoinJoinInProgress && Global.ChaumianClient != null)
+			if (Model.CoinJoinInProgress && Global.Wallet.ChaumianClient != null)
 			{
-                ClientState clientState = Global.ChaumianClient.State;
+                ClientState clientState = Global.Wallet.ChaumianClient.State;
                 foreach (var round in clientState.GetAllMixingRounds())
                 {
                     if (round.CoinsRegistered.Contains(Model))

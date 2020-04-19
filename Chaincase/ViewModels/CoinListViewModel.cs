@@ -47,7 +47,7 @@ namespace Chaincase.ViewModels
                throw new NotSupportedException($"Cannot open {GetType().Name} before closing it.");
 
             Observable
-                .Merge(Observable.FromEventPattern<ProcessedResult>(Global.WalletService.TransactionProcessor, nameof(Global.WalletService.TransactionProcessor.WalletRelevantTransactionProcessed)).Select(_ => Unit.Default))
+                .Merge(Observable.FromEventPattern<ProcessedResult>(Global.Wallet.TransactionProcessor, nameof(Global.Wallet.TransactionProcessor.WalletRelevantTransactionProcessed)).Select(_ => Unit.Default))
                 .Throttle(TimeSpan.FromSeconds(1)) // Throttle TransactionProcessor events adds/removes.
                 .Merge(Observable.FromEventPattern(this, nameof(CoinListShown), RxApp.MainThreadScheduler).Select(_ => Unit.Default)) // Load the list immediately.
                 .ObserveOn(RxApp.MainThreadScheduler)
@@ -55,7 +55,7 @@ namespace Chaincase.ViewModels
                 {
                     try
                     {
-                        var actual = Global.WalletService.TransactionProcessor.Coins.ToHashSet();
+                        var actual = Global.Wallet.TransactionProcessor.Coins.ToHashSet();
                         var old = RootList.Items.ToDictionary(c => c.Model, c => c);
 
                         var coinToRemove = old.Where(c => !actual.Contains(c.Key)).ToArray();

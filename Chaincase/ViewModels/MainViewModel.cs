@@ -63,8 +63,8 @@ namespace Chaincase.ViewModels
                 return Observable.Return(Unit.Default);
             });
 
-            Observable.FromEventPattern(Global.WalletService.TransactionProcessor, nameof(Global.WalletService.TransactionProcessor.WalletRelevantTransactionProcessed))
-				.Merge(Observable.FromEventPattern(Global.ChaumianClient, nameof(Global.ChaumianClient.OnDequeue)))
+            Observable.FromEventPattern(Global.Wallet.TransactionProcessor, nameof(Global.Wallet.TransactionProcessor.WalletRelevantTransactionProcessed))
+				.Merge(Observable.FromEventPattern(Global.Wallet.ChaumianClient, nameof(Global.Wallet.ChaumianClient.OnDequeue)))
 				.ObserveOn(RxApp.MainThreadScheduler)
 				.Subscribe(o => {
                     SetBalances();
@@ -74,11 +74,11 @@ namespace Chaincase.ViewModels
 
 		private void SetBalances()
 		{
-            var bal = WalletController.GetBalance();
+            var bal = WalletController.GetBalance(Global.Network);
 			Balance = bal.ToString();
             HasCoins = bal > 0;
 
-            var pbal = WalletController.GetPrivateBalance();
+            var pbal = WalletController.GetPrivateBalance(Global.Network);
             PrivateBalance = pbal.ToString();
             HasPrivateCoins = pbal > 0;
         }

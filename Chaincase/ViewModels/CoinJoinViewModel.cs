@@ -55,18 +55,18 @@ namespace Chaincase.ViewModels
 
             AmountQueued = Money.Zero;
 
-            var registrableRound = Global.ChaumianClient.State.GetRegistrableRoundOrDefault();
+            var registrableRound = Global.Wallet.ChaumianClient.State.GetRegistrableRoundOrDefault();
 
             CoordinatorFeePercent = registrableRound?.State?.CoordinatorFeePercent.ToString() ?? "0.003";
 
-            Observable.FromEventPattern(Global.ChaumianClient, nameof(Global.ChaumianClient.CoinQueued))
-                .Merge(Observable.FromEventPattern(Global.ChaumianClient, nameof(Global.ChaumianClient.OnDequeue)))
-                .Merge(Observable.FromEventPattern(Global.ChaumianClient, nameof(Global.ChaumianClient.StateUpdated)))
+            Observable.FromEventPattern(Global.Wallet.ChaumianClient, nameof(Global.Wallet.ChaumianClient.CoinQueued))
+                .Merge(Observable.FromEventPattern(Global.Wallet.ChaumianClient, nameof(Global.Wallet.ChaumianClient.OnDequeue)))
+                .Merge(Observable.FromEventPattern(Global.Wallet.ChaumianClient, nameof(Global.Wallet.ChaumianClient.StateUpdated)))
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(_ => UpdateStates())
                 .DisposeWith(Disposables);
 
-            ClientRound mostAdvancedRound = Global.ChaumianClient?.State?.GetMostAdvancedRoundOrDefault();
+            ClientRound mostAdvancedRound = Global.Wallet.ChaumianClient?.State?.GetMostAdvancedRoundOrDefault();
 
             if (mostAdvancedRound != default)
             {
@@ -82,9 +82,10 @@ namespace Chaincase.ViewModels
             var canPromptPassword = this.WhenAnyValue(
                 x => x.CoinList.SelectedAmount,
                 x => x.RequiredBTC,
-                (amnt, rBTC) => {
-                   return !(rBTC is null) && !(amnt is null) && amnt >= rBTC;
-                }); 
+                (amnt, rBTC) =>
+                {
+                    return !(rBTC is null) && !(amnt is null) && amnt >= rBTC;
+                });
             _promptViewModel = new PasswordPromptViewModel("CoinJoin");
             _promptViewModel.ValidatePasswordCommand.Subscribe(async validPassword =>
             {
@@ -104,7 +105,7 @@ namespace Chaincase.ViewModels
 
         private void SetBalance()
         {
-            Balance = WalletController.GetBalance().ToString();
+            Balance = WalletController.GetBalance(Global.Network).ToString();
         }
 
         private async Task DoDequeueAsync(params SmartCoin[] coins)
@@ -122,7 +123,7 @@ namespace Chaincase.ViewModels
 
                 try
                 {
-                    await Global.ChaumianClient.DequeueCoinsFromMixAsync(coins.ToArray(), DequeueReason.UserRequested);
+                    await Global.Wallet.ChaumianClient.DequeueCoinsFromMixAsync(coins.ToArray(), DequeueReason.UserRequested);
                 }
                 catch (Exception ex)
                 {
@@ -148,14 +149,14 @@ namespace Chaincase.ViewModels
                 }
                 try
                 {
-                    PasswordHelper.GetMasterExtKey(Global.WalletService.KeyManager, password, out string compatiblityPassword); // If the password is not correct we throw.
+                    PasswordHelper.GetMasterExtKey(Global.Wallet.KeyManager, password, out string compatiblityPassword); // If the password is not correct we throw.
 
                     if (compatiblityPassword != null)
                     {
                         password = compatiblityPassword;
                     }
 
-                    await Global.ChaumianClient.QueueCoinsToMixAsync(password, coins.ToArray());
+                    await Global.Wallet.ChaumianClient.QueueCoinsToMixAsync(password, coins.ToArray());
                     return true;
                 }
                 catch (SecurityException ex)
@@ -186,7 +187,7 @@ namespace Chaincase.ViewModels
 
         private void UpdateStates()
         {
-            var chaumianClient = Global.ChaumianClient;
+            var chaumianClient = Global.Wallet.ChaumianClient;
             if (chaumianClient is null)
             {
                 return;
@@ -209,7 +210,7 @@ namespace Chaincase.ViewModels
 
         private void UpdateRequiredBtcLabel(ClientRound registrableRound)
         {
-            if (Global.WalletService is null)
+            if (Global.WalletManager is null)
             {
                 return; // Otherwise NullReferenceException at shutdown.
             }
@@ -223,11 +224,11 @@ namespace Chaincase.ViewModels
             }
             else
             {
-                var coins = Global.WalletService.Coins;
+                var coins = Global.Wallet.Coins;
                 var queued = coins.CoinJoinInProcess();
                 if (queued.Any())
                 {
-                    RequiredBTC = registrableRound.State.CalculateRequiredAmount(Global.ChaumianClient.State.GetAllQueuedCoinAmounts().ToArray());
+                    RequiredBTC = registrableRound.State.CalculateRequiredAmount(Global.Wallet.ChaumianClient.State.GetAllQueuedCoinAmounts().ToArray());
                 }
                 else
                 {
@@ -287,7 +288,7 @@ namespace Chaincase.ViewModels
             set => this.RaiseAndSetIfChanged(ref _isDequeueBusy, value);
         }
 
-        public ReactiveCommand<string, bool> CoinJoinCommand { get;  }
+        public ReactiveCommand<string, bool> CoinJoinCommand { get; }
         private PasswordPromptViewModel _promptViewModel;
         public ReactiveCommand<Unit, Unit> PromptCommand { get; }
     }

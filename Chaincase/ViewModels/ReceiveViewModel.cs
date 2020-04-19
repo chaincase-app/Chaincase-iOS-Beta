@@ -27,10 +27,10 @@ namespace Chaincase.ViewModels
 			{
 				Device.BeginInvokeOnMainThread(() =>
 				{
-                    HdPubKey toReceive = Global.WalletService.KeyManager.GetNextReceiveKey(Memo, out bool minGapLimitIncreased);
+                    HdPubKey toReceive = Global.Wallet.KeyManager.GetNextReceiveKey(Memo, out bool minGapLimitIncreased);
                     if (minGapLimitIncreased)
                     {
-                        int minGapLimit = Global.WalletService.KeyManager.MinGapLimit.Value;
+                        int minGapLimit = Global.Wallet.KeyManager.MinGapLimit.Value;
                         int prevMinGapLimit = minGapLimit - 1;
                     }
                     Memo = "";
