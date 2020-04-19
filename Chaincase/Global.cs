@@ -2,7 +2,6 @@
 using NBitcoin.Protocol;
 using NBitcoin.Protocol.Behaviors;
 using NBitcoin.Protocol.Connectors;
-using Nito.AsyncEx;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,13 +11,10 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using WalletWasabi.Blockchain.Analysis.FeesEstimation;
-using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Blockchain.TransactionBroadcasting;
-using WalletWasabi.Blockchain.TransactionOutputs;
 using WalletWasabi.Blockchain.TransactionProcessing;
 using WalletWasabi.CoinJoin.Client;
 using WalletWasabi.CoinJoin.Client.Clients;
-using WalletWasabi.CoinJoin.Client.Clients.Queuing;
 using WalletWasabi.Helpers;
 using WalletWasabi.Logging;
 using WalletWasabi.Services;
@@ -32,8 +28,6 @@ namespace Chaincase
 	{
 		public static string DataDir { get; }
 		public static string TorLogsFile { get; }
-		public static string WalletsDir { get; }
-		public static string WalletBackupsDir { get; }
 
 		public static BitcoinStore BitcoinStore { get; private set; }
 		public static Config Config { get; private set; }
@@ -56,6 +50,9 @@ namespace Chaincase
         public static bool KillRequested { get; private set; } = false;
 
 		public static Network Network => Config.Network;
+
+        // Chaincase Specific
+        public static Wallet Wallet => WalletManager.GetWalletByName(Network.ToString());
 
 		static Global()
 		{
@@ -112,20 +109,6 @@ namespace Chaincase
                     Synchronizer = new WasabiSynchronizer(Network, BitcoinStore, Config.GetFallbackBackendUri(), null);
                 }
 
-                HostedServices.Register(new UpdateChecker(TimeSpan.FromMinutes(7), Synchronizer.WasabiClient), "Software Update Checker");
-
-                #region ProcessKillSubscription
-
-                AppDomain.CurrentDomain.ProcessExit += async (s, e) => await DisposeAsync().ConfigureAwait(false);
-                Console.CancelKeyPress += async (s, e) =>
-                {
-                    e.Cancel = true;
-                    Logger.LogWarning("Process was signaled for killing.", nameof(Global));
-                    await DisposeAsync().ConfigureAwait(false);
-                };
-
-                #endregion ProcessKillSubscription
-
                 cancel.ThrowIfCancellationRequested();
 
                 #region TorProcessInitialization
@@ -158,8 +141,6 @@ namespace Chaincase
 
                 #region FeeProviderInitialization
                 // Mirrors #region BitcoinCoreInitialization in WalletWasabi
-
-                await HostedServices.StartAllAsync(cancel).ConfigureAwait(false);
 
                 var feeProviderList = new List<IFeeProvider>
                 {
@@ -610,19 +591,6 @@ namespace Chaincase
                 {
                     torManager.Stop();
                     Logger.LogInfo($"{nameof(TorManager)} is stopped.");
-                }
-
-                if (AsyncMutex.IsAny)
-                {
-                    try
-                    {
-                        await AsyncMutex.WaitForAllMutexToCloseAsync();
-                        Logger.LogInfo($"{nameof(AsyncMutex)}(es) are stopped.");
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogError($"Error during stopping {nameof(AsyncMutex)}: {ex}");
-                    }
                 }
             }
             catch (Exception ex)
