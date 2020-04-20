@@ -87,8 +87,6 @@
     <None Include="Entitlements.plist" />
     <None Include="Info.plist" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Tor\TorHttpClient.cs" />
-    <Compile Include="Tor\ITorHttpCLient.cs" />
     <Compile Include="Tor\TorProcessManager.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -159,6 +157,10 @@
     <ProjectReference Include="..\TorFramework\TorFramework.csproj">
       <Project>{4B9C81E8-049C-425D-BD7A-BFBF586A7F64}</Project>
       <Name>TorFramework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WalletWasabi\WalletWasabi.Standard\WalletWasabi\WalletWasabi.Standard.csproj">
+      <Project>{AD865031-566C-46A0-9615-974DA91FB892}</Project>
+      <Name>WalletWasabi.Standard</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

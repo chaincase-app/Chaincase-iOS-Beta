@@ -64,7 +64,6 @@ namespace Chaincase
 
                 Logger.InitializeDefaults(Path.Combine(DataDir, "Logs.txt"));
 
-
                 Config = new Config(Path.Combine(DataDir, "Config.json"));
                 Config.LoadOrCreateDefaultFile();
 
@@ -124,7 +123,7 @@ namespace Chaincase
                 }
 
                 var fallbackRequestTestUri = new Uri(Config.GetFallbackBackendUri(), "/api/software/versions");
-                //TorManager.StartMonitor(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(7), DataDir, fallbackRequestTestUri);
+                TorManager.StartMonitor(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(7), DataDir, fallbackRequestTestUri);
 
                 Logger.LogInfo($"{nameof(TorManager)} is initialized.");
 
@@ -588,7 +587,7 @@ namespace Chaincase
                 var torManager = TorManager;
                 if (torManager is { })
                 {
-                    torManager.Stop();
+                    torManager.StopAsync();
                     Logger.LogInfo($"{nameof(TorManager)} is stopped.");
                 }
             }

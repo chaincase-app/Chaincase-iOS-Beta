@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace Chaincase
 {
@@ -17,6 +18,8 @@ namespace Chaincase
 
         ITorManager Mock();
 
-        void Stop();
+        public void StartMonitor(TimeSpan torMisbehaviorCheckPeriod, TimeSpan checkIfRunningAfterTorMisbehavedFor, string dataDirToStartWith, Uri fallBackTestRequestUri);
+
+        Task StopAsync();
     }
 }
