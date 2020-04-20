@@ -10,10 +10,12 @@
   <StackLayout>
     <templates:CoinListTemplate x:Name="CoinList"
                                 VerticalOptions="FillAndExpand" />
-    <Label Text="{Binding RequiredBTC, StringFormat='{0} BTC Required to CoinJoin'}" />
-    <Label Text="{Binding RequiredPeerCount, StringFormat='Will join with at least {0} peers'}" />
+    <Label Text="{Binding RequiredBTC, StringFormat='₿ {0} required to CoinJoin'}" />
+    <Label x:Name="PhaseLabel" />
+    <Label x:Name="TimeLeftLabel" />
+    <Label Text="{Binding PeersNeeded, StringFormat='Joining with at least {0} peers'}" />
+    <Label Text="{Binding PeersRegistered, StringFormat='{0} peers registered'}" />
     <Label Text="{Binding CoordinatorFeePercent, StringFormat='Coordinator Fee: {0}% per anonymity set'}" />
-
     <Button Text="CoinJoin Selected"
             x:Name="ConfirmButton"
             VerticalOptions="End" />

@@ -109,6 +109,7 @@
     <EmbeddedResource Remove="Views\MyPage.xaml" />
     <EmbeddedResource Remove="Views\SendPage.xaml" />
     <EmbeddedResource Remove="Views\ReceivePage %28copy%29.xaml" />
+    <EmbeddedResource Remove="Models\CoinJoinPage.xaml" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Xamarin.Mac">

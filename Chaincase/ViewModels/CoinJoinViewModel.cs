@@ -17,6 +17,8 @@ using WalletWasabi.Logging;
 using Chaincase.Navigation;
 using Splat;
 using WalletWasabi.CoinJoin.Client.Clients.Queuing;
+using WalletWasabi.CoinJoin.Common.Models;
+using Chaincase.Models;
 
 namespace Chaincase.ViewModels
 {
@@ -26,8 +28,12 @@ namespace Chaincase.ViewModels
 
         private CoinListViewModel _coinList;
         private string _coordinatorFeePercent;
-        private int _requiredPeerCount;
+        private int _peersRegistered;
+        private int _peersNeeded;
 
+        private RoundPhaseState _roundPhaseState;
+        private DateTimeOffset _roundTimesout;
+        private TimeSpan _timeLeftTillRoundTimeout;
         private Money _requiredBTC;
         private Money _amountQueued;
         private bool _isDequeueBusy;
@@ -70,12 +76,26 @@ namespace Chaincase.ViewModels
 
             if (mostAdvancedRound != default)
             {
-                RequiredPeerCount = mostAdvancedRound.State.RequiredPeerCount;
+                RoundPhaseState = new RoundPhaseState(mostAdvancedRound.State.Phase, Global.Wallet.ChaumianClient?.State.IsInErrorState ?? false);
+                RoundTimesout = mostAdvancedRound.State.Phase == RoundPhase.InputRegistration ? mostAdvancedRound.State.InputRegistrationTimesout : DateTimeOffset.UtcNow;
+                PeersRegistered = mostAdvancedRound.State.RegisteredPeerCount;
+                PeersNeeded = mostAdvancedRound.State.RequiredPeerCount;
             }
             else
             {
-                RequiredPeerCount = 100;
+                RoundPhaseState = new RoundPhaseState(RoundPhase.InputRegistration, false);
+                RoundTimesout = DateTimeOffset.UtcNow;
+                PeersRegistered = 0;
+                PeersNeeded = 100;
             }
+
+            Observable.Interval(TimeSpan.FromSeconds(1))
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(_ =>
+                {
+                    TimeSpan left = RoundTimesout - DateTimeOffset.UtcNow;
+                    TimeLeftTillRoundTimeout = left > TimeSpan.Zero ? left : TimeSpan.Zero; // Make sure cannot be less than zero.
+                }).DisposeWith(Disposables);
 
             CoinJoinCommand = ReactiveCommand.CreateFromTask<string, bool>(DoEnqueueAsync);
 
@@ -201,10 +221,23 @@ namespace Chaincase.ViewModels
                 CoordinatorFeePercent = registrableRound.State.CoordinatorFeePercent.ToString();
                 UpdateRequiredBtcLabel(registrableRound);
             }
+
             var mostAdvancedRound = chaumianClient.State.GetMostAdvancedRoundOrDefault();
             if (mostAdvancedRound != default)
             {
-                RequiredPeerCount = mostAdvancedRound.State.RequiredPeerCount;
+                if (!chaumianClient.State.IsInErrorState)
+                {
+                    RoundPhaseState = new RoundPhaseState(mostAdvancedRound.State.Phase, false);
+                    RoundTimesout = mostAdvancedRound.State.Phase == RoundPhase.InputRegistration ? mostAdvancedRound.State.InputRegistrationTimesout : DateTimeOffset.UtcNow;
+                }
+                else
+                {
+                    RoundPhaseState = new RoundPhaseState(RoundPhaseState.Phase, true);
+                }
+                this.RaisePropertyChanged(nameof(RoundPhaseState));
+                this.RaisePropertyChanged(nameof(RoundTimesout));
+                PeersRegistered = mostAdvancedRound.State.RegisteredPeerCount;
+                PeersNeeded = mostAdvancedRound.State.RequiredPeerCount;
             }
         }
 
@@ -270,10 +303,34 @@ namespace Chaincase.ViewModels
             set => this.RaiseAndSetIfChanged(ref _balance, value);
         }
 
-        public int RequiredPeerCount
+        public int PeersNeeded
         {
-            get => _requiredPeerCount;
-            set => this.RaiseAndSetIfChanged(ref _requiredPeerCount, value);
+            get => _peersNeeded;
+            set => this.RaiseAndSetIfChanged(ref _peersNeeded, value);
+        }
+
+        public int PeersRegistered
+        {
+            get => _peersRegistered;
+            set => this.RaiseAndSetIfChanged(ref _peersRegistered, value);
+        }
+
+        public RoundPhaseState RoundPhaseState
+        {
+            get => _roundPhaseState;
+            set => this.RaiseAndSetIfChanged(ref _roundPhaseState, value);
+        }
+
+        public DateTimeOffset RoundTimesout
+        {
+            get => _roundTimesout;
+            set => this.RaiseAndSetIfChanged(ref _roundTimesout, value);
+        }
+
+        public TimeSpan TimeLeftTillRoundTimeout
+        {
+            get => _timeLeftTillRoundTimeout;
+            set => this.RaiseAndSetIfChanged(ref _timeLeftTillRoundTimeout, value);
         }
 
         public bool IsEnqueueBusy
