@@ -37,7 +37,7 @@ namespace Chaincase
 				.RegisterView<SendWhoPage, SendWhoViewModel>()
                 .RegisterView<SentPage, SentViewModel>()
 				.RegisterView<CoinJoinPage, CoinJoinViewModel>()
-                .RegisterView<PassphrasePage, PassphraseViewModel>()
+                .RegisterView<PasswordPage, PasswordViewModel>()
                 .RegisterView<MnemonicPage, MnemonicViewModel>()
                 .RegisterView<VerifyMnemonicPage, VerifyMnemonicViewModel>()
                 .RegisterView<PasswordPromptModal, PasswordPromptViewModel>()

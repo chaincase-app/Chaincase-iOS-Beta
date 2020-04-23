@@ -47,6 +47,8 @@
              x:Name="Recall3"
              Keyboard="{StaticResource NoCapitalizationKeyboard}" />
     </Grid>
+    <Label Grid.Column="3"
+      Text="Password" />
     <Entry Grid.Column="3"
            x:Name="Password"
            Placeholder="something I know"

@@ -5,10 +5,10 @@ using System.Reactive.Disposables;
 
 namespace Chaincase.Views
 {
-	public partial class PassphrasePage : ReactiveContentPage<PassphraseViewModel>
+	public partial class PasswordPage : ReactiveContentPage<PasswordViewModel>
 	{
 
-		public PassphrasePage()
+		public PasswordPage()
 		{
 			InitializeComponent();
 			this.WhenActivated(d =>
@@ -18,8 +18,8 @@ namespace Chaincase.Views
 					v => v.Submit)
 					.DisposeWith(d);
                 this.Bind(ViewModel,
-					vm => vm.Passphrase,
-					v => v.Passphrase.Text)
+					vm => vm.Password,
+					v => v.Password.Text)
                 .DisposeWith(d);
             });
 		}
