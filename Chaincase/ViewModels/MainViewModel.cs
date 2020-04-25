@@ -7,12 +7,20 @@ using Chaincase.Controllers;
 using Xamarin.Forms;
 using Chaincase.Navigation;
 using Splat;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using WalletWasabi.Blockchain.Transactions;
+using System.Linq;
+using WalletWasabi.Models;
+using Chaincase.Models;
+using WalletWasabi.Logging;
 
 namespace Chaincase.ViewModels
 {
 	public class MainViewModel : ViewModelBase
 	{
 		private CompositeDisposable Disposables { get; set; }
+        private ObservableCollection<TransactionViewModel> _transactions;
         private StatusViewModel _statusViewModel;
         private CoinListViewModel _coinList;
         private string _balance;
@@ -70,9 +78,48 @@ namespace Chaincase.ViewModels
                     SetBalances();
                 })
 				.DisposeWith(Disposables);
-		}
 
-		private void SetBalances()
+            Transactions = new ObservableCollection<TransactionViewModel>();
+
+            Observable.FromEventPattern(Global.Wallet, nameof(Global.Wallet.NewBlockProcessed))
+                .Merge(Observable.FromEventPattern(Global.Wallet.TransactionProcessor, nameof(Global.Wallet.TransactionProcessor.WalletRelevantTransactionProcessed)))
+                .Throttle(TimeSpan.FromSeconds(3))
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(async _ => await TryRewriteTableAsync())
+                .DisposeWith(Disposables);
+
+            _ = TryRewriteTableAsync();
+        }
+
+        private async Task TryRewriteTableAsync()
+        {
+            try
+            {
+                var historyBuilder = new TransactionHistoryBuilder(Global.Wallet);
+                var txRecordList = await Task.Run(historyBuilder.BuildHistorySummary);
+
+                Transactions?.Clear();
+
+                var trs = txRecordList.Select(txr => new TransactionInfo
+                {
+                    DateTime = txr.DateTime.ToLocalTime(),
+                    Confirmed = txr.Height.Type == HeightType.Chain,
+                    Confirmations = txr.Height.Type == HeightType.Chain ? (int)Global.BitcoinStore.SmartHeaderChain.TipHeight - txr.Height.Value + 1 : 0,
+                    AmountBtc = $"{txr.Amount.ToString(fplus: true, trimExcessZero: true)}",
+                    Label = txr.Label,
+                    BlockHeight = txr.Height.Type == HeightType.Chain ? txr.Height.Value : 0,
+                    TransactionId = txr.TransactionId.ToString()
+                }).Select(ti => new TransactionViewModel(ti));
+
+                Transactions = new ObservableCollection<TransactionViewModel>(trs.OrderBy(t => t.DateTime));
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex);
+            }
+        }
+
+        private void SetBalances()
 		{
             var bal = WalletController.GetBalance(Global.Network);
 			Balance = bal.ToString();
@@ -121,6 +168,12 @@ namespace Chaincase.ViewModels
         {
             get => _privateBalance;
             set => this.RaiseAndSetIfChanged(ref _privateBalance, value);
+        }
+
+        public ObservableCollection<TransactionViewModel> Transactions
+        {
+            get => _transactions;
+            set => this.RaiseAndSetIfChanged(ref _transactions, value);
         }
 
         public ReactiveCommand<Unit, Unit> NavReceiveCommand;

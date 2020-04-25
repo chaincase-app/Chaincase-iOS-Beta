@@ -28,6 +28,10 @@ namespace Chaincase.Views
                     v => v.Balance.TextColor,
                     ConvertStatusToColor)
                     .DisposeWith(d);
+                this.OneWayBind(ViewModel,
+                    vm => vm.Transactions,
+                    v => v.Transactions.ItemsSource)
+                    .DisposeWith(d);
                 this.Bind(ViewModel,
                     vm => vm.StatusViewModel,
                     v => v.Status.ViewModel);
