@@ -7,20 +7,6 @@
                           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                           xmlns="http://xamarin.com/schemas/2014/forms">
   <StackLayout>
-    <Grid HeightRequest="40">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*" />
-        <ColumnDefinition Width="*" />
-        <ColumnDefinition Width="*" />
-        <ColumnDefinition Width="*" />
-      </Grid.ColumnDefinitions>
-      <Label Grid.Column="1"
-             Text="₿" />
-      <Label Grid.Column="2"
-             Text="Privacy" />
-      <Label Grid.Column="3"
-             Text="Memo" />
-    </Grid>
     <ListView x:Name="Coins"
               SelectionMode="None"
               SeparatorVisibility="None">

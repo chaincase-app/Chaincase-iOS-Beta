@@ -44,7 +44,7 @@ namespace Chaincase.Views.Templates
 			});
 		}
 
-        private string ConvertAnonSet(int anonSet)
+		private string ConvertAnonSet(int anonSet)
         {
 			return anonSet > Config.DefaultPrivacyLevelSome ? "🗽" : "⚠️";
         }
