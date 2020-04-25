@@ -5,9 +5,9 @@ using Chaincase.ViewModels;
 
 namespace Chaincase.Views.Templates
 {
-	public partial class TransactionTemplate : ReactiveContentView<TransactionViewModel>
+    public partial class TransactionViewCell : ReactiveViewCell<TransactionViewModel>
 	{
-		public TransactionTemplate()
+		public TransactionViewCell()
 		{
 			InitializeComponent();
 

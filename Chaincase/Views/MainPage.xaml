@@ -13,13 +13,10 @@
            FontAttributes="Bold" />
     <templates:StatusTemplate x:Name="Status" />
     <ListView x:Name="Transactions"
-              SelectionMode="None"
-              SeparatorVisibility="None">
+              SelectionMode="None" >
       <ListView.ItemTemplate>
         <DataTemplate>
-          <ViewCell>
-            <templates:TransactionTemplate ViewModel="{Binding .}" />
-          </ViewCell>
+          <templates:TransactionViewCell ViewModel="{Binding .}" />
         </DataTemplate>
       </ListView.ItemTemplate>
     </ListView>
