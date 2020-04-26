@@ -5,12 +5,21 @@
                           xmlns:rxui="clr-namespace:ReactiveUI.XamForms;assembly=ReactiveUI.XamForms"
                           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                           xmlns="http://xamarin.com/schemas/2014/forms"
+                          xmlns:zxing="clr-namespace:ZXing.Net.Mobile.Forms;assembly=ZXing.Net.Mobile.Forms"
+                          xmlns:zxcm="clr-namespace:ZXing.Common;assembly=zxing.portable"
                           NavigationPage.HasBackButton="False"
                           Title="Receive">
   <StackLayout>
     <Label Text="Memo" />
     <Label x:Name="Memo" />
-    <Label x:Name="Address" />
+    <zxing:ZXingBarcodeImageView x:Name="QrCode"
+                                 BarcodeFormat="QR_CODE" IsVisible="True" BarcodeValue="Foo">
+      <zxing:ZXingBarcodeImageView.BarcodeOptions>
+        <zxcm:EncodingOptions Width="300" Height="300" />
+      </zxing:ZXingBarcodeImageView.BarcodeOptions>
+    </zxing:ZXingBarcodeImageView> 
+    <Label x:Name="Address"
+           HorizontalOptions="Center"/>
     <Button Text="Share"
             x:Name="ShareButton"
             VerticalOptions="EndAndExpand"/>

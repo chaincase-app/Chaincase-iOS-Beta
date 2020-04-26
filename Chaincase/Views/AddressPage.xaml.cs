@@ -22,6 +22,11 @@ namespace Chaincase.Views
 					vm => vm.Address,
 					v => v.Address.Text)
 					.DisposeWith(d);
+				this.OneWayBind(ViewModel,
+					vm => vm.Address,
+					v => v.QrCode.BarcodeValue,
+					AddressToBitcoinUrl)
+					.DisposeWith(d);
 				this.BindCommand(ViewModel,
 					vm => vm.ShareCommand,
 					v => v.ShareButton,
@@ -33,5 +38,10 @@ namespace Chaincase.Views
 					 .DisposeWith(d);
 			});
 		}
+
+        public string AddressToBitcoinUrl(string address)
+        {
+			return "bitcoin:" + address;
+        }
 	}
 }

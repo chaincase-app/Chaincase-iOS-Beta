@@ -1,7 +1,4 @@
-﻿using Chaincase.Navigation;
-
-using Foundation;
-using Splat;
+﻿using Foundation;
 using UIKit;
 
 namespace Chaincase.iOS
@@ -22,6 +19,7 @@ namespace Chaincase.iOS
 		public override bool FinishedLaunching(UIApplication application, NSDictionary options)
 		{
 			global::Xamarin.Forms.Forms.Init();
+			ZXing.Net.Mobile.Forms.iOS.Platform.Init();
 			LoadApplication(new App());
 
 			return base.FinishedLaunching(application, options);
