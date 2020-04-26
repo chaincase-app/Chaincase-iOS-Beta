@@ -37,5 +37,7 @@
 	<string>0.3.1</string>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/AppIcon.appiconset</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Chaincase can use your camera to scan QR codes</string>
 </dict>
 </plist>

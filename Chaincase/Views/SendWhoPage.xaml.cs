@@ -2,6 +2,10 @@
 using ReactiveUI;
 using ReactiveUI.XamForms;
 using Chaincase.ViewModels;
+using ZXing.Mobile;
+using ZXing.Net.Mobile.Forms;
+using Xamarin.Forms;
+using ZXing;
 
 namespace Chaincase.Views
 {
@@ -36,6 +40,14 @@ namespace Chaincase.Views
         {
             // Android only; true -> do nothing
             return ViewModel.IsBusy;
+        }
+
+        public void Handle_OnScanResult(Result result)
+        {
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                await DisplayAlert("Scanned result", result.Text, "OK");
+            });
         }
     }
 }

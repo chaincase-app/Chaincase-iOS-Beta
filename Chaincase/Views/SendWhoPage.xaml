@@ -7,6 +7,8 @@
                           xmlns:Converters="clr-namespace:Chaincase.Converters;assembly=Chaincase"
                           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                           xmlns="http://xamarin.com/schemas/2014/forms"
+                          xmlns:zxing="clr-namespace:ZXing.Net.Mobile.Forms;assembly=ZXing.Net.Mobile.Forms"
+                          xmlns:zxcm="clr-namespace:ZXing.Common;assembly=zxing.portable"
                           Title="Send"
                           NavigationPage.HasBackButton="{Binding IsBusy, Converter={Converters:InverseBoolConverter}}">
   <rxui:ReactiveContentPage.Resources>
@@ -28,6 +30,8 @@
     <Label Text="pay to the order of" />
     <Entry x:Name="Address" />
     <ActivityIndicator x:Name="IsBusy"></ActivityIndicator>
+    <zxing:ZXingScannerView Grid.Row="1" x:Name="_scanView" OnScanResult="Handle_OnScanResult" IsScanning="true"
+                                WidthRequest="200" HeightRequest="200" />
     <Button x:Name="Send"
             Text="Send"
             VerticalOptions="EndAndExpand" />
