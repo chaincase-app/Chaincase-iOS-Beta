@@ -30,10 +30,11 @@
     <Label Text="pay to the order of" />
     <Entry x:Name="Address" />
     <ActivityIndicator x:Name="IsBusy"></ActivityIndicator>
-    <zxing:ZXingScannerView Grid.Row="1" x:Name="_scanView" OnScanResult="Handle_OnScanResult" IsScanning="true"
-                                WidthRequest="200" HeightRequest="200" />
+    <zxing:ZXingScannerView Grid.Row="1" x:Name="ScanView" OnScanResult="Handle_OnScanResult" IsScanning="true"
+                                VerticalOptions="FillAndExpand"
+                                HorizontalOptions="FillAndExpand"/>
     <Button x:Name="Send"
             Text="Send"
-            VerticalOptions="EndAndExpand" />
+            VerticalOptions="End" />
   </StackLayout>
 </rxui:ReactiveContentPage>

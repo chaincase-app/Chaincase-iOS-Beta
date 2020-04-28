@@ -6,6 +6,7 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Chaincase.Navigation;
 using NBitcoin;
+using NBitcoin.Payment;
 using ReactiveUI;
 using Splat;
 using WalletWasabi.Blockchain.TransactionBuilding;
@@ -66,7 +67,30 @@ namespace Chaincase.ViewModels
             }, canPromptPassword);
 		}
 
-		public async Task<bool> BuildTransaction(string password)
+        internal bool HandleScan(string scannedIn)
+        {
+			BitcoinAddress address = null;
+			try
+			{
+                address = BitcoinAddress.Create(scannedIn, Global.Network);
+			}
+			catch (Exception) {
+				try
+				{
+					address = new BitcoinUrlBuilder(scannedIn, Global.Network).Address;
+
+				} catch (Exception) { }
+			}
+
+            if (address != null)
+            {
+				Address = address.ToString();
+				return true;
+            }
+			return false;
+        }
+
+        public async Task<bool> BuildTransaction(string password)
 		{
 			try
 			{

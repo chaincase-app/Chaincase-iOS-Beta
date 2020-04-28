@@ -44,9 +44,12 @@ namespace Chaincase.Views
 
         public void Handle_OnScanResult(Result result)
         {
-            Device.BeginInvokeOnMainThread(async () =>
+            Device.BeginInvokeOnMainThread(() =>
             {
-                await DisplayAlert("Scanned result", result.Text, "OK");
+                if (ViewModel.HandleScan(result.ToString()))
+                {
+                    ScanView.IsScanning = false;
+                }
             });
         }
     }
