@@ -3,6 +3,7 @@ using ReactiveUI;
 using ReactiveUI.XamForms;
 using Chaincase.ViewModels;
 using Chaincase.Converters;
+using NBitcoin;
 
 namespace Chaincase.Views.Templates
 {
@@ -17,7 +18,8 @@ namespace Chaincase.Views.Templates
                 // IsSelected switch bound in XZML
 				this.OneWayBind(ViewModel,
 								vm => vm.Amount,
-								v => v.Amount.Text)
+								v => v.Amount.Text,
+                                AddBitcoinSymbol)
 					.DisposeWith(d);
 				this.OneWayBind(ViewModel,
                     vm => vm.AnonymitySet,
@@ -48,5 +50,10 @@ namespace Chaincase.Views.Templates
         {
 			return anonSet > Config.DefaultPrivacyLevelSome ? "🗽" : "⚠️";
         }
+
+		private string AddBitcoinSymbol(Money bal)
+		{
+			return "₿ " + bal.ToString();
+		}
 	}
 }
