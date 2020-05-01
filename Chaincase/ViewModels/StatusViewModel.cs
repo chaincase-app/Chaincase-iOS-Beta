@@ -16,6 +16,7 @@ namespace Chaincase.ViewModels
 {
     public class StatusViewModel : ViewModelBase
     {
+        protected Global Global { get; }
 
         private CompositeDisposable Disposables { get; } = new CompositeDisposable();
         private NodesCollection Nodes { get; set; }
@@ -41,6 +42,7 @@ namespace Chaincase.ViewModels
         public StatusViewModel(NodesCollection nodes, WasabiSynchronizer synchronizer)
             : base(Locator.Current.GetService<IViewStackService>())
         {
+            Global = Locator.Current.GetService<Global>();
             Backend = BackendStatus.NotConnected;
             UseTor = false;
             Tor = TorStatus.NotRunning;

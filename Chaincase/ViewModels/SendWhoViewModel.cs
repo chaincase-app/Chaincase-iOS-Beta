@@ -20,6 +20,8 @@ namespace Chaincase.ViewModels
 {
     public class SendWhoViewModel : ViewModelBase
 	{
+		protected Global Global { get; }
+
 		private string _address;
         private bool _isBusy;
 		private string _memo;
@@ -30,6 +32,7 @@ namespace Chaincase.ViewModels
 		public SendWhoViewModel(SendAmountViewModel savm)
             : base(Locator.Current.GetService<IViewStackService>())
 		{
+			Global = Locator.Current.GetService<Global>();
 			Memo = "";
 			Address = "";
 

@@ -18,10 +18,11 @@ namespace Chaincase.ViewModels
 {
 	public class CoinListViewModel : ViewModelBase
 	{
-		private CompositeDisposable Disposables { get; set; }
+        protected Global Global { get; }
+
+        private CompositeDisposable Disposables { get; set; }
 
         private ReadOnlyObservableCollection<CoinViewModel> _coinViewModels;
-
         private string _selectedAmountText;
         private Money _selectedAmount;
         private bool _isCoinListLoading;
@@ -35,6 +36,7 @@ namespace Chaincase.ViewModels
         public CoinListViewModel(bool isPrivate = false)
             : base(Locator.Current.GetService<IViewStackService>())
 		{
+            Global = Locator.Current.GetService<Global>();
             RootList = new SourceList<CoinViewModel>();
             RootList
                 .Connect()

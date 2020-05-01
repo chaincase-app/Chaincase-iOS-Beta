@@ -18,6 +18,8 @@ namespace Chaincase.ViewModels
 {
 	public class SendAmountViewModel : ViewModelBase
 	{
+		protected Global Global { get; }
+
 		private string _amountText;
 		private CoinListViewModel _coinList;
 		private Feenum _feeChoice;
@@ -34,6 +36,7 @@ namespace Chaincase.ViewModels
         public SendAmountViewModel(CoinListViewModel coinList)
             : base(Locator.Current.GetService<IViewStackService>())
         {
+			Global = Locator.Current.GetService<Global>();
             CoinList = coinList;
             AmountText = "0.0";
 

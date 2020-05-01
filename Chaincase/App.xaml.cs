@@ -4,28 +4,32 @@ using System.Threading.Tasks;
 using WalletWasabi.Logging;
 using Chaincase.Navigation;
 using Chaincase.Views;
-using Chaincase.Controllers;
 using Xamarin.Forms;
 using System.Diagnostics;
 using Chaincase.ViewModels;
-using ReactiveUI;
 using Splat;
+using WalletWasabi.Blockchain.Keys;
 
 namespace Chaincase
 {
 	public partial class App : Application
 	{
 
+		private static Global Global;
+
 		public App()
 		{
 			InitializeComponent();
+
+			Global = new Global();
+			Locator.CurrentMutable.RegisterConstant(Global);
 
 			// Probably asyncify and add everything after "Logger" above here
 			// TODO Invert this so UI is created FIRST then app internals
 			Logger.InitializeDefaults(Path.Combine(Global.DataDir, "Logs.txt"));
 			Task.Run(async () => { await Global.InitializeNoWalletAsync(); }).Wait();
-			var walletExists = WalletController.WalletExists(Global.Network);
-			if (walletExists) WalletController.LoadWalletAsync(Global.Network);
+			var walletExists = WalletExists();
+			if (walletExists) LoadWalletAsync();
 
 			Locator
 				.CurrentMutable
@@ -61,9 +65,9 @@ namespace Chaincase
 
 		protected override void OnStart()
 		{
-			if (!WalletController.WalletExists(Global.Network))
+			if (WalletExists())
 			{
-				System.Diagnostics.Debug.WriteLine("no wallet");
+				Logger.LogCritical("no wallet");
 				//Navigator.NavigateTo(new PassphraseViewModel(Navigator));
 			}
 		}
@@ -87,6 +91,37 @@ namespace Chaincase
 		private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
 		{
 			Logger.LogWarning(e?.ExceptionObject as Exception, "UnhandledException");
+		}
+
+		public static async Task LoadWalletAsync()
+		{
+			string walletName = Global.Network.ToString();
+			KeyManager keyManager = Global.WalletManager.GetWalletByName(walletName).KeyManager;
+			if (keyManager is null)
+			{
+				return;
+			}
+
+			try
+			{
+				var wallet = await Global.WalletManager.StartWalletAsync(keyManager);
+				// Successfully initialized.
+			}
+			catch (OperationCanceledException ex)
+			{
+				Logger.LogTrace(ex);
+			}
+			catch (Exception ex)
+			{
+				Logger.LogError(ex);
+			}
+		}
+
+		private bool WalletExists()
+		{
+			var walletName = Global.Network.ToString();
+			(string walletFullPath, _) = Global.WalletManager.WalletDirectories.GetWalletFilePaths(walletName);
+			return File.Exists(walletFullPath);
 		}
 	}
 }

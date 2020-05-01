@@ -11,6 +11,8 @@ namespace Chaincase.ViewModels
 {
 	public class AddressViewModel : ViewModelBase
 	{
+		protected Global Global { get; }
+
 		private bool[,] _qrCode;
 
 		public string Memo => Model.Label;
@@ -27,6 +29,8 @@ namespace Chaincase.ViewModels
 		public AddressViewModel(HdPubKey model)
 			: base(Locator.Current.GetService<IViewStackService>())
 		{
+			Global = Locator.Current.GetService<Global>();
+
 			Model = model;
 
 			Task.Run(() =>

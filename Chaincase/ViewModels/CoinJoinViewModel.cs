@@ -5,7 +5,6 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using NBitcoin;
 using ReactiveUI;
-using Chaincase.Controllers;
 using System.Linq;
 using WalletWasabi.CoinJoin.Client.Rounds;
 using System.Collections.Generic;
@@ -24,6 +23,8 @@ namespace Chaincase.ViewModels
 {
     public class CoinJoinViewModel : ViewModelBase
     {
+        protected Global Global { get; }
+
         private CompositeDisposable Disposables { get; set; }
 
         private CoinListViewModel _coinList;
@@ -45,6 +46,7 @@ namespace Chaincase.ViewModels
         public CoinJoinViewModel(CoinListViewModel coinList)
             : base(Locator.Current.GetService<IViewStackService>())
         {
+            Global = Locator.Current.GetService<Global>();
             SetBalance();
 
             if (Disposables != null)
@@ -125,7 +127,12 @@ namespace Chaincase.ViewModels
 
         private void SetBalance()
         {
-            Balance = WalletController.GetBalance(Global.Network).ToString();
+            // ToProperty
+            Balance = (
+                Enumerable.Where(Global.Wallet.Coins,
+                    c => c.Unspent && !c.SpentAccordingToBackend
+                ).Sum(c => (long?)c.Amount) ?? 0
+                ).ToString();
         }
 
         private async Task DoDequeueAsync(params SmartCoin[] coins)

@@ -2,6 +2,7 @@
 using NBitcoin.Protocol;
 using NBitcoin.Protocol.Behaviors;
 using NBitcoin.Protocol.Connectors;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -24,36 +25,36 @@ using Xamarin.Forms;
 
 namespace Chaincase
 {
-    public static class Global
+    public class Global : ReactiveObject
 	{
-		public static string DataDir { get; }
-		public static string TorLogsFile { get; }
+		public string DataDir { get; }
+		public string TorLogsFile { get; }
 
-		public static BitcoinStore BitcoinStore { get; private set; }
-		public static Config Config { get; private set; }
+		public BitcoinStore BitcoinStore { get; private set; }
+		public Config Config { get; private set; }
 
-		public static string AddressManagerFilePath { get; private set; }
-		public static AddressManager AddressManager { get; private set; }
+		public string AddressManagerFilePath { get; private set; }
+		public AddressManager AddressManager { get; private set; }
 
-		public static NodesGroup Nodes { get; private set; }
-		public static WasabiSynchronizer Synchronizer { get; private set; }
-        public static FeeProviders FeeProviders { get; private set; }
-		public static WalletManager WalletManager { get; private set; }
-        public static TransactionBroadcaster TransactionBroadcaster { get; set; }
-        public static CoinJoinProcessor CoinJoinProcessor { get; set; }
-		public static Node RegTestMempoolServingNode { get; private set; }
-		public static ITorManager TorManager { get; private set; }
+		public NodesGroup Nodes { get; private set; }
+		public WasabiSynchronizer Synchronizer { get; private set; }
+        public FeeProviders FeeProviders { get; private set; }
+		public WalletManager WalletManager { get; private set; }
+        public TransactionBroadcaster TransactionBroadcaster { get; set; }
+        public CoinJoinProcessor CoinJoinProcessor { get; set; }
+		public Node RegTestMempoolServingNode { get; private set; }
+		public ITorManager TorManager { get; private set; }
 
-        public static HostedServices HostedServices { get; }
+        public HostedServices HostedServices { get; }
 
-        public static bool KillRequested { get; private set; } = false;
+        public bool KillRequested { get; private set; } = false;
 
-		public static Network Network => Config.Network;
+		public Network Network => Config.Network;
 
         // Chaincase Specific
-        public static Wallet Wallet => WalletManager.GetWalletByName(Network.ToString());
+        public Wallet Wallet => WalletManager.GetWalletByName(Network.ToString());
 
-		static Global()
+		public Global()
 		{
             using (BenchmarkLogger.Measure())
             {
@@ -73,13 +74,13 @@ namespace Chaincase
             }
         }
 
-		private static bool InitializationCompleted { get; set; } = false;
+		private bool InitializationCompleted { get; set; } = false;
 
-        private static bool InitializationStarted { get; set; } = false;
+        private bool InitializationStarted { get; set; } = false;
 
-        private static CancellationTokenSource StoppingCts { get; }
+        private CancellationTokenSource StoppingCts { get; }
 
-        public static async Task InitializeNoWalletAsync()
+        public async Task InitializeNoWalletAsync()
 		{
             InitializationStarted = true;
             AddressManager = null;
@@ -256,7 +257,7 @@ namespace Chaincase
             }
 		}
 
-        private static async Task<AddressManagerBehavior> InitializeAddressManagerBehaviorAsync()
+        private async Task<AddressManagerBehavior> InitializeAddressManagerBehaviorAsync()
         {
             var needsToDiscoverPeers = true;
             if (Network == NBitcoin.Network.RegTest)
@@ -320,7 +321,7 @@ namespace Chaincase
             return addressManagerBehavior;
         }
 
-        private static async Task AddKnownBitcoinFullNodeAsHiddenServiceAsync(AddressManager addressManager)
+        private async Task AddKnownBitcoinFullNodeAsHiddenServiceAsync(AddressManager addressManager)
 		{
 			if (Network == NBitcoin.Network.RegTest)
 			{
@@ -344,7 +345,7 @@ namespace Chaincase
 
 }
 
-        private static void WalletManager_WalletRelevantTransactionProcessed(object sender, ProcessedResult e)
+        private void WalletManager_WalletRelevantTransactionProcessed(object sender, ProcessedResult e)
         {
             try
             {
@@ -441,7 +442,7 @@ namespace Chaincase
         }
 
         /// <returns>If initialization is successful, otherwise it was interrupted which means stopping was requested.</returns>
-        public static async Task<bool> WaitForInitializationCompletedAsync(CancellationToken cancellationToken)
+        public async Task<bool> WaitForInitializationCompletedAsync(CancellationToken cancellationToken)
         {
             while (!InitializationCompleted)
             {
@@ -462,7 +463,7 @@ namespace Chaincase
             Error
         }
 
-        private static void NotifyAndLog(string message, string title, NotificationType notificationType, ProcessedResult e)
+        private void NotifyAndLog(string message, string title, NotificationType notificationType, ProcessedResult e)
         {
             message = Guard.Correct(message);
             title = Guard.Correct(title);
@@ -471,9 +472,9 @@ namespace Chaincase
             Logger.LogInfo($"Transaction Notification ({notificationType}): {title} - {message} - {e.Transaction.GetHash()}");
         }
 
-        private static long _dispose = 0;
+        private long _dispose = 0;
 
-        public static async Task DisposeAsync()
+        public async Task DisposeAsync()
         {
             var compareRes = Interlocked.CompareExchange(ref _dispose, 1, 0);
             if (compareRes == 1)
@@ -605,7 +606,7 @@ namespace Chaincase
 
         #region Chaincase
 
-        private static string GetDataDir()
+        private string GetDataDir()
         {
             string dataDir;
             if (Device.RuntimePlatform == Device.iOS)

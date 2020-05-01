@@ -3,7 +3,6 @@ using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using ReactiveUI;
-using Chaincase.Controllers;
 using Xamarin.Forms;
 using Chaincase.Navigation;
 using Splat;
@@ -14,12 +13,15 @@ using System.Linq;
 using WalletWasabi.Models;
 using Chaincase.Models;
 using WalletWasabi.Logging;
+using NBitcoin;
 
 namespace Chaincase.ViewModels
 {
 	public class MainViewModel : ViewModelBase
 	{
-		private CompositeDisposable Disposables { get; set; }
+        protected Global Global { get; }
+
+        private CompositeDisposable Disposables { get; set; }
         private ObservableCollection<TransactionViewModel> _transactions;
         private StatusViewModel _statusViewModel;
         private CoinListViewModel _coinList;
@@ -32,6 +34,8 @@ namespace Chaincase.ViewModels
         public MainViewModel()
             : base(Locator.Current.GetService<IViewStackService>())
         {
+            Global = Locator.Current.GetService<Global>();
+
             SetBalances();
 
             if (Disposables != null)
@@ -121,13 +125,31 @@ namespace Chaincase.ViewModels
 
         private void SetBalances()
 		{
-            var bal = WalletController.GetBalance(Global.Network);
+            var bal = GetBalance();
 			Balance = bal.ToString();
             HasCoins = bal > 0;
 
-            var pbal = WalletController.GetPrivateBalance(Global.Network);
+            var pbal = GetPrivateBalance();
             PrivateBalance = pbal.ToString();
             HasPrivateCoins = pbal > 0;
+        }
+
+        private Money GetBalance()
+        {
+            return Enumerable.Where
+                (
+                    Global.Wallet.Coins,
+                    c => c.Unspent && !c.SpentAccordingToBackend
+                ).Sum(c => (long?)c.Amount) ?? 0;
+        }
+
+        private Money GetPrivateBalance()
+        {
+            return Enumerable.Where
+                (
+                    Global.Wallet.Coins,
+                    c => c.Unspent && !c.SpentAccordingToBackend && c.AnonymitySet > 1
+                ).Sum(c => (long?)c.Amount) ?? 0;
         }
 
         public bool IsJoining { get { return _isJoining.Value; } }

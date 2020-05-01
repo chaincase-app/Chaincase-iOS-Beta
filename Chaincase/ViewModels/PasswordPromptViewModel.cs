@@ -1,21 +1,26 @@
 ﻿using System;
+using System.IO;
 using System.Reactive;
 using System.Reactive.Linq;
-using Chaincase.Controllers;
 using Chaincase.Navigation;
+using NBitcoin;
 using ReactiveUI;
 using Splat;
+using WalletWasabi.Blockchain.Keys;
 
 namespace Chaincase.ViewModels
 {
 	public class PasswordPromptViewModel : ViewModelBase
 	{
+		protected Global Global { get; }
+
 		private string _password;
 		private string _acceptText;
 
 		public PasswordPromptViewModel(string acceptText = "Accept")
             : base(Locator.Current.GetService<IViewStackService>())
 		{
+			Global = Locator.Current.GetService<Global>();
 			Password = "";
 			ValidatePasswordCommand = ReactiveCommand.CreateFromObservable(ValidatePassword);
 
@@ -27,7 +32,21 @@ namespace Chaincase.ViewModels
         // the calling/pushing viewmodel
         public IObservable<string> ValidatePassword()
         {
-			return Observable.Start(() => WalletController.IsValidPassword(Password, Global.Network));
+			return Observable.Start(() =>
+			{
+				string walletFilePath = Path.Combine(Global.WalletManager.WalletDirectories.WalletsDir, $"{Global.Network}.json");
+				ExtKey keyOnDisk;
+				try
+				{
+					keyOnDisk = KeyManager.FromFile(walletFilePath).GetMasterExtKey(Password);
+				}
+				catch
+				{
+					// bad password
+					return null;
+				}
+				return Password;
+			});
         }
 
 		public ReactiveCommand<Unit, string> ValidatePasswordCommand;

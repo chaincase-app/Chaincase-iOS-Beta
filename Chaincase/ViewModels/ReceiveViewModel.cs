@@ -11,6 +11,8 @@ namespace Chaincase.ViewModels
 {
     public class ReceiveViewModel : ViewModelBase
 	{
+		protected Global Global { get; }
+
 		private string _memo = "";
 		public string Memo
 		{
@@ -23,6 +25,7 @@ namespace Chaincase.ViewModels
 		public ReceiveViewModel()
             : base(Locator.Current.GetService<IViewStackService>())
 		{
+			Global = Locator.Current.GetService<Global>();
 			GenerateCommand = ReactiveCommand.CreateFromObservable(() =>
 			{
 				Device.BeginInvokeOnMainThread(() =>

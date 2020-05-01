@@ -18,6 +18,8 @@ namespace Chaincase.ViewModels
 {
 	public class CoinViewModel : ViewModelBase, IDisposable
 	{
+		protected Global Global { get; }
+
 		public CompositeDisposable Disposables { get; set; }
 
 		private bool _isSelected;
@@ -31,6 +33,7 @@ namespace Chaincase.ViewModels
 		public CoinViewModel(CoinListViewModel owner, SmartCoin model)
             : base(Locator.Current.GetService<IViewStackService>())
 		{
+			Global = Locator.Current.GetService<Global>();
 			Model = model;
 			Owner = owner;
 
