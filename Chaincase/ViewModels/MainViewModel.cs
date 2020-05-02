@@ -14,6 +14,7 @@ using WalletWasabi.Models;
 using Chaincase.Models;
 using WalletWasabi.Logging;
 using NBitcoin;
+using WalletWasabi.Blockchain.TransactionOutputs;
 
 namespace Chaincase.ViewModels
 {
@@ -25,7 +26,7 @@ namespace Chaincase.ViewModels
         private ObservableCollection<TransactionViewModel> _transactions;
         private StatusViewModel _statusViewModel;
         private CoinListViewModel _coinList;
-        private string _balance;
+        private ObservableAsPropertyHelper<Money> _balance;
         private String _privateBalance;
         private bool _hasCoins;
         private bool _hasPrivateCoins;
@@ -44,9 +45,9 @@ namespace Chaincase.ViewModels
             }
 
             Disposables = new CompositeDisposable();
-            StatusViewModel = new StatusViewModel(Global.Nodes.ConnectedNodes, Global.Synchronizer);
+            //StatusViewModel = new StatusViewModel(Global.Nodes.ConnectedNodes, Global.Synchronizer);
 
-            CoinList = new CoinListViewModel();
+            //CoinList = new CoinListViewModel();
 
             NavReceiveCommand = ReactiveCommand.CreateFromObservable(() =>
             {
@@ -75,24 +76,24 @@ namespace Chaincase.ViewModels
                 return Observable.Return(Unit.Default);
             });
 
-            Observable.FromEventPattern(Global.Wallet.TransactionProcessor, nameof(Global.Wallet.TransactionProcessor.WalletRelevantTransactionProcessed))
-				.Merge(Observable.FromEventPattern(Global.Wallet.ChaumianClient, nameof(Global.Wallet.ChaumianClient.OnDequeue)))
-				.ObserveOn(RxApp.MainThreadScheduler)
-				.Subscribe(o => {
-                    SetBalances();
-                })
-				.DisposeWith(Disposables);
+    //        Observable.FromEventPattern(Global.Wallet.TransactionProcessor, nameof(Global.Wallet.TransactionProcessor.WalletRelevantTransactionProcessed))
+				//.Merge(Observable.FromEventPattern(Global.Wallet.ChaumianClient, nameof(Global.Wallet.ChaumianClient.OnDequeue)))
+				//.ObserveOn(RxApp.MainThreadScheduler)
+				//.Subscribe(o => {
+    //                SetBalances();
+    //            })
+				//.DisposeWith(Disposables);
 
-            Transactions = new ObservableCollection<TransactionViewModel>();
+    //        Transactions = new ObservableCollection<TransactionViewModel>();
 
-            Observable.FromEventPattern(Global.Wallet, nameof(Global.Wallet.NewBlockProcessed))
-                .Merge(Observable.FromEventPattern(Global.Wallet.TransactionProcessor, nameof(Global.Wallet.TransactionProcessor.WalletRelevantTransactionProcessed)))
-                .Throttle(TimeSpan.FromSeconds(3))
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(async _ => await TryRewriteTableAsync())
-                .DisposeWith(Disposables);
+    //        Observable.FromEventPattern(Global.Wallet, nameof(Global.Wallet.NewBlockProcessed))
+    //            .Merge(Observable.FromEventPattern(Global.Wallet.TransactionProcessor, nameof(Global.Wallet.TransactionProcessor.WalletRelevantTransactionProcessed)))
+    //            .Throttle(TimeSpan.FromSeconds(3))
+    //            .ObserveOn(RxApp.MainThreadScheduler)
+    //            .Subscribe(async _ => await TryRewriteTableAsync())
+    //            .DisposeWith(Disposables);
 
-            _ = TryRewriteTableAsync();
+    //        _ = TryRewriteTableAsync();
         }
 
         private async Task TryRewriteTableAsync()
@@ -125,13 +126,20 @@ namespace Chaincase.ViewModels
 
         private void SetBalances()
 		{
-            var bal = GetBalance();
-			Balance = bal.ToString();
-            HasCoins = bal > 0;
-
-            var pbal = GetPrivateBalance();
-            PrivateBalance = pbal.ToString();
-            HasPrivateCoins = pbal > 0;
+            //var bal = GetBalance();
+			//Balance = bal.ToString();
+            //HasCoins = bal > 0;
+            Global.WhenAnyValue(x => x.Wallet.Coins)
+                .Select(
+                (coins) =>
+                {
+                    return (Money)Enumerable.Where(coins, c => c.Unspent && !c.SpentAccordingToBackend).Sum(c => (long?)c.Amount);
+                })
+            .ToProperty<MainViewModel, Money>(this, x => x.Balance, out _balance);
+            //HasCoins = Balance > 0
+            //var pbal = GetPrivateBalance();
+            //PrivateBalance = pbal.ToString();
+            //HasPrivateCoins = pbal > 0;
         }
 
         private Money GetBalance()
@@ -180,11 +188,7 @@ namespace Chaincase.ViewModels
             set => this.RaiseAndSetIfChanged(ref _coinList, value);
         }
 
-		public string Balance
-		{
-			get => _balance;
-			set => this.RaiseAndSetIfChanged(ref _balance, value);
-		}
+        public string Balance => _balance.Value.ToString();
 
         public string PrivateBalance
         {
