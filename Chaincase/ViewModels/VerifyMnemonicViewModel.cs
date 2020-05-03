@@ -37,7 +37,6 @@ namespace Chaincase.ViewModels
 			{
 				if (verified)
                 {
-					App.LoadWalletAsync();
 				    ViewStackService.PushPage(new MainViewModel()).Subscribe();
                 }
 			});

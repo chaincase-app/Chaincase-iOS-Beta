@@ -15,6 +15,7 @@ using Chaincase.Models;
 using WalletWasabi.Logging;
 using NBitcoin;
 using WalletWasabi.Blockchain.TransactionOutputs;
+using System.Threading;
 
 namespace Chaincase.ViewModels
 {
@@ -26,8 +27,8 @@ namespace Chaincase.ViewModels
         private ObservableCollection<TransactionViewModel> _transactions;
         private StatusViewModel _statusViewModel;
         private CoinListViewModel _coinList;
-        private ObservableAsPropertyHelper<Money> _balance;
-        private String _privateBalance;
+        public string _balance;
+        private string _privateBalance;
         private bool _hasCoins;
         private bool _hasPrivateCoins;
         readonly ObservableAsPropertyHelper<bool> _isJoining;
@@ -35,19 +36,46 @@ namespace Chaincase.ViewModels
         public MainViewModel()
             : base(Locator.Current.GetService<IViewStackService>())
         {
+            Task.Run(async () => await App.LoadWalletAsync());
             Global = Locator.Current.GetService<Global>();
-
-            SetBalances();
-
             if (Disposables != null)
             {
                 throw new Exception("Wallet opened before it was closed.");
             }
-
+            Balance = "Loading";
+            Transactions = new ObservableCollection<TransactionViewModel>();
             Disposables = new CompositeDisposable();
             //StatusViewModel = new StatusViewModel(Global.Nodes.ConnectedNodes, Global.Synchronizer);
 
-            //CoinList = new CoinListViewModel();
+            Task.Run(async () =>
+            {
+                using var initCts = new CancellationTokenSource(TimeSpan.FromMinutes(6));
+                await Global.WaitForInitializationCompletedAsync(initCts.Token).ConfigureAwait(false);
+
+                // TODO CAN ONLY CALL FROM UI THREAD ERROR ... What if we don't wait for global but get wallet from LoadWalletAsync??
+                Observable.FromEventPattern(Global.Wallet.TransactionProcessor, nameof(Global.Wallet.TransactionProcessor.WalletRelevantTransactionProcessed))
+                    .Merge(Observable.FromEventPattern(Global.Wallet.ChaumianClient, nameof(Global.Wallet.ChaumianClient.OnDequeue)))
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Subscribe(o =>
+                    {
+                        SetBalances();
+                    });
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    CoinList = new CoinListViewModel();
+
+                    Observable.FromEventPattern(Global.Wallet, nameof(Global.Wallet.NewBlockProcessed))
+                        .Merge(Observable.FromEventPattern(Global.Wallet.TransactionProcessor, nameof(Global.Wallet.TransactionProcessor.WalletRelevantTransactionProcessed)))
+                        .Throttle(TimeSpan.FromSeconds(3))
+                        .ObserveOn(RxApp.MainThreadScheduler)
+                        .Subscribe(async _ => await TryRewriteTableAsync());
+
+                    _ = TryRewriteTableAsync();
+
+                });
+
+            });
+
 
             NavReceiveCommand = ReactiveCommand.CreateFromObservable(() =>
             {
@@ -76,24 +104,7 @@ namespace Chaincase.ViewModels
                 return Observable.Return(Unit.Default);
             });
 
-    //        Observable.FromEventPattern(Global.Wallet.TransactionProcessor, nameof(Global.Wallet.TransactionProcessor.WalletRelevantTransactionProcessed))
-				//.Merge(Observable.FromEventPattern(Global.Wallet.ChaumianClient, nameof(Global.Wallet.ChaumianClient.OnDequeue)))
-				//.ObserveOn(RxApp.MainThreadScheduler)
-				//.Subscribe(o => {
-    //                SetBalances();
-    //            })
-				//.DisposeWith(Disposables);
 
-    //        Transactions = new ObservableCollection<TransactionViewModel>();
-
-    //        Observable.FromEventPattern(Global.Wallet, nameof(Global.Wallet.NewBlockProcessed))
-    //            .Merge(Observable.FromEventPattern(Global.Wallet.TransactionProcessor, nameof(Global.Wallet.TransactionProcessor.WalletRelevantTransactionProcessed)))
-    //            .Throttle(TimeSpan.FromSeconds(3))
-    //            .ObserveOn(RxApp.MainThreadScheduler)
-    //            .Subscribe(async _ => await TryRewriteTableAsync())
-    //            .DisposeWith(Disposables);
-
-    //        _ = TryRewriteTableAsync();
         }
 
         private async Task TryRewriteTableAsync()
@@ -126,38 +137,40 @@ namespace Chaincase.ViewModels
 
         private void SetBalances()
 		{
-            //var bal = GetBalance();
-			//Balance = bal.ToString();
-            //HasCoins = bal > 0;
-            Global.WhenAnyValue(x => x.Wallet.Coins)
-                .Select(
-                (coins) =>
-                {
-                    return (Money)Enumerable.Where(coins, c => c.Unspent && !c.SpentAccordingToBackend).Sum(c => (long?)c.Amount);
-                })
-            .ToProperty<MainViewModel, Money>(this, x => x.Balance, out _balance);
+            var bal = GetBalance();
+            Balance = bal.ToString();
+            HasCoins = bal > 0;
             //HasCoins = Balance > 0
-            //var pbal = GetPrivateBalance();
-            //PrivateBalance = pbal.ToString();
-            //HasPrivateCoins = pbal > 0;
+            var pbal = GetPrivateBalance();
+            PrivateBalance = pbal.ToString();
+            HasPrivateCoins = pbal > 0;
         }
 
         private Money GetBalance()
         {
+            if (Global.Wallet.Coins != null)
+            {
+
             return Enumerable.Where
                 (
                     Global.Wallet.Coins,
                     c => c.Unspent && !c.SpentAccordingToBackend
                 ).Sum(c => (long?)c.Amount) ?? 0;
+            }
+            return 0;
         }
 
         private Money GetPrivateBalance()
         {
-            return Enumerable.Where
+            if (Global.Wallet.Coins != null)
+            {
+                return Enumerable.Where
                 (
                     Global.Wallet.Coins,
                     c => c.Unspent && !c.SpentAccordingToBackend && c.AnonymitySet > 1
                 ).Sum(c => (long?)c.Amount) ?? 0;
+            }
+            return 0;
         }
 
         public bool IsJoining { get { return _isJoining.Value; } }
@@ -188,7 +201,11 @@ namespace Chaincase.ViewModels
             set => this.RaiseAndSetIfChanged(ref _coinList, value);
         }
 
-        public string Balance => _balance.Value.ToString();
+        public string Balance
+        {
+            get => _balance;
+            set => this.RaiseAndSetIfChanged(ref _balance, value);
+        }
 
         public string PrivateBalance
         {

@@ -25,7 +25,7 @@ using Xamarin.Forms;
 
 namespace Chaincase
 {
-    public class Global : ReactiveObject
+    public class Global
 	{
 		public string DataDir { get; }
 		public string TorLogsFile { get; }
@@ -52,9 +52,13 @@ namespace Chaincase
 		public Network Network => Config.Network;
 
         // Chaincase Specific
-        public Wallet Wallet => WalletManager.GetWalletByName(Network.ToString());
+        #region chaincase
 
-		public Global()
+        public Wallet Wallet { get; set; }
+
+        #endregion chaincase
+
+        public Global()
 		{
             using (BenchmarkLogger.Measure())
             {
@@ -69,7 +73,7 @@ namespace Chaincase
                 Config.LoadOrCreateDefaultFile();
 
                 WalletManager = new WalletManager(Network, new WalletDirectories(DataDir));
-
+                Wallet = WalletManager.GetWalletByName(Network.ToString());
                 WalletManager.WalletRelevantTransactionProcessed += WalletManager_WalletRelevantTransactionProcessed;
             }
         }

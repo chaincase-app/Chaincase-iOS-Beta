@@ -100,7 +100,7 @@ namespace Chaincase
 
 			try
 			{
-				var wallet = await Global.WalletManager.StartWalletAsync(keyManager);
+				Global.Wallet = await Global.WalletManager.StartWalletAsync(keyManager);
 				// Successfully initialized.
 			}
 			catch (OperationCanceledException ex)
