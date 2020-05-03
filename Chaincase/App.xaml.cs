@@ -22,14 +22,10 @@ namespace Chaincase
 			InitializeComponent();
 
 			Global = new Global();
+			Task.Run(async () => { await Global.InitializeNoWalletAsync(); }); // this is the only thing that takes forever
 			Locator.CurrentMutable.RegisterConstant(Global);
 
-			// Probably asyncify and add everything after "Logger" above here
-			// TODO Invert this so UI is created FIRST then app internals
 			Logger.InitializeDefaults(Path.Combine(Global.DataDir, "Logs.txt"));
-			Task.Run(async () => { await Global.InitializeNoWalletAsync(); }).Wait();
-			var walletExists = WalletExists();
-			if (walletExists) LoadWalletAsync();
 
 			Locator
 				.CurrentMutable
@@ -47,7 +43,7 @@ namespace Chaincase
                 .RegisterView<PasswordPromptModal, PasswordPromptViewModel>()
                 .RegisterNavigationView(() => new NavigationView());
 
-			var page = walletExists ? (IViewModel)new MainViewModel() : new LandingViewModel();
+			var page = WalletExists() ? (IViewModel)new MainViewModel() : new LandingViewModel();
 
 			Locator
 				.Current
@@ -65,7 +61,7 @@ namespace Chaincase
 
 		protected override void OnStart()
 		{
-			if (WalletExists())
+			if (!WalletExists())
 			{
 				Logger.LogCritical("no wallet");
 				//Navigator.NavigateTo(new PassphraseViewModel(Navigator));
