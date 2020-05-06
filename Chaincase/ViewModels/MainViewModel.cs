@@ -42,17 +42,17 @@ namespace Chaincase.ViewModels
             {
                 throw new Exception("Wallet opened before it was closed.");
             }
-            Balance = "Loading";
+            Balance = "Loading...";
             Transactions = new ObservableCollection<TransactionViewModel>();
             Disposables = new CompositeDisposable();
-            //StatusViewModel = new StatusViewModel(Global.Nodes.ConnectedNodes, Global.Synchronizer);
+            StatusViewModel = new StatusViewModel();
 
             Task.Run(async () =>
             {
+                // WaitForInitializationCompletedAsync could be refined to Global.Wallet.Coins/TxProc/Chaumian etc init via Rx
                 using var initCts = new CancellationTokenSource(TimeSpan.FromMinutes(6));
                 await Global.WaitForInitializationCompletedAsync(initCts.Token).ConfigureAwait(false);
 
-                // TODO CAN ONLY CALL FROM UI THREAD ERROR ... What if we don't wait for global but get wallet from LoadWalletAsync??
                 Observable.FromEventPattern(Global.Wallet.TransactionProcessor, nameof(Global.Wallet.TransactionProcessor.WalletRelevantTransactionProcessed))
                     .Merge(Observable.FromEventPattern(Global.Wallet.ChaumianClient, nameof(Global.Wallet.ChaumianClient.OnDequeue)))
                     .ObserveOn(RxApp.MainThreadScheduler)
@@ -60,6 +60,7 @@ namespace Chaincase.ViewModels
                     {
                         SetBalances();
                     });
+
                 Device.BeginInvokeOnMainThread(() =>
                 {
                     CoinList = new CoinListViewModel();
@@ -71,9 +72,7 @@ namespace Chaincase.ViewModels
                         .Subscribe(async _ => await TryRewriteTableAsync());
 
                     _ = TryRewriteTableAsync();
-
                 });
-
             });
 
 
