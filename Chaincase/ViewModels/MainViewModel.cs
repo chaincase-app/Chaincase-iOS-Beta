@@ -126,7 +126,7 @@ namespace Chaincase.ViewModels
                     TransactionId = txr.TransactionId.ToString()
                 }).Select(ti => new TransactionViewModel(ti));
 
-                Transactions = new ObservableCollection<TransactionViewModel>(trs.OrderBy(t => t.DateTime));
+                Transactions = new ObservableCollection<TransactionViewModel>(trs.OrderByDescending(t => t.DateTime));
             }
             catch (Exception ex)
             {
