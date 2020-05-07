@@ -14,7 +14,6 @@ using WalletWasabi.Models;
 using Chaincase.Models;
 using WalletWasabi.Logging;
 using NBitcoin;
-using WalletWasabi.Blockchain.TransactionOutputs;
 using System.Threading;
 
 namespace Chaincase.ViewModels
@@ -42,7 +41,8 @@ namespace Chaincase.ViewModels
             {
                 throw new Exception("Wallet opened before it was closed.");
             }
-            Balance = "Loading...";
+            Balance = Global.UiConfig.Balance;
+
             Transactions = new ObservableCollection<TransactionViewModel>();
             Disposables = new CompositeDisposable();
             StatusViewModel = new StatusViewModel();
@@ -54,9 +54,9 @@ namespace Chaincase.ViewModels
                 await Global.WaitForInitializationCompletedAsync(initCts.Token).ConfigureAwait(false);
 
                 Observable.FromEventPattern(Global.Wallet.TransactionProcessor, nameof(Global.Wallet.TransactionProcessor.WalletRelevantTransactionProcessed))
-                    .Merge(Observable.FromEventPattern(Global.Wallet.ChaumianClient, nameof(Global.Wallet.ChaumianClient.OnDequeue)))
+                    .Throttle(TimeSpan.FromSeconds(0.1))
                     .ObserveOn(RxApp.MainThreadScheduler)
-                    .Subscribe(o =>
+                    .Subscribe(_ =>
                     {
                         SetBalances();
                     });
@@ -136,27 +136,15 @@ namespace Chaincase.ViewModels
 
         private void SetBalances()
 		{
-            var bal = GetBalance();
+            var bal = Global.Wallet.Coins.TotalAmount();
             Balance = bal.ToString();
+            Global.UiConfig.Balance = Balance;
+            Global.UiConfig.ToFile();
             HasCoins = bal > 0;
             //HasCoins = Balance > 0
             var pbal = GetPrivateBalance();
             PrivateBalance = pbal.ToString();
             HasPrivateCoins = pbal > 0;
-        }
-
-        private Money GetBalance()
-        {
-            if (Global.Wallet.Coins != null)
-            {
-
-            return Enumerable.Where
-                (
-                    Global.Wallet.Coins,
-                    c => c.Unspent && !c.SpentAccordingToBackend
-                ).Sum(c => (long?)c.Amount) ?? 0;
-            }
-            return 0;
         }
 
         private Money GetPrivateBalance()

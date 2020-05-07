@@ -161,7 +161,8 @@ namespace Chaincase.ViewModels
                     {
                         walletCheckingInterval?.Dispose();
                         walletCheckingInterval = null;
-
+                        Global.UiConfig.Balance = Global.Wallet.Coins.TotalAmount().ToString();
+                        Global.UiConfig.ToFile();
                         TryRemoveStatus(StatusType.WalletLoading, StatusType.WalletProcessingFilters, StatusType.WalletProcessingTransactions);
                     }
                 })

@@ -32,6 +32,7 @@ namespace Chaincase
 
 		public BitcoinStore BitcoinStore { get; private set; }
 		public Config Config { get; private set; }
+        public UiConfig UiConfig { get; private set; }
 
 		public string AddressManagerFilePath { get; private set; }
 		public AddressManager AddressManager { get; private set; }
@@ -71,6 +72,9 @@ namespace Chaincase
 
                 Config = new Config(Path.Combine(DataDir, "Config.json"));
                 Config.LoadOrCreateDefaultFile();
+
+                UiConfig = new UiConfig(Path.Combine(DataDir, "UiConfig.json"));
+                UiConfig.LoadOrCreateDefaultFile();
 
                 WalletManager = new WalletManager(Network, new WalletDirectories(DataDir));
                 Wallet = WalletManager.GetWalletByName(Network.ToString());

@@ -54,7 +54,6 @@
     <Compile Remove="Nito\Disposables\SingleDisposable.cs" />
     <Compile Remove="Nito\Disposables\Internals\BoundAction.cs" />
     <Compile Remove="BlockCypher\Models\BlockCypherGeneralInformation.cs" />
-    <Compile Remove="UiConfig.cs" />
     <Compile Remove="Views\ReceivePage %28copy%29.xaml.cs" />
     <Compile Remove="Views\RecieveAddressPage.xaml.cs" />
     <Compile Remove="Views\SendAmountPage %28copy%29.xaml.cs" />
