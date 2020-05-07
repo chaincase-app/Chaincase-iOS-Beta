@@ -9,6 +9,7 @@
     <Label x:Name="ReadyIcon" IsVisible="False">🌐</Label>
     <ActivityIndicator x:Name="Indicator"
                        IsRunning="True"></ActivityIndicator>
+    <Label x:Name="TorLabel"></Label>
     <Label x:Name="StatusLabel"></Label>
   </StackLayout>
 </rxui:ReactiveContentView>

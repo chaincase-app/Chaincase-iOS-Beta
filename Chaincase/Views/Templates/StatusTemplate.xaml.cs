@@ -2,6 +2,7 @@
 using Chaincase.ViewModels;
 using ReactiveUI;
 using System.Reactive.Disposables;
+using WalletWasabi.Models;
 
 namespace Chaincase.Views.Templates
 {
@@ -17,6 +18,10 @@ namespace Chaincase.Views.Templates
                     vm => vm.Status,
                     v => v.StatusLabel.Text)
                     .DisposeWith(d);
+                this.OneWayBind(ViewModel,
+                    vm => vm.Tor,
+                    v => v.TorLabel.Text,
+                    TorStatusConv);
                 this.OneWayBind(ViewModel,
                     vm => vm.Status,
                     v => v.Indicator.IsRunning,
@@ -43,6 +48,17 @@ namespace Chaincase.Views.Templates
         private bool IsStatusNotReadyConv(string status)
         {
             return status != "Ready";
+        }
+
+        private string TorStatusConv(TorStatus status)
+        {
+            switch(status)
+            {
+                case TorStatus.Running:
+                    return "🧅";
+                default:
+                    return "";
+            }
         }
 }
 }
