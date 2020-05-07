@@ -9,6 +9,7 @@ using NBitcoin;
 using NBitcoin.Payment;
 using ReactiveUI;
 using Splat;
+using WalletWasabi.Blockchain.Analysis.Clustering;
 using WalletWasabi.Blockchain.TransactionBuilding;
 using WalletWasabi.Blockchain.TransactionOutputs;
 using WalletWasabi.Blockchain.Transactions;
@@ -135,8 +136,8 @@ namespace Chaincase.ViewModels
 
 				var feeStrategy = FeeStrategy.CreateFromFeeRate(SendAmountViewModel.FeeRate);
 
-				var memo = Memo;
-				var intent = new PaymentIntent(script, amount, false, memo);
+				var smartLabel = new SmartLabel(Memo);
+				var intent = new PaymentIntent(script, amount, false, smartLabel);
 
 				var result = await Task.Run(() => Global.Wallet.BuildTransaction(
 					password,

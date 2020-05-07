@@ -14,16 +14,12 @@ namespace Chaincase.Views.Templates
 			this.WhenActivated(d =>
 			{
 				this.OneWayBind(ViewModel,
-					vm => vm.DateTime,
-					v => v.DateTime.Text)
-					.DisposeWith(d);
+	                vm => vm.Label,
+	                v => v.Label.Text)
+	                .DisposeWith(d);
 				this.OneWayBind(ViewModel,
 	                vm => vm.AmountBtc,
 	                v => v.AmountBtc.Text)
-	                .DisposeWith(d);
-				this.OneWayBind(ViewModel,
-	                vm => vm.TransactionId,
-	                v => v.TransactionId.Text)
 	                .DisposeWith(d);
 			});
 			
