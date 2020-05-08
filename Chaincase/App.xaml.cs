@@ -25,8 +25,6 @@ namespace Chaincase
 			Task.Run(async () => { await Global.InitializeNoWalletAsync(); }); // this is the only thing that takes forever
 			Locator.CurrentMutable.RegisterConstant(Global);
 
-			Logger.InitializeDefaults(Path.Combine(Global.DataDir, "Logs.txt"));
-
 			Locator
 				.CurrentMutable
                 .RegisterView<MainPage, MainViewModel>()
