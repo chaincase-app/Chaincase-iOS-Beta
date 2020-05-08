@@ -26,6 +26,8 @@ namespace Chaincase.ViewModels
         private WasabiSynchronizer Synchronizer { get; set; }
         private SmartHeaderChain HashChain { get; set; }
 
+        private ObservableAsPropertyHelper<double> _progressPercent;
+
         private bool UseTor { get; set; }
 
         private UpdateStatus _updateStatus;
@@ -53,7 +55,6 @@ namespace Chaincase.ViewModels
             BtcPrice = "$0";
             ActiveStatuses = new StatusSet();
 
-
             UseTor = Global.Config.UseTor; // Do not make it dynamic, because if you change this config settings only next time will it activate.
 
             _status = ActiveStatuses.WhenAnyValue(x => x.CurrentStatus)
@@ -61,6 +62,21 @@ namespace Chaincase.ViewModels
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .ToProperty(this, x => x.Status)
                 .DisposeWith(Disposables);
+
+            _progressPercent = ActiveStatuses.WhenAnyValue(x => x.CurrentStatus)
+                .Select(status =>
+                {
+                    switch (status.Type)
+                    {
+                        case StatusType.Ready:
+                            return 1;
+                        case StatusType.Connecting:
+                        default:
+                            return 0.9;
+
+                    }
+                })
+                .ToProperty(this, x => x.ProgressPercent);
 
             Task.Run(async () =>
             {
@@ -219,6 +235,8 @@ namespace Chaincase.ViewModels
             get => _peers;
             set => this.RaiseAndSetIfChanged(ref _peers, value);
         }
+
+        public double ProgressPercent => _progressPercent?.Value ?? 0.4;
 
         public int FiltersLeft => _filtersLeft?.Value ?? 0;
 

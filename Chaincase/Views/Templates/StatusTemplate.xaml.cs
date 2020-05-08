@@ -3,6 +3,7 @@ using Chaincase.ViewModels;
 using ReactiveUI;
 using System.Reactive.Disposables;
 using WalletWasabi.Models;
+using Xamarin.Forms;
 
 namespace Chaincase.Views.Templates
 {
@@ -60,5 +61,24 @@ namespace Chaincase.Views.Templates
                     return "";
             }
         }
-}
+    }
+
+    public static class AttachedProperties
+    {
+        public static BindableProperty AnimatedProgressProperty =
+           BindableProperty.CreateAttached("AnimatedProgress",
+                                           typeof(double),
+                                           typeof(ProgressBar),
+                                           0.0d,
+                                           BindingMode.OneWay,
+                                           propertyChanged: (b, o, n) =>
+                                           ProgressBarProgressChanged((ProgressBar)b, (double)n));
+
+        private static void ProgressBarProgressChanged(ProgressBar progressBar, double progress)
+        {
+            ViewExtensions.CancelAnimations(progressBar);
+            var lengthMs = progress == 1 ? 100 : (uint)((progress - progressBar.Progress) * 40000);
+            progressBar.ProgressTo((double)progress, lengthMs, Easing.SinIn);
+        }
+    }
 }
