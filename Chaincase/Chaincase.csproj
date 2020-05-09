@@ -7,6 +7,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
     <DebugSymbols>true</DebugSymbols>
     <LangVersion>default</LangVersion>
   </PropertyGroup>
