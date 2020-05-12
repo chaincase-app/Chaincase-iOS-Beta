@@ -45,7 +45,6 @@ namespace Chaincase.ViewModels
 
             Transactions = new ObservableCollection<TransactionViewModel>();
             Disposables = new CompositeDisposable();
-            StatusViewModel = new StatusViewModel();
 
             Task.Run(async () =>
             {
@@ -58,7 +57,8 @@ namespace Chaincase.ViewModels
                     .ObserveOn(RxApp.MainThreadScheduler)
                     .Subscribe(_ =>
                     {
-                        SetBalances();
+                        Balance = Global.Wallet.Coins.TotalAmount().ToString();
+                        //SetBalances();
                     });
 
                 Device.BeginInvokeOnMainThread(() =>
@@ -75,6 +75,7 @@ namespace Chaincase.ViewModels
                 });
             });
 
+            StatusViewModel = new StatusViewModel();
 
             NavReceiveCommand = ReactiveCommand.CreateFromObservable(() =>
             {
@@ -111,7 +112,9 @@ namespace Chaincase.ViewModels
             try
             {
                 var historyBuilder = new TransactionHistoryBuilder(Global.Wallet);
-                var txRecordList = await Task.Run(historyBuilder.BuildHistorySummary);
+                var txRecordList = await Task.Run(historyBuilder.BuildHistorySummary) ?? Global.UiConfig.Transactions.ToList();
+                Global.UiConfig.Transactions = txRecordList.ToArray();
+                Global.UiConfig.ToFile(); // write to file once height is the highest
 
                 Transactions?.Clear();
 
@@ -139,7 +142,7 @@ namespace Chaincase.ViewModels
             var bal = Global.Wallet.Coins.TotalAmount();
             Balance = bal.ToString();
             Global.UiConfig.Balance = Balance;
-            Global.UiConfig.ToFile();
+            Global.UiConfig.ToFile(); // write to file once height is the highest
             HasCoins = bal > 0;
             //HasCoins = Balance > 0
             var pbal = GetPrivateBalance();
