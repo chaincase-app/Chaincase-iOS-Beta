@@ -44,7 +44,7 @@ namespace Chaincase.ViewModels
             Balance = Global.UiConfig.Balance;
 
             Transactions = new ObservableCollection<TransactionViewModel>();
-            Disposables = new CompositeDisposable();
+            TryWriteTableFromCache();
 
             Task.Run(async () =>
             {
@@ -70,8 +70,6 @@ namespace Chaincase.ViewModels
                         .Throttle(TimeSpan.FromSeconds(3))
                         .ObserveOn(RxApp.MainThreadScheduler)
                         .Subscribe(async _ => await TryRewriteTableAsync());
-
-                    _ = TryRewriteTableAsync();
                 });
             });
 
@@ -107,18 +105,26 @@ namespace Chaincase.ViewModels
 
         }
 
+        private void TryWriteTableFromCache()
+        {
+            try
+            {
+                var trs = Global.UiConfig.Transactions.Select(ti => new TransactionViewModel(ti));
+                Transactions = new ObservableCollection<TransactionViewModel>(trs.OrderByDescending(t => t.DateTime));
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex);
+            }
+        }
+
         private async Task TryRewriteTableAsync()
         {
             try
             {
                 var historyBuilder = new TransactionHistoryBuilder(Global.Wallet);
-                var txRecordList = await Task.Run(historyBuilder.BuildHistorySummary) ?? Global.UiConfig.Transactions.ToList();
-                Global.UiConfig.Transactions = txRecordList.ToArray();
-                Global.UiConfig.ToFile(); // write to file once height is the highest
-
-                Transactions?.Clear();
-
-                var trs = txRecordList.Select(txr => new TransactionInfo
+                var txRecordList = await Task.Run(historyBuilder.BuildHistorySummary);
+                var tis = txRecordList.Select(txr => new TransactionInfo
                 {
                     DateTime = txr.DateTime.ToLocalTime(),
                     Confirmed = txr.Height.Type == HeightType.Chain,
@@ -127,9 +133,15 @@ namespace Chaincase.ViewModels
                     Label = txr.Label,
                     BlockHeight = txr.Height.Type == HeightType.Chain ? txr.Height.Value : 0,
                     TransactionId = txr.TransactionId.ToString()
-                }).Select(ti => new TransactionViewModel(ti));
+                });
+
+                Transactions?.Clear();
+                var trs = tis.Select(ti => new TransactionViewModel(ti));
 
                 Transactions = new ObservableCollection<TransactionViewModel>(trs.OrderByDescending(t => t.DateTime));
+
+                Global.UiConfig.Transactions = tis.ToArray();
+                Global.UiConfig.ToFile(); // write to file once height is the highest
             }
             catch (Exception ex)
             {

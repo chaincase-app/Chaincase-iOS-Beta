@@ -1,16 +1,24 @@
-﻿using ReactiveUI;
+﻿using Newtonsoft.Json;
+using ReactiveUI;
 using System;
 
 namespace Chaincase.Models
 {
 	public class TransactionInfo : ReactiveObject
 	{
+		[JsonProperty]
 		private int _confirmations;
+		[JsonProperty]
 		private bool _confirmed;
+		[JsonProperty]
 		private DateTimeOffset _dateTime;
+		[JsonProperty]
 		private string _amountBtc;
+		[JsonProperty]
 		private string _label;
+		[JsonProperty]
 		private int _blockHeight;
+		[JsonProperty]
 		private string _transactionId;
 
 		public DateTimeOffset DateTime
