@@ -31,6 +31,7 @@
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
     <CodesignKey>Apple Development: dc.sled@gmail.com (BDA534V858)</CodesignKey>
     <CodesignProvision>VS: WildCard Development</CodesignProvision>
+<MtouchFastDev>true</MtouchFastDev>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
     <DebugType>none</DebugType>
@@ -44,6 +45,7 @@
     <LangVersion>default</LangVersion>
     <CodesignKey>Apple Development: dc.sled@gmail.com (BDA534V858)</CodesignKey>
     <CodesignProvision>VS: WildCard Development</CodesignProvision>
+<MtouchUseLlvm>true</MtouchUseLlvm>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhone' ">
     <DebugSymbols>true</DebugSymbols>
