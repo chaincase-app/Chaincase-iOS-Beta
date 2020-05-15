@@ -48,48 +48,52 @@ namespace Chaincase.ViewModels
                new CompositeDisposable() :
                throw new NotSupportedException($"Cannot open {GetType().Name} before closing it.");
 
+            UpdateRootList();
             Observable
                 .Merge(Observable.FromEventPattern<ProcessedResult>(Global.Wallet.TransactionProcessor, nameof(Global.Wallet.TransactionProcessor.WalletRelevantTransactionProcessed)).Select(_ => Unit.Default))
-                .Throttle(TimeSpan.FromSeconds(1)) // Throttle TransactionProcessor events adds/removes.
-                .Merge(Observable.FromEventPattern(this, nameof(CoinListShown), RxApp.MainThreadScheduler).Select(_ => Unit.Default)) // Load the list immediately.
+                .Throttle(TimeSpan.FromSeconds(1)) // Throttle TransactionProcessor events adds/removes. 
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(args =>
+                .Subscribe(_ =>
                 {
-                    try
-                    {
-                        var actual = Global.Wallet.TransactionProcessor.Coins.ToHashSet();
-                        var old = RootList.Items.ToDictionary(c => c.Model, c => c);
-
-                        var coinToRemove = old.Where(c => !actual.Contains(c.Key)).ToArray();
-                        var coinToAdd = actual.Where(c => !old.ContainsKey(c)).ToArray();
-
-                        RootList.RemoveMany(coinToRemove.Select(kp => kp.Value));
-
-                        var newCoinViewModels = coinToAdd.Select(c => new CoinViewModel(this, c)).ToArray();
-                        foreach (var cvm in newCoinViewModels)
-                        {
-                            SubscribeToCoinEvents(cvm);
-                        }
-                        RootList.AddRange(newCoinViewModels);
-
-                        var allCoins = RootList.Items.ToArray();
-
-                        foreach (var item in coinToRemove)
-                        {
-                            item.Value.Dispose();
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogError(ex);
-                    }
-                    finally
-                    {
-                        IsCoinListLoading = false;
-                    }
+                    UpdateRootList();
                 })
                 .DisposeWith(Disposables);
+        }
 
+        private void UpdateRootList()
+        {
+            try
+            {
+                var actual = Global.Wallet.TransactionProcessor.Coins.ToHashSet();
+                var old = RootList.Items.ToDictionary(c => c.Model, c => c);
+
+                var coinToRemove = old.Where(c => !actual.Contains(c.Key)).ToArray();
+                var coinToAdd = actual.Where(c => !old.ContainsKey(c)).ToArray();
+
+                RootList.RemoveMany(coinToRemove.Select(kp => kp.Value));
+
+                var newCoinViewModels = coinToAdd.Select(c => new CoinViewModel(this, c)).ToArray();
+                foreach (var cvm in newCoinViewModels)
+                {
+                    SubscribeToCoinEvents(cvm);
+                }
+                RootList.AddRange(newCoinViewModels);
+
+                var allCoins = RootList.Items.ToArray();
+
+                foreach (var item in coinToRemove)
+                {
+                    item.Value.Dispose();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex);
+            }
+            finally
+            {
+                IsCoinListLoading = false;
+            }
         }
 
         private void SubscribeToCoinEvents(CoinViewModel cvm)

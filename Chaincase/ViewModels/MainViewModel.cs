@@ -27,8 +27,7 @@ namespace Chaincase.ViewModels
         private StatusViewModel _statusViewModel;
         private CoinListViewModel _coinList;
         public string _balance;
-        private string _privateBalance;
-        private bool _hasCoins;
+        private ObservableAsPropertyHelper<bool> _hasCoins;
         private bool _hasPrivateCoins;
         readonly ObservableAsPropertyHelper<bool> _isJoining;
 
@@ -45,7 +44,6 @@ namespace Chaincase.ViewModels
 
             Transactions = new ObservableCollection<TransactionViewModel>();
             TryWriteTableFromCache();
-
             Task.Run(async () =>
             {
                 // WaitForInitializationCompletedAsync could be refined to Global.Wallet.Coins/TxProc/Chaumian etc init via Rx
@@ -58,7 +56,10 @@ namespace Chaincase.ViewModels
                     .Subscribe(_ =>
                     {
                         Balance = Global.Wallet.Coins.TotalAmount().ToString();
-                        //SetBalances();
+                        HasPrivateCoins = Enumerable.Where(
+                                Global.Wallet.Coins,
+                                c => c.Unspent && !c.SpentAccordingToBackend && c.AnonymitySet > 1
+                            ).Sum(c => (long?)c.Amount) > 0;
                     });
 
                 Device.BeginInvokeOnMainThread(() =>
@@ -75,6 +76,9 @@ namespace Chaincase.ViewModels
 
             StatusViewModel = new StatusViewModel();
 
+            var coinListReady = this.WhenAnyValue(x => x.CoinList.IsCoinListLoading,
+                stillLoading => !stillLoading);
+
             NavReceiveCommand = ReactiveCommand.CreateFromObservable(() =>
             {
                 ViewStackService.PushPage(new ReceiveViewModel()).Subscribe();
@@ -86,22 +90,26 @@ namespace Chaincase.ViewModels
                 CoinList.SelectOnlyPrivateCoins(false);
                 ViewStackService.PushPage(new CoinJoinViewModel(CoinList)).Subscribe();
                 return Observable.Return(Unit.Default);
-            });
+            }, coinListReady);
 
             PrivateSendCommand = ReactiveCommand.CreateFromObservable(() =>
             {
                 CoinList.SelectOnlyPrivateCoins(true);
                 ViewStackService.PushPage(new SendAmountViewModel(CoinList)).Subscribe();
                 return Observable.Return(Unit.Default);
-            });
+            }, coinListReady);
 
             ExposedSendCommand = ReactiveCommand.CreateFromObservable(() =>
             {
                 CoinList.SelectOnlyPrivateCoins(false);
                 ViewStackService.PushPage(new SendAmountViewModel(CoinList)).Subscribe();
                 return Observable.Return(Unit.Default);
-            });
+            }, coinListReady);
 
+            _hasCoins = this
+                .WhenAnyValue(x => x.Balance)
+                .Select(bal => Money.Parse(bal) > 0)
+                .ToProperty(this, nameof(HasCoins));
 
         }
 
@@ -149,41 +157,11 @@ namespace Chaincase.ViewModels
             }
         }
 
-        private void SetBalances()
-		{
-            var bal = Global.Wallet.Coins.TotalAmount();
-            Balance = bal.ToString();
-            Global.UiConfig.Balance = Balance;
-            Global.UiConfig.ToFile(); // write to file once height is the highest
-            HasCoins = bal > 0;
-            //HasCoins = Balance > 0
-            var pbal = GetPrivateBalance();
-            PrivateBalance = pbal.ToString();
-            HasPrivateCoins = pbal > 0;
-        }
-
-        private Money GetPrivateBalance()
-        {
-            if (Global.Wallet.Coins != null)
-            {
-                return Enumerable.Where
-                (
-                    Global.Wallet.Coins,
-                    c => c.Unspent && !c.SpentAccordingToBackend && c.AnonymitySet > 1
-                ).Sum(c => (long?)c.Amount) ?? 0;
-            }
-            return 0;
-        }
-
         public bool IsJoining { get { return _isJoining.Value; } }
 
         public Label Deq;
 
-        public bool HasCoins
-        {
-            get => _hasCoins;
-            set => this.RaiseAndSetIfChanged(ref _hasCoins, value);
-        }
+        public bool HasCoins => _hasCoins.Value;
 
         public bool HasPrivateCoins
         {
@@ -207,12 +185,6 @@ namespace Chaincase.ViewModels
         {
             get => _balance;
             set => this.RaiseAndSetIfChanged(ref _balance, value);
-        }
-
-        public string PrivateBalance
-        {
-            get => _privateBalance;
-            set => this.RaiseAndSetIfChanged(ref _privateBalance, value);
         }
 
         public ObservableCollection<TransactionViewModel> Transactions
