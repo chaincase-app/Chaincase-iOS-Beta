@@ -7,10 +7,11 @@
                           xmlns="http://xamarin.com/schemas/2014/forms">
   <Grid>
     <Grid.ColumnDefinitions>
+      <!-- iOS Switch 51x31 | 106 is font's smallest 10dgt + Bitcoin symb -->
+      <ColumnDefinition Width="51" />
+      <ColumnDefinition Width="24" />
       <ColumnDefinition Width="*" />
-      <ColumnDefinition Width="*" />
-      <ColumnDefinition Width="4*" />
-      <ColumnDefinition Width="3*" />
+      <ColumnDefinition Width="106" />
     </Grid.ColumnDefinitions>
     <Grid.RowDefinitions>
       <RowDefinition Height="*" />
@@ -20,6 +21,7 @@
             IsToggled="{Binding IsSelected}"
             Grid.Column="0"
             Grid.Row="0"
+            Grid.RowSpan="2"
             VerticalOptions="CenterAndExpand" />
     <Label x:Name="AnonymitySet"
            Grid.Column="1"
