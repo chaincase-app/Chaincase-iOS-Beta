@@ -169,7 +169,7 @@ namespace Chaincase.ViewModels
 				SmartTransaction signedTransaction = result.Transaction;
 
 				await Global.TransactionBroadcaster.SendTransactionAsync(signedTransaction); // put this on non-ui theread?
-				return true; // seems not to get here
+				return true;
 			}
 			catch (InsufficientBalanceException ex)
 			{
