@@ -6,6 +6,7 @@ using System;
 using Xamarin.Forms;
 using Chaincase.Converters;
 using NBitcoin;
+using System.Globalization;
 
 namespace Chaincase.Views
 {
@@ -21,6 +22,10 @@ namespace Chaincase.Views
 					vm => vm.AmountText,
 					v => v.Amount.Text)
 					.DisposeWith(d);
+                this.Bind(ViewModel,
+                    vm => vm.IsMax,
+                    v => v.Max.IsToggled)
+                    .DisposeWith(d);
 				this.Bind(ViewModel,
 					vm => vm.CoinList,
 					v => v.CoinList.ViewModel);
