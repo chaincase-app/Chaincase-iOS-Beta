@@ -128,17 +128,23 @@ namespace Chaincase.ViewModels
 				var requests = new List<DestinationRequest>();
 
 				MoneyRequest moneyRequest;
-				if (!Money.TryParse(SendAmountViewModel.AmountText, out amount) || amount == Money.Zero)
-				{
-					// SetWarningMessage($"Invalid amount.");
-					return false;
-				}
 				if (SendAmountViewModel.IsMax)
 				{
 					moneyRequest = MoneyRequest.CreateAllRemaining(subtractFee: true);
 				}
-				else
-				{
+                else
+                {
+				    if (!Money.TryParse(SendAmountViewModel.AmountText, out amount) || amount == Money.Zero)
+				    {
+					    // SetWarningMessage($"Invalid amount.");
+					    return false;
+				    }
+                    
+					if (amount == selectedCoinViewModels.Sum(x => x.Amount))
+					{
+						// NotificationHelpers.Warning("Looks like you want to spend whole coins. Try Max button instead.", "");
+						return false;
+					}
 					moneyRequest = MoneyRequest.Create(amount, subtractFee: false);
 				}
 
