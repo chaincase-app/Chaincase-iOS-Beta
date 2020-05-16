@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
@@ -104,7 +105,8 @@ namespace Chaincase.ViewModels
 
 				var selectedCoinViewModels = SendAmountViewModel.CoinList.Coins.Where(cvm => cvm.IsSelected);
 				var selectedCoinReferences = selectedCoinViewModels.Select(cvm => cvm.Model.OutPoint).ToList();
-				if (!selectedCoinReferences.Any())
+
+                if (!selectedCoinReferences.Any())
 				{
 					//SetWarningMessage("No coins are selected to spend.");
 					return false;
@@ -121,12 +123,23 @@ namespace Chaincase.ViewModels
 					return false;
 				}
 
-				var script = address.ScriptPubKey;
 				var amount = Money.Zero;
+
+				var requests = new List<DestinationRequest>();
+
+				MoneyRequest moneyRequest;
 				if (!Money.TryParse(SendAmountViewModel.AmountText, out amount) || amount == Money.Zero)
 				{
 					// SetWarningMessage($"Invalid amount.");
 					return false;
+				}
+				if (SendAmountViewModel.IsMax)
+				{
+					moneyRequest = MoneyRequest.CreateAllRemaining(subtractFee: true);
+				}
+				else
+				{
+					moneyRequest = MoneyRequest.Create(amount, subtractFee: false);
 				}
 
 				if (SendAmountViewModel.FeeRate is null || SendAmountViewModel.FeeRate.SatoshiPerByte < 1)
@@ -137,7 +150,9 @@ namespace Chaincase.ViewModels
 				var feeStrategy = FeeStrategy.CreateFromFeeRate(SendAmountViewModel.FeeRate);
 
 				var smartLabel = new SmartLabel(Memo);
-				var intent = new PaymentIntent(script, amount, false, smartLabel);
+				var activeDestinationRequest = new DestinationRequest(address, moneyRequest, smartLabel);
+				requests.Add(activeDestinationRequest);
+				var intent = new PaymentIntent(requests);
 
 				var result = await Task.Run(() => Global.Wallet.BuildTransaction(
 					password,

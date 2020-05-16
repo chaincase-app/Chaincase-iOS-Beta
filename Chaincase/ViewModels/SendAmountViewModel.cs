@@ -20,10 +20,12 @@ namespace Chaincase.ViewModels
 	{
 		protected Global Global { get; }
 
+		private bool _isMax;
 		private string _amountText;
 		private CoinListViewModel _coinList;
 		private Feenum _feeChoice;
 		private FeeRate _feeRate;
+		private Money _allSelectedAmount;
 		private Money _estimatedBtcFee;
 		private int _feeTarget;
 		private int _minimumFeeTarget;
@@ -44,33 +46,46 @@ namespace Chaincase.ViewModels
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(amount =>
                 {
-                    // Correct amount
-                    Regex digitsOnly = new Regex(@"[^\d,.]");
-                    string betterAmount = digitsOnly.Replace(amount, ""); // Make it digits , and . only.
-
-                    betterAmount = betterAmount.Replace(',', '.');
-                    int countBetterAmount = betterAmount.Count(x => x == '.');
-                    if (countBetterAmount > 1) // Do not enable typing two dots.
+					// Correct amount
+					if (IsMax)
+					{
+						SetAmountIfMax();
+					} else
                     {
-                        var index = betterAmount.IndexOf('.', betterAmount.IndexOf('.') + 1);
-                        if (index > 0)
+					    Regex digitsOnly = new Regex(@"[^\d,.]");
+                        string betterAmount = digitsOnly.Replace(amount, ""); // Make it digits , and . only.
+
+                        betterAmount = betterAmount.Replace(',', '.');
+                        int countBetterAmount = betterAmount.Count(x => x == '.');
+                        if (countBetterAmount > 1) // Do not enable typing two dots.
                         {
-                            betterAmount = betterAmount.Substring(0, index);
+                            var index = betterAmount.IndexOf('.', betterAmount.IndexOf('.') + 1);
+                            if (index > 0)
+                            {
+                                betterAmount = betterAmount.Substring(0, index);
+                            }
                         }
-                    }
-                    var dotIndex = betterAmount.IndexOf('.');
-                    if (dotIndex != -1 && betterAmount.Length - dotIndex > 8) // Enable max 8 decimals.
-                    {
-                        betterAmount = betterAmount.Substring(0, dotIndex + 1 + 8);
-                    }
+                        var dotIndex = betterAmount.IndexOf('.');
+                        if (dotIndex != -1 && betterAmount.Length - dotIndex > 8) // Enable max 8 decimals.
+                        {
+                            betterAmount = betterAmount.Substring(0, dotIndex + 1 + 8);
+                        }
 
-                    if (betterAmount != amount)
-                    {
-                        AmountText = betterAmount;
+                        if (betterAmount != amount)
+                        {
+                            AmountText = betterAmount;
+                        }
                     }
                 });
 
 			FeeChoice = Feenum.Standard; // Default
+
+			this.WhenAnyValue(x => x.IsMax)
+				.ObserveOn(RxApp.MainThreadScheduler)
+				.Subscribe(isMax => {
+					if (isMax)
+						SetAmountIfMax();
+				});
 
 			Observable.FromEventPattern(CoinList, nameof(CoinList.SelectionChanged))
                 .ObserveOn(RxApp.MainThreadScheduler)
@@ -108,7 +123,7 @@ namespace Chaincase.ViewModels
                 (amountToSpend, selectedAmount) =>
 			    {
 				    return AmountTextPositive(amountToSpend) &&
-				    Money.Parse(amountToSpend) + EstimatedBtcFee <= selectedAmount;
+					Money.Parse(amountToSpend.TrimStart('~', ' ')) + EstimatedBtcFee <= selectedAmount;
 			    }));
         }
 
@@ -184,10 +199,22 @@ namespace Chaincase.ViewModels
 					// If FeeRate is null we will have problems when building the tx.
 					EstimatedBtcFee = Money.Zero;
 				}
+				long all = selectedCoins.Sum(x => x.Amount);
+				AllSelectedAmount = Math.Max(Money.Zero, all - EstimatedBtcFee);
 			}
 		}
 
-
+        private void SetAmountIfMax()
+        {
+			if (IsMax)
+			{
+				AmountText = AllSelectedAmount == Money.Zero
+					? EstimatedBtcFee >= AllSelectedAmount
+						? "Too high fee"
+						: "No Coins Selected"
+					: $"~ {AllSelectedAmount.ToString(false, true)}";
+			}
+		}
 		
 		private void SetFeeTargetLimits()
 		{
@@ -205,6 +232,17 @@ namespace Chaincase.ViewModels
 			}
 		}
 
+		public bool IsMax
+		{
+			get => _isMax;
+			set => this.RaiseAndSetIfChanged(ref _isMax, value);
+		}
+
+		public string AmountText
+		{
+			get => _amountText;
+			set => this.RaiseAndSetIfChanged(ref _amountText, value);
+		}
 		public FeeRate FeeRate
 		{
 			get => _feeRate;
@@ -215,6 +253,12 @@ namespace Chaincase.ViewModels
 		{
 			get => _feeChoice;
 			set => this.RaiseAndSetIfChanged(ref _feeChoice, value);
+		}
+
+		public Money AllSelectedAmount
+		{
+			get => _allSelectedAmount;
+			set => this.RaiseAndSetIfChanged(ref _allSelectedAmount, value);
 		}
 
 		public Money EstimatedBtcFee
@@ -248,19 +292,13 @@ namespace Chaincase.ViewModels
         {
             try {
                 var amount = Money.Zero;
-                Money.TryParse(amountText, out amount);
+				Money.TryParse(AmountText.TrimStart('~', ' '), out amount);
                 return amount > 0;
             } catch (Exception e)
             {
                 return false;
             }
         }
-
-        public string AmountText
-		{
-			get => _amountText;
-			set => this.RaiseAndSetIfChanged(ref _amountText, value);
-		}
 
 		public CoinListViewModel CoinList
 		{
