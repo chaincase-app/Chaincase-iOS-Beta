@@ -8,8 +8,22 @@
                           xmlns="http://xamarin.com/schemas/2014/forms"
                           Title="Send">
   <StackLayout>
-    <Label Text="Amount (₿)" />
-    <Entry x:Name="Amount" />
+    <Grid>
+      <!-- iOS Switch is 51x31 -->
+      <Grid.ColumnDefinitions>
+         <ColumnDefinition Width="*" />
+         <ColumnDefinition Width="51" />
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*" />
+        <RowDefinition Height="31" />
+      </Grid.RowDefinitions>
+      <Label Text="Amount (₿)" Grid.Column="0" Grid.Row="0"/>
+      <Entry x:Name="Amount" Grid.Column="0" Grid.Row="1"/>
+
+      <Label Text="Max" Grid.Column="1" Grid.Row="0"/>
+      <Switch x:Name="Max" Grid.Column="1" Grid.Row="1" />
+    </Grid>
     <templates:CoinListTemplate x:Name="CoinList"
                                 VerticalOptions="FillAndExpand" />
     
