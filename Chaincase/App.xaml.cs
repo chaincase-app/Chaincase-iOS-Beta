@@ -40,7 +40,8 @@ namespace Chaincase
 				.RegisterView<VerifyMnemonicPage, VerifyMnemonicViewModel>()
 				.RegisterView<PasswordPromptModal, PasswordPromptViewModel>()
 				.RegisterView<StartBackUpModal, StartBackUpViewModel>()
-                .RegisterNavigationView(() => new NavigationView());
+				.RegisterView<BackUpModal, BackUpViewModel>()
+				.RegisterNavigationView(() => new NavigationView());
 
 			var page = WalletExists() ? (IViewModel)new MainViewModel() : new LandingViewModel();
 

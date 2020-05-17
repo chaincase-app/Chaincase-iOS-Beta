@@ -12,15 +12,14 @@ namespace Chaincase.ViewModels
 {
 	public class StartBackUpViewModel : ViewModelBase
 	{
-		protected Global Global { get; }
-
-		private string _password;
-		private string _acceptText;
-
 		public StartBackUpViewModel()
             : base(Locator.Current.GetService<IViewStackService>())
 		{
-			NextCommand = ReactiveCommand.CreateFromObservable(ViewStackService.PopModal);
+			NextCommand = ReactiveCommand.CreateFromObservable(() =>
+			{
+				ViewStackService.PushModal(new BackUpViewModel()).Subscribe();
+				return Observable.Return(Unit.Default);
+			});
 		}
 
 		public ReactiveCommand<Unit, Unit> NextCommand;

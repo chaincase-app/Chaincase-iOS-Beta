@@ -7,9 +7,9 @@ using Xamarin.Forms.PlatformConfiguration.iOSSpecific;
 
 namespace Chaincase.Views
 {
-    public partial class StartBackUpModal : ReactiveContentPage<StartBackUpViewModel>
+    public partial class BackUpModal : ReactiveContentPage<BackUpViewModel>
     {
-        public StartBackUpModal()
+        public BackUpModal()
         {
             On<iOS>().SetModalPresentationStyle(UIModalPresentationStyle.FullScreen);
             InitializeComponent();
