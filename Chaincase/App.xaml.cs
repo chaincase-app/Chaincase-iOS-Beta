@@ -27,18 +27,19 @@ namespace Chaincase
 
 			Locator
 				.CurrentMutable
-                .RegisterView<MainPage, MainViewModel>()
-                .RegisterView<LandingPage, LandingViewModel>()
-                .RegisterView<ReceivePage, ReceiveViewModel>()
-                .RegisterView<AddressPage, AddressViewModel>()
-                .RegisterView<SendAmountPage, SendAmountViewModel>()
+				.RegisterView<MainPage, MainViewModel>()
+				.RegisterView<LandingPage, LandingViewModel>()
+				.RegisterView<ReceivePage, ReceiveViewModel>()
+				.RegisterView<AddressPage, AddressViewModel>()
+				.RegisterView<SendAmountPage, SendAmountViewModel>()
 				.RegisterView<SendWhoPage, SendWhoViewModel>()
-                .RegisterView<SentPage, SentViewModel>()
+				.RegisterView<SentPage, SentViewModel>()
 				.RegisterView<CoinJoinPage, CoinJoinViewModel>()
-                .RegisterView<NewPasswordPage, NewPasswordViewModel>()
-                .RegisterView<MnemonicPage, MnemonicViewModel>()
-                .RegisterView<VerifyMnemonicPage, VerifyMnemonicViewModel>()
-                .RegisterView<PasswordPromptModal, PasswordPromptViewModel>()
+				.RegisterView<NewPasswordPage, NewPasswordViewModel>()
+				.RegisterView<MnemonicPage, MnemonicViewModel>()
+				.RegisterView<VerifyMnemonicPage, VerifyMnemonicViewModel>()
+				.RegisterView<PasswordPromptModal, PasswordPromptViewModel>()
+				.RegisterView<StartBackUpModal, StartBackUpViewModel>()
                 .RegisterNavigationView(() => new NavigationView());
 
 			var page = WalletExists() ? (IViewModel)new MainViewModel() : new LandingViewModel();
