@@ -2,6 +2,8 @@
 using Chaincase.ViewModels;
 using ReactiveUI;
 using System.Reactive.Disposables;
+using System;
+using Xamarin.Forms;
 
 namespace Chaincase.Views
 {
@@ -23,5 +25,19 @@ namespace Chaincase.Views
                 .DisposeWith(d);
             });
 		}
+
+		public void ShowPass(object sender, EventArgs args)
+		{
+			Password.IsPassword = Password.IsPassword ? false : true;
+            if (ShowLabel.Text == "SHOW") {
+				ShowLabel.Text = "HIDE";
+            }
+            else
+            {
+				ShowLabel.Text = "SHOW";
+            }
+                
+		}
+
 	}
 }
