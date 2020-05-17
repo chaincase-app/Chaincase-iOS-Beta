@@ -24,10 +24,10 @@
 
   <StackLayout>
     <Label Text="memo" />
-    <Entry Placeholder="to whom / for what"
+    <Entry Placeholder="e.g. Chloe for cat toys"
             x:Name="Memo"
             Keyboard="{StaticResource NoCapitalizationKeyboard}" />
-    <Label Text="pay to the order of" />
+    <Label Text="Address" />
     <Entry x:Name="Address" />
     <ActivityIndicator x:Name="IsBusy"></ActivityIndicator>
     <zxing:ZXingScannerView Grid.Row="1" x:Name="ScanView" OnScanResult="Handle_OnScanResult" IsScanning="true"

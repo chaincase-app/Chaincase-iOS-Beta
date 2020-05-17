@@ -19,11 +19,12 @@
   </rxui:ReactiveContentPage.Resources>
 
   <StackLayout>
-    <Label Text="Set a memo to remember where your coins come from" />
     <Label Text="Memo" />
-    <Entry Placeholder="from who/for what"
+    <Entry Placeholder="e.g. Dan for bread"
             x:Name="Memo"
            Keyboard="{StaticResource NoCapitalizationKeyboard}" />
+    <Label Text="Set a memo to remember where your coins come from" />
+
     <Button Text="Generate Address"
             x:Name="GenerateButton"
             VerticalOptions="EndAndExpand"/>
