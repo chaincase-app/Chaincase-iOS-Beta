@@ -1,15 +1,12 @@
 ﻿using System.Reactive.Disposables;
+using Chaincase.ViewModels;
 using ReactiveUI;
 using ReactiveUI.XamForms;
-using Chaincase.ViewModels;
 using Xamarin.Forms;
-using System.Reactive.Linq;
-using System.Reactive;
-using System;
 
 namespace Chaincase.Views
 {
-	public partial class MainPage : ReactiveContentPage<MainViewModel>
+    public partial class MainPage : ReactiveContentPage<MainViewModel>
 	{
 
         public MainPage()
@@ -35,6 +32,19 @@ namespace Chaincase.Views
                 this.Bind(ViewModel,
                     vm => vm.StatusViewModel,
                     v => v.Status.ViewModel);
+
+                // performance enhansement: only create button on !backedUp
+                // (no binding)
+                this.BindCommand(ViewModel,
+                    vm => vm.NavBackUpCommand,
+                    v => v.BackUp)
+                    .DisposeWith(d);
+                this.OneWayBind(ViewModel,
+                    vm => vm.IsBackedUp,
+                    v => v.BackUp.IsVisible,
+                    backedUp => !backedUp)
+                    .DisposeWith(d);
+
                 this.BindCommand(ViewModel,
                     vm => vm.NavReceiveCommand,
                     v => v.NavReceiveCommand)

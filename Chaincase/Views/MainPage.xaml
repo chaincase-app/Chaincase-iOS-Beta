@@ -23,6 +23,12 @@
         </DataTemplate>
       </ListView.ItemTemplate>
     </ListView>
+    <Button x:Name="BackUp"
+            Text="Don't forget—back up your wallet!"
+            BackgroundColor="LightPink"
+            TextColor="DarkRed"
+            BorderColor="Pink"
+            />
     <Button Text="Receive"
             x:Name="NavReceiveCommand"
             VerticalOptions="EndAndExpand" />

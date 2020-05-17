@@ -1,17 +1,16 @@
-﻿using Chaincase.Models;
+﻿using System.ComponentModel;
+using Chaincase.Models;
 using Newtonsoft.Json;
-using System.Collections.Generic;
-using System.ComponentModel;
 using WalletWasabi.Bases;
-using WalletWasabi.Blockchain.Transactions;
 
 namespace Chaincase
 {
-	[JsonObject(MemberSerialization.OptIn)]
+    [JsonObject(MemberSerialization.OptIn)]
 	public class UiConfig : ConfigBase
 	{
         private string _balance;
 		private TransactionInfo[] _transactions;
+		private bool _isBackedUp;
 
 		[DefaultValue("0")]
 		[JsonProperty(PropertyName = "Balance", DefaultValueHandling = DefaultValueHandling.Populate)]
@@ -27,6 +26,13 @@ namespace Chaincase
 			get => _transactions;
 			set => RaiseAndSetIfChanged(ref _transactions, value);
 		}
+
+        [JsonProperty(PropertyName="IsBackedUp")]
+        public bool IsBackedUp
+        {
+			get => _isBackedUp;
+			set => RaiseAndSetIfChanged(ref _isBackedUp, value);
+        }
     
 		public UiConfig() : base()
 		{

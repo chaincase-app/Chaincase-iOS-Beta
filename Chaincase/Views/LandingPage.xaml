@@ -12,7 +12,7 @@
            HorizontalOptions="FillAndExpand" />
     <Label Text="The private way to Bitcoin"
            HorizontalOptions="FillAndExpand" />
-    <Button Text="New Wallet >"
+    <Button Text="New Wallet →"
             x:Name="NewWalletButton"
             VerticalOptions="EndAndExpand"/>
     <!-- Button Text="Recover Wallet >"
