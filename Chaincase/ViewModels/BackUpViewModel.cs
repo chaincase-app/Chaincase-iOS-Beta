@@ -16,19 +16,24 @@ namespace Chaincase.ViewModels
 	{
 		protected Global Global { get; }
 
-		private IEnumerable<string> _seedWords;
+		private List<SeedWordViewModel> _seedWords;
 
 		public BackUpViewModel()
             : base(Locator.Current.GetService<IViewStackService>())
 		{
-			SeedWords = new string[] { "a", "b", "c" };
-
-			NextCommand = ReactiveCommand.CreateFromObservable(ViewStackService.PopModal);
+			SeedWords = new List<SeedWordViewModel> { new SeedWordViewModel("a", 1), new SeedWordViewModel("b", 2)};
+            
+			VerifyCommand = ReactiveCommand.CreateFromObservable(() =>
+			{
+				ViewStackService.PushModal(new StartBackUpViewModel()).Subscribe();
+				return Observable.Return(Unit.Default);
+			});
 		}
 
-		public ReactiveCommand<Unit, Unit> NextCommand;
+		public ReactiveCommand<Unit, Unit> VerifyCommand;
 
-        public IEnumerable<string> SeedWords
+
+		public List<SeedWordViewModel> SeedWords
         {
 			get => _seedWords;
 			set => this.RaiseAndSetIfChanged(ref _seedWords, value);
