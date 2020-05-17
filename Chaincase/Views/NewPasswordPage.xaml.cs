@@ -5,10 +5,10 @@ using System.Reactive.Disposables;
 
 namespace Chaincase.Views
 {
-	public partial class PasswordPage : ReactiveContentPage<PasswordViewModel>
+	public partial class NewPasswordPage : ReactiveContentPage<NewPasswordViewModel>
 	{
 
-		public PasswordPage()
+		public NewPasswordPage()
 		{
 			InitializeComponent();
 			this.WhenActivated(d =>

@@ -34,8 +34,10 @@ namespace Chaincase.ViewModels
         public MainViewModel()
             : base(Locator.Current.GetService<IViewStackService>())
         {
-            Task.Run(async () => await App.LoadWalletAsync());
             Global = Locator.Current.GetService<Global>();
+            Global.SetDefaultWallet();
+            Task.Run(async () => await App.LoadWalletAsync());
+
             if (Disposables != null)
             {
                 throw new Exception("Wallet opened before it was closed.");

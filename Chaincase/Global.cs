@@ -70,16 +70,20 @@ namespace Chaincase
 
                 Logger.InitializeDefaults(Path.Combine(DataDir, "Logs.txt"));
 
+                UiConfig = new UiConfig(Path.Combine(DataDir, "UiConfig.json"));
+                UiConfig.LoadOrCreateDefaultFile();
                 Config = new Config(Path.Combine(DataDir, "Config.json"));
                 Config.LoadOrCreateDefaultFile();
 
-                UiConfig = new UiConfig(Path.Combine(DataDir, "UiConfig.json"));
-                UiConfig.LoadOrCreateDefaultFile();
-
                 WalletManager = new WalletManager(Network, new WalletDirectories(DataDir));
-                Wallet = WalletManager.GetWalletByName(Network.ToString());
+
                 WalletManager.WalletRelevantTransactionProcessed += WalletManager_WalletRelevantTransactionProcessed;
             }
+        }
+
+        public void SetDefaultWallet()
+        {
+             Wallet = WalletManager.GetWalletByName(Network.ToString());
         }
 
 		private bool InitializationCompleted { get; set; } = false;

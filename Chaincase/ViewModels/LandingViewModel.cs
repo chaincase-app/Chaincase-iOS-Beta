@@ -14,7 +14,7 @@ namespace Chaincase.ViewModels
 		{
 			NewWalletCommand = ReactiveCommand.CreateFromObservable(() =>
 			{
-				ViewStackService.PushPage(new PasswordViewModel()).Subscribe();
+				ViewStackService.PushPage(new NewPasswordViewModel()).Subscribe();
 				return Observable.Return(Unit.Default);
 			});
 		}

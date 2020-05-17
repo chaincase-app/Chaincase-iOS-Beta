@@ -1,38 +1,34 @@
-﻿using ReactiveUI;
+﻿using System;
+using System.IO;
 using System.Reactive;
 using System.Reactive.Linq;
-using System;
 using Chaincase.Navigation;
-using Splat;
 using NBitcoin;
+using ReactiveUI;
+using Splat;
 using WalletWasabi.Blockchain.Keys;
-using System.IO;
 
 namespace Chaincase.ViewModels
 {
-	public class PasswordViewModel : ViewModelBase
+    public class NewPasswordViewModel : ViewModelBase
 	{
 		protected Global Global { get; }
 
 		private string _password;
 
-		public PasswordViewModel()
+		public NewPasswordViewModel()
             : base(Locator.Current.GetService<IViewStackService>())
 		{
 			Global = Locator.Current.GetService<Global>();
 			SubmitCommand = ReactiveCommand.CreateFromObservable(() =>
 			{
-				var mnemonic = GenerateMnemonic(Password, Global.Network).ToString();
-				ViewStackService.PushPage(new MnemonicViewModel(mnemonic)).Subscribe();
+				string walletFilePath = Path.Combine(Global.WalletManager.WalletDirectories.WalletsDir, $"{Global.Network}.json");
+				KeyManager.CreateNew(out Mnemonic seedWords, Password, walletFilePath);
+                // save seedWords to keychain
+                // set/default UiConfig to NotBackedUp
+				ViewStackService.PushPage(new MainViewModel()).Subscribe();
 				return Observable.Return(Unit.Default);
 			});
-		}
-
-		private Mnemonic GenerateMnemonic(string passphrase, NBitcoin.Network network)
-		{
-			string walletFilePath = Path.Combine(Global.WalletManager.WalletDirectories.WalletsDir, $"{network}.json");
-			KeyManager.CreateNew(out Mnemonic mnemonic, passphrase, walletFilePath);
-			return mnemonic;
 		}
 
 		public ReactiveCommand<Unit, Unit> SubmitCommand;

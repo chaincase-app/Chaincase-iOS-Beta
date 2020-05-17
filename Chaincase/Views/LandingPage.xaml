@@ -10,7 +10,7 @@
   <StackLayout Spacing="0" Padding="10,40,10,40">
     <Label Text="Chaincase"
            HorizontalOptions="FillAndExpand" />
-    <Label Text="The easy, private, way to Bitcoin"
+    <Label Text="The private way to Bitcoin"
            HorizontalOptions="FillAndExpand" />
     <Button Text="New Wallet >"
             x:Name="NewWalletButton"
