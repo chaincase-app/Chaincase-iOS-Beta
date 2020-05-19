@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using Chaincase.Navigation;
@@ -16,27 +17,50 @@ namespace Chaincase.ViewModels
 	{
 		protected Global Global { get; }
 
-		private List<SeedWordViewModel> _seedWords;
+		private List<string> _seedWords;
+        private string[] _indexedWords;
+
 
 		public BackUpViewModel()
             : base(Locator.Current.GetService<IViewStackService>())
 		{
-			SeedWords = new List<SeedWordViewModel> { new SeedWordViewModel("a", 1), new SeedWordViewModel("b", 2)};
-            
+			Global = Locator.Current.GetService<Global>();
+			SeedWords = new List<string> { "a", "b", "c", "d", "e", "f", "g", "h"};
+
+			IndexedWords = new string[SeedWords.Count()];
+			for (int i = 0; i < SeedWords.Count(); i++)
+            {
+				IndexedWords[i] = $"{i+1}. {SeedWords[i]}";
+            }
+
 			VerifyCommand = ReactiveCommand.CreateFromObservable(() =>
 			{
-				ViewStackService.PushModal(new StartBackUpViewModel()).Subscribe();
+                if (Global.UiConfig.IsBackedUp)
+                {
+					// pop back home
+					ViewStackService.PopPage();
+					ViewStackService.PopPage();
+                } else
+                {
+					// verify backup
+					ViewStackService.PushPage(new VerifyMnemonicViewModel(SeedWords, null)).Subscribe();
+                }
 				return Observable.Return(Unit.Default);
 			});
 		}
 
 		public ReactiveCommand<Unit, Unit> VerifyCommand;
 
-
-		public List<SeedWordViewModel> SeedWords
+		public List<string> SeedWords
         {
 			get => _seedWords;
 			set => this.RaiseAndSetIfChanged(ref _seedWords, value);
         }
+
+		public string[] IndexedWords
+		{
+			get => _indexedWords;
+			set => this.RaiseAndSetIfChanged(ref _indexedWords, value);
+		}
 	}
 }

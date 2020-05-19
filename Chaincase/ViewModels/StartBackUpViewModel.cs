@@ -17,7 +17,7 @@ namespace Chaincase.ViewModels
 		{
 			NextCommand = ReactiveCommand.CreateFromObservable(() =>
 			{
-				ViewStackService.PushModal(new BackUpViewModel()).Subscribe();
+				ViewStackService.PushPage(new BackUpViewModel()).Subscribe();
 				return Observable.Return(Unit.Default);
 			});
 		}

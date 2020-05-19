@@ -84,7 +84,7 @@ namespace Chaincase.ViewModels
 
             NavBackUpCommand = ReactiveCommand.CreateFromObservable(() =>
             {
-                ViewStackService.PushModal(new StartBackUpViewModel()).Subscribe();
+                ViewStackService.PushPage(new StartBackUpViewModel()).Subscribe();
                 return Observable.Return(Unit.Default);
             });
 

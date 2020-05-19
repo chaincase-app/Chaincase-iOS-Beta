@@ -5,57 +5,14 @@
                           xmlns:rxui="clr-namespace:ReactiveUI.XamForms;assembly=ReactiveUI.XamForms"
                           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                           xmlns="http://xamarin.com/schemas/2014/forms"
-                          Title="Create Wallet">
-  <rxui:ReactiveContentPage.Resources>
-    <ResourceDictionary>
-      <Keyboard x:Key="NoCapitalizationKeyboard"
-                x:FactoryMethod="Create">
-        <x:Arguments>
-          <KeyboardFlags>None</KeyboardFlags>
-        </x:Arguments>
-      </Keyboard>
-    </ResourceDictionary>
-  </rxui:ReactiveContentPage.Resources>
+                          Title="Verify Words">
+  <StackLayout x:Name="Stack">
+    <Label x:Name="InstructionLabel" Text="Pick word 1"/>
 
-  <StackLayout>
-    <Label Text="Verify your recovery words" />
-    <Grid>
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*" />
-        <ColumnDefinition Width="*" />
-        <ColumnDefinition Width="*" />
-        <ColumnDefinition Width="*" />
-
-      </Grid.ColumnDefinitions>
-      <Entry Text=""
-             Placeholder="1st recovery word"
-             x:Name="Recall0"
-             Keyboard="{StaticResource NoCapitalizationKeyboard}" />
-      <Entry Grid.Column="1"
-             Text=""
-             Placeholder="4th recovery word"
-             x:Name="Recall1"
-             Keyboard="{StaticResource NoCapitalizationKeyboard}" />
-      <Entry Grid.Column="2"
-             Placeholder="7th recovery word"
-             Text=""
-             x:Name="Recall2"
-             Keyboard="{StaticResource NoCapitalizationKeyboard}" />
-      <Entry Grid.Column="3"
-             Placeholder="10th recovery word"
-             Text=""
-             x:Name="Recall3"
-             Keyboard="{StaticResource NoCapitalizationKeyboard}" />
-    </Grid>
-    <Label Grid.Column="3"
-      Text="Password" />
-    <Entry Grid.Column="3"
-           x:Name="Password"
-           Placeholder="something I know"
-           IsPassword="true"
-           Keyboard="{StaticResource NoCapitalizationKeyboard}" />
-    <Button Text="Verify"
-            x:Name="VerifyButton"
-            VerticalOptions="EndAndExpand"/>
+    <Button x:Name="ButtonA" />
+    <Button x:Name="ButtonB" />
+    <Button x:Name="ButtonC" />
+    <Button x:Name="ButtonD" />
+    <Button x:Name="ButtonE" />
   </StackLayout>
 </rxui:ReactiveContentPage>

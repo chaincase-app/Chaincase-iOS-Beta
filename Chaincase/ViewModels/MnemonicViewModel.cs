@@ -7,6 +7,7 @@ using System.Reactive;
 using System;
 using System.Reactive.Linq;
 using Splat;
+using System.Collections.Generic;
 
 namespace Chaincase.ViewModels
 {
@@ -27,7 +28,7 @@ namespace Chaincase.ViewModels
 			MnemonicString = mnemonicString;
 			AcceptCommand = ReactiveCommand.CreateFromObservable(() =>
 			{
-				ViewStackService.PushPage(new VerifyMnemonicViewModel(MnemonicString)).Subscribe();
+				ViewStackService.PushPage(new VerifyMnemonicViewModel(new List<string>(MnemonicString.Split(' ')), null)).Subscribe();
 				return Observable.Return(Unit.Default);
 			});
 		}

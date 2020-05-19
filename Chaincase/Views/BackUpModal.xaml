@@ -12,10 +12,12 @@
     <Label Text="Back Up"
            FontAttributes="Bold" />
     <Label Text="Be sure to write your words numbered in order on a piece of paper" />
-    <CarouselView x:Name="Carousel" ItemsSource="{Binding SeedWords}" IsBounceEnabled="False" PositionChanged="OnPositionChanged">
+    <CarouselView x:Name="Carousel" ItemsSource="{Binding IndexedWords}" IsBounceEnabled="False" PositionChanged="OnPositionChanged">
       <CarouselView.ItemTemplate>
         <DataTemplate>
-            <templates:SeedWordTemplate ViewModel="{Binding .}" />
+          <StackLayout>           <Label Text="{Binding .}" /></StackLayout>
+
+            <!--templates:SeedWordTemplate ViewModel="{Binding .}" -->
         </DataTemplate>
        </CarouselView.ItemTemplate>
     </CarouselView>
