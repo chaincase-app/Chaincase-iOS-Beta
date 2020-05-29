@@ -64,7 +64,22 @@ namespace Chaincase.ViewModels
                 .ToProperty(this, x => x.Status)
                 .DisposeWith(Disposables);
 
+            _progressPercent = ActiveStatuses.WhenAnyValue(x => x.CurrentStatus)
+                .Select(status =>
+                {
+                    switch (status.Type)
+                    {
+                        case StatusType.Ready:
+                            return 1;
+                        case StatusType.Synchronizing:
+                            return status.Percentage / 200.0 + 0.3;
+                        case StatusType.Connecting:
+                        default:
+                            return 0.3;
 
+                    }
+                })
+                .ToProperty(this, x => x.ProgressPercent);
 
             Task.Run(async () =>
             {

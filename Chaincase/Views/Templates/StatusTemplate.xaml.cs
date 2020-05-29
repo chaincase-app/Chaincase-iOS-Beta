@@ -62,8 +62,8 @@ namespace Chaincase.Views.Templates
         private static void ProgressBarProgressChanged(ProgressBar progressBar, double progress)
         {
             ViewExtensions.CancelAnimations(progressBar);
-            var lengthMs = progress == 1 ? 100 : (uint)((progress - progressBar.Progress) * 40000);
-            progressBar.ProgressTo((double)progress, lengthMs, Easing.SinIn);
+            var lengthMs = progress == 1 ? 100 : (uint)((progress - progressBar.Progress) * 80000);
+            progressBar.ProgressTo((double)progress, lengthMs, Easing.SinOut);
         }
     }
 }
