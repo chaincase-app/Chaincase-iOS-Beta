@@ -37,6 +37,7 @@ namespace Chaincase.ViewModels
         private BackendStatus _backend;
         private TorStatus _tor;
         private int _peers;
+        private int _maxFilters = -1;
         private ObservableAsPropertyHelper<int> _filtersLeft;
         private string _btcPrice;
         private ObservableAsPropertyHelper<string> _status;
@@ -63,20 +64,7 @@ namespace Chaincase.ViewModels
                 .ToProperty(this, x => x.Status)
                 .DisposeWith(Disposables);
 
-            _progressPercent = ActiveStatuses.WhenAnyValue(x => x.CurrentStatus)
-                .Select(status =>
-                {
-                    switch (status.Type)
-                    {
-                        case StatusType.Ready:
-                            return 1;
-                        case StatusType.Connecting:
-                        default:
-                            return 0.9;
 
-                    }
-                })
-                .ToProperty(this, x => x.ProgressPercent);
 
             Task.Run(async () =>
             {
@@ -195,7 +183,17 @@ namespace Chaincase.ViewModels
                     }
                     else
                     {
-                        TryAddStatus(StatusType.Synchronizing);
+                        ushort perc = 0;
+                        if (filtersLeft > 0)
+						{
+                            if (_maxFilters == -1)
+							{
+                                _maxFilters = filtersLeft;
+                            }
+                            perc =  Convert.ToUInt16((double)(_maxFilters - filtersLeft) / filtersLeft * 100);
+                        }
+
+                        TryAddStatus(StatusType.Synchronizing, perc);
                     }
                 });
 

@@ -16,27 +16,12 @@ namespace Chaincase.Views.Templates
             this.WhenActivated(d =>
             {
                 this.OneWayBind(ViewModel,
-                    vm => vm.Status,
-                    v => v.StatusLabel.Text)
-                    .DisposeWith(d);
-                this.OneWayBind(ViewModel,
                     vm => vm.Tor,
                     v => v.TorLabel.Text,
                     TorStatusConv);
                 this.OneWayBind(ViewModel,
                     vm => vm.Status,
-                    v => v.Indicator.IsRunning,
-                    IsStatusNotReadyConv)
-                    .DisposeWith(d);
-                this.OneWayBind(ViewModel,
-                    vm => vm.Status,
-                    v => v.Indicator.IsVisible,
-                    IsStatusNotReadyConv)
-                    .DisposeWith(d);
-                this.OneWayBind(ViewModel,
-                    vm => vm.Status,
-                    v => v.ReadyIcon.IsVisible,
-                    IsStatusReadyConv)
+                    v => v.StatusLabel.Text)
                     .DisposeWith(d);
             });
         }

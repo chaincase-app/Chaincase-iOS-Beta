@@ -30,7 +30,7 @@ namespace Chaincase.Models
 				StatusType.CriticalUpdate => "THE BACKEND WAS UPGRADED WITH BREAKING CHANGES - PLEASE UPDATE YOUR WASABI WALLET!",
 				StatusType.OptionalUpdate => "A new version of Wasabi Wallet is available.",
 				StatusType.Connecting => "Connecting...",
-				StatusType.Synchronizing => "Synchronizing...",
+				StatusType.Synchronizing => "Syncing private history...",
 				StatusType.WalletProcessingFilters => "Processing block filters...",
 				StatusType.WalletProcessingTransactions => "Processing transactions...",
 				StatusType.WalletLoading => "Loading wallet...",

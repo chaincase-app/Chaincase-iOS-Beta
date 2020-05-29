@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <rxui:ReactiveContentPage x:Class="Chaincase.Views.MainPage"
                           x:TypeArguments="vm:MainViewModel"
-                          xmlns:ios="clr-namespace:Xamarin.Forms.PlatformConfiguration.iOSSpecific;assembly=Xamarin.Forms.Core"
                           xmlns:vm="clr-namespace:Chaincase.ViewModels;assembly=Chaincase"
                           xmlns:rxui="clr-namespace:ReactiveUI.XamForms;assembly=ReactiveUI.XamForms"
                           xmlns:templates="clr-namespace:Chaincase.Views.Templates;assembly=Chaincase"
@@ -15,7 +14,6 @@
     <templates:StatusTemplate x:Name="Status" />
     <ListView x:Name="Transactions"
               SelectionMode="None"
-              ios:ListView.SeparatorStyle="FullWidth"
               VerticalOptions="Start">
       <ListView.ItemTemplate>
         <DataTemplate>
