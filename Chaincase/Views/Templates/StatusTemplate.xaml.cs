@@ -18,7 +18,13 @@ namespace Chaincase.Views.Templates
                 this.OneWayBind(ViewModel,
                     vm => vm.Tor,
                     v => v.TorLabel.Text,
-                    TorStatusConv);
+                    TorStatusConv)
+                    .DisposeWith(d);
+                this.OneWayBind(ViewModel,
+                    vm => vm.Peers,
+                    v => v.PeersLabel.Text,
+                    p => "Peers: " + p)
+                    .DisposeWith(d);
                 this.OneWayBind(ViewModel,
                     vm => vm.Status,
                     v => v.StatusLabel.Text)

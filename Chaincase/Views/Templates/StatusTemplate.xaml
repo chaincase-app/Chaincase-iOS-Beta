@@ -9,6 +9,7 @@
   <StackLayout>
   <StackLayout Orientation="Horizontal" Spacing="10">
     <Label x:Name="TorLabel"></Label>
+    <Label x:Name="PeersLabel"></Label>
     <Label x:Name="StatusLabel"></Label>
   </StackLayout>
   <ProgressBar local:AttachedProperties.AnimatedProgress="{Binding ProgressPercent}"/>
