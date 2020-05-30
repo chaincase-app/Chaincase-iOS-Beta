@@ -16,6 +16,7 @@
     <Grid.RowDefinitions>
       <RowDefinition Height="*" />
       <RowDefinition Height="*" />
+      <RowDefinition Height="1" />
     </Grid.RowDefinitions>
     <Switch x:Name="IsSelected"
             IsToggled="{Binding IsSelected}"
@@ -41,5 +42,15 @@
             Text="Dequeue"
             Grid.Column="3"
             Grid.Row="1" />
+    <BoxView Color="WhiteSmoke"
+             HeightRequest="5"
+             Grid.Column="0"
+             Grid.ColumnSpan="4"
+             Grid.Row="2"></BoxView>
+    <BoxView Color="WhiteSmoke"
+          HeightRequest="5"
+          Grid.Column="0"
+          Grid.ColumnSpan="4"
+          Grid.Row="2"></BoxView>
   </Grid>
 </rxui:ReactiveContentView>

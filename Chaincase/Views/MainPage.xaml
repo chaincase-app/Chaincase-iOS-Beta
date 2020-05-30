@@ -15,7 +15,8 @@
            FontAttributes="Bold" />
     <ListView x:Name="Transactions"
               SelectionMode="None"
-              VerticalOptions="Start">
+              VerticalOptions="Start"
+              SeparatorVisibility="None">
       <ListView.ItemTemplate>
         <DataTemplate>
           <templates:TransactionViewCell ViewModel="{Binding .}" />
