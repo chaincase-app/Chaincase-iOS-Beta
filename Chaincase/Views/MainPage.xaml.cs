@@ -6,6 +6,7 @@ using Xamarin.Forms;
 using System.Reactive.Linq;
 using System.Reactive;
 using System;
+using System.Linq;
 
 namespace Chaincase.Views
 {
@@ -31,6 +32,16 @@ namespace Chaincase.Views
                 this.OneWayBind(ViewModel,
                     vm => vm.Transactions,
                     v => v.Transactions.ItemsSource)
+                    .DisposeWith(d);
+                this.OneWayBind(ViewModel,
+                    vm => vm.Transactions,
+                    v => v.Transactions.IsVisible,
+                    txs => txs.Count() > 0)
+                    .DisposeWith(d);
+                this.OneWayBind(ViewModel,
+                    vm => vm.Transactions,
+                    v => v.NewWalletLabel.IsVisible,
+                    txs => txs.Count() == 0)
                     .DisposeWith(d);
                 this.Bind(ViewModel,
                     vm => vm.StatusViewModel,

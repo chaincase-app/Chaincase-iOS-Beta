@@ -22,6 +22,10 @@
         </DataTemplate>
       </ListView.ItemTemplate>
     </ListView>
+    <Label x:Name="NewWalletLabel"
+           HorizontalTextAlignment="Center"
+           VerticalTextAlignment="Center"
+           Text="When sync is done and you have coins history is here. First sync may take 20 minutes."></Label>
     <Button Text="Receive"
             x:Name="NavReceiveCommand"
             VerticalOptions="EndAndExpand" />
