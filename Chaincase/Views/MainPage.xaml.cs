@@ -54,10 +54,6 @@ namespace Chaincase.Views
                     vm => vm.InitCoinJoin,
                     v => v.CoinJoinButton)
                     .DisposeWith(d);
-                this.OneWayBind(ViewModel,
-                    vm => vm.HasCoins,
-                    v => v.CoinJoinButton.IsVisible)
-                    .DisposeWith(d);
 
                 this.BindCommand(ViewModel,
                     vm => vm.PrivateSendCommand,

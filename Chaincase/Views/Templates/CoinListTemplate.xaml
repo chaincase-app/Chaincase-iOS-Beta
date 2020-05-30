@@ -6,6 +6,12 @@
                           xmlns:templates="clr-namespace:Chaincase.Views.Templates;assembly=Chaincase"
                           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                           xmlns="http://xamarin.com/schemas/2014/forms">
+  <StackLayout>
+        <Label x:Name="EmptyWalletLabel"
+           HorizontalTextAlignment="Center"
+           VerticalTextAlignment="Center"
+           VerticalOptions="FillAndExpand"
+           Text="When sync is done and you have coins they go here."></Label>
     <ListView x:Name="Coins"
               SelectionMode="None"
               SeparatorVisibility="None">
@@ -17,4 +23,6 @@
         </DataTemplate>
       </ListView.ItemTemplate>
     </ListView>
+
+  </StackLayout>
 </rxui:ReactiveContentView>

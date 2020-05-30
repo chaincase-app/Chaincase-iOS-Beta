@@ -29,9 +29,9 @@ namespace Chaincase
 
         [JsonProperty(PropertyName = "Network")]
         [JsonConverter(typeof(NetworkJsonConverter))]
-        public NBitcoin.Network Network { get; internal set; } = NBitcoin.Network.TestNet;
+        public NBitcoin.Network Network { get; internal set; } = NBitcoin.Network.Main;
 
-        [DefaultValue("http://wasabiukrxmkdgve5kynjztuovbg43uxcbcxn6y2okcrsg7gb6jdmbad.onion/")]
+        [DefaultValue("http://aovl4ycklfkvkr66cgcpt56ffbims4z6dlkdwaubysf2otxmzibu5rad.onion/")]
         [JsonProperty(PropertyName = "MainNetBackendUriV3", DefaultValueHandling = DefaultValueHandling.Populate)]
         public string MainNetBackendUriV3 { get; private set; }
 
