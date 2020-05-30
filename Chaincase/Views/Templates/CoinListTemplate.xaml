@@ -11,7 +11,7 @@
            HorizontalTextAlignment="Center"
            VerticalTextAlignment="Center"
            VerticalOptions="FillAndExpand"
-           Text="When sync is done and you have coins they go here."></Label>
+           Text="Coins go here when sync is done if you have any."></Label>
     <ListView x:Name="Coins"
               SelectionMode="None"
               SeparatorVisibility="None">
