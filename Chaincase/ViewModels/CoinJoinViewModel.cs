@@ -35,7 +35,7 @@ namespace Chaincase.ViewModels
         private RoundPhaseState _roundPhaseState;
         private DateTimeOffset _roundTimesout;
         private TimeSpan _timeLeftTillRoundTimeout;
-        private Money _requiredBTC;
+        private Money _requiredBTC = new Money(12000);
         private Money _amountQueued;
         private bool _isDequeueBusy;
         private bool _isEnqueueBusy;
