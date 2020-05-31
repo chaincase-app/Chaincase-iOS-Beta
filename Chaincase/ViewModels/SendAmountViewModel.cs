@@ -41,6 +41,7 @@ namespace Chaincase.ViewModels
 			Global = Locator.Current.GetService<Global>();
             CoinList = coinList;
             AmountText = "0.0";
+			EstimatedBtcFee = Money.Zero;
 
             this.WhenAnyValue(x => x.AmountText)
                 .ObserveOn(RxApp.MainThreadScheduler)
