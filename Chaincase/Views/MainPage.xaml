@@ -28,7 +28,7 @@
            VerticalTextAlignment="Center"
            VerticalOptions="FillAndExpand"
            Text="History is here when sync is done and you have coins. First sync may take 20 minutes."></Label>
-    <Button Text="Receive"
+    <Button Text="Get Receive Address"
             x:Name="NavReceiveCommand"
             VerticalOptions="EndAndExpand" />
     <Button Text="CoinJoin"
