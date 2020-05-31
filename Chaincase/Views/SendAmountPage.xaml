@@ -13,7 +13,7 @@
         <Entry x:Name="Amount" WidthRequest="130" HorizontalTextAlignment="End"/>
       </StackLayout>
       <StackLayout Orientation="Horizontal">
-        <Label Text="No Change" HorizontalOptions="FillAndExpand" />
+        <Label Text="Use Max Selected" HorizontalOptions="FillAndExpand" />
         <Switch x:Name="Max"/>
       </StackLayout>
     <templates:CoinListTemplate x:Name="CoinList"
