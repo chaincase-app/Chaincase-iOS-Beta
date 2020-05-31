@@ -23,7 +23,7 @@
     <Entry Placeholder="e.g. Dan for bread"
             x:Name="Memo"
            Keyboard="{StaticResource NoCapitalizationKeyboard}" />
-    <Label Text="Set a memo to remember where your coins come from" />
+    <Label Text="You MUST write a memo here of WHO will know about this address. It may help to write why they pay too. This memo is ONLY saved on this device for your privacy." />
 
     <Button Text="Generate Address"
             x:Name="GenerateButton"
