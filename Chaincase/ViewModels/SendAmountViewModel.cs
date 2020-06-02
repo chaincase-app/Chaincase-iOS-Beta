@@ -23,6 +23,7 @@ namespace Chaincase.ViewModels
 		private bool _isMax;
 		private string _amountText;
 		private CoinListViewModel _coinList;
+		readonly ObservableAsPropertyHelper<string> _sendFromText;
 		private Feenum _feeChoice;
 		private FeeRate _feeRate;
 		private Money _allSelectedAmount;
@@ -79,6 +80,15 @@ namespace Chaincase.ViewModels
                         }
                     }
                 });
+
+			_sendFromText = this
+				.WhenAnyValue(x => x.CoinList.SelectPrivateSwitchState, x => x.CoinList.SelectedCount)
+				.Select(tup =>
+				{
+					var coinGrammaticalNumber = tup.Item2 == 1 ? " Coin ▾" : " Coins ▾";
+					return tup.Item1 ? "Auto-Select Private ▾" : (tup.Item2.ToString() + coinGrammaticalNumber);
+				})
+				.ToProperty(this, nameof(SendFromText));
 
 			FeeChoice = Feenum.Standard; // Default
 
@@ -313,6 +323,9 @@ namespace Chaincase.ViewModels
 			get => _coinList;
 			set => this.RaiseAndSetIfChanged(ref _coinList, value);
 		}
+
+		public string SendFromText => _sendFromText.Value;
+
 	}
 
 	public enum Feenum

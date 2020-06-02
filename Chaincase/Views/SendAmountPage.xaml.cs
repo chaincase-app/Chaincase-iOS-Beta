@@ -23,6 +23,10 @@ namespace Chaincase.Views
                     v => v.SendFromButton)
                     .DisposeWith(d);
                 this.OneWayBind(ViewModel,
+                    vm => vm.SendFromText,
+                    v => v.SendFromButton.Text)
+                    .DisposeWith(d);
+                this.OneWayBind(ViewModel,
                     vm => vm.CoinList.SelectedAmount,
                     v => v.AvailableLabel.Text,
                     amt => "Available: ₿ " + amt.ToString())

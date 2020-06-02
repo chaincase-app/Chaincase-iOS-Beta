@@ -9,7 +9,7 @@
                           Title="Send">
   <StackLayout>
     <Label Text="Send From:" HorizontalTextAlignment="Center"/>
-    <Button x:Name="SendFromButton" Text="Auto-Select Private ▾"/>
+    <Button x:Name="SendFromButton"/>
     <Label x:Name="AvailableLabel" HorizontalTextAlignment="Center"/>
 
 

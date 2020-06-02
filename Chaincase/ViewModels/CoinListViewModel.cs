@@ -24,7 +24,7 @@ namespace Chaincase.ViewModels
 
         private ReadOnlyObservableCollection<CoinViewModel> _coinViewModels;
         private Money _selectedAmount;
-        private bool? _selectPrivateSwitchState;
+        private bool _selectPrivateSwitchState;
         private bool _isCoinListLoading;
         private bool _isAnyCoinSelected;
         private int _numberSelected;
@@ -71,7 +71,6 @@ namespace Chaincase.ViewModels
                         SelectCoins(x => x.AnonymitySet >= Global.Config.PrivacyLevelSome);
                         break;
 
-                    case null:
                     case false:
                         SelectCoins(x => false);
                         SelectPrivateSwitchState = false;
@@ -157,28 +156,22 @@ namespace Chaincase.ViewModels
             SelectPrivateSwitchState = GetCheckBoxesSelectedState(coins, x => x.AnonymitySet >= Global.Config.PrivacyLevelSome);
         }
 
-        private bool? GetCheckBoxesSelectedState(CoinViewModel[] allCoins, Func<CoinViewModel, bool> coinFilterPredicate)
+        private bool GetCheckBoxesSelectedState(CoinViewModel[] allCoins, Func<CoinViewModel, bool> coinFilterPredicate)
         {
             var coins = allCoins.Where(coinFilterPredicate).ToArray();
 
             bool isAllSelected = coins.All(coin => coin.IsSelected);
-            bool isAllDeselected = coins.All(coin => !coin.IsSelected);
-
-            if (isAllDeselected)
-            {
-                return false;
-            }
 
             if (isAllSelected)
             {
                 if (coins.Length != allCoins.Count(coin => coin.IsSelected))
                 {
-                    return null;
+                    return false;
                 }
                 return true;
             }
 
-            return null;
+            return false;
         }
 
         private void SelectCoins(Func<CoinViewModel, bool> coinFilterPredicate)
@@ -219,7 +212,7 @@ namespace Chaincase.ViewModels
             set => this.RaiseAndSetIfChanged(ref _selectedAmount, value);
         }
 
-        public bool? SelectPrivateSwitchState
+        public bool SelectPrivateSwitchState
         {
             get => _selectPrivateSwitchState;
             set => this.RaiseAndSetIfChanged(ref _selectPrivateSwitchState, value);
