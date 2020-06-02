@@ -8,20 +8,16 @@
                           xmlns="http://xamarin.com/schemas/2014/forms"
                           Title="Send">
   <StackLayout>
-      <Label Text="Send From:" HorizontalTextAlignment="Center"/>
-      <Button x:Name="SendFromButton" Text="Auto-Select Private ▾"/>
-      <StackLayout Orientation="Horizontal">
-        <Label Text="Amount ₿" HorizontalOptions="FillAndExpand"/>
-        <Entry x:Name="Amount" WidthRequest="130" HorizontalTextAlignment="End"/>
-      </StackLayout>
-      <StackLayout Orientation="Horizontal">
-        <Label Text="Send Max" HorizontalOptions="FillAndExpand" />
-        <Switch x:Name="Max"/>
-      </StackLayout>
-
-    <templates:CoinListTemplate x:Name="CoinList"
-                                VerticalOptions="FillAndExpand" />
-    
+    <Label Text="Send From:" HorizontalTextAlignment="Center"/>
+    <Button x:Name="SendFromButton" Text="Auto-Select Private ▾"/>
+    <StackLayout Orientation="Horizontal">
+      <Label Text="Amount ₿" HorizontalOptions="FillAndExpand"/>
+      <Entry x:Name="Amount" WidthRequest="130" HorizontalTextAlignment="End"/>
+    </StackLayout>
+    <StackLayout Orientation="Horizontal">
+      <Label Text="Send Max" HorizontalOptions="FillAndExpand" />
+      <Switch x:Name="Max"/>
+    </StackLayout>    
     <Label Text="Network Fee" LineBreakMode="NoWrap" />
     <Grid ColumnSpacing="8" HorizontalOptions="FillAndExpand">
         <Grid.ColumnDefinitions>
@@ -35,7 +31,6 @@
     </Grid>
     <Label x:Name="FeeLabel" />
     <Label x:Name="FeeTargetTimeLabel" />
-
     <Button Text="Next"
             x:Name="NextButton"/>
   </StackLayout>

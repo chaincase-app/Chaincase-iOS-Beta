@@ -7,11 +7,11 @@
                           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                           xmlns="http://xamarin.com/schemas/2014/forms">
   <StackLayout>
-        <Label x:Name="EmptyWalletLabel"
-           HorizontalTextAlignment="Center"
-           VerticalTextAlignment="Center"
-           VerticalOptions="FillAndExpand"
-           Text="Coins go here when sync is done if you have any."></Label>
+    <Label x:Name="EmptyWalletLabel"
+        HorizontalTextAlignment="Center"
+        VerticalTextAlignment="Center"
+        VerticalOptions="FillAndExpand"
+        Text="Coins go here when sync is done if you have any."></Label>
     <ListView x:Name="Coins"
               SelectionMode="None"
               SeparatorVisibility="None">

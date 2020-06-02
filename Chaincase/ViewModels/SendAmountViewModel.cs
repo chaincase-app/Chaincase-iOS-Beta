@@ -130,7 +130,7 @@ namespace Chaincase.ViewModels
 
 			SelectCoins = ReactiveCommand.CreateFromObservable(() =>
 			{
-				ViewStackService.PushModal(new CoinListViewModel()).Subscribe();
+				ViewStackService.PushModal(CoinList).Subscribe();
 				return Observable.Return(Unit.Default);
 			});
         }

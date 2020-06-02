@@ -30,9 +30,6 @@ namespace Chaincase.Views
                     vm => vm.IsMax,
                     v => v.Max.IsToggled)
                     .DisposeWith(d);
-				this.Bind(ViewModel,
-					vm => vm.CoinList,
-					v => v.CoinList.ViewModel);
                 this.BindCommand(ViewModel,
                     vm => vm.GoNext,
                     v => v.NextButton)

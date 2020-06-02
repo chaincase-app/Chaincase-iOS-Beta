@@ -21,6 +21,10 @@ namespace Chaincase.Views
 
             this.WhenActivated(d =>
             {
+				this.Bind(ViewModel,
+					vm => vm.SelectPrivateSwitchState,
+					v => v.SelectPrivateSwitch.IsToggled)
+					.DisposeWith(d);
                 this.OneWayBind(ViewModel,
                     vm => vm.Coins,
                     v => v.Coins.ItemsSource)
@@ -36,9 +40,13 @@ namespace Chaincase.Views
                     coins => coins.Count() == 0)
                     .DisposeWith(d);
             });
-
         }
-	
+
+        void OnSelectPrivateToggled(object sender, ToggledEventArgs e)
+        {
+            ViewModel.SelectPrivateSwitchCommand.Execute().Subscribe();
+        }
+
         protected override async void OnDisappearing()
         {
             base.OnDisappearing();

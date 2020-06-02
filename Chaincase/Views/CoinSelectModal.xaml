@@ -11,7 +11,37 @@
         HorizontalTextAlignment="Center"
         VerticalTextAlignment="Center"
         VerticalOptions="FillAndExpand"
-        Text="Coins go here when sync is done if you have any."></Label>
+        Text="Coins go here when sync is done if you have any." />
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <!-- iOS Switch 51x31 -->
+        <ColumnDefinition Width="51" />
+        <ColumnDefinition Width="*" />
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*" />
+        <RowDefinition Height="*" />
+        <RowDefinition Height="1" />
+      </Grid.RowDefinitions>
+      <Switch x:Name="SelectPrivateSwitch"
+              Toggled="OnSelectPrivateToggled"
+              Grid.Column="0"
+              Grid.Row="0"
+              Grid.RowSpan="2"
+              VerticalOptions="CenterAndExpand" />
+      <Label Text="Auto-Select 🗽 Private"
+             Grid.Column="1"
+             Grid.Row="0" />
+      <Label Text="Recommended"
+             TextColor="Gray"
+             Grid.Column="1"
+             Grid.Row="1" />
+      <BoxView Color="WhiteSmoke"
+            HeightRequest="1"
+            Grid.Column="0"
+            Grid.ColumnSpan="2"
+            Grid.Row="2"/>
+    </Grid>
     <ListView x:Name="Coins"
               SelectionMode="None"
               SeparatorVisibility="None">

@@ -25,6 +25,7 @@ namespace Chaincase.ViewModels
         private ReadOnlyObservableCollection<CoinViewModel> _coinViewModels;
         private string _selectedAmountText;
         private Money _selectedAmount;
+        private bool? _selectPrivateSwitchState;
         private bool _isCoinListLoading;
         private bool _isAnyCoinSelected;
         private bool _warnCommonOwnership;
@@ -44,6 +45,8 @@ namespace Chaincase.ViewModels
                 .Bind(out _coinViewModels)
                 .Subscribe();
 
+            SelectPrivateSwitchState = false;
+
             Disposables = Disposables is null ?
                new CompositeDisposable() :
                throw new NotSupportedException($"Cannot open {GetType().Name} before closing it.");
@@ -58,6 +61,23 @@ namespace Chaincase.ViewModels
                     UpdateRootList();
                 })
                 .DisposeWith(Disposables);
+
+            SelectPrivateSwitchCommand = ReactiveCommand.Create(() =>
+            {
+                switch (SelectPrivateSwitchState)
+                {
+                    case true:
+                        // FIXME MixUntilAnonymitySet
+                        SelectCoins(x => x.AnonymitySet >= Global.Config.PrivacyLevelSome);
+                        break;
+
+                    case null:
+                    case false:
+                        SelectCoins(x => false);
+                        SelectPrivateSwitchState = false;
+                        break;
+                }
+            });
         }
 
         private void UpdateRootList()
@@ -127,6 +147,16 @@ namespace Chaincase.ViewModels
                 .DisposeWith(cvm.GetDisposables()); // Subscription will be disposed with the coinViewModel.
         }
 
+        private void SelectCoins(Func<CoinViewModel, bool> coinFilterPredicate)
+        {
+            foreach (var c in Coins.ToArray())
+            {
+                c.IsSelected = coinFilterPredicate(c);
+            }
+        }
+
+        public ReactiveCommand<Unit, Unit> SelectPrivateSwitchCommand { get; }
+
         public SourceList<CoinViewModel> RootList { get; private set; }
 
         public IEnumerable<CoinViewModel> Coins => _coinViewModels.Where(c => !SelectOnlyFromPrivate || c.AnonymitySet > 1);
@@ -159,6 +189,12 @@ namespace Chaincase.ViewModels
         {
             get => _selectedAmount;
             set => this.RaiseAndSetIfChanged(ref _selectedAmount, value);
+        }
+
+        public bool? SelectPrivateSwitchState
+        {
+            get => _selectPrivateSwitchState;
+            set => this.RaiseAndSetIfChanged(ref _selectPrivateSwitchState, value);
         }
 
         public bool IsCoinListLoading
