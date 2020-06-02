@@ -24,9 +24,7 @@ namespace Chaincase.ViewModels
 			{
 				string walletFilePath = Path.Combine(Global.WalletManager.WalletDirectories.WalletsDir, $"{Global.Network}.json");
 				KeyManager.CreateNew(out Mnemonic seedWords, Password, walletFilePath);
-                // save seedWords to keychain
-                // set/default UiConfig to NotBackedUp
-				ViewStackService.PushPage(new MainViewModel()).Subscribe();
+				ViewStackService.PushPage(new MnemonicViewModel(seedWords.ToString())).Subscribe();
 				return Observable.Return(Unit.Default);
 			});
 		}

@@ -12,6 +12,11 @@
            HorizontalOptions="FillAndExpand" />
     <Label Text="The private way to Bitcoin"
            HorizontalOptions="FillAndExpand" />
+
+    <Image Source="Chaincase-vertical-no-tagline.png"
+           VerticalOptions="Center"
+           HorizontalOptions="Center"/>
+
     <Button Text="New Wallet >"
             x:Name="NewWalletButton"
             VerticalOptions="EndAndExpand"/>

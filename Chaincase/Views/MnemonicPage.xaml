@@ -7,10 +7,15 @@
                           xmlns="http://xamarin.com/schemas/2014/forms"
                           Title="Create Wallet">
   <StackLayout>
-    <Label x:Name="Mnemonic" />
-    <Label Text="Write down these words in order and keep them safe. If your device breaks or becomes corrupted, you have these words and know your password. BOTH of these pieces of information are necessary to find and spend your bitcoin." />
+    <Label Text="Write down these seed words!"/>
+    <Label x:Name="Mnemonic" BackgroundColor="WhiteSmoke"/>
+    <Label Text="You can recover your wallet on any computer with" />
+    <Label Text="1. These words" />
+    <Label Text="2. Your password" />
     <Button Text="I wrote down my seed words"
             x:Name="Accept"
-            VerticalOptions="EndAndExpand"/>
+            VerticalOptions="EndAndExpand"
+            TextColor="White"
+            BackgroundColor="IndianRed"/>
   </StackLayout>
 </rxui:ReactiveContentPage>

@@ -27,7 +27,7 @@ namespace Chaincase.ViewModels
 			MnemonicString = mnemonicString;
 			AcceptCommand = ReactiveCommand.CreateFromObservable(() =>
 			{
-				ViewStackService.PushPage(new VerifyMnemonicViewModel(MnemonicString)).Subscribe();
+				ViewStackService.PushPage(new MainViewModel()).Subscribe();
 				return Observable.Return(Unit.Default);
 			});
 		}
