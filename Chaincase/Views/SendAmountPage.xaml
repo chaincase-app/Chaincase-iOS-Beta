@@ -19,7 +19,7 @@
     </StackLayout>
     <StackLayout Orientation="Horizontal">
       <Label Text="Send Max" HorizontalOptions="FillAndExpand" />
-      <Switch x:Name="Max"/>
+      <Switch x:Name="MaxSwitch"/>
     </StackLayout>    
     <Label Text="Network Fee" LineBreakMode="NoWrap" />
     <Grid ColumnSpacing="8" HorizontalOptions="FillAndExpand">

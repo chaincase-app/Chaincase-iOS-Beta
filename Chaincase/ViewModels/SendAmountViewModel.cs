@@ -43,6 +43,7 @@ namespace Chaincase.ViewModels
 			Global = Locator.Current.GetService<Global>();
             CoinList = coinList;
             AmountText = "0.0";
+			AllSelectedAmount = Money.Zero;
 			EstimatedBtcFee = Money.Zero;
 
             this.WhenAnyValue(x => x.AmountText)

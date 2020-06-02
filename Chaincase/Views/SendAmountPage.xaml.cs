@@ -37,7 +37,7 @@ namespace Chaincase.Views
 					.DisposeWith(d);
                 this.Bind(ViewModel,
                     vm => vm.IsMax,
-                    v => v.Max.IsToggled)
+                    v => v.MaxSwitch.IsToggled)
                     .DisposeWith(d);
                 this.BindCommand(ViewModel,
                     vm => vm.GoNext,
