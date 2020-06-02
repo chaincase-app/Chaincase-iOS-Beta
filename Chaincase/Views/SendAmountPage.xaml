@@ -10,6 +10,9 @@
   <StackLayout>
     <Label Text="Send From:" HorizontalTextAlignment="Center"/>
     <Button x:Name="SendFromButton" Text="Auto-Select Private ▾"/>
+    <Label x:Name="AvailableLabel" HorizontalTextAlignment="Center"/>
+
+
     <StackLayout Orientation="Horizontal">
       <Label Text="Amount ₿" HorizontalOptions="FillAndExpand"/>
       <Entry x:Name="Amount" WidthRequest="130" HorizontalTextAlignment="End"/>

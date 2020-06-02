@@ -94,16 +94,9 @@ namespace Chaincase.ViewModels
                 return Observable.Return(Unit.Default);
             }, coinListReady);
 
-            PrivateSendCommand = ReactiveCommand.CreateFromObservable(() =>
+            SendCommand = ReactiveCommand.CreateFromObservable(() =>
             {
                 CoinList.SelectOnlyPrivateCoins(true);
-                ViewStackService.PushPage(new SendAmountViewModel(CoinList)).Subscribe();
-                return Observable.Return(Unit.Default);
-            }, coinListReady);
-
-            ExposedSendCommand = ReactiveCommand.CreateFromObservable(() =>
-            {
-                CoinList.SelectOnlyPrivateCoins(false);
                 ViewStackService.PushPage(new SendAmountViewModel(CoinList)).Subscribe();
                 return Observable.Return(Unit.Default);
             }, coinListReady);
@@ -197,7 +190,7 @@ namespace Chaincase.ViewModels
 
         public ReactiveCommand<Unit, Unit> NavReceiveCommand;
 		public ReactiveCommand<Unit, Unit> ExposedSendCommand;
-        public ReactiveCommand<Unit, Unit> PrivateSendCommand;
+        public ReactiveCommand<Unit, Unit> SendCommand;
         public ReactiveCommand<Unit, Unit> InitCoinJoin;
     }
 }

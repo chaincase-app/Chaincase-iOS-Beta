@@ -22,7 +22,12 @@ namespace Chaincase.Views
                     vm => vm.SelectCoins,
                     v => v.SendFromButton)
                     .DisposeWith(d);
-				this.Bind(ViewModel,
+                this.OneWayBind(ViewModel,
+                    vm => vm.CoinList.SelectedAmount,
+                    v => v.AvailableLabel.Text,
+                    amt => "Available: ₿ " + amt.ToString())
+                    .DisposeWith(d);
+                this.Bind(ViewModel,
 					vm => vm.AmountText,
 					v => v.Amount.Text)
 					.DisposeWith(d);

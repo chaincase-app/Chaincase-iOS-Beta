@@ -23,11 +23,11 @@ namespace Chaincase.ViewModels
         private CompositeDisposable Disposables { get; set; }
 
         private ReadOnlyObservableCollection<CoinViewModel> _coinViewModels;
-        private string _selectedAmountText;
         private Money _selectedAmount;
         private bool? _selectPrivateSwitchState;
         private bool _isCoinListLoading;
         private bool _isAnyCoinSelected;
+        private int _numberSelected;
         private bool _warnCommonOwnership;
         private object SelectionChangedLock { get; } = new object();
 
@@ -45,7 +45,7 @@ namespace Chaincase.ViewModels
                 .Bind(out _coinViewModels)
                 .Subscribe();
 
-            SelectPrivateSwitchState = false;
+            SelectPrivateSwitchState = true;
 
             Disposables = Disposables is null ?
                new CompositeDisposable() :
@@ -101,6 +101,8 @@ namespace Chaincase.ViewModels
 
                 var allCoins = RootList.Items.ToArray();
 
+                RefreshSelectionCheckBoxes(allCoins);
+
                 foreach (var item in coinToRemove)
                 {
                     item.Value.Dispose();
@@ -128,6 +130,7 @@ namespace Chaincase.ViewModels
                     {
                         var coins = RootList.Items.ToArray();
 
+                        RefreshSelectionCheckBoxes(coins);
                         var selectedCoins = coins.Where(x => x.IsSelected).ToArray();
 
                         SelectedAmount = selectedCoins.Sum(x => x.Amount);
@@ -145,6 +148,37 @@ namespace Chaincase.ViewModels
                     }
                 })
                 .DisposeWith(cvm.GetDisposables()); // Subscription will be disposed with the coinViewModel.
+        }
+
+        // Vestigial of WasabiWallet for easy update
+        private void RefreshSelectionCheckBoxes(CoinViewModel[] coins)
+        {
+            // FIXME MixUntilAnonymitySet
+            SelectPrivateSwitchState = GetCheckBoxesSelectedState(coins, x => x.AnonymitySet >= Global.Config.PrivacyLevelSome);
+        }
+
+        private bool? GetCheckBoxesSelectedState(CoinViewModel[] allCoins, Func<CoinViewModel, bool> coinFilterPredicate)
+        {
+            var coins = allCoins.Where(coinFilterPredicate).ToArray();
+
+            bool isAllSelected = coins.All(coin => coin.IsSelected);
+            bool isAllDeselected = coins.All(coin => !coin.IsSelected);
+
+            if (isAllDeselected)
+            {
+                return false;
+            }
+
+            if (isAllSelected)
+            {
+                if (coins.Length != allCoins.Count(coin => coin.IsSelected))
+                {
+                    return null;
+                }
+                return true;
+            }
+
+            return null;
         }
 
         private void SelectCoins(Func<CoinViewModel, bool> coinFilterPredicate)
@@ -179,12 +213,6 @@ namespace Chaincase.ViewModels
             DequeueCoinsPressed?.Invoke(this, coin);
         }
 
-        public string SelectedAmountText
-        {
-            get => _selectedAmountText;
-            set => this.RaiseAndSetIfChanged(ref _selectedAmountText, $"{value} BTC Selected");
-        }
-
         public Money SelectedAmount
         {
             get => _selectedAmount;
@@ -207,6 +235,12 @@ namespace Chaincase.ViewModels
         {
             get => _isAnyCoinSelected;
             set => this.RaiseAndSetIfChanged(ref _isAnyCoinSelected, value);
+        }
+
+        public int SelectedCount
+        {
+            get => _numberSelected;
+            set => this.RaiseAndSetIfChanged(ref _numberSelected, value);
         }
 
         public bool SelectOnlyFromPrivate = false;

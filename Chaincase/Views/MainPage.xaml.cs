@@ -56,21 +56,12 @@ namespace Chaincase.Views
                     .DisposeWith(d);
 
                 this.BindCommand(ViewModel,
-                    vm => vm.PrivateSendCommand,
+                    vm => vm.SendCommand,
                     v => v.PrivateSendButton)
                     .DisposeWith(d);
                 this.OneWayBind(ViewModel,
                     vm => vm.HasPrivateCoins,
                     v => v.PrivateSendButton.IsVisible)
-                    .DisposeWith(d);
-
-                this.BindCommand(ViewModel,
-                    vm => vm.ExposedSendCommand,
-                    v => v.ExposedSendButton)
-                    .DisposeWith(d);
-                this.OneWayBind(ViewModel,
-                    vm => vm.HasCoins,
-                    v => v.ExposedSendButton.IsVisible)
                     .DisposeWith(d);
             });
         }

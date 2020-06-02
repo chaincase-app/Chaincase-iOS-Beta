@@ -34,12 +34,8 @@
     <Button Text="CoinJoin"
             x:Name="CoinJoinButton"
             VerticalOptions="End" />
-    <Button Text="Private Send"
+    <Button Text="Send"
             x:Name="PrivateSendButton"
-            VerticalOptions="End" />
-    <Button Text="Exposed Send"
-            BorderWidth="0"
-            x:Name="ExposedSendButton"
             VerticalOptions="End" />
   </StackLayout>
 </rxui:ReactiveContentPage>
