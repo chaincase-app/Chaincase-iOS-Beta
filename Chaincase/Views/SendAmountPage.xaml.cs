@@ -18,6 +18,10 @@ namespace Chaincase.Views
 			
 			this.WhenActivated(d =>
 			{
+                this.BindCommand(ViewModel,
+                    vm => vm.SelectCoins,
+                    v => v.SendFromButton)
+                    .DisposeWith(d);
 				this.Bind(ViewModel,
 					vm => vm.AmountText,
 					v => v.Amount.Text)

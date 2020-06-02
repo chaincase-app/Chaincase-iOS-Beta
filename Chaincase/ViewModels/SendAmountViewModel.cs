@@ -32,8 +32,9 @@ namespace Chaincase.ViewModels
 		private int _maximumFeeTarget;
 
 		public ReactiveCommand<Unit, Unit> GoNext;
+		public ReactiveCommand<Unit, Unit> SelectCoins;
 
-        protected CompositeDisposable Disposables { get; } = new CompositeDisposable();
+		protected CompositeDisposable Disposables { get; } = new CompositeDisposable();
 
         public SendAmountViewModel(CoinListViewModel coinList)
             : base(Locator.Current.GetService<IViewStackService>())
@@ -126,6 +127,12 @@ namespace Chaincase.ViewModels
 				    return AmountTextPositive(amountToSpend) &&
 					Money.Parse(amountToSpend.TrimStart('~', ' ')) + EstimatedBtcFee <= selectedAmount;
 			    }));
+
+			SelectCoins = ReactiveCommand.CreateFromObservable(() =>
+			{
+				ViewStackService.PushModal(new CoinListViewModel()).Subscribe();
+				return Observable.Return(Unit.Default);
+			});
         }
 
 		private void SetFees()

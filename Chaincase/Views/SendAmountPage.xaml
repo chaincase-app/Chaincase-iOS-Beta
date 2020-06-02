@@ -8,14 +8,17 @@
                           xmlns="http://xamarin.com/schemas/2014/forms"
                           Title="Send">
   <StackLayout>
+      <Label Text="Send From:" HorizontalTextAlignment="Center"/>
+      <Button x:Name="SendFromButton" Text="Auto-Select Private ▾"/>
       <StackLayout Orientation="Horizontal">
         <Label Text="Amount ₿" HorizontalOptions="FillAndExpand"/>
         <Entry x:Name="Amount" WidthRequest="130" HorizontalTextAlignment="End"/>
       </StackLayout>
       <StackLayout Orientation="Horizontal">
-        <Label Text="Use Max Selected" HorizontalOptions="FillAndExpand" />
+        <Label Text="Send Max" HorizontalOptions="FillAndExpand" />
         <Switch x:Name="Max"/>
       </StackLayout>
+
     <templates:CoinListTemplate x:Name="CoinList"
                                 VerticalOptions="FillAndExpand" />
     
