@@ -14,9 +14,9 @@ using Foundation;
 [assembly: AssemblyTitle("TorFramework")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("iCepa")]
+[assembly: AssemblyCompany("Chaincase")]
 [assembly: AssemblyProduct("")]
-[assembly: AssemblyCopyright("Copyright (c) 2015-2019 The iCepa Contributors")]
+[assembly: AssemblyCopyright("Copyright (c) 2019-2020 Chaincase")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
