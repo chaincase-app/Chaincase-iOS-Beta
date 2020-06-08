@@ -14,17 +14,18 @@ using WalletWasabi.TorSocks5;
 using WalletWasabi.TorSocks5.Models.Fields.OctetFields;
 using Xamarin.Forms;
 
-[assembly: Dependency(typeof(Chaincase.iOS.Tor.TorProcessManager))]
+[assembly: Dependency(typeof(Chaincase.iOS.Tor.OnionManager))]
 namespace Chaincase.iOS.Tor
 {
-    public class TorProcessManager : ITorManager
+    public class OnionManager : ITorManager
     {
         /// <summary>
         /// 0: Not started, 1: Running, 2: Stopping, 3: Stopped
         /// </summary>
         private long _running;
+        public TorState State;
 
-        public TorProcessManager()
+        public OnionManager()
         {
             TorSocks5EndPoint = new IPEndPoint(IPAddress.Loopback, 9050);
             _running = 0;
@@ -43,7 +44,7 @@ namespace Chaincase.iOS.Tor
 
         public TORController TorController { get; private set; }
 
-        private TORThread thread;
+        private TORThread torThread;
 
         public bool IsRunning => Interlocked.Read(ref _running) == 1;
 
@@ -51,7 +52,7 @@ namespace Chaincase.iOS.Tor
 
         public ITorManager Mock() // Mock, do not use Tor at all for debug.
         {
-            return new TorProcessManager();
+            return new OnionManager();
         }
 
         public void Start(bool ensureRunning, string dataDir)
@@ -68,8 +69,8 @@ namespace Chaincase.iOS.Tor
             // install geoip here
             if (TORThread.ActiveThread is null)
             {
-                thread = new TORThread(Configuration);
-                thread.Start();
+                torThread = new TORThread(torBaseConf);
+                torThread.Start();
                 Logger.LogInfo($"Started Tor process with Tor.framework");
             }
 
@@ -84,7 +85,25 @@ namespace Chaincase.iOS.Tor
             }
         }
 
-        private TORConfiguration Configuration
+        // port from iOS OnionBrowser
+        public void StartTor()
+		{
+            State = TorState.Started;
+
+            // FIXME detect network change via reachability here
+
+            if (torThread?.IsCancelled ?? true {
+
+                torThread = null
+
+
+            let torConf = OnionManager.torBaseConf
+
+
+            var args = torConf.arguments!
+            }
+
+        private TORConfiguration torBaseConf
         {
             get
             {
@@ -106,7 +125,6 @@ namespace Chaincase.iOS.Tor
                 {
                     homeDirectory = NSHomeDirectory();
                 }
-
 
                 TORConfiguration configuration = new TORConfiguration();
                 configuration.CookieAuthentication = new NSNumber(true); //@YES
@@ -233,9 +251,9 @@ namespace Chaincase.iOS.Tor
             TorController?.Dispose();
             TorController = null;
 
-            thread?.Cancel();
-            thread?.Dispose();
-            thread = null;
+            torThread?.Cancel();
+            torThread?.Dispose();
+            torThread = null;
         }
 
         #endregion Monitor
