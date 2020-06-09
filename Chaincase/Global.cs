@@ -123,16 +123,15 @@ namespace Chaincase
                 cancel.ThrowIfCancellationRequested();
 
                 #region TorProcessInitialization
-
                 if (Config.UseTor)
                 {
                     TorManager = DependencyService.Get<ITorManager>();
-                    TorManager.Start(false, DataDir);
+                    TorManager.Start(true, DataDir);
                 }
                 else
                 {
                     TorManager = DependencyService.Get<ITorManager>().Mock();
-                    TorManager.Start(false, "mock");
+                    TorManager.Start(true, "mock");
                 }
 
                 var fallbackRequestTestUri = new Uri(Config.GetFallbackBackendUri(), "/api/software/versions");

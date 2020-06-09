@@ -1,5 +1,11 @@
-﻿using Foundation;
+﻿using System;
+using System.IO;
+using Foundation;
+using Splat;
 using UIKit;
+using WalletWasabi.Helpers;
+using WalletWasabi.Logging;
+using Xamarin.Forms;
 
 namespace Chaincase.iOS
 {
@@ -9,6 +15,7 @@ namespace Chaincase.iOS
 	[Register("AppDelegate")]
 	public partial class AppDelegate : global::Xamarin.Forms.Platform.iOS.FormsApplicationDelegate
 	{
+		private bool inStartupPhase = true;
 		//
 		// This method is invoked when the application has loaded and is ready to run. In this 
 		// method you should instantiate the window, load the UI into it and then make the window
@@ -23,6 +30,57 @@ namespace Chaincase.iOS
 			LoadApplication(new App());
 
 			return base.FinishedLaunching(application, options);
+		}
+
+		public override void OnActivated(UIApplication application)
+		{
+			Logger.LogInfo("OnActivated called, App did become active.");
+			var mgr = DependencyService.Get<ITorManager>();
+
+			if (!inStartupPhase && mgr?.State != TorState.Started && mgr.State != TorState.Connected) {
+				mgr.Start(true, GetDataDir()) ;
+			} else inStartupPhase = false;
+		}
+
+		public override void DidEnterBackground(UIApplication application)
+		{
+			Logger.LogInfo("App entering background state.");
+
+			var mgr = DependencyService.Get<ITorManager>();
+			if (mgr?.State != TorState.Stopped) {
+				mgr.StopAsync();
+			}
+
+		}
+
+		public override void WillEnterForeground(UIApplication application)
+		{
+			Logger.LogInfo("App will enter foreground");
+		}
+		public override void OnResignActivation(UIApplication application)
+		{
+			Logger.LogInfo("OnResignActivation called, App moving to inactive state.");
+		}
+		// not guaranteed that this will run
+		public override void WillTerminate(UIApplication application)
+		{
+			Logger.LogInfo("App is terminating.");
+		}
+
+		private string GetDataDir()
+		{
+			string dataDir;
+			if (Device.RuntimePlatform == Device.iOS)
+			{
+				var documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+				var library = Path.Combine(documents, "..", "Library", "Client");
+				dataDir = library;
+			}
+			else
+			{
+				dataDir = EnvironmentHelpers.GetDataDir(Path.Combine("Chaincase", "Client"));
+			}
+			return dataDir;
 		}
 	}
 }

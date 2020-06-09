@@ -5,10 +5,12 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using CoreFoundation;
 using Foundation;
 using ObjCRuntime;
 using TorFramework;
 using WalletWasabi.Exceptions;
+using WalletWasabi.Helpers;
 using WalletWasabi.Logging;
 using WalletWasabi.TorSocks5;
 using WalletWasabi.TorSocks5.Models.Fields.OctetFields;
@@ -17,13 +19,23 @@ using Xamarin.Forms;
 [assembly: Dependency(typeof(Chaincase.iOS.Tor.OnionManager))]
 namespace Chaincase.iOS.Tor
 {
+    public interface OnionManagerDelegate
+    {
+        void torConnProgress(int progress);
+
+        void torConnFinished();
+
+        void torConnDifficulties();
+    }
+
     public class OnionManager : ITorManager
     {
         /// <summary>
         /// 0: Not started, 1: Running, 2: Stopping, 3: Stopped
         /// </summary>
         private long _running;
-        public TorState State;
+        private NSData Cookie; 
+        public TorState State { get; set; }
 
         public OnionManager()
         {
@@ -31,6 +43,7 @@ namespace Chaincase.iOS.Tor
             _running = 0;
             Stop = new CancellationTokenSource();
             TorController = null;
+            Cookie = NSData.FromUrl(torBaseConf.DataDirectory.Append("control_auth_cookie", false));
         }
 
         /// <summary>
@@ -55,53 +68,136 @@ namespace Chaincase.iOS.Tor
             return new OnionManager();
         }
 
-        public void Start(bool ensureRunning, string dataDir)
-        {
-            if (TorSocks5EndPoint is null)
-            {
-                return;
-            }
-
-            if (dataDir == "mock")
-            {
-                return;
-            }
-            // install geoip here
-            if (TORThread.ActiveThread is null)
-            {
-                torThread = new TORThread(torBaseConf);
-                torThread.Start();
-                Logger.LogInfo($"Started Tor process with Tor.framework");
-            }
-
-            if (ensureRunning)
-            {
-                Task.Delay(3000).ConfigureAwait(false).GetAwaiter().GetResult(); // dotnet brainfart, ConfigureAwait(false) IS NEEDED HERE otherwise (only on) Manjuro Linux fails, WTF?!!
-                if (!IsTorRunningAsync(TorSocks5EndPoint).GetAwaiter().GetResult())
-                {
-                    throw new TorException("Attempted to start Tor, but it is not running.");
-                }
-                Logger.LogInfo("Tor is running.");
-            }
-        }
-
-        // port from iOS OnionBrowser
-        public void StartTor()
+		public void Start(bool ensureRunning, string dataDir)
 		{
+			if (TorSocks5EndPoint is null)
+			{
+				return;
+			}
+
+			if (dataDir == "mock")
+			{
+				return;
+			}
+			
+            StartTor(null);
+			Logger.LogInfo($"Started Tor process with Tor.framework");
+
+			if (ensureRunning)
+			{
+				Task.Delay(3000).ConfigureAwait(false).GetAwaiter().GetResult(); // dotnet brainfart, ConfigureAwait(false) IS NEEDED HERE otherwise (only on) Manjuro Linux fails, WTF?!!
+				if (!IsTorRunningAsync(TorSocks5EndPoint).GetAwaiter().GetResult())
+				{
+					throw new TorException("Attempted to start Tor, but it is not running.");
+				}
+				Logger.LogInfo("Tor is running.");
+			}
+		}
+
+		// port from iOS OnionBrowser
+		public void StartTor(OnionManagerDelegate managerDelegate)
+        {
+            // In objective-c this is weak to avoid retain cycle. not sure if we
+            // need to replicate cause we got a GC
+            var weakDelegate = managerDelegate;
+
             State = TorState.Started;
+
+            if (TorController == null)
+            {
+                TorController = new TORController("127.0.0.1", 39060);
+
+            }
 
             // FIXME detect network change via reachability here
 
-            if (torThread?.IsCancelled ?? true {
+            if (torThread?.IsCancelled ?? true) {
+                torThread = null;
 
-                torThread = null
+                var torConf = this.torBaseConf;
 
+                var args = torConf.Arguments;
 
-            let torConf = OnionManager.torBaseConf
+                Logger.LogDebug(String.Join(" ", args));
 
+                torConf.Arguments = args;
 
-            var args = torConf.arguments!
+                torThread = new TORThread(torConf);
+
+                torThread?.Start();
+
+                Logger.LogInfo("Starting Tor");
             }
+
+            // Wait long enough for Tor itself to have started. It's OK to wait for this
+            // because Tor is already trying to connect; this is just the part that polls for
+            // progress.
+            DispatchQueue.MainQueue.DispatchAfter(new DispatchTime(DispatchTime.Now, TimeSpan.FromSeconds(1)), () =>
+            {
+                // TORInstallTorLoggingCallback()
+
+                if (!(TorController?.Connected ?? false))
+                {
+                    // do
+                    NSError e = null;
+                    TorController?.Connect(out e);
+                    if (e != null) // faux catch accomodates bound obj-c)
+                    {
+                        Logger.LogError(e.LocalizedDescription);
+                    }
+                }
+
+                //var cookie = Guard.NotNull(nameof(Cookie), Cookie);
+                var cookie = NSData.FromUrl(torBaseConf.DataDirectory.Append("control_auth_cookie", false));
+
+                TorController?.AuthenticateWithData(cookie, (success, error) =>
+                {
+                    if (success)
+                    {
+                        NSObject completeObs = null;
+                        completeObs = TorController.AddObserverForCircuitEstablished((established) =>
+                        {
+                            if (established) {
+                                State = TorState.Connected;
+
+                                TorController?.RemoveObserver(completeObs);
+
+                                // TODO cancelInitRetry() to improve stability
+                                Logger.LogDebug("Connection established!");
+
+                                weakDelegate?.torConnFinished();
+                            }
+                        }); // TorController.addObserver
+
+                        NSObject progressObs = null;
+                        progressObs = TorController?.AddObserverForStatusEvents(
+                            (NSString type, NSString severity, NSString action, NSDictionary<NSString, NSString> arguments) =>
+                            {
+                                if (type == "STATUS_CLIENT" && action == "BOOTSTRAP")
+                                {
+                                    var progress = Int32.Parse(arguments![(NSString)"PROGRESS"]!)!;
+                                    Logger.LogDebug(progress.ToString());
+
+                                    weakDelegate?.torConnProgress(progress);
+
+                                    if (progress >= 100)
+                                    {
+                                        TorController?.RemoveObserver(progressObs);
+                                    }
+
+                                    return true;
+                                }
+
+                                return false;
+                            }); // TorController.addObserver
+                    } // if success (authenticate)
+                    else
+					{
+                        Logger.LogInfo("Didn't connect to control port.");
+					}
+                });
+            }); //delay
+        }
 
         private TORConfiguration torBaseConf
         {
@@ -127,12 +223,13 @@ namespace Chaincase.iOS.Tor
                 }
 
                 TORConfiguration configuration = new TORConfiguration();
-                configuration.CookieAuthentication = new NSNumber(true); //@YES
+                configuration.CookieAuthentication = true; //@YES
                 configuration.DataDirectory = new NSUrl(Path.GetTempPath());
                 configuration.Arguments = new string[] {
                     "--allow-missing-torrc",
                     "--ignore-missing-torrc",
-                    "--SocksPort", "localhost:9050"
+                    "--SocksPort", "127.0.0.1:9050",
+                    "--ControlPort", "127.0.0.1:39060",
                 };
                 return configuration;
             }
@@ -244,16 +341,17 @@ namespace Chaincase.iOS.Tor
             {
                 await Task.Delay(50).ConfigureAwait(false);
             }
+
             // Under the hood, TORController will SIGNAL SHUTDOWN and set it's channel to nil, so
             // we actually rely on that to stop Tor and reset the state of torController. (we can
             // SIGNAL SHUTDOWN here, but we can't reset the torController "isConnected" state.)
             TorController?.Disconnect();
-            TorController?.Dispose();
             TorController = null;
 
             torThread?.Cancel();
-            torThread?.Dispose();
             torThread = null;
+
+            State = TorState.Stopped;
         }
 
         #endregion Monitor

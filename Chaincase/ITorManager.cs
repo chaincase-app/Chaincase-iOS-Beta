@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Chaincase
 {
-    enum TorState
+    public enum TorState
     {
         None,
         Started,
@@ -14,6 +14,8 @@ namespace Chaincase
 
     public interface ITorManager
     {
+        TorState State { get; }
+    
         void Start(bool ensureRunning, string dataDir);
 
         ITorManager Mock();
