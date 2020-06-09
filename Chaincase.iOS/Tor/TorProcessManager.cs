@@ -21,11 +21,11 @@ namespace Chaincase.iOS.Tor
 {
     public interface OnionManagerDelegate
     {
-        void torConnProgress(int progress);
+        void TorConnProgress(int progress);
 
-        void torConnFinished();
+        void TorConnFinished();
 
-        void torConnDifficulties();
+        void TorConnDifficulties();
     }
 
     public class OnionManager : ITorManager
@@ -36,6 +36,7 @@ namespace Chaincase.iOS.Tor
         private long _running;
         private NSData Cookie; 
         public TorState State { get; set; }
+        private DispatchBlock initRetry;
 
         public OnionManager()
         {
@@ -101,15 +102,13 @@ namespace Chaincase.iOS.Tor
             // need to replicate cause we got a GC
             var weakDelegate = managerDelegate;
 
+            CancelInitRetry();
             State = TorState.Started;
 
             if (TorController == null)
             {
                 TorController = new TORController("127.0.0.1", 39060);
-
             }
-
-            // FIXME detect network change via reachability here
 
             if (torThread?.IsCancelled ?? true) {
                 torThread = null;
@@ -134,8 +133,6 @@ namespace Chaincase.iOS.Tor
             // progress.
             DispatchQueue.MainQueue.DispatchAfter(new DispatchTime(DispatchTime.Now, TimeSpan.FromSeconds(1)), () =>
             {
-                // TORInstallTorLoggingCallback()
-
                 if (!(TorController?.Connected ?? false))
                 {
                     // do
@@ -161,11 +158,10 @@ namespace Chaincase.iOS.Tor
                                 State = TorState.Connected;
 
                                 TorController?.RemoveObserver(completeObs);
-
-                                // TODO cancelInitRetry() to improve stability
+                                CancelInitRetry();
                                 Logger.LogDebug("Connection established!");
 
-                                weakDelegate?.torConnFinished();
+                                weakDelegate?.TorConnFinished();
                             }
                         }); // TorController.addObserver
 
@@ -178,7 +174,7 @@ namespace Chaincase.iOS.Tor
                                     var progress = Int32.Parse(arguments![(NSString)"PROGRESS"]!)!;
                                     Logger.LogDebug(progress.ToString());
 
-                                    weakDelegate?.torConnProgress(progress);
+                                    weakDelegate?.TorConnProgress(progress);
 
                                     if (progress >= 100)
                                     {
@@ -197,6 +193,20 @@ namespace Chaincase.iOS.Tor
 					}
                 });
             }); //delay
+
+            initRetry = new DispatchBlock(() => {
+                Logger.LogDebug("Triggering Tor connection retry.");
+
+                TorController?.SetConfForKey("DisableNetwork", "1", null);
+                TorController?.SetConfForKey("DisableNetwork", "0", null);
+
+                // Hint user that they might need to use a bridge.
+                managerDelegate?.TorConnDifficulties();
+            });
+
+            // On first load: If Tor hasn't finished bootstrap in 30 seconds,
+            // HUP tor once in case we have partially bootstrapped but got stuck.
+            DispatchQueue.MainQueue.DispatchAfter(new DispatchTime(DispatchTime.Now, TimeSpan.FromSeconds(15)), initRetry);
         }
 
         private TORConfiguration torBaseConf
@@ -346,9 +356,11 @@ namespace Chaincase.iOS.Tor
             // we actually rely on that to stop Tor and reset the state of torController. (we can
             // SIGNAL SHUTDOWN here, but we can't reset the torController "isConnected" state.)
             TorController?.Disconnect();
+            TorController?.Dispose();
             TorController = null;
 
             torThread?.Cancel();
+            torThread?.Dispose();
             torThread = null;
 
             State = TorState.Stopped;
@@ -358,5 +370,11 @@ namespace Chaincase.iOS.Tor
 
         private static string NSHomeDirectory() => Directory.GetParent(NSFileManager.DefaultManager.GetUrls(NSSearchPathDirectory.LibraryDirectory, NSSearchPathDomain.User).First().Path).FullName;
 
+        // Cancel the connection retry and fail guard.
+        private void CancelInitRetry()
+        {
+            initRetry?.Cancel();
+            initRetry = null;
+        }
     }
 }

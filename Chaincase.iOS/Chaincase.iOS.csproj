@@ -43,8 +43,7 @@
     <MtouchArch>x86_64</MtouchArch>
     <ConsolePause>false</ConsolePause>
     <LangVersion>default</LangVersion>
-    <CodesignKey>Apple Development: dc.sled@gmail.com (BDA534V858)</CodesignKey>
-    <CodesignProvision>VS: WildCard Development</CodesignProvision>
+    <CodesignKey>iPhone Distribution: Chaincase LLC (9Z72DXKVXK)</CodesignKey>
 <MtouchUseLlvm>true</MtouchUseLlvm>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhone' ">
