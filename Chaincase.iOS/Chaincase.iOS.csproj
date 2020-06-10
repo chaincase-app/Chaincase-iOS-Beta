@@ -79,7 +79,6 @@
     <MtouchEnableSGenConc>true</MtouchEnableSGenConc>
     <IpaPackageName></IpaPackageName>
     <MtouchI18n></MtouchI18n>
-    <CodesignProvision>Automatic:AppStore</CodesignProvision>
     <MtouchExtraArgs>--optimize=experimental-xforms-product-type </MtouchExtraArgs>
   </PropertyGroup>
   <ItemGroup>
