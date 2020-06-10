@@ -36,19 +36,21 @@ namespace Chaincase.iOS
 		{
 			Logger.LogInfo("OnActivated called, App did become active.");
 			var mgr = DependencyService.Get<ITorManager>();
-
 			if (!inStartupPhase && mgr?.State != TorState.Started && mgr.State != TorState.Connected) {
-				mgr.Start(true, GetDataDir()) ;
+				mgr.Start(true, GetDataDir());
+				var global = Locator.Current.GetService<Global>();
+				global.Nodes.Connect();
 			} else inStartupPhase = false;
 		}
 
 		public override void DidEnterBackground(UIApplication application)
 		{
 			Logger.LogInfo("App entering background state.");
-
 			var mgr = DependencyService.Get<ITorManager>();
 			if (mgr?.State != TorState.Stopped) {
 				mgr.StopAsync();
+				var global = Locator.Current.GetService<Global>();
+				global.Nodes.Disconnect();
 			}
 
 		}
