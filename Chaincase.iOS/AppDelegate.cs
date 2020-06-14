@@ -3,6 +3,7 @@ using System.IO;
 using Foundation;
 using Splat;
 using UIKit;
+using UserNotifications;
 using WalletWasabi.Helpers;
 using WalletWasabi.Logging;
 using Xamarin.Forms;
@@ -26,6 +27,8 @@ namespace Chaincase.iOS
 		public override bool FinishedLaunching(UIApplication application, NSDictionary options)
 		{
 			global::Xamarin.Forms.Forms.Init();
+
+			UNUserNotificationCenter.Current.Delegate = new iOSNotificationReceiver();
 			ZXing.Net.Mobile.Forms.iOS.Platform.Init();
 			LoadApplication(new App());
 

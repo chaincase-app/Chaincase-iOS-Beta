@@ -18,6 +18,7 @@ using Splat;
 using WalletWasabi.CoinJoin.Client.Clients.Queuing;
 using WalletWasabi.CoinJoin.Common.Models;
 using Chaincase.Models;
+using Xamarin.Forms;
 
 namespace Chaincase.ViewModels
 {
@@ -27,6 +28,9 @@ namespace Chaincase.ViewModels
 
         private CompositeDisposable Disposables { get; set; }
 
+        private INotificationManager notificationManager;
+        private int notificationNumber = 0;
+
         private CoinListViewModel _coinList;
         private string _coordinatorFeePercent;
         private int _peersRegistered;
@@ -35,7 +39,7 @@ namespace Chaincase.ViewModels
         private RoundPhaseState _roundPhaseState;
         private DateTimeOffset _roundTimesout;
         private TimeSpan _timeLeftTillRoundTimeout;
-        private Money _requiredBTC = new Money(12000);
+        private Money _requiredBTC;
         private Money _amountQueued;
         private bool _isDequeueBusy;
         private bool _isEnqueueBusy;
@@ -48,6 +52,14 @@ namespace Chaincase.ViewModels
         {
             Global = Locator.Current.GetService<Global>();
             SetBalance();
+            notificationManager = DependencyService.Get<INotificationManager>();
+            // TODO tell them why they need notifications to CoinJOin
+            notificationManager.Initialize();
+            notificationManager.NotificationReceived += (sender, eventArgs) =>
+            {
+                var evtData = (NotificationEventArgs)eventArgs;
+                ShowNotification(evtData.Title, evtData.Message);
+            };
 
             if (Disposables != null)
             {
@@ -60,6 +72,14 @@ namespace Chaincase.ViewModels
             Observable
                 .FromEventPattern<SmartCoin>(CoinList, nameof(CoinList.DequeueCoinsPressed))
                 .Subscribe(async x => await DoDequeueAsync(x.EventArgs));
+
+            this.WhenAnyValue(x => x.RoundTimesout)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(_ =>
+                {
+                    TimeSpan left = RoundTimesout - DateTimeOffset.UtcNow;
+                    TimeLeftTillRoundTimeout = left > TimeSpan.Zero ? left : TimeSpan.Zero; // Make sure cannot be less than zero.
+                });
 
             AmountQueued = Money.Zero;
 
@@ -184,6 +204,7 @@ namespace Chaincase.ViewModels
                     }
 
                     await Global.Wallet.ChaumianClient.QueueCoinsToMixAsync(password, coins.ToArray());
+                    ScheduleConfirmNotification(null, null);
                     return true;
                 }
                 catch (SecurityException ex)
@@ -210,6 +231,34 @@ namespace Chaincase.ViewModels
                 IsEnqueueBusy = false;
             }
             return false;
+        }
+
+        void ScheduleConfirmNotification(object sender, EventArgs e)
+        {
+            const int NOTIFY_TIMEOUT_DELTA = 90; // seconds
+
+            var timeoutSeconds = TimeLeftTillRoundTimeout.TotalSeconds;
+            if (timeoutSeconds < NOTIFY_TIMEOUT_DELTA)
+                // Just encourage users to keep the app open
+                // & prepare CoinJoin to background if possible.
+                return;
+
+            // Takes about 30 seconds to start Tor & connect
+            var confirmTime = DateTime.Now.AddSeconds(timeoutSeconds);
+            string title = $"Go Private";
+            string message = string.Format("Open Chaincase before {0:t}\n to complete the CoinJoin.", confirmTime);
+
+            var timeToNotify = timeoutSeconds - NOTIFY_TIMEOUT_DELTA;
+            notificationManager.ScheduleNotification(title, message, timeToNotify);
+        }
+
+        void ShowNotification(string title, string message)
+        {
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                // log a notification fired:w
+                Logger.LogInfo($"NOTIFICATION: #{title} #{message}");
+            });
         }
 
         private void UpdateStates()

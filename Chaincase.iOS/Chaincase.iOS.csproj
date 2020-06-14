@@ -88,6 +88,8 @@
     <None Include="Info.plist" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tor\TorProcessManager.cs" />
+    <Compile Include="iOSNotificationManager.cs" />
+    <Compile Include="iOSNotificationReceiver.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />
