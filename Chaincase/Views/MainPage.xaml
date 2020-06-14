@@ -35,7 +35,7 @@
             x:Name="CoinJoinButton"
             VerticalOptions="End" />
     <Button Text="Send"
-            x:Name="PrivateSendButton"
+            x:Name="SendButton"
             VerticalOptions="End" />
   </StackLayout>
 </rxui:ReactiveContentPage>
