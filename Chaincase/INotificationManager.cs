@@ -11,5 +11,7 @@ namespace Chaincase
         int ScheduleNotification(string title, string message, double timeInterval);
 
         void ReceiveNotification(string title, string message);
+
+        void RemoveAllPendingNotifications();
     }
 }

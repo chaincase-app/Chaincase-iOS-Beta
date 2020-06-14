@@ -94,6 +94,23 @@ namespace Chaincase.ViewModels
                 .Subscribe(_ => UpdateStates())
                 .DisposeWith(Disposables);
 
+            Observable.FromEventPattern(Global.Wallet.ChaumianClient, nameof(Global.Wallet.ChaumianClient.OnDequeue))
+                .Subscribe(_ =>
+                {
+                    var chaumianClient = Global.Wallet.ChaumianClient;
+                    if (chaumianClient is null)
+                    {
+                        return;
+                    }
+
+                    var amountQueued = chaumianClient.State.SumAllQueuedCoinAmounts();
+                    if (amountQueued == Money.Zero)
+                    {
+                        notificationManager.RemoveAllPendingNotifications();
+                    }
+                })
+                .DisposeWith(Disposables);
+
             ClientRound mostAdvancedRound = Global.Wallet.ChaumianClient?.State?.GetMostAdvancedRoundOrDefault();
 
             if (mostAdvancedRound != default)
@@ -171,6 +188,7 @@ namespace Chaincase.ViewModels
                 try
                 {
                     await Global.Wallet.ChaumianClient.DequeueCoinsFromMixAsync(coins.ToArray(), DequeueReason.UserRequested);
+
                 }
                 catch (Exception ex)
                 {

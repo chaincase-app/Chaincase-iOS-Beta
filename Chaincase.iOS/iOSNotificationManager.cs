@@ -52,7 +52,6 @@ namespace Chaincase.iOS
                     throw new Exception($"Failed to schedule notification: {err}");
                 }
             });
-
             return messageId;
         }
 
@@ -64,6 +63,11 @@ namespace Chaincase.iOS
                 Message = message
             };
             NotificationReceived?.Invoke(null, args);
+        }
+
+        public void RemoveAllPendingNotifications()
+		{
+            UNUserNotificationCenter.Current.RemoveAllPendingNotificationRequests();
         }
     }
 }
