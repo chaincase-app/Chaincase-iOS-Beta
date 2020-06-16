@@ -30,7 +30,7 @@
     <LangVersion>default</LangVersion>
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
     <CodesignKey>Apple Development: dc.sled@gmail.com (BDA534V858)</CodesignKey>
-    <CodesignProvision>VS: WildCard Development</CodesignProvision>
+    <CodesignProvision>VS: cash.chaincase.chaincase Development</CodesignProvision>
 <MtouchFastDev>true</MtouchFastDev>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
@@ -43,8 +43,9 @@
     <MtouchArch>x86_64</MtouchArch>
     <ConsolePause>false</ConsolePause>
     <LangVersion>default</LangVersion>
-    <CodesignKey>iPhone Distribution: Chaincase LLC (9Z72DXKVXK)</CodesignKey>
+    <CodesignKey>Apple Development: dc.sled@gmail.com (BDA534V858)</CodesignKey>
 <MtouchUseLlvm>true</MtouchUseLlvm>
+<CodesignProvision>VS: cash.chaincase.chaincase Development</CodesignProvision>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhone' ">
     <DebugSymbols>true</DebugSymbols>
@@ -62,7 +63,7 @@
     <LangVersion>default</LangVersion>
     <MtouchLink>None</MtouchLink>
     <MtouchInterpreter>-all</MtouchInterpreter>
-    <CodesignProvision>VS: WildCard Development</CodesignProvision>
+    <CodesignProvision>VS: cash.chaincase.chaincase Development</CodesignProvision>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
     <DebugType>none</DebugType>
@@ -72,7 +73,7 @@
     <WarningLevel>4</WarningLevel>
     <MtouchArch>ARM64</MtouchArch>
     <ConsolePause>false</ConsolePause>
-    <CodesignKey>iPhone Distribution: Chaincase LLC (9Z72DXKVXK)</CodesignKey>
+    <CodesignKey>Apple Development: dc.sled@gmail.com (BDA534V858)</CodesignKey>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <LangVersion>default</LangVersion>
     <IOSDebugOverWiFi></IOSDebugOverWiFi>
@@ -80,6 +81,7 @@
     <IpaPackageName></IpaPackageName>
     <MtouchI18n></MtouchI18n>
     <MtouchExtraArgs>--optimize=experimental-xforms-product-type </MtouchExtraArgs>
+    <CodesignProvision>VS: cash.chaincase.chaincase Development</CodesignProvision>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
