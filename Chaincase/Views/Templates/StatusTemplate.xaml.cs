@@ -74,8 +74,10 @@ namespace Chaincase.Views.Templates
 
             if (progress >= 1)
             {
-                Task.Delay((int)lengthMs);
-                progressBar.IsVisible = false;
+                Task.Run(async () => {
+                    await Task.Delay((int)lengthMs);
+                    progressBar.IsVisible = false;
+				});
             } else
 			{
                 progressBar.IsVisible = true;
