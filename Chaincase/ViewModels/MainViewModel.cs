@@ -27,6 +27,7 @@ namespace Chaincase.ViewModels
         private StatusViewModel _statusViewModel;
         private CoinListViewModel _coinList;
         private CoinJoinViewModel _coinJoinViewModel;
+        private SendAmountViewModel _sendAmountViewModel;
         public string _balance;
         private ObservableAsPropertyHelper<bool> _hasCoins;
         private bool _hasPrivateCoins;
@@ -76,6 +77,7 @@ namespace Chaincase.ViewModels
                         .Subscribe(async _ => await TryRewriteTableAsync());
 
                     CoinJoinViewModel = new CoinJoinViewModel(CoinList);
+                    _sendAmountViewModel = new SendAmountViewModel(CoinList);
                 });
             });
 
@@ -93,7 +95,7 @@ namespace Chaincase.ViewModels
             InitCoinJoin = ReactiveCommand.CreateFromObservable(() =>
             {
                 CoinList.SelectOnlyPrivateCoins(false);
-                ViewStackService.PushPage(CoinJoinViewModel).Subscribe();
+                ViewStackService.PushPage(new CoinJoinViewModel(CoinList)).Subscribe();
                 return Observable.Return(Unit.Default);
             }, coinListReady);
 

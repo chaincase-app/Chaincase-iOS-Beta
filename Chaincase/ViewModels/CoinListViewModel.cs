@@ -161,6 +161,12 @@ namespace Chaincase.ViewModels
             var coins = allCoins.Where(coinFilterPredicate).ToArray();
 
             bool isAllSelected = coins.All(coin => coin.IsSelected);
+            bool isAllDeselected = coins.All(coin => !coin.IsSelected);
+
+            if (isAllDeselected)
+            {
+                return false;
+            }
 
             if (isAllSelected)
             {
@@ -186,7 +192,7 @@ namespace Chaincase.ViewModels
 
         public SourceList<CoinViewModel> RootList { get; private set; }
 
-        public IEnumerable<CoinViewModel> Coins => _coinViewModels.Where(c => !SelectOnlyFromPrivate || c.AnonymitySet > 1);
+        public IEnumerable<CoinViewModel> Coins => _coinViewModels;
 
         public event EventHandler<SmartCoin> DequeueCoinsPressed;
 
@@ -236,11 +242,8 @@ namespace Chaincase.ViewModels
             set => this.RaiseAndSetIfChanged(ref _numberSelected, value);
         }
 
-        public bool SelectOnlyFromPrivate = false;
-
         public void SelectOnlyPrivateCoins(bool onlyPrivate)
         {
-            SelectOnlyFromPrivate = onlyPrivate;
             foreach (var c in Coins) {
                 c.IsSelected = !onlyPrivate || c.AnonymitySet > 1;
             }
