@@ -4,6 +4,7 @@ using ReactiveUI;
 using System.Reactive.Disposables;
 using WalletWasabi.Models;
 using Xamarin.Forms;
+using System.Threading.Tasks;
 
 namespace Chaincase.Views.Templates
 {
@@ -70,6 +71,15 @@ namespace Chaincase.Views.Templates
             ViewExtensions.CancelAnimations(progressBar);
             var lengthMs = progress == 1 ? 100 : (uint)((progress - progressBar.Progress) * 80000);
             progressBar.ProgressTo((double)progress, lengthMs, Easing.SinOut);
+
+            if (progress >= 1)
+            {
+                Task.Delay((int)lengthMs);
+                progressBar.IsVisible = false;
+            } else
+			{
+                progressBar.IsVisible = true;
+			}
         }
     }
 }
