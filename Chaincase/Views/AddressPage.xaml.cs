@@ -2,6 +2,8 @@
 using Chaincase.ViewModels;
 using ReactiveUI;
 using System.Reactive.Disposables;
+using Xamarin.Forms;
+using Xamarin.Essentials;
 
 namespace Chaincase.Views
 {
@@ -37,6 +39,17 @@ namespace Chaincase.Views
 					v => v.WalletButton)
 					 .DisposeWith(d);
 			});
+
+			var tapGestureRecognizer = new TapGestureRecognizer();
+			tapGestureRecognizer.Tapped += async (s, e) => {
+				Clipboard.SetTextAsync(Address.Text);
+				if (Clipboard.HasText)
+				{
+					var text = await Clipboard.GetTextAsync();
+					DisplayAlert("Success", string.Format("Copied to clipboard", text), "OK");
+				}
+			};
+			Address.GestureRecognizers.Add(tapGestureRecognizer);
 		}
 
         public string AddressToBitcoinUrl(string address)

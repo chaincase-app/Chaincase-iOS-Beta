@@ -10,7 +10,6 @@
     <Label Text="Date"/>
     <Label x:Name="Date"/>
 
-    <Label Text="Completed ✔"/>
     <Label x:Name="Confirmed"/>
 
     <Label Text="Amount"/>

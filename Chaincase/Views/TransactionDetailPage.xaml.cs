@@ -4,6 +4,7 @@ using ReactiveUI;
 using ReactiveUI.XamForms;
 using System.Reactive.Disposables;
 using Xamarin.Forms;
+using Xamarin.Essentials;
 
 namespace Chaincase.Views
 {
@@ -16,18 +17,20 @@ namespace Chaincase.Views
 			{
 				this.OneWayBind(ViewModel,
 					vm => vm.DateTime,
-					v => v.Date.Text)
+					v => v.Date.Text,
+					d => $"Date: {d}")
 					.DisposeWith(d);
 
 				this.OneWayBind(ViewModel,
 					vm => vm.Confirmed,
 					v => v.Confirmed.Text,
-					isC => isC ? "Confirmed" : "waiting for confirmation")
+					isC => isC ? "Confirmed ✔" : "Waiting for confirmation...")
 					.DisposeWith(d);
 
 				this.OneWayBind(ViewModel,
 					vm => vm.AmountBtc,
-					v => v.AmountBtc.Text)
+					v => v.AmountBtc.Text,
+					amt => $"Amount: {amt}")
 					.DisposeWith(d);
 
 				this.OneWayBind(ViewModel,
@@ -35,6 +38,17 @@ namespace Chaincase.Views
 					v => v.TransactionId.Text)
 					.DisposeWith(d);
 			});
+
+			var tapGestureRecognizer = new TapGestureRecognizer();
+			tapGestureRecognizer.Tapped += async (s, e) => {
+				Clipboard.SetTextAsync(TransactionId.Text);
+				if (Clipboard.HasText)
+				{
+					var text = await Clipboard.GetTextAsync();
+					DisplayAlert("Success", string.Format("Copied to clipboard", text), "OK");
+				}
+			};
+			TransactionId.GestureRecognizers.Add(tapGestureRecognizer);
 		}
 	}
 }
