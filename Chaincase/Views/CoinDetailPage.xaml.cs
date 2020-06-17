@@ -5,14 +5,20 @@ using ReactiveUI.XamForms;
 using System.Reactive.Disposables;
 using Xamarin.Forms;
 using Xamarin.Essentials;
+using Xamarin.Forms.PlatformConfiguration.iOSSpecific;
+using Xamarin.Forms.PlatformConfiguration;
+using Splat;
+using Chaincase.Navigation;
 
 namespace Chaincase.Views
 {
-	public partial class TransactionDetailPage : ReactiveContentPage<TransactionViewModel>
+	public partial class CoinDetailModal : ReactiveContentPage<CoinViewModel>
 	{
-		public TransactionDetailPage()
+		public CoinDetailModal()
 		{
+			On<iOS>().SetModalPresentationStyle(UIModalPresentationStyle.FormSheet);
 			InitializeComponent();
+
 			this.WhenActivated(d =>
 			{
 				this.OneWayBind(ViewModel,
@@ -27,21 +33,9 @@ namespace Chaincase.Views
 					.DisposeWith(d);
 
 				this.OneWayBind(ViewModel,
-					vm => vm.DateTime,
-					v => v.Date.Text,
-					d => $"Date: {d}")
-					.DisposeWith(d);
-
-				this.OneWayBind(ViewModel,
-					vm => vm.BlockHeight,
-					v => v.BlockHeight.Text,
-					bh => $"Block Height: {bh}")
-					.DisposeWith(d);
-
-				this.OneWayBind(ViewModel,
-					vm => vm.Confirmed,
-					v => v.Confirmed.Text,
-					isC => isC ? "Confirmed ✔" : "Waiting for confirmation... ")
+					vm => vm.OutputIndex,
+					v => v.OutputIndex.Text,
+					oi => $"Output Index: {oi}")
 					.DisposeWith(d);
 
 				this.OneWayBind(ViewModel,
@@ -49,6 +43,19 @@ namespace Chaincase.Views
 					v => v.Confirmations.Text,
 					cs => $"Confirmations: {cs}")
 					.DisposeWith(d);
+
+				this.OneWayBind(ViewModel,
+					vm => vm.AnonymitySet,
+					v => v.AnonymitySet.Text,
+					aSet => $"Anonymity Set: {aSet}")
+				.DisposeWith(d);
+
+				this.OneWayBind(ViewModel,
+					vm => vm.Clusters,
+					v => v.Clusters.Text,
+					cs => $"Clusters: {cs}")
+					.DisposeWith(d);
+
 			});
 
 			var tapGestureRecognizer = new TapGestureRecognizer();
@@ -61,6 +68,12 @@ namespace Chaincase.Views
 				}
 			};
 			TransactionId.GestureRecognizers.Add(tapGestureRecognizer);
+		}
+
+		protected override async void OnDisappearing()
+		{
+			base.OnDisappearing();
+			Locator.Current.GetService<IViewStackService>().PopModal();
 		}
 	}
 }

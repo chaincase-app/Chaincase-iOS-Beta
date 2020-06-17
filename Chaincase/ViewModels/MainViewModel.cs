@@ -48,7 +48,7 @@ namespace Chaincase.ViewModels
 
             Transactions = new ObservableCollection<TransactionViewModel>();
 
-            OpenTransactionInfo = ReactiveCommand.CreateFromObservable((TransactionViewModel tvm) =>
+            OpenTransactionDetail = ReactiveCommand.CreateFromObservable((TransactionViewModel tvm) =>
             {
                 ViewStackService.PushPage(tvm).Subscribe();
                 return Observable.Return(Unit.Default);
@@ -210,7 +210,7 @@ namespace Chaincase.ViewModels
 		public ReactiveCommand<Unit, Unit> ExposedSendCommand;
         public ReactiveCommand<Unit, Unit> SendCommand;
         public ReactiveCommand<Unit, Unit> InitCoinJoin;
-        public ReactiveCommand<TransactionViewModel, Unit> OpenTransactionInfo;
+        public ReactiveCommand<TransactionViewModel, Unit> OpenTransactionDetail;
 
     }
 }

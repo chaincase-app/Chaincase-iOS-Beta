@@ -69,7 +69,7 @@ namespace Chaincase.Views
             Transactions.ItemTapped += (_, e) =>
             {
                 TransactionViewModel tvm = (TransactionViewModel)e.Item;
-                ViewModel.OpenTransactionInfo.Execute(tvm).Subscribe();
+                ViewModel.OpenTransactionDetail.Execute(tvm).Subscribe();
             }; ;
         }
 

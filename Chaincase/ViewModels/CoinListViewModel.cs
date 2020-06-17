@@ -34,6 +34,8 @@ namespace Chaincase.ViewModels
         public event EventHandler CoinListShown;
         public event EventHandler<CoinViewModel> SelectionChanged;
 
+        public ReactiveCommand<CoinViewModel, Unit> OpenCoinDetail;
+
         public CoinListViewModel(bool isPrivate = false)
             : base(Locator.Current.GetService<IViewStackService>())
 		{
@@ -76,6 +78,12 @@ namespace Chaincase.ViewModels
                         SelectPrivateSwitchState = false;
                         break;
                 }
+            });
+
+            OpenCoinDetail = ReactiveCommand.CreateFromObservable((CoinViewModel cvm) =>
+            {
+                ViewStackService.PushModal(cvm).Subscribe();
+                return Observable.Return(Unit.Default);
             });
         }
 
@@ -182,7 +190,7 @@ namespace Chaincase.ViewModels
 
         private void SelectCoins(Func<CoinViewModel, bool> coinFilterPredicate)
         {
-            foreach (var c in Coins.ToArray())
+            foreach (var c in CoinList.ToArray())
             {
                 c.IsSelected = coinFilterPredicate(c);
             }
@@ -192,7 +200,7 @@ namespace Chaincase.ViewModels
 
         public SourceList<CoinViewModel> RootList { get; private set; }
 
-        public IEnumerable<CoinViewModel> Coins => _coinViewModels;
+        public IEnumerable<CoinViewModel> CoinList => _coinViewModels;
 
         public event EventHandler<SmartCoin> DequeueCoinsPressed;
 
@@ -244,7 +252,7 @@ namespace Chaincase.ViewModels
 
         public void SelectOnlyPrivateCoins(bool onlyPrivate)
         {
-            foreach (var c in Coins) {
+            foreach (var c in CoinList) {
                 c.IsSelected = !onlyPrivate || c.AnonymitySet > 1;
             }
         }

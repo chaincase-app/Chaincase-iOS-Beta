@@ -42,17 +42,8 @@
             Grid.ColumnSpan="2"
             Grid.Row="2"/>
     </Grid>
-    <ListView x:Name="Coins"
-              SelectionMode="None"
-              SeparatorVisibility="None">
-      <ListView.ItemTemplate>
-        <DataTemplate>
-          <ViewCell>
-            <templates:CoinViewTemplate ViewModel="{Binding .}" />
-          </ViewCell>
-        </DataTemplate>
-      </ListView.ItemTemplate>
-    </ListView>
+    <templates:CoinListTemplate x:Name="CoinList"
+                                VerticalOptions="FillAndExpand" />
   </StackLayout>
 </rxui:ReactiveContentPage>
 

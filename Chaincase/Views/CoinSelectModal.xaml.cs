@@ -26,16 +26,16 @@ namespace Chaincase.Views
 					v => v.SelectPrivateSwitch.IsToggled)
 					.DisposeWith(d);
                 this.OneWayBind(ViewModel,
-                    vm => vm.Coins,
-                    v => v.Coins.ItemsSource)
+                    vm => vm,
+                    v => v.CoinList.ViewModel)
                     .DisposeWith(d);
                 this.OneWayBind(ViewModel,
-                    vm => vm.Coins,
-                    v => v.Coins.IsVisible,
+                    vm => vm.CoinList,
+                    v => v.CoinList.IsVisible,
                     coins => coins.Count() > 0)
                     .DisposeWith(d);
                 this.OneWayBind(ViewModel,
-                    vm => vm.Coins,
+                    vm => vm.CoinList,
                     v => v.EmptyWalletLabel.IsVisible,
                     coins => coins.Count() == 0)
                     .DisposeWith(d);

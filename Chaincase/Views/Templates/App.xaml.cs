@@ -29,11 +29,12 @@ namespace Chaincase
 				.CurrentMutable
                 .RegisterView<MainPage, MainViewModel>()
 				.RegisterView<TransactionDetailPage, TransactionViewModel>()
-                .RegisterView<LandingPage, LandingViewModel>()
+				.RegisterView<LandingPage, LandingViewModel>()
                 .RegisterView<ReceivePage, ReceiveViewModel>()
                 .RegisterView<AddressPage, AddressViewModel>()
                 .RegisterView<SendAmountPage, SendAmountViewModel>()
 				.RegisterView<CoinSelectModal, CoinListViewModel>()
+				.RegisterView<CoinDetailModal, CoinViewModel>()
 				.RegisterView<SendWhoPage, SendWhoViewModel>()
                 .RegisterView<SentPage, SentViewModel>()
 				.RegisterView<CoinJoinPage, CoinJoinViewModel>()

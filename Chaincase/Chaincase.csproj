@@ -67,6 +67,7 @@
     <Compile Remove="Views\Templates\AddressTemplate %28copy%29.xaml.cs" />
     <Compile Remove="Views\PasswordPromptModal %28copy%29.xaml.cs" />
     <Compile Remove="Views\VerifyMnemonicPage %28copy%29.xaml.cs" />
+    <Compile Remove="Views\TransactionDetailPage %28copy%29.xaml.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Navigation\" />

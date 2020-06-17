@@ -204,7 +204,7 @@ namespace Chaincase.ViewModels
         private async Task<bool> DoEnqueueAsync(string password)
         {
             IsEnqueueBusy = true;
-            var coins = CoinList.Coins.Where(c => c.IsSelected).Select(c => c.Model);
+            var coins = CoinList.CoinList.Where(c => c.IsSelected).Select(c => c.Model);
             try
             {
                 if (!coins.Any())
