@@ -47,6 +47,13 @@ namespace Chaincase.ViewModels
             Balance = Global.UiConfig.Balance;
 
             Transactions = new ObservableCollection<TransactionViewModel>();
+
+            OpenTransactionInfo = ReactiveCommand.CreateFromObservable((TransactionViewModel tvm) =>
+            {
+                ViewStackService.PushPage(tvm).Subscribe();
+                return Observable.Return(Unit.Default);
+            });
+
             TryWriteTableFromCache();
             Task.Run(async () =>
             {
@@ -203,5 +210,7 @@ namespace Chaincase.ViewModels
 		public ReactiveCommand<Unit, Unit> ExposedSendCommand;
         public ReactiveCommand<Unit, Unit> SendCommand;
         public ReactiveCommand<Unit, Unit> InitCoinJoin;
+        public ReactiveCommand<TransactionViewModel, Unit> OpenTransactionInfo;
+
     }
 }

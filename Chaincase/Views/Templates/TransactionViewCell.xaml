@@ -6,7 +6,7 @@
                           xmlns:templates="clr-namespace:Chaincase.Views.Templates;assembly=Chaincase"
                           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                           xmlns="http://xamarin.com/schemas/2014/forms">
-  <Grid>
+  <Grid x:Name="txCell">
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="3*" />
       <ColumnDefinition Width="*" />

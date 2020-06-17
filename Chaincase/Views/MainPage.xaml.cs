@@ -33,6 +33,7 @@ namespace Chaincase.Views
                     vm => vm.Transactions,
                     v => v.Transactions.ItemsSource)
                     .DisposeWith(d);
+
                 this.OneWayBind(ViewModel,
                     vm => vm.Transactions,
                     v => v.Transactions.IsVisible,
@@ -64,6 +65,12 @@ namespace Chaincase.Views
                     v => v.SendButton.IsVisible)
                     .DisposeWith(d);
             });
+
+            Transactions.ItemTapped += (_, e) =>
+            {
+                TransactionViewModel tvm = (TransactionViewModel)e.Item;
+                ViewModel.OpenTransactionInfo.Execute(tvm).Subscribe();
+            }; ;
         }
 
         private string AddBalanceSymbol(string bal)

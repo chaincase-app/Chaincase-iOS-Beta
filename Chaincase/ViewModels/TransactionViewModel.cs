@@ -8,7 +8,6 @@ using Chaincase.Navigation;
 using NBitcoin;
 using ReactiveUI;
 using Splat;
-using WalletWasabi.Logging;
 
 namespace Chaincase.ViewModels
 {
@@ -26,8 +25,6 @@ namespace Chaincase.ViewModels
 		private TransactionInfo Model { get; }
 
 		public ReactiveCommand<Unit, Unit> CopyTransactionId { get; }
-
-		public ReactiveCommand<Unit, Unit> OpenTransactionInfo { get; }
 
 		public string DateTime => Model.DateTime.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
 
