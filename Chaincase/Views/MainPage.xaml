@@ -27,7 +27,7 @@
            HorizontalTextAlignment="Center"
            VerticalTextAlignment="Center"
            VerticalOptions="FillAndExpand"
-           Text="First sync may take 20 minutes."></Label>
+           Text="First sync may a few minutes."></Label>
     <Button Text="Get Receive Address"
             x:Name="NavReceiveCommand"
             VerticalOptions="EndAndExpand" />

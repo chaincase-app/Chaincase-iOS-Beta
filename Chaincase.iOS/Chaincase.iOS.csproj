@@ -73,7 +73,7 @@
     <WarningLevel>4</WarningLevel>
     <MtouchArch>ARM64</MtouchArch>
     <ConsolePause>false</ConsolePause>
-    <CodesignKey>Apple Development: dc.sled@gmail.com (BDA534V858)</CodesignKey>
+    <CodesignKey>iPhone Distribution: Chaincase LLC (9Z72DXKVXK)</CodesignKey>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <LangVersion>default</LangVersion>
     <IOSDebugOverWiFi></IOSDebugOverWiFi>
@@ -81,7 +81,7 @@
     <IpaPackageName></IpaPackageName>
     <MtouchI18n></MtouchI18n>
     <MtouchExtraArgs>--optimize=experimental-xforms-product-type </MtouchExtraArgs>
-    <CodesignProvision>VS: cash.chaincase.chaincase Development</CodesignProvision>
+    <CodesignProvision>Chaincase App Store</CodesignProvision>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
