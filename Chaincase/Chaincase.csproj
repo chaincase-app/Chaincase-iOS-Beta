@@ -64,10 +64,6 @@
     <Compile Remove="Views\SendAmountPage %28copy%29.xaml.cs" />
     <Compile Remove="Views\MnemonicPage %28copy%29.xaml.cs" />
     <Compile Remove="Views\SendWhoPage %28copy%29.xaml.cs" />
-    <Compile Remove="Views\Templates\AddressTemplate %28copy%29.xaml.cs" />
-    <Compile Remove="Views\PasswordPromptModal %28copy%29.xaml.cs" />
-    <Compile Remove="Views\VerifyMnemonicPage %28copy%29.xaml.cs" />
-    <Compile Remove="Views\TransactionDetailPage %28copy%29.xaml.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Navigation\" />
@@ -102,7 +98,6 @@
     <None Remove="CustomBuildActions.targets" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Remove="Views\Templates\CoinViewTemplate %28copy%29.xaml" />
     <EmbeddedResource Remove="Views\ReceivePage %28copy%29.xaml" />
     <EmbeddedResource Remove="Views\ReceivePage %28copy%29.xaml" />
     <EmbeddedResource Remove="Views\ReceivePage %28copy%29.xaml" />

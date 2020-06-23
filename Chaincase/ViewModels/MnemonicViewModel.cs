@@ -7,6 +7,7 @@ using System.Reactive;
 using System;
 using System.Reactive.Linq;
 using Splat;
+using System.Collections.Generic;
 
 namespace Chaincase.ViewModels
 {

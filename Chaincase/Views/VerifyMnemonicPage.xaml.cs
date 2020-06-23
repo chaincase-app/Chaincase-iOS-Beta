@@ -4,56 +4,64 @@ using ReactiveUI;
 using ReactiveUI.XamForms;
 using System.Reactive.Disposables;
 using Xamarin.Forms;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Chaincase.Views
 {
 	public partial class VerifyMnemonicPage : ReactiveContentPage<VerifyMnemonicViewModel>
 	{
+
+		private int failedAttempts = 0;
+
 		public VerifyMnemonicPage()
 		{
 			InitializeComponent();
 			this.WhenActivated(d =>
 			{
-				this.Bind(ViewModel,
-					vm => vm.Recall0,
-					v => v.Recall0.Text)
-                    .DisposeWith(d);
-                this.Bind(ViewModel,
-					vm => vm .Recall1,
-					v => v.Recall1.Text)
-                    .DisposeWith(d);
-                this.Bind(ViewModel,
-					vm => vm.Recall2,
-					v => v.Recall2.Text)
-                    .DisposeWith(d);
-                this.Bind(ViewModel,
-					vm => vm.Recall3,
-					v => v.Recall3.Text)
-                    .DisposeWith(d);
-				this.Bind(ViewModel,
-					vm => vm.Passphrase,
-					v => v.Password.Text)
-				.DisposeWith(d);
-				this.BindCommand(ViewModel,
-	                vm => vm.VerifyCommand,
-	                v => v.VerifyButton)
-	                .DisposeWith(d);
-                ViewModel.VerifyCommand.Subscribe(verified =>{
-					if (!verified) Shake();
-				});
+				InstructionLabel.Text = $"Select word {ViewModel.SeedWords.IndexOf(ViewModel.WordToVerify)+1}";
+
+				var buttons = new Button[] { ButtonA, ButtonB, ButtonC, ButtonD, ButtonE };
+				string[] shuffledWords = new string[ViewModel.SeedWords.Count()];
+				ViewModel.SeedWords.CopyTo(shuffledWords);
+				Shuffle(shuffledWords);
+				string[] buttonText = new string[buttons.Length];
+				Array.Copy(shuffledWords, buttonText, buttons.Length);
+				buttonText[0] = ViewModel.WordToVerify;
+				Shuffle(buttonText);
+				for (int i = 0; i < 5; i++)
+				{
+					buttons[i].Text = buttonText[i];
+					buttons[i].Clicked += async (sender, args) =>
+					{
+						Button clicked = (Button)sender;
+						if(clicked.Text == ViewModel.WordToVerify)
+                        {
+							ViewModel.VerifiedCommand.Execute();
+                        }
+                        else if (failedAttempts++ > 1 || await DisplayAlert("Wrong Word", "Are you sure you have your words?", "See Words", "Try Again"))
+                        {
+							ViewModel.FailedCommand.Execute();
+                        }
+					};
+				}
 			});
 		}
 
-		async void Shake()
+        // Just a game of "have u written this down?" not CSPRNG
+		private static Random rng = new Random();
+
+		public static void Shuffle<T>(IList<T> list)
 		{
-			uint timeout = 50;
-			await VerifyButton.TranslateTo(-15, 0, timeout);
-			await VerifyButton.TranslateTo(15, 0, timeout);
-			await VerifyButton.TranslateTo(-10, 0, timeout);
-			await VerifyButton.TranslateTo(10, 0, timeout);
-			await VerifyButton.TranslateTo(-5, 0, timeout);
-			await VerifyButton.TranslateTo(5, 0, timeout);
-			VerifyButton.TranslationX = 0;
+			int n = list.Count;
+			while (n > 1)
+			{
+				n--;
+				int k = rng.Next(n + 1);
+				T value = list[k];
+				list[k] = list[n];
+				list[n] = value;
+			}
 		}
 	}
 }

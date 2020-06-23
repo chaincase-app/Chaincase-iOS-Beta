@@ -30,6 +30,7 @@ namespace Chaincase.ViewModels
         private SendAmountViewModel _sendAmountViewModel;
         public string _balance;
         private ObservableAsPropertyHelper<bool> _hasCoins;
+        private ObservableAsPropertyHelper<bool> _isBackedUp;
         private bool _hasPrivateCoins;
         readonly ObservableAsPropertyHelper<bool> _isJoining;
 
@@ -93,6 +94,12 @@ namespace Chaincase.ViewModels
             var coinListReady = this.WhenAnyValue(x => x.CoinList.IsCoinListLoading,
                 stillLoading => !stillLoading);
 
+            NavBackUpCommand = ReactiveCommand.CreateFromObservable(() =>
+            {
+                ViewStackService.PushPage(new StartBackUpViewModel()).Subscribe();
+                return Observable.Return(Unit.Default);
+            });
+
             NavReceiveCommand = ReactiveCommand.CreateFromObservable(() =>
             {
                 ViewStackService.PushPage(new ReceiveViewModel()).Subscribe();
@@ -117,6 +124,9 @@ namespace Chaincase.ViewModels
                 .WhenAnyValue(x => x.Balance)
                 .Select(bal => Money.Parse(bal) > 0)
                 .ToProperty(this, nameof(HasCoins));
+
+            _isBackedUp = this.WhenAnyValue(x => x.Global.UiConfig.IsBackedUp)
+                .ToProperty(this, nameof(IsBackedUp));
 
         }
 
@@ -168,6 +178,8 @@ namespace Chaincase.ViewModels
 
         public Label Deq;
 
+        public bool IsBackedUp => _isBackedUp.Value;
+
         public bool HasCoins => _hasCoins.Value;
 
         public bool HasPrivateCoins
@@ -206,6 +218,7 @@ namespace Chaincase.ViewModels
             set => this.RaiseAndSetIfChanged(ref _transactions, value);
         }
 
+        public ReactiveCommand<Unit, Unit> NavBackUpCommand;
         public ReactiveCommand<Unit, Unit> NavReceiveCommand;
 		public ReactiveCommand<Unit, Unit> ExposedSendCommand;
         public ReactiveCommand<Unit, Unit> SendCommand;

@@ -27,22 +27,24 @@ namespace Chaincase
 
 			Locator
 				.CurrentMutable
-                .RegisterView<MainPage, MainViewModel>()
+        .RegisterView<MainPage, MainViewModel>()
 				.RegisterView<TransactionDetailPage, TransactionViewModel>()
 				.RegisterView<LandingPage, LandingViewModel>()
-                .RegisterView<ReceivePage, ReceiveViewModel>()
-                .RegisterView<AddressPage, AddressViewModel>()
-                .RegisterView<SendAmountPage, SendAmountViewModel>()
+        .RegisterView<ReceivePage, ReceiveViewModel>()
+        .RegisterView<AddressPage, AddressViewModel>()
+        .RegisterView<SendAmountPage, SendAmountViewModel>()
 				.RegisterView<CoinSelectModal, CoinListViewModel>()
 				.RegisterView<CoinDetailModal, CoinViewModel>()
 				.RegisterView<SendWhoPage, SendWhoViewModel>()
-                .RegisterView<SentPage, SentViewModel>()
+				.RegisterView<SentPage, SentViewModel>()
 				.RegisterView<CoinJoinPage, CoinJoinViewModel>()
-                .RegisterView<NewPasswordPage, NewPasswordViewModel>()
-                .RegisterView<MnemonicPage, MnemonicViewModel>()
-                .RegisterView<VerifyMnemonicPage, VerifyMnemonicViewModel>()
-                .RegisterView<PasswordPromptModal, PasswordPromptViewModel>()
-                .RegisterNavigationView(() => new NavigationView());
+				.RegisterView<NewPasswordPage, NewPasswordViewModel>()
+				.RegisterView<MnemonicPage, MnemonicViewModel>()
+				.RegisterView<VerifyMnemonicPage, VerifyMnemonicViewModel>()
+				.RegisterView<PasswordPromptModal, PasswordPromptViewModel>()
+				.RegisterView<StartBackUpModal, StartBackUpViewModel>()
+				.RegisterView<BackUpModal, BackUpViewModel>()
+				.RegisterNavigationView(() => new NavigationView());
 
 			var page = WalletExists() ? (IViewModel)new MainViewModel() : new LandingViewModel();
 

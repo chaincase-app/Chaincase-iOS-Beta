@@ -28,6 +28,12 @@
            VerticalTextAlignment="Center"
            VerticalOptions="FillAndExpand"
            Text="First sync may a few minutes."></Label>
+    <Button x:Name="BackUp"
+            Text="Don't forget—back up your wallet!"
+            BackgroundColor="LightPink"
+            TextColor="DarkRed"
+            BorderColor="Pink"
+            />
     <Button Text="Get Receive Address"
             x:Name="NavReceiveCommand"
             VerticalOptions="EndAndExpand" />
