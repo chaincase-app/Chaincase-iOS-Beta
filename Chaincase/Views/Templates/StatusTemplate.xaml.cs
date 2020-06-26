@@ -5,6 +5,7 @@ using System.Reactive.Disposables;
 using WalletWasabi.Models;
 using Xamarin.Forms;
 using System.Threading.Tasks;
+using Xamarin.Essentials;
 
 namespace Chaincase.Views.Templates
 {
@@ -76,11 +77,14 @@ namespace Chaincase.Views.Templates
             {
                 Task.Run(async () => {
                     await Task.Delay((int)lengthMs);
-                    progressBar.IsVisible = false;
-				});
+                    MainThread.BeginInvokeOnMainThread(() =>
+                        progressBar.IsVisible = false);
+                });
             } else
 			{
-                progressBar.IsVisible = true;
+                MainThread.BeginInvokeOnMainThread(() =>
+                    progressBar.IsVisible = true);
+                
 			}
         }
     }
