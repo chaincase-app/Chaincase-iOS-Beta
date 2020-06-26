@@ -10,6 +10,7 @@ namespace Chaincase
 	{
         private string _balance;
 		private TransactionInfo[] _transactions;
+		private bool _hasSeed;
 		private bool _isBackedUp;
 
 		[DefaultValue("0")]
@@ -25,6 +26,13 @@ namespace Chaincase
 		{
 			get => _transactions;
 			set => RaiseAndSetIfChanged(ref _transactions, value);
+		}
+
+		[JsonProperty(PropertyName="HasSeed")]
+		public bool HasSeed
+		{
+			get => _hasSeed;
+			set => RaiseAndSetIfChanged(ref _hasSeed, value);
 		}
 
         [JsonProperty(PropertyName="IsBackedUp")]

@@ -10,6 +10,7 @@ using ReactiveUI;
 using Splat;
 using WalletWasabi.Blockchain.Keys;
 using Xamarin.Essentials;
+using Xamarin.Forms;
 
 namespace Chaincase.ViewModels
 {
@@ -25,7 +26,8 @@ namespace Chaincase.ViewModels
             : base(Locator.Current.GetService<IViewStackService>())
 		{
 			Global = Locator.Current.GetService<Global>();
-			SeedWords = new List<string> { "a", "b", "c", "d", "e", "f", "g", "h"};
+			var	hsm = DependencyService.Get<IHsmStorage>();
+			SeedWords = hsm.GetAsync($"{Global.Network}-seedWords").Result.Split(' ').ToList();
 
 			IndexedWords = new string[SeedWords.Count()];
 			for (int i = 0; i < SeedWords.Count(); i++)

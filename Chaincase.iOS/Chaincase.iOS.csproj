@@ -32,6 +32,7 @@
     <CodesignKey>Apple Development: dc.sled@gmail.com (BDA534V858)</CodesignKey>
     <CodesignProvision>VS: cash.chaincase.chaincase Development</CodesignProvision>
 <MtouchFastDev>true</MtouchFastDev>
+<CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
     <DebugType>none</DebugType>
@@ -92,6 +93,7 @@
     <Compile Include="Tor\TorProcessManager.cs" />
     <Compile Include="iOSNotificationManager.cs" />
     <Compile Include="iOSNotificationReceiver.cs" />
+    <Compile Include="HsmStorage.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />

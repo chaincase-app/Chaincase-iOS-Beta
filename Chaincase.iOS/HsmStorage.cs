@@ -11,79 +11,81 @@ using Xamarin.Forms;
 [assembly: Dependency(typeof(Chaincase.iOS.HsmStorage))]
 namespace Chaincase.iOS
 {
-    // based on Xamarin.Essentials SecureStorage
-    public class HsmStorage : IHsmStorage
+	// based on Xamarin.Essentials SecureStorage
+	// Simulator requires Keychain and a keychain access group for the application's bundle identifier.
+	// When deploying to an iOS device this entitlement is not required and should be removed.
+	public class HsmStorage : IHsmStorage
     {
         public static SecAccessible DefaultAccessible { get; set; } =
            SecAccessible.WhenUnlockedThisDeviceOnly;
 
-         public static Task SetAsync(string key, string value, SecAccessible accessible)
+        public static SecAccessControl BiometricAccessControl { get; set; } =
+            new SecAccessControl(DefaultAccessible,
+                SecAccessControlCreateFlags.BiometryCurrentSet
+            );
+          
+
+        public Task<string> GetAsync(string key)
         {
             if (string.IsNullOrWhiteSpace(key))
                 throw new ArgumentNullException(nameof(key));
 
-            if (value == null)
-                throw new ArgumentNullException(nameof(value));
-
-            var kc = new KeyChain(accessible);
-            kc.SetValueForKey(value, key);
-
-            return Task.CompletedTask;
-        }
-
-        static Task<string> PlatformGetAsync(string key)
-        {
             var kc = new KeyChain(DefaultAccessible);
             var value = kc.ValueForKey(key);
 
             return Task.FromResult(value);
         }
 
-        static Task PlatformSetAsync(string key, string data) =>
-            SetAsync(key, data, DefaultAccessible);
+        public Task SetAsync(string key, string value)
+         {
+            if (string.IsNullOrWhiteSpace(key))
+                throw new ArgumentNullException(nameof(key));
 
-        static bool PlatformRemove(string key)
-        {
+            if (value == null)
+                throw new ArgumentNullException(nameof(value));
+
             var kc = new KeyChain(DefaultAccessible);
+            kc.SetValueForKey(value, key);
 
-            return kc.Remove(key);
+            return Task.CompletedTask;
+         }
+
+		public Task SetWithCurrentBiometryAsync(string key, string value)
+		{
+            if (string.IsNullOrWhiteSpace(key))
+                throw new ArgumentNullException(nameof(key));
+
+            if (value == null)
+                throw new ArgumentNullException(nameof(value));
+
+            var kc = new KeyChain(BiometricAccessControl);
+            kc.SetValueForKey(value, key);
+
+            return Task.CompletedTask;
         }
-    }
 
-    //    public static HsmStorage()
-    //    {
-    //        var access = new SecAccessControl(SecAccessible.WhenUnlockedThisDeviceOnly,
-    //                                          SecAccessControlCreateFlags.ApplicationPassword);
+		public bool Remove(string key)
+		{
+			throw new NotImplementedException();
+		}
+	}
 
-    //        var kc = new KeyChain(SecAccessible.WhenUnlockedThisDeviceOnly);
-    //        kc.SetValueForKey(value, key, Alias);
-
-    //        var query = new Sec
-    //        //let query: [String: Any] = [kSecClass as String: kSecClassInternetPassword,
-    //        //                kSecAttrAccount as String: account,
-    //        //                kSecAttrServer as String: server,
-    //        //                kSecAttrAccessControl as String: access as Any,
-    //        //                kSecUseAuthenticationContext as String: context,
-    //        //                kSecValueData as String: password]
-    //            //(nil, // Use the default allocator.
-    //            //                             SecAccessible.WhenUnlockedThisDeviceOnly,
-    //            //                             .userPresence,
-    //            //                             nil) // Ignore any error.
-    //    }
-
-    //}
 
     class KeyChain
     {
-        //SecAccessControl accessControl;
-
-        //internal KeyChain(SecAccessible accessible, SecAccessControlCreateFlags flags) =>
-        //    this.accessControl = new SecAccessControl(accessible, flags);
-
         SecAccessible accessible;
+        SecAccessControl control;
 
-        internal KeyChain(SecAccessible accessible) =>
+        internal KeyChain(SecAccessible accessible)
+		{
             this.accessible = accessible;
+		}
+
+        internal KeyChain(SecAccessControl control)
+		{
+            this.accessible = control.Accessible;
+            this.control = control;
+		}
 
         SecRecord ExistingRecordForKey(string key)
         {
@@ -173,7 +175,7 @@ namespace Chaincase.iOS
             {
                 Account = key,
                 Label = key,
-                Accessible = accessible,
+                AccessControl = control,
                 ValueData = NSData.FromString(value, NSStringEncoding.UTF8),
             };
         }

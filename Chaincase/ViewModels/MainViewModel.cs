@@ -30,7 +30,9 @@ namespace Chaincase.ViewModels
         private SendAmountViewModel _sendAmountViewModel;
         public string _balance;
         private ObservableAsPropertyHelper<bool> _hasCoins;
+        private ObservableAsPropertyHelper<bool> _hasSeed;
         private ObservableAsPropertyHelper<bool> _isBackedUp;
+        private ObservableAsPropertyHelper<bool> _canBackUp;
         private bool _hasPrivateCoins;
         readonly ObservableAsPropertyHelper<bool> _isJoining;
 
@@ -94,11 +96,22 @@ namespace Chaincase.ViewModels
             var coinListReady = this.WhenAnyValue(x => x.CoinList.IsCoinListLoading,
                 stillLoading => !stillLoading);
 
+            _hasSeed = this.WhenAnyValue(x => x.Global.UiConfig.HasSeed)
+                .ToProperty(this, nameof(HasSeed));
+
+            _isBackedUp = this.WhenAnyValue(x => x.Global.UiConfig.IsBackedUp)
+                .ToProperty(this, nameof(IsBackedUp));
+
+            var canBackUp = this.WhenAnyValue(x => x.HasSeed, x => x.IsBackedUp,
+               (hasSeed, isBackedUp) => hasSeed && !isBackedUp);
+
+            canBackUp.ToProperty(this, x => x.CanBackUp, out _canBackUp);
+
             NavBackUpCommand = ReactiveCommand.CreateFromObservable(() =>
             {
                 ViewStackService.PushPage(new StartBackUpViewModel()).Subscribe();
                 return Observable.Return(Unit.Default);
-            });
+            }, canBackUp);
 
             NavReceiveCommand = ReactiveCommand.CreateFromObservable(() =>
             {
@@ -123,11 +136,7 @@ namespace Chaincase.ViewModels
             _hasCoins = this
                 .WhenAnyValue(x => x.Balance)
                 .Select(bal => Money.Parse(bal) > 0)
-                .ToProperty(this, nameof(HasCoins));
-
-            _isBackedUp = this.WhenAnyValue(x => x.Global.UiConfig.IsBackedUp)
-                .ToProperty(this, nameof(IsBackedUp));
-
+                .ToProperty(this, nameof(HasCoins));           
         }
 
         private void TryWriteTableFromCache()
@@ -179,6 +188,10 @@ namespace Chaincase.ViewModels
         public Label Deq;
 
         public bool IsBackedUp => _isBackedUp.Value;
+
+        public bool HasSeed => _hasSeed.Value;
+
+        public bool CanBackUp => _canBackUp.Value;
 
         public bool HasCoins => _hasCoins.Value;
 

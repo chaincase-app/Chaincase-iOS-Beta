@@ -55,9 +55,9 @@ namespace Chaincase.Views
                     v => v.BackUp)
                     .DisposeWith(d);
                 this.OneWayBind(ViewModel,
-                    vm => vm.IsBackedUp,
+                    vm => vm.CanBackUp,
                     v => v.BackUp.IsVisible,
-                    backedUp => !backedUp)
+                    canBackUp => canBackUp)
                     .DisposeWith(d);
 
                 this.BindCommand(ViewModel,

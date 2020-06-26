@@ -7,12 +7,15 @@ using NBitcoin;
 using ReactiveUI;
 using Splat;
 using WalletWasabi.Blockchain.Keys;
+using Xamarin.Essentials;
+using Xamarin.Forms;
 
 namespace Chaincase.ViewModels
 {
     public class NewPasswordViewModel : ViewModelBase
 	{
 		protected Global Global { get; }
+		protected IHsmStorage Hsm { get; }
 
 		private string _password;
 
@@ -20,10 +23,16 @@ namespace Chaincase.ViewModels
             : base(Locator.Current.GetService<IViewStackService>())
 		{
 			Global = Locator.Current.GetService<Global>();
+			Hsm = DependencyService.Get<IHsmStorage>();
+			
 			SubmitCommand = ReactiveCommand.CreateFromObservable(() =>
 			{
 				string walletFilePath = Path.Combine(Global.WalletManager.WalletDirectories.WalletsDir, $"{Global.Network}.json");
 				KeyManager.CreateNew(out Mnemonic seedWords, Password, walletFilePath);
+
+				Hsm.SetWithCurrentBiometryAsync($"{Global.Network}-seedWords", seedWords.ToString()); // PROMPT
+				Global.UiConfig.HasSeed = true;
+				Global.UiConfig.ToFile();
 				ViewStackService.PushPage(new MnemonicViewModel(seedWords.ToString())).Subscribe();
 				return Observable.Return(Unit.Default);
 			});
