@@ -34,6 +34,7 @@ namespace Chaincase.ViewModels
 
         public ReactiveCommand<Unit, Unit> GoNext;
         public ReactiveCommand<Unit, Unit> SelectCoins;
+        public ReactiveCommand<Unit, Unit> SelectFee;
 
         protected CompositeDisposable Disposables { get; } = new CompositeDisposable();
 
@@ -109,7 +110,7 @@ namespace Chaincase.ViewModels
 
             SetFeeTargetLimits();
             FeeTarget = Global.UiConfig.FeeTarget;
-            FeeRate = new FeeRate((decimal)50); //50 placeholder til loads
+            FeeRate = new FeeRate((decimal)50); //50 sat/vByte placeholder til loads
             SetFees();
 
             Observable
@@ -148,6 +149,12 @@ namespace Chaincase.ViewModels
             SelectCoins = ReactiveCommand.CreateFromObservable(() =>
             {
                 ViewStackService.PushModal(CoinList).Subscribe();
+                return Observable.Return(Unit.Default);
+            });
+
+            SelectFee = ReactiveCommand.CreateFromObservable(() =>
+            {
+                ViewStackService.PushModal(new FeeViewModel(this)).Subscribe();
                 return Observable.Return(Unit.Default);
             });
 
@@ -323,12 +330,5 @@ namespace Chaincase.ViewModels
 
         public string SendFromText => _sendFromText.Value;
 
-    }
-
-    public enum Feenum
-    {
-        Economy,
-        Standard,
-        Priority
     }
 }

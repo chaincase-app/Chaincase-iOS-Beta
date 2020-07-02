@@ -33,6 +33,7 @@ namespace Chaincase
 				.RegisterView<ReceivePage, ReceiveViewModel>()
 				.RegisterView<AddressPage, AddressViewModel>()
 				.RegisterView<SendAmountPage, SendAmountViewModel>()
+				.RegisterView<FeeModal,FeeViewModel>()
 				.RegisterView<CoinSelectModal, CoinListViewModel>()
 				.RegisterView<CoinDetailModal, CoinViewModel>()
 				.RegisterView<SendWhoPage, SendWhoViewModel>()
