@@ -28,6 +28,10 @@ namespace Chaincase
 			set => RaiseAndSetIfChanged(ref _transactions, value);
 		}
 
+		[DefaultValue(2)]
+		[JsonProperty(PropertyName = "FeeTarget", DefaultValueHandling = DefaultValueHandling.Populate)]
+		public int FeeTarget { get; internal set; }
+
 		[JsonProperty(PropertyName="HasSeed")]
 		public bool HasSeed
 		{

@@ -87,7 +87,7 @@ namespace Chaincase.ViewModels
                         .Subscribe(async _ => await TryRewriteTableAsync());
 
                     CoinJoinViewModel = new CoinJoinViewModel(CoinList);
-                    _sendAmountViewModel = new SendAmountViewModel(CoinList);
+                    SendAmountViewModel = new SendAmountViewModel(CoinList);
                 });
             });
 
@@ -122,14 +122,14 @@ namespace Chaincase.ViewModels
             InitCoinJoin = ReactiveCommand.CreateFromObservable(() =>
             {
                 CoinList.SelectOnlyPrivateCoins(false);
-                ViewStackService.PushPage(new CoinJoinViewModel(CoinList)).Subscribe();
+                ViewStackService.PushPage(CoinJoinViewModel).Subscribe();
                 return Observable.Return(Unit.Default);
             }, coinListReady);
 
             SendCommand = ReactiveCommand.CreateFromObservable(() =>
             {
                 CoinList.SelectOnlyPrivateCoins(true);
-                ViewStackService.PushPage(new SendAmountViewModel(CoinList)).Subscribe();
+                ViewStackService.PushPage(SendAmountViewModel).Subscribe();
                 return Observable.Return(Unit.Default);
             }, coinListReady);
 
@@ -217,6 +217,12 @@ namespace Chaincase.ViewModels
         {
             get => _coinJoinViewModel;
             set => this.RaiseAndSetIfChanged(ref _coinJoinViewModel, value);
+        }
+
+        public SendAmountViewModel SendAmountViewModel
+        {
+            get => _sendAmountViewModel;
+            set => this.RaiseAndSetIfChanged(ref _sendAmountViewModel, value);
         }
 
         public string Balance

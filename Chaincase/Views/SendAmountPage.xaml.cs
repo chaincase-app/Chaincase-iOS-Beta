@@ -18,75 +18,67 @@ namespace Chaincase.Views
 			
 			this.WhenActivated(d =>
 			{
-                this.BindCommand(ViewModel,
-                    vm => vm.SelectCoins,
-                    v => v.SendFromButton)
-                    .DisposeWith(d);
-                this.OneWayBind(ViewModel,
-                    vm => vm.SendFromText,
-                    v => v.SendFromButton.Text)
-                    .DisposeWith(d);
-                this.OneWayBind(ViewModel,
-                    vm => vm.CoinList.SelectedAmount,
-                    v => v.AvailableLabel.Text,
-                    amt => "Available: ₿ " + amt.ToString())
-                    .DisposeWith(d);
-                this.Bind(ViewModel,
+				this.BindCommand(ViewModel,
+					vm => vm.SelectCoins,
+					v => v.SendFromButton)
+					.DisposeWith(d);
+				this.OneWayBind(ViewModel,
+					vm => vm.SendFromText,
+					v => v.SendFromButton.Text)
+					.DisposeWith(d);
+				this.OneWayBind(ViewModel,
+					vm => vm.CoinList.SelectedAmount,
+					v => v.AvailableLabel.Text,
+					amt => "Available: ₿ " + amt.ToString())
+					.DisposeWith(d);
+				this.Bind(ViewModel,
 					vm => vm.AmountText,
 					v => v.Amount.Text)
 					.DisposeWith(d);
-                this.Bind(ViewModel,
-                    vm => vm.IsMax,
-                    v => v.MaxSwitch.IsToggled)
-                    .DisposeWith(d);
-                this.BindCommand(ViewModel,
-                    vm => vm.GoNext,
-                    v => v.NextButton)
-                    .DisposeWith(d);
-                this.OneWayBind(ViewModel,
-                    vm => vm.EstimatedBtcFee,
-                    v => v.FeeLabel.Text,
-                    AddBalanceSymbol)
-                    .DisposeWith(d);
-                this.OneWayBind(ViewModel,
-                    vm => vm.FeeTarget,
-                    v => v.FeeTargetTimeLabel.Text,
-                    vmToViewConverterOverride: new FeeTargetTimeConverter())
-                    .DisposeWith(d);
-				SetFee(Standard, null);
-            }); 
+				this.Bind(ViewModel,
+					vm => vm.IsMax,
+					v => v.MaxSwitch.IsToggled)
+					.DisposeWith(d);
+
+				// invert slider direction with -1
+				this.OneWayBind(ViewModel,
+					vm => vm.MaximumFeeTarget,
+					v => v.FeeSlider.Minimum,
+					target => -target)
+					.DisposeWith(d);
+				this.OneWayBind(ViewModel,
+					vm => vm.MinimumFeeTarget,
+					v => v.FeeSlider.Maximum,
+					target => -target)
+					.DisposeWith(d);
+				this.Bind(ViewModel,
+					vm => vm.FeeTarget,
+					v => v.FeeSlider.Value,
+					target => -1 * target,
+					target => (int)(-1 * target))
+					.DisposeWith(d);
+
+				this.OneWayBind(ViewModel,
+					vm => vm.FeeRate,
+					v => v.FeeLabel.Text,
+					AddFeeUnits)
+					.DisposeWith(d);
+				this.OneWayBind(ViewModel,
+					vm => vm.FeeTarget,
+					v => v.FeeTargetTimeLabel.Text,
+					vmToViewConverterOverride: new FeeTargetTimeConverter())
+					.DisposeWith(d);
+				this.BindCommand(ViewModel,
+					vm => vm.GoNext,
+					v => v.NextButton)
+					.DisposeWith(d);
+
+			}); 
 		}
 
-        void ResetButtonBorders()
+        private string AddFeeUnits(FeeRate rate)
         {
-
-            Economy.BorderWidth = 1;
-            Standard.BorderWidth = 1;
-            Priority.BorderWidth = 1;
-        }
-
-        private string AddBalanceSymbol(Money bal)
-        {
-            return "₿ " + bal.ToString();
-        }
-
-        void SetFee(object sender, EventArgs e)
-        {
-            switch (((Button)sender).Text)
-            {
-                case "Economy":
-                    ViewModel.FeeChoice = Feenum.Economy;
-                    break;
-                case "Priority":
-                    ViewModel.FeeChoice = Feenum.Priority;
-                    break;
-                case "Standard":
-                default:
-                    ViewModel.FeeChoice = Feenum.Standard;
-                    break;
-            }
-            ResetButtonBorders();
-            ((Button)sender).BorderWidth = 2;
+            return "~"+ rate.SatoshiPerByte.ToString() + " sat/vByte";
         }
     }
 }

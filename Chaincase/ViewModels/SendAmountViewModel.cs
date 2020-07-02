@@ -24,13 +24,13 @@ namespace Chaincase.ViewModels
         private string _amountText;
         private CoinListViewModel _coinList;
         readonly ObservableAsPropertyHelper<string> _sendFromText;
-        private Feenum _feeChoice;
         private FeeRate _feeRate;
         private Money _allSelectedAmount;
         private Money _estimatedBtcFee;
         private int _feeTarget;
         private int _minimumFeeTarget;
         private int _maximumFeeTarget;
+        private ObservableAsPropertyHelper<bool> _minMaxFeeTargetsEqual;
 
         public ReactiveCommand<Unit, Unit> GoNext;
         public ReactiveCommand<Unit, Unit> SelectCoins;
@@ -92,8 +92,6 @@ namespace Chaincase.ViewModels
                 })
                 .ToProperty(this, nameof(SendFromText));
 
-            FeeChoice = Feenum.Standard; // Default
-
             this.WhenAnyValue(x => x.IsMax)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(isMax =>
@@ -106,7 +104,13 @@ namespace Chaincase.ViewModels
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(_ => SetFees());
 
-            this.WhenAnyValue(x => x.FeeChoice).Subscribe(_ => SetFees());
+            _minMaxFeeTargetsEqual = this.WhenAnyValue(x => x.MinimumFeeTarget, x => x.MaximumFeeTarget, (x, y) => x == y)
+                .ToProperty(this, x => x.MinMaxFeeTargetsEqual, scheduler: RxApp.MainThreadScheduler);
+
+            SetFeeTargetLimits();
+            FeeTarget = Global.UiConfig.FeeTarget;
+            FeeRate = new FeeRate((decimal)50); //50 placeholder til loads
+            SetFees();
 
             Observable
                 .FromEventPattern<AllFeeEstimate>(Global.FeeProviders, nameof(Global.FeeProviders.AllFeeEstimateChanged))
@@ -146,29 +150,22 @@ namespace Chaincase.ViewModels
                 ViewStackService.PushModal(CoinList).Subscribe();
                 return Observable.Return(Unit.Default);
             });
+
+            this.WhenAnyValue(x => x.FeeTarget)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(_ =>
+                {
+                    SetFees();
+                });
         }
 
         private void SetFees()
         {
             AllFeeEstimate allFeeEstimate = Global.FeeProviders?.AllFeeEstimate;
 
-            if (!(allFeeEstimate is null))
+            if (allFeeEstimate is { })
             {
-                int feeTarget = -1; // blocks: 1 => 10 minutes
-                switch (FeeChoice)
-                {
-                    case Feenum.Economy:
-                        feeTarget = MaximumFeeTarget;
-                        break;
-                    case Feenum.Priority:
-                        feeTarget = MinimumFeeTarget;
-                        break;
-                    case Feenum.Standard: // average of the two
-                    default:
-                        feeTarget = MaximumFeeTarget < 6 ? MaximumFeeTarget : 6; // Standard include in 60 minutes
-                        break;
-
-                }
+                int feeTarget = FeeTarget;
 
                 int prevKey = allFeeEstimate.Estimations.Keys.First();
                 foreach (int target in allFeeEstimate.Estimations.Keys)
@@ -185,9 +182,8 @@ namespace Chaincase.ViewModels
                     prevKey = target;
                 }
 
-                FeeTarget = feeTarget;
                 FeeRate = allFeeEstimate.GetFeeRate(feeTarget);
-
+    
                 IEnumerable<SmartCoin> selectedCoins = CoinList.CoinList.Where(cvm => cvm.IsSelected).Select(x => x.Model);
 
                 int vsize = 150;
@@ -270,12 +266,6 @@ namespace Chaincase.ViewModels
             set => this.RaiseAndSetIfChanged(ref _feeRate, value);
         }
 
-        public Feenum FeeChoice
-        {
-            get => _feeChoice;
-            set => this.RaiseAndSetIfChanged(ref _feeChoice, value);
-        }
-
         public Money AllSelectedAmount
         {
             get => _allSelectedAmount;
@@ -308,6 +298,8 @@ namespace Chaincase.ViewModels
             get => _maximumFeeTarget;
             set => this.RaiseAndSetIfChanged(ref _maximumFeeTarget, value);
         }
+
+        public bool MinMaxFeeTargetsEqual => _minMaxFeeTargetsEqual.Value;
 
         private bool AmountTextPositive(string amountText)
         {
