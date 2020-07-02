@@ -14,18 +14,17 @@
 
 
     <StackLayout Orientation="Horizontal">
-      <Label Text="Amount ₿" HorizontalOptions="FillAndExpand"/>
+      <Label Text="Amount ₿" HorizontalOptions="FillAndExpand" />
       <Entry x:Name="Amount" WidthRequest="130" HorizontalTextAlignment="End"/>
     </StackLayout>
     <StackLayout Orientation="Horizontal">
       <Label Text="Send Max" HorizontalOptions="FillAndExpand" />
       <Switch x:Name="MaxSwitch"/>
-    </StackLayout>    
-    <Label Text="Network Fee" LineBreakMode="NoWrap" />
-    <Button x:Name="FeeButton" Text="YOLO"/>
-    <Slider x:Name="FeeSlider" />
-    <Label x:Name="FeeLabel" />
-    <Label x:Name="FeeTargetTimeLabel" />
+    </StackLayout>
+    <StackLayout Orientation="Horizontal">
+      <Label Text="Fee" HorizontalOptions="FillAndExpand" VerticalOptions="Center"/>
+      <Button x:Name="FeeButton" HorizontalOptions="End" BorderWidth="0"/>
+    </StackLayout>
     <Button Text="Next"
             x:Name="NextButton"/>
   </StackLayout>

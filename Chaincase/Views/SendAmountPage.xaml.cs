@@ -39,38 +39,17 @@ namespace Chaincase.Views
 					vm => vm.IsMax,
 					v => v.MaxSwitch.IsToggled)
 					.DisposeWith(d);
+
 				this.BindCommand(ViewModel,
 					vm => vm.SelectFee,
 					v => v.FeeButton)
 					.DisposeWith(d);
-				// invert slider direction with -1
-				this.OneWayBind(ViewModel,
-					vm => vm.MaximumFeeTarget,
-					v => v.FeeSlider.Minimum,
-					target => -target)
-					.DisposeWith(d);
-				this.OneWayBind(ViewModel,
-					vm => vm.MinimumFeeTarget,
-					v => v.FeeSlider.Maximum,
-					target => -target)
-					.DisposeWith(d);
-				this.Bind(ViewModel,
-					vm => vm.FeeTarget,
-					v => v.FeeSlider.Value,
-					target => -1 * target,
-					target => (int)(-1 * target))
-					.DisposeWith(d);
-
 				this.OneWayBind(ViewModel,
 					vm => vm.FeeRate,
-					v => v.FeeLabel.Text,
+					v => v.FeeButton.Text,
 					AddFeeUnits)
 					.DisposeWith(d);
-				this.OneWayBind(ViewModel,
-					vm => vm.FeeTarget,
-					v => v.FeeTargetTimeLabel.Text,
-					vmToViewConverterOverride: new FeeTargetTimeConverter())
-					.DisposeWith(d);
+
 				this.BindCommand(ViewModel,
 					vm => vm.GoNext,
 					v => v.NextButton)
