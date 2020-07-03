@@ -27,7 +27,7 @@ namespace Chaincase.ViewModels
         private bool _selectPrivateSwitchState;
         private bool _isCoinListLoading;
         private bool _isAnyCoinSelected;
-        private int _numberSelected;
+        private int _selectedCount;
         private bool _warnCommonOwnership;
         private object SelectionChangedLock { get; } = new object();
 
@@ -142,6 +142,7 @@ namespace Chaincase.ViewModels
 
                         SelectedAmount = selectedCoins.Sum(x => x.Amount);
                         IsAnyCoinSelected = selectedCoins.Any();
+                        SelectedCount = selectedCoins.Count();
 
                         WarnCommonOwnership = selectedCoins
                                 .Where(c => c.AnonymitySet == 1)
@@ -246,8 +247,8 @@ namespace Chaincase.ViewModels
 
         public int SelectedCount
         {
-            get => _numberSelected;
-            set => this.RaiseAndSetIfChanged(ref _numberSelected, value);
+            get => _selectedCount;
+            set => this.RaiseAndSetIfChanged(ref _selectedCount, value);
         }
 
         public void SelectOnlyPrivateCoins(bool onlyPrivate)
