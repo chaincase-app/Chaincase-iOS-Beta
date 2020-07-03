@@ -15,7 +15,7 @@
 
     <StackLayout Orientation="Horizontal">
       <Label Text="Amount ₿" HorizontalOptions="FillAndExpand" />
-      <Entry x:Name="Amount" WidthRequest="130" HorizontalTextAlignment="End"/>
+      <Entry x:Name="Amount" Keyboard="Numeric" WidthRequest="130" HorizontalTextAlignment="End"/>
     </StackLayout>
     <StackLayout Orientation="Horizontal">
       <Label Text="Send Max" HorizontalOptions="FillAndExpand" />
