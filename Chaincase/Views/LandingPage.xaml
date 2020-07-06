@@ -7,21 +7,26 @@
                           xmlns="http://xamarin.com/schemas/2014/forms"
                           Title="Chaincase">
 
-  <StackLayout Spacing="0" Padding="10,40,10,40">
-    <Label Text="Chaincase"
-           HorizontalOptions="FillAndExpand" />
-    <Label Text="The private way to Bitcoin"
-           HorizontalOptions="FillAndExpand" />
-
-    <Image Source="Chaincase-vertical-no-tagline.png"
+  <Grid>
+    <Grid.RowDefinitions>
+        <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+    <Image Source="logo_vertical.png"
            VerticalOptions="Center"
-           HorizontalOptions="Center"/>
+           HorizontalOptions="Center"
+           Margin="0,0,0,172" />
+
+    <Label Text="PRIVATE BY DESIGN"
+           FontAttributes="Bold"
+           VerticalOptions="Center"
+           HorizontalTextAlignment="Center" />
+
 
     <Button Text="New Wallet >"
             x:Name="NewWalletButton"
             VerticalOptions="EndAndExpand"/>
     <!-- Button Text="Recover Wallet >"
             x:Name="RecoverWalletButton" /-->
-  </StackLayout>
+  </Grid>
 </rxui:ReactiveContentPage>
 

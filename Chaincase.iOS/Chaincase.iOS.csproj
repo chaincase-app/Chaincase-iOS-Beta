@@ -132,6 +132,8 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Tor\" />
+    <Folder Include="Assets.xcassets\logo_vertical.imageset\" />
+    <Folder Include="Assets.xcassets\logo_vertical.imageset\" />
   </ItemGroup>
   <ItemGroup>
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Icon167.png" />
@@ -149,6 +151,8 @@
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Icon152.png" />
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Icon20.png" />
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Icon180.png" />
+    <ImageAsset Include="Assets.xcassets\logo_vertical.imageset\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\logo_vertical.imageset\logo_vertical.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
 </Project>
