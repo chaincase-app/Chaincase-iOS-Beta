@@ -5,7 +5,8 @@
                           xmlns:rxui="clr-namespace:ReactiveUI.XamForms;assembly=ReactiveUI.XamForms"
                           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                           xmlns="http://xamarin.com/schemas/2014/forms"
-                          Title="Chaincase">
+                          Title="Chaincase"
+                          NavigationPage.HasNavigationBar="false">
 
   <Grid>
     <Grid.RowDefinitions>
@@ -24,7 +25,8 @@
 
     <Button Text="New Wallet >"
             x:Name="NewWalletButton"
-            VerticalOptions="EndAndExpand"/>
+            VerticalOptions="Center"
+            Margin="0,172,0,0"/>
     <!-- Button Text="Recover Wallet >"
             x:Name="RecoverWalletButton" /-->
   </Grid>
