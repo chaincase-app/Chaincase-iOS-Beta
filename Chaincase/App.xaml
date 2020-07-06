@@ -12,12 +12,12 @@
     <Color x:Key="ChaincaseGold">#FF8600</Color>
 
     <!-- Light colors -->
-    <Color x:Key="LightPageBackgroundColor"></Color>
+    <Color x:Key="LightPageBackgroundColor">#F2F2F3</Color>
     <Color x:Key="LightNavigationBarColor">WhiteSmoke</Color>
     <Color x:Key="LightPrimaryColor">WhiteSmoke</Color>
     <Color x:Key="LightSecondaryColor">Black</Color>
     <Color x:Key="LightPrimaryTextColor">Black</Color>
-    <Color x:Key="LightSecondaryTextColor">Lavender</Color>
+    <Color x:Key="LightSecondaryTextColor">Gray</Color>
     <Color x:Key="LightTertiaryTextColor">Gray</Color>
 
     <!-- Dark colors -->
@@ -29,14 +29,32 @@
     <Color x:Key="DarkSecondaryTextColor">White</Color>
     <Color x:Key="DarkTertiaryTextColor">WhiteSmoke</Color>
 
-    <!--<Style TargetType="Button"
-            ApplyToDerivedTypes="True">
-      <Setter Property="BorderWidth"
-              Value="1" />
-    </Style>-->
 
-    <Style x:Key="ButtonStyle"
-              TargetType="Button">
+    <Style TargetType="NavigationPage"
+           ApplyToDerivedTypes="True">
+      <Setter Property="BarBackgroundColor" Value="{StaticResource LightPageBackgroundColor}"/>
+      <Setter Property="BarTextColor" Value="{StaticResource ChaincasePurple}"/>
+    </Style>
+
+    <Style TargetType="ContentPage"
+           ApplyToDerivedTypes="True">
+      <Setter Property="BackgroundColor" Value="{StaticResource LightPageBackgroundColor}"/>
+      <Setter Property="Padding"
+        Value="10,24,10,24" />
+    </Style>
+
+    <Style TargetType="Entry"
+           ApplyToDerivedTypes="True">
+      <Setter Property="BackgroundColor" Value="{StaticResource LightPageBackgroundColor}"/>
+    </Style>
+
+    <Style x:Key="LightLabel"
+               TargetType="Label">
+      <Setter Property="TextColor" Value="{StaticResource LightSecondaryTextColor}" />
+    </Style>
+
+    <Style    TargetType="Button"
+              ApplyToDerivedTypes="True">
           <Setter Property="FontAttributes"
                   Value="Bold"/>
           <Setter Property="TextColor"
@@ -48,11 +66,5 @@
           <Setter Property="CornerRadius"
                   Value="18" />
       </Style>
-
-    <Style TargetType="ContentPage"
-            ApplyToDerivedTypes="True">
-      <Setter Property="Padding"
-              Value="10,24,10,24" />
-    </Style>
   </Application.Resources>
 </Application>

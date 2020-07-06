@@ -6,9 +6,8 @@
                           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                           xmlns="http://xamarin.com/schemas/2014/forms"
                           xmlns:controls="clr-namespace:Chaincase.Controls"
-                          Title="Chaincase"
                           NavigationPage.HasNavigationBar="false"
-                          BackgroundColor="#F2F2F3">
+                          BackgroundColor="{StaticResource LightPageBackgroundColor}">
 
   <Grid>
     <Grid.RowDefinitions>
@@ -28,8 +27,7 @@
     <controls:NeuButton Text="NEW WALLET"
             x:Name="NewWalletButton"
             VerticalOptions="Center"
-            Margin="0,172,0,0"
-            Style="{StaticResource ButtonStyle}"/>
+            Margin="0,172,0,0" />
     <!-- Button Text="Recover Wallet >"
             x:Name="RecoverWalletButton" /-->
   </Grid>
