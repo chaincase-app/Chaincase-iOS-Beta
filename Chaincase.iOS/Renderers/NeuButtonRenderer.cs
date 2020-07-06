@@ -66,5 +66,15 @@ namespace Chaincase.iOS.Renderers
             _shadowLayer.Frame = Bounds;
             base.Draw(rect);
         }
+
+        protected override void OnElementPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            base.OnElementPropertyChanged(sender, e);
+
+            if (e.PropertyName == nameof(Button.IsEnabled))
+            {
+                Element.TextColor = Element.IsEnabled ? Color.FromHex("593CFE") : Color.Gray;
+            }
+        }
     }
 }
