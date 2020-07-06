@@ -6,10 +6,11 @@
                           xmlns:templates="clr-namespace:Chaincase.Views.Templates;assembly=Chaincase"
                           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                           xmlns="http://xamarin.com/schemas/2014/forms"
+                          xmlns:controls="clr-namespace:Chaincase.Controls"
                           Title="Send">
   <StackLayout>
     <Label Text="Send From:" HorizontalTextAlignment="Center"/>
-    <Button x:Name="SendFromButton"/>
+    <controls:NeuButton x:Name="SendFromButton"/>
     <Label x:Name="AvailableLabel" HorizontalTextAlignment="Center"/>
 
 
@@ -25,7 +26,7 @@
       <Label Text="Fee" HorizontalOptions="FillAndExpand" VerticalOptions="Center"/>
       <Button x:Name="FeeButton" HorizontalOptions="End" BorderWidth="0"/>
     </StackLayout>
-    <Button Text="Next"
+    <controls:NeuButton Text="NEXT"
             x:Name="NextButton"/>
   </StackLayout>
 </rxui:ReactiveContentPage>

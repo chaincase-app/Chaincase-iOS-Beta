@@ -5,7 +5,7 @@
                           xmlns:rxui="clr-namespace:ReactiveUI.XamForms;assembly=ReactiveUI.XamForms"
                           xmlns:templates="clr-namespace:Chaincase.Views.Templates;assembly=Chaincase"
                           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-                          xmlns="http://xamarin.com/schemas/2014/forms"
+                          xmlns="http://xamarin.com/schemas/2014/forms" xmlns:controls="clr-namespace:Chaincase.Controls"
                           Title="Receive">
   <rxui:ReactiveContentPage.Resources>
     <ResourceDictionary>
@@ -18,15 +18,17 @@
     </ResourceDictionary>
   </rxui:ReactiveContentPage.Resources>
 
-  <StackLayout>
-    <Label Text="Memo" />
+  <StackLayout VerticalOptions="Center">
+    <Label Text="Memo"
+           FontAttributes="Bold"/>
     <Entry Placeholder="e.g. Dan for bread"
             x:Name="Memo"
            Keyboard="{StaticResource NoCapitalizationKeyboard}" />
-    <Label Text="You MUST write a memo here of WHO will know about this address. It may help to write why they pay too. This memo is ONLY saved on this device for your privacy." />
+    <Label Text="You must write a memo here for your accounting. It's best to write who you will give this address to."
+           Style="{StaticResource LightLabel}"/>
 
-    <Button Text="Generate Address"
+    <controls:NeuButton Text="GENERATE ADDRESS"
             x:Name="GenerateButton"
-            VerticalOptions="EndAndExpand"/>
+            VerticalOptions="End"/>
   </StackLayout>
 </rxui:ReactiveContentPage>

@@ -12,6 +12,6 @@
     <Label x:Name="PeersLabel"></Label>
     <Label x:Name="StatusLabel"></Label>
   </StackLayout>
-  <ProgressBar local:AttachedProperties.AnimatedProgress="{Binding ProgressPercent}"/>
+  <ProgressBar local:AttachedProperties.AnimatedProgress="{Binding ProgressPercent}" ProgressColor="{StaticResource ChaincasePurple}"/>
   </StackLayout>
 </rxui:ReactiveContentView>

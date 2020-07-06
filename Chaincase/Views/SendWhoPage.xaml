@@ -8,7 +8,7 @@
                           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                           xmlns="http://xamarin.com/schemas/2014/forms"
                           xmlns:zxing="clr-namespace:ZXing.Net.Mobile.Forms;assembly=ZXing.Net.Mobile.Forms"
-                          xmlns:zxcm="clr-namespace:ZXing.Common;assembly=zxing.portable"
+                          xmlns:zxcm="clr-namespace:ZXing.Common;assembly=zxing.portable" xmlns:controls="clr-namespace:Chaincase.Controls"
                           Title="Send"
                           NavigationPage.HasBackButton="{Binding IsBusy, Converter={Converters:InverseBoolConverter}}">
   <rxui:ReactiveContentPage.Resources>
@@ -23,18 +23,20 @@
   </rxui:ReactiveContentPage.Resources>
 
   <StackLayout>
-    <Label Text="memo" />
+    <Label Text="Memo"
+           FontAttributes="Bold" />
     <Entry Placeholder="e.g. Chloe for cat toys"
             x:Name="Memo"
             Keyboard="{StaticResource NoCapitalizationKeyboard}" />
-    <Label Text="Address" />
+    <Label Text="Address"
+           FontAttributes="Bold"/>
     <Entry x:Name="Address" />
     <ActivityIndicator x:Name="IsBusy"></ActivityIndicator>
     <zxing:ZXingScannerView Grid.Row="1" x:Name="ScanView" OnScanResult="Handle_OnScanResult" IsScanning="true"
                                 VerticalOptions="FillAndExpand"
                                 HorizontalOptions="FillAndExpand"/>
-    <Button x:Name="Send"
-            Text="Send"
+    <controls:NeuButton x:Name="Send"
+            Text="SEND"
             VerticalOptions="End" />
   </StackLayout>
 </rxui:ReactiveContentPage>

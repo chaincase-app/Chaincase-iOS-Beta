@@ -6,6 +6,7 @@
                           xmlns:templates="clr-namespace:Chaincase.Views.Templates;assembly=Chaincase"
                           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                           xmlns="http://xamarin.com/schemas/2014/forms"
+                          xmlns:controls="clr-namespace:Chaincase.Controls"
                           NavigationPage.HasBackButton="False"
                           Title="Chaincase">
   <StackLayout>
@@ -28,19 +29,19 @@
            VerticalTextAlignment="Center"
            VerticalOptions="FillAndExpand"
            Text="First sync may be a few minutes."></Label>
-    <Button x:Name="BackUp"
+    <controls:NeuButton x:Name="BackUp"
             Text="Don't forget—back up your wallet!"
             BackgroundColor="LightPink"
             TextColor="DarkRed"
             BorderColor="Pink"
             />
-    <Button Text="Get Receive Address"
+    <controls:NeuButton Text="GET RECEIVE ADDRESS"
             x:Name="NavReceiveCommand"
             VerticalOptions="EndAndExpand" />
-    <Button Text="CoinJoin"
+    <controls:NeuButton Text="COINJOIN"
             x:Name="CoinJoinButton"
             VerticalOptions="End" />
-    <Button Text="Send"
+    <controls:NeuButton Text="SEND"
             x:Name="SendButton"
             VerticalOptions="End" />
   </StackLayout>

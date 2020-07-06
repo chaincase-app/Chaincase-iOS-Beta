@@ -43,6 +43,26 @@
         Value="10,24,10,24" />
     </Style>
 
+    <Style TargetType="ListView"
+           ApplyToDerivedTypes="True">
+      <Setter Property="BackgroundColor" Value="{StaticResource LightPageBackgroundColor}"/>
+    </Style>
+
+    <Style TargetType="ProgressBar"
+           ApplyToDerivedTypes="True">
+      <Setter Property="ProgressColor" Value="{StaticResource ChaincasePurple}"/>
+    </Style>
+
+    <Style TargetType="Slider"
+           ApplyToDerivedTypes="True">
+      <Setter Property="MinimumTrackColor" Value="{StaticResource ChaincasePurple}"/>
+    </Style>
+
+    <Style TargetType="Switch"
+           ApplyToDerivedTypes="True">
+      <Setter Property="OnColor" Value="{StaticResource ChaincaseGold}"/>
+    </Style>
+
     <Style TargetType="Entry"
            ApplyToDerivedTypes="True">
       <Setter Property="BackgroundColor" Value="{StaticResource LightPageBackgroundColor}"/>
@@ -59,12 +79,14 @@
                   Value="Bold"/>
           <Setter Property="TextColor"
                   Value="{StaticResource ChaincasePurple}" />
+      <Setter Property="FontAttributes"
+                  Value="Bold"/>
           <Setter Property="HeightRequest"
-                  Value="45" />
-          <Setter Property="WidthRequest"
-                  Value="190" />
+                  Value="42" />
+          <Setter Property="Margin"
+                  Value="8" />
           <Setter Property="CornerRadius"
-                  Value="18" />
+                  Value="21" />
       </Style>
   </Application.Resources>
 </Application>

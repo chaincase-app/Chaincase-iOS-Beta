@@ -6,8 +6,7 @@
                           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                           xmlns="http://xamarin.com/schemas/2014/forms"
                           xmlns:controls="clr-namespace:Chaincase.Controls"
-                          NavigationPage.HasNavigationBar="false"
-                          BackgroundColor="{StaticResource LightPageBackgroundColor}">
+                          NavigationPage.HasNavigationBar="false">
 
   <Grid>
     <Grid.RowDefinitions>

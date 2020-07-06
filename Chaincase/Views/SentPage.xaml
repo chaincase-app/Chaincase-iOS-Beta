@@ -6,13 +6,14 @@
                           xmlns:templates="clr-namespace:Chaincase.Views.Templates;assembly=Chaincase"
                           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                           xmlns="http://xamarin.com/schemas/2014/forms"
+                          xmlns:cotrols="clr-namespace:Chaincase.Controls"
                           NavigationPage.HasBackButton="False">
   <StackLayout>
     <Label Text="🚀" HorizontalOptions="Center" FontSize="48"/>
     <Label Text="Congrats!" HorizontalOptions="Center"/>
     <Label Text="Your coins are on their way" HorizontalOptions="Center" />
-    <Button x:Name="DoneButton"
-            Text="Done"
+    <cotrols:NeuButton x:Name="DoneButton"
+            Text="DONE"
             VerticalOptions="EndAndExpand" />
   </StackLayout>
 </rxui:ReactiveContentPage>

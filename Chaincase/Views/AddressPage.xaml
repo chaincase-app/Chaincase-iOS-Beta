@@ -7,6 +7,7 @@
                           xmlns="http://xamarin.com/schemas/2014/forms"
                           xmlns:zxing="clr-namespace:ZXing.Net.Mobile.Forms;assembly=ZXing.Net.Mobile.Forms"
                           xmlns:zxcm="clr-namespace:ZXing.Common;assembly=zxing.portable"
+                          xmlns:controls="clr-namespace:Chaincase.Controls"
                           NavigationPage.HasBackButton="False"
                           Title="Receive">
   <StackLayout>
@@ -20,10 +21,10 @@
     </zxing:ZXingBarcodeImageView> 
     <Label x:Name="Address"
            HorizontalOptions="Center"/>
-    <Button Text="Share"
+    <controls:NeuButton Text="SHARE"
             x:Name="ShareButton"
             VerticalOptions="EndAndExpand"/>
-    <Button Text="Back to Wallet"
+    <controls:NeuButton Text="BACK "
             x:Name="WalletButton" />
   </StackLayout>
 </rxui:ReactiveContentPage>
