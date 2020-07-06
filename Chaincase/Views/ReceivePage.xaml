@@ -18,7 +18,8 @@
     </ResourceDictionary>
   </rxui:ReactiveContentPage.Resources>
 
-  <StackLayout VerticalOptions="Center">
+  <StackLayout VerticalOptions="Center"
+               Margin="0,0,0,200">
     <Label Text="Memo"
            FontAttributes="Bold"/>
     <Entry Placeholder="e.g. Dan for bread"

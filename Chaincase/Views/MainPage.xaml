@@ -10,10 +10,10 @@
                           NavigationPage.HasBackButton="False"
                           Title="Chaincase">
   <StackLayout>
-    <templates:StatusTemplate x:Name="Status" />
     <Label x:Name="Balance"
-           HorizontalTextAlignment="End"
-           FontAttributes="Bold" />
+           FontAttributes="Bold"
+           FontSize="Title"/>
+    <templates:StatusTemplate x:Name="Status" />
     <ListView x:Name="Transactions"
               SelectionMode="None"
               VerticalOptions="Start"
