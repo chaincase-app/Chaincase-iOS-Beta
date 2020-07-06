@@ -25,7 +25,7 @@ namespace Chaincase.Views.Templates
                 this.OneWayBind(ViewModel,
                     vm => vm.Peers,
                     v => v.PeersLabel.Text,
-                    p => "Peers: " + p)
+                    p => p + " peers")
                     .DisposeWith(d);
                 this.OneWayBind(ViewModel,
                     vm => vm.Status,
@@ -49,7 +49,7 @@ namespace Chaincase.Views.Templates
             switch(status)
             {
                 case TorStatus.Running:
-                    return "🧅";
+                    return "Tor running";
                 default:
                     return "";
             }

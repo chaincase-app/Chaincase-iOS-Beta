@@ -8,9 +8,9 @@
                           xmlns="http://xamarin.com/schemas/2014/forms">
   <StackLayout>
   <StackLayout Orientation="Horizontal" Spacing="10">
-    <Label x:Name="TorLabel"></Label>
-    <Label x:Name="PeersLabel"></Label>
-    <Label x:Name="StatusLabel"></Label>
+    <Label x:Name="TorLabel" Style="{StaticResource LightLabel}"></Label>
+    <Label x:Name="PeersLabel" Style="{StaticResource LightLabel}"></Label>
+    <Label x:Name="StatusLabel" Style="{StaticResource LightLabel}"></Label>
   </StackLayout>
   <ProgressBar local:AttachedProperties.AnimatedProgress="{Binding ProgressPercent}" ProgressColor="{StaticResource ChaincasePurple}"/>
   </StackLayout>
