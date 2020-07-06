@@ -94,6 +94,7 @@
     <Compile Include="iOSNotificationManager.cs" />
     <Compile Include="iOSNotificationReceiver.cs" />
     <Compile Include="HsmStorage.cs" />
+    <Compile Include="Renderers\NeuButtonRenderer.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />
@@ -134,6 +135,7 @@
     <Folder Include="Tor\" />
     <Folder Include="Assets.xcassets\logo_vertical.imageset\" />
     <Folder Include="Assets.xcassets\logo_vertical.imageset\" />
+    <Folder Include="Renderers\" />
   </ItemGroup>
   <ItemGroup>
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Icon167.png" />
