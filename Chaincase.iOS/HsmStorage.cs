@@ -55,7 +55,7 @@ namespace Chaincase.iOS
 
             var context = new LAContext();
             KeyChain kc;
-            if (false && context.CanEvaluatePolicy(LAPolicy.DeviceOwnerAuthenticationWithBiometrics, out var _))
+            if (context.CanEvaluatePolicy(LAPolicy.DeviceOwnerAuthenticationWithBiometrics, out var _))
             {
                 kc = new KeyChain(BiometricAccessControl);
             } else
