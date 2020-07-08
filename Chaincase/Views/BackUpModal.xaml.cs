@@ -23,6 +23,11 @@ namespace Chaincase.Views
                     vm => vm.VerifyCommand,
                     v => v.VerifyButton)
                     .DisposeWith(d);
+
+                VerifyButton.Clicked += delegate
+                {
+                    Carousel.Position = 0;
+                };
             });
 
         }
