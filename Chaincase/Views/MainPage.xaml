@@ -30,10 +30,8 @@
            VerticalOptions="FillAndExpand"
            Text="First sync may be a few minutes."></Label>
     <controls:NeuButton x:Name="BackUp"
-            Text="Don't forget—back up your wallet!"
-            BackgroundColor="LightPink"
+            Text="DON'T FORGET TO MAKE A BACK UP"              
             TextColor="DarkRed"
-            BorderColor="Pink"
             />
     <controls:NeuButton Text="GET RECEIVE ADDRESS"
             x:Name="NavReceiveCommand"

@@ -32,7 +32,6 @@ namespace Chaincase.ViewModels
 				KeyManager.CreateNew(out Mnemonic seedWords, Password, walletFilePath);
 
 				Hsm.SetAsync($"{Global.Network}-seedWords", seedWords.ToString()); // PROMPT
-				//Hsm.SetWithPasswordAsync($"{Global.Network}-test", seedWords.ToString()); // PROMPT
 				Global.UiConfig.HasSeed = true;
 				Global.UiConfig.ToFile();
 				ViewStackService.PushPage(new MnemonicViewModel(seedWords.ToString())).Subscribe();

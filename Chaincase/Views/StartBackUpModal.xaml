@@ -13,7 +13,7 @@
            FontAttributes="Bold" />
     <Label Text="You will be given a list of seed words to write down on paper and keep in a safe place." />
     <Label Text="📝" HorizontalTextAlignment="Center" FontSize="48"/>
-    <Label Text="The seed words together with your password are the only way to restore your wallet if your phone is lost, broken, stolen, or upgraded." />
+    <Label Text="The seed words together with your password are the only way to restore your wallet if your device is lost, broken, stolen, or upgraded." />
     <Label Text="This should take 3 minutes." />
     <controls:NeuButton x:Name="NextButton"
             Text="WRITE DOWN WORDS &amp; BACK UP" />

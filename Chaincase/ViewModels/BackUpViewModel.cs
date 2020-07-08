@@ -22,12 +22,11 @@ namespace Chaincase.ViewModels
         private string[] _indexedWords;
 
 
-		public BackUpViewModel()
+		public BackUpViewModel(List<string> seedWords)
             : base(Locator.Current.GetService<IViewStackService>())
 		{
 			Global = Locator.Current.GetService<Global>();
-			var	hsm = DependencyService.Get<IHsmStorage>();
-			SeedWords = hsm.GetAsync($"{Global.Network}-seedWords").Result.Split(' ').ToList();
+			SeedWords = seedWords;
 
 			IndexedWords = new string[SeedWords.Count()];
 			for (int i = 0; i < SeedWords.Count(); i++)
