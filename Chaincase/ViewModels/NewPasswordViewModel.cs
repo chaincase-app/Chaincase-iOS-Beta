@@ -3,6 +3,7 @@ using System.IO;
 using System.Reactive;
 using System.Reactive.Linq;
 using Chaincase.Navigation;
+using LocalAuthentication;
 using NBitcoin;
 using ReactiveUI;
 using Splat;
@@ -30,7 +31,8 @@ namespace Chaincase.ViewModels
 				string walletFilePath = Path.Combine(Global.WalletManager.WalletDirectories.WalletsDir, $"{Global.Network}.json");
 				KeyManager.CreateNew(out Mnemonic seedWords, Password, walletFilePath);
 
-				Hsm.SetWithCurrentBiometryAsync($"{Global.Network}-seedWords", seedWords.ToString()); // PROMPT
+				Hsm.SetAsync($"{Global.Network}-seedWords", seedWords.ToString()); // PROMPT
+				//Hsm.SetWithPasswordAsync($"{Global.Network}-test", seedWords.ToString()); // PROMPT
 				Global.UiConfig.HasSeed = true;
 				Global.UiConfig.ToFile();
 				ViewStackService.PushPage(new MnemonicViewModel(seedWords.ToString())).Subscribe();

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 
 using Foundation;
+using LocalAuthentication;
 using Security;
 
 using Xamarin.Forms;
@@ -16,14 +17,21 @@ namespace Chaincase.iOS
 	// When deploying to an iOS device this entitlement is not required and should be removed.
 	public class HsmStorage : IHsmStorage
     {
+        // has fallback: a device without a passcode is considered "unlocked"
         public static SecAccessible DefaultAccessible { get; set; } =
            SecAccessible.WhenUnlockedThisDeviceOnly;
 
+        // default to this
         public static SecAccessControl BiometricAccessControl { get; set; } =
             new SecAccessControl(DefaultAccessible,
                 SecAccessControlCreateFlags.BiometryCurrentSet
             );
-          
+
+        // fall back to this when biomitry disabled
+        public static SecAccessControl PasscodeAccessControl { get; set; } =
+            new SecAccessControl(DefaultAccessible,
+                SecAccessControlCreateFlags.DevicePasscode
+            );
 
         public Task<string> GetAsync(string key)
         {
@@ -36,37 +44,35 @@ namespace Chaincase.iOS
             return Task.FromResult(value);
         }
 
+        // The always default choose the most secure user is comfy with
         public Task SetAsync(string key, string value)
-         {
+        {
             if (string.IsNullOrWhiteSpace(key))
                 throw new ArgumentNullException(nameof(key));
 
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
 
-            var kc = new KeyChain(DefaultAccessible);
-            kc.SetValueForKey(value, key);
+            var context = new LAContext();
+            KeyChain kc;
+            if (false && context.CanEvaluatePolicy(LAPolicy.DeviceOwnerAuthenticationWithBiometrics, out var _))
+            {
+                kc = new KeyChain(BiometricAccessControl);
+            } else
+			{
+                // all devices should have passcodes set
+                kc = new KeyChain(PasscodeAccessControl);
+			}
 
-            return Task.CompletedTask;
-         }
-
-		public Task SetWithCurrentBiometryAsync(string key, string value)
-		{
-            if (string.IsNullOrWhiteSpace(key))
-                throw new ArgumentNullException(nameof(key));
-
-            if (value == null)
-                throw new ArgumentNullException(nameof(value));
-
-            var kc = new KeyChain(BiometricAccessControl);
             kc.SetValueForKey(value, key);
 
             return Task.CompletedTask;
         }
 
-		public bool Remove(string key)
+        public bool Remove(string key)
 		{
-			throw new NotImplementedException();
+            var kc = new KeyChain(DefaultAccessible);
+            return kc.Remove(key);
 		}
 	}
 
