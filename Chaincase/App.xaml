@@ -4,6 +4,7 @@
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
+             xmlns:controls="clr-namespace:Chaincase.Controls"
              x:Class="Chaincase.App">
   <Application.Resources>
     <StyleSheet Source="./style.css" />
@@ -75,18 +76,42 @@
 
     <Style    TargetType="Button"
               ApplyToDerivedTypes="True">
-          <Setter Property="FontAttributes"
+      <Setter Property="FontAttributes"
                   Value="Bold"/>
-          <Setter Property="TextColor"
+      <Setter Property="TextColor"
                   Value="{StaticResource ChaincasePurple}" />
       <Setter Property="FontAttributes"
                   Value="Bold"/>
-          <Setter Property="HeightRequest"
+      <Setter Property="HeightRequest"
                   Value="42" />
-          <Setter Property="Margin"
+      <Setter Property="Margin"
                   Value="8" />
-          <Setter Property="CornerRadius"
-                  Value="21" />
-      </Style>
+      <Setter Property="CornerRadius"
+              Value="4" />
+      <Setter Property="BorderWidth"
+                  Value="1" />
+      <Setter Property="BorderColor"
+                  Value="{StaticResource ChaincasePurple}" />
+    </Style>
+
+    <Style    TargetType="controls:NeuButton"
+              ApplyToDerivedTypes="True">
+      <Setter Property="FontAttributes"
+                  Value="Bold"/>
+      <Setter Property="TextColor"
+                  Value="{StaticResource ChaincasePurple}" />
+      <Setter Property="FontAttributes"
+                  Value="Bold"/>
+      <Setter Property="HeightRequest"
+                  Value="42" />
+      <Setter Property="Margin"
+                  Value="8" />
+      <Setter Property="CornerRadius"
+              Value="4" />
+      <Setter Property="CornerRadius"
+                Value="21" />
+      <Setter Property="BorderWidth"
+                  Value="0" />
+    </Style>
   </Application.Resources>
 </Application>

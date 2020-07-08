@@ -7,13 +7,22 @@
                           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                           xmlns="http://xamarin.com/schemas/2014/forms"
                           xmlns:controls="clr-namespace:Chaincase.Controls">
-  <StackLayout
-    VerticalOptions="CenterAndExpand"
-    Margin="10,35,10,10">
+  <Grid
+    VerticalOptions="Center">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+    <StackLayout VerticalOptions="Center"
+                 Grid.Row="0">
     <Label Text="Back Up"
            FontAttributes="Bold" />
     <Label Text="Be sure to write your words numbered in order on a piece of paper" />
-    <CarouselView x:Name="Carousel" ItemsSource="{Binding IndexedWords}" IsBounceEnabled="False" PositionChanged="OnPositionChanged">
+    <!-- CarouselView has a full-height bug (https://github.com/xamarin/Xamarin.Forms/issues/8640) which is why we have this stack layout grid weirdness -->
+    <CarouselView x:Name="Carousel"
+                  ItemsSource="{Binding IndexedWords}"
+                  IsBounceEnabled="False"
+                  PositionChanged="OnPositionChanged"
+                  VerticalOptions="Center">
       <CarouselView.ItemTemplate>
         <DataTemplate>
           <StackLayout>           <Label Text="{Binding .}" /></StackLayout>
@@ -22,26 +31,29 @@
         </DataTemplate>
        </CarouselView.ItemTemplate>
     </CarouselView>
-    <Grid x:Name="Buttons">
+    </StackLayout>
+    <Grid x:Name="Buttons"
+          VerticalOptions="End"
+          Grid.Row="0">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*" />
         <ColumnDefinition Width="*" />
       </Grid.ColumnDefinitions>
-      <controls:NeuButton x:Name="BackButton"
+      <Button x:Name="BackButton"
               Text="BACK"
               Grid.Column="0"
               IsVisible="False"
               Clicked="OnBack"/>
-      <controls:NeuButton x:Name="NextButton"
+      <Button x:Name="NextButton"
               Text="NEXT"
               Grid.Column="0"
               Grid.ColumnSpan="2"
               Clicked="OnNext"/>
-      <controls:NeuButton x:Name="VerifyButton"
+      <Button x:Name="VerifyButton"
               Text="VERIFY"
               Grid.Column="1"
               IsVisible="False"/>
     </Grid>
-  </StackLayout>
+  </Grid>
 </rxui:ReactiveContentPage>
 
