@@ -15,13 +15,15 @@ namespace Chaincase.ViewModels
 		protected Global Global { get; }
 
 		private string _password;
+		private string _headingText;
 		private string _acceptText;
 
-		public PasswordPromptViewModel(string acceptText = "Accept")
+		public PasswordPromptViewModel(string acceptText = "ACCEPT", string headingText = "Confirm Send")
             : base(Locator.Current.GetService<IViewStackService>())
 		{
 			Global = Locator.Current.GetService<Global>();
 			Password = "";
+			HeadingText = headingText;
 			ValidatePasswordCommand = ReactiveCommand.CreateFromObservable(ValidatePassword);
 
 			CancelCommand = ReactiveCommand.CreateFromObservable(ViewStackService.PopModal);
@@ -56,6 +58,12 @@ namespace Chaincase.ViewModels
 		{
 			get => _acceptText;
 			set => this.RaiseAndSetIfChanged(ref _acceptText, value);
+		}
+
+		public string HeadingText
+		{
+			get => _headingText;
+			set => this.RaiseAndSetIfChanged(ref _headingText, value);
 		}
 
 		public string Password

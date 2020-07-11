@@ -18,6 +18,10 @@ namespace Chaincase.Views
 
             this.WhenActivated(d =>
             {
+                this.OneWayBind(ViewModel,
+                    vm => vm.HeadingText,
+                    v => v.HeadingLabel.Text)
+                    .DisposeWith(d);
                 this.Bind(ViewModel,
                     vm => vm.Password,
                     v => v.Password.Text)

@@ -145,7 +145,7 @@ namespace Chaincase.ViewModels
                 {
                     return !(rBTC is null) && !(amnt is null) && amnt >= rBTC;
                 });
-            _promptViewModel = new PasswordPromptViewModel("CoinJoin");
+            _promptViewModel = new PasswordPromptViewModel("COINJOIN", "Confirm CoinJoin");
             _promptViewModel.ValidatePasswordCommand.Subscribe(async validPassword =>
             {
                 if (validPassword != null)

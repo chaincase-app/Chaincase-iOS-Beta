@@ -56,7 +56,7 @@ namespace Chaincase.ViewModels
                     return !isBusy && memo.Length > 0 && address is BitcoinAddress;
                 });
 
-            _promptViewModel = new PasswordPromptViewModel("Send 📤");
+            _promptViewModel = new PasswordPromptViewModel("SEND");
             _promptViewModel.ValidatePasswordCommand.Subscribe(async validPassword =>
             {
                 if (validPassword != null)
