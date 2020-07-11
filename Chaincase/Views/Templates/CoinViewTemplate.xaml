@@ -41,7 +41,8 @@
     <Button x:Name="DequeueButton"
             Text="DEQUEUE"
             Grid.Column="3"
-            Grid.Row="1" />
+            Grid.Row="1"
+            Margin="0"/>
     <BoxView Color="WhiteSmoke"
              HeightRequest="5"
              Grid.Column="0"
