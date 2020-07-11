@@ -3,17 +3,15 @@ using System.IO;
 using System.Reactive;
 using System.Reactive.Linq;
 using Chaincase.Navigation;
-using LocalAuthentication;
 using NBitcoin;
 using ReactiveUI;
 using Splat;
 using WalletWasabi.Blockchain.Keys;
-using Xamarin.Essentials;
 using Xamarin.Forms;
 
 namespace Chaincase.ViewModels
 {
-    public class NewPasswordViewModel : ViewModelBase
+	public class NewPasswordViewModel : ViewModelBase
 	{
 		protected Global Global { get; }
 		protected IHsmStorage Hsm { get; }

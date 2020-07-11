@@ -23,6 +23,10 @@ namespace Chaincase.Views
 
 			this.WhenActivated(d =>
 			{
+				this.BindCommand(ViewModel,
+					vm => vm.NavBackCommand,
+					v => v.BackButton)
+					 .DisposeWith(d);
 				// invert slider direction with -1
 				this.OneWayBind(ViewModel,
 					vm => vm.SendAmountViewModel.MaximumFeeTarget,

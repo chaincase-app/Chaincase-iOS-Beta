@@ -35,6 +35,8 @@ namespace Chaincase.ViewModels
         public event EventHandler<CoinViewModel> SelectionChanged;
 
         public ReactiveCommand<CoinViewModel, Unit> OpenCoinDetail;
+        public ReactiveCommand<Unit, Unit> NavBackCommand;
+
 
         public CoinListViewModel(bool isPrivate = false)
             : base(Locator.Current.GetService<IViewStackService>())
@@ -84,6 +86,11 @@ namespace Chaincase.ViewModels
             {
                 ViewStackService.PushModal(cvm).Subscribe();
                 return Observable.Return(Unit.Default);
+            });
+
+			NavBackCommand = ReactiveCommand.CreateFromObservable<Unit, Unit>(_ =>
+            {
+                return ViewStackService.PopModal();
             });
         }
 

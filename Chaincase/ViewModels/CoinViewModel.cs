@@ -28,7 +28,9 @@ namespace Chaincase.ViewModels
 		private ObservableAsPropertyHelper<bool> _unspent;
 		private ObservableAsPropertyHelper<bool> _confirmed;
 		private ObservableAsPropertyHelper<bool> _unavailable;
-        private ObservableAsPropertyHelper<string> _cluster;    
+        private ObservableAsPropertyHelper<string> _cluster;
+
+		public ReactiveCommand<Unit, Unit> NavBackCommand;
 
 		public CoinViewModel(CoinListViewModel owner, SmartCoin model)
             : base(Locator.Current.GetService<IViewStackService>())
@@ -79,6 +81,11 @@ namespace Chaincase.ViewModels
 				.DisposeWith(Disposables);
 
 			DequeueCoin = ReactiveCommand.Create(() => Owner.PressDequeue(Model), this.WhenAnyValue(x => x.CoinJoinInProgress));
+
+			NavBackCommand = ReactiveCommand.CreateFromObservable<Unit, Unit>(_ =>
+			{
+				return ViewStackService.PopModal();
+			});
 
 		}
 

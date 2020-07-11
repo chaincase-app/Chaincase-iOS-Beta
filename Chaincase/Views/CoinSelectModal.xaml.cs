@@ -21,7 +21,11 @@ namespace Chaincase.Views
 
             this.WhenActivated(d =>
             {
-				this.Bind(ViewModel,
+                this.BindCommand(ViewModel,
+                    vm => vm.NavBackCommand,
+                    v => v.BackButton)
+                     .DisposeWith(d);
+                this.Bind(ViewModel,
 					vm => vm.SelectPrivateSwitchState,
 					v => v.SelectPrivateSwitch.IsToggled)
 					.DisposeWith(d);

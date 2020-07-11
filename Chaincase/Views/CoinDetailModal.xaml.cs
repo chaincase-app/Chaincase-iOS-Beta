@@ -21,6 +21,10 @@ namespace Chaincase.Views
 
 			this.WhenActivated(d =>
 			{
+				this.BindCommand(ViewModel,
+					vm => vm.NavBackCommand,
+					v => v.BackButton)
+					 .DisposeWith(d);
 				this.OneWayBind(ViewModel,
 					vm => vm.AmountBtc,
 					v => v.AmountBtc.Text,

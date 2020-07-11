@@ -5,8 +5,11 @@
                           xmlns:rxui="clr-namespace:ReactiveUI.XamForms;assembly=ReactiveUI.XamForms"
                           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                           xmlns="http://xamarin.com/schemas/2014/forms"
+                          xmlns:controls="clr-namespace:Chaincase.Controls"
                           Title="Coin Details">
   <StackLayout>
+    <controls:NeuButton x:Name="BackButton"
+                        Text="BACK" />
     <Label x:Name="AmountBtc"/>
 
     <Label Text="Transaction ID:"/>
