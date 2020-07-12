@@ -43,6 +43,12 @@ namespace Chaincase.ViewModels
             Global.SetDefaultWallet();
             Task.Run(async () => await App.LoadWalletAsync());
 
+            ShowWalletInfoCommand = ReactiveCommand.CreateFromObservable(() =>
+            {
+                ViewStackService.PushPage(new WalletInfoViewModel(Global.Wallet.KeyManager)).Subscribe();
+                return Observable.Return(Unit.Default);
+            });
+
             if (Disposables != null)
             {
                 throw new Exception("Wallet opened before it was closed.");
@@ -237,6 +243,7 @@ namespace Chaincase.ViewModels
             set => this.RaiseAndSetIfChanged(ref _transactions, value);
         }
 
+        public ReactiveCommand<Unit, Unit> ShowWalletInfoCommand;
         public ReactiveCommand<Unit, Unit> NavBackUpCommand;
         public ReactiveCommand<Unit, Unit> NavReceiveCommand;
 		public ReactiveCommand<Unit, Unit> ExposedSendCommand;

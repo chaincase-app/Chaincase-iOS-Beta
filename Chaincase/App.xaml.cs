@@ -28,6 +28,7 @@ namespace Chaincase
 			Locator
 				.CurrentMutable
 				.RegisterView<MainPage, MainViewModel>()
+				.RegisterView<WalletInfoPage, WalletInfoViewModel>()
 				.RegisterView<TransactionDetailPage, TransactionViewModel>()
 				.RegisterView<LandingPage, LandingViewModel>()
 				.RegisterView<ReceivePage, ReceiveViewModel>()

@@ -9,6 +9,9 @@
                           xmlns:controls="clr-namespace:Chaincase.Controls"
                           NavigationPage.HasBackButton="False"
                           Title="Chaincase">
+  <rxui:ReactiveContentPage.ToolbarItems>
+        <ToolbarItem x:Name="WalletInfoButton" Text=" ⋮ " />
+  </rxui:ReactiveContentPage.ToolbarItems>
   <StackLayout>
     <Label x:Name="Balance"
            FontAttributes="Bold"

@@ -64,6 +64,7 @@
     <Compile Remove="Views\SendAmountPage %28copy%29.xaml.cs" />
     <Compile Remove="Views\MnemonicPage %28copy%29.xaml.cs" />
     <Compile Remove="Views\SendWhoPage %28copy%29.xaml.cs" />
+    <Compile Remove="Views\AddressPage %28copy%29.xaml.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Navigation\" />
@@ -72,6 +73,7 @@
     <Folder Include="Models\" />
     <Folder Include="Converters\" />
     <Folder Include="Controls\" />
+    <Folder Include="ViewModels\Validation\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Views\MainPage.xaml.cs">

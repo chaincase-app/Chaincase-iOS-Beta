@@ -19,6 +19,10 @@ namespace Chaincase.Views
 
             this.WhenActivated(d =>
             {
+                this.BindCommand(ViewModel,
+                    vm => vm.ShowWalletInfoCommand,
+                    v => v.WalletInfoButton)
+                    .DisposeWith(d);
                 this.OneWayBind(ViewModel,
                     vm => vm.Balance,
                     v => v.Balance.Text,
