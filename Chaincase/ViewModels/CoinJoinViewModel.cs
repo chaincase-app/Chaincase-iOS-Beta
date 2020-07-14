@@ -19,6 +19,7 @@ using WalletWasabi.CoinJoin.Client.Clients.Queuing;
 using WalletWasabi.CoinJoin.Common.Models;
 using Chaincase.Models;
 using Xamarin.Forms;
+using Chaincase.Notifications;
 
 namespace Chaincase.ViewModels
 {
@@ -29,7 +30,6 @@ namespace Chaincase.ViewModels
         private CompositeDisposable Disposables { get; set; }
 
         private INotificationManager notificationManager;
-        private int notificationNumber = 0;
 
         private CoinListViewModel _coinList;
         private string _coordinatorFeePercent;
@@ -52,14 +52,7 @@ namespace Chaincase.ViewModels
         {
             Global = Locator.Current.GetService<Global>();
             SetBalance();
-            notificationManager = DependencyService.Get<INotificationManager>();
-            // TODO tell them why they need notifications to CoinJOin
-            notificationManager.Initialize();
-            notificationManager.NotificationReceived += (sender, eventArgs) =>
-            {
-                var evtData = (NotificationEventArgs)eventArgs;
-                ShowNotification(evtData.Title, evtData.Message);
-            };
+            notificationManager = Global.NotificationManager;
 
             if (Disposables != null)
             {
@@ -268,15 +261,6 @@ namespace Chaincase.ViewModels
 
             var timeToNotify = timeoutSeconds - NOTIFY_TIMEOUT_DELTA;
             notificationManager.ScheduleNotification(title, message, timeToNotify);
-        }
-
-        void ShowNotification(string title, string message)
-        {
-            Device.BeginInvokeOnMainThread(() =>
-            {
-                // log a notification fired:w
-                Logger.LogInfo($"NOTIFICATION: #{title} #{message}");
-            });
         }
 
         private void UpdateStates()

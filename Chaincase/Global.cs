@@ -1,4 +1,5 @@
-﻿using NBitcoin;
+﻿using Chaincase.Notifications;
+using NBitcoin;
 using NBitcoin.Protocol;
 using NBitcoin.Protocol.Behaviors;
 using NBitcoin.Protocol.Connectors;
@@ -15,7 +16,6 @@ using WalletWasabi.Blockchain.Analysis.FeesEstimation;
 using WalletWasabi.Blockchain.TransactionBroadcasting;
 using WalletWasabi.Blockchain.TransactionProcessing;
 using WalletWasabi.CoinJoin.Client;
-using WalletWasabi.CoinJoin.Client.Clients;
 using WalletWasabi.Helpers;
 using WalletWasabi.Logging;
 using WalletWasabi.Services;
@@ -45,6 +45,7 @@ namespace Chaincase
         public CoinJoinProcessor CoinJoinProcessor { get; set; }
 		public Node RegTestMempoolServingNode { get; private set; }
 		public ITorManager TorManager { get; private set; }
+        public INotificationManager NotificationManager { get; private set; }
 
         public HostedServices HostedServices { get; }
 
@@ -74,6 +75,9 @@ namespace Chaincase
                 UiConfig.LoadOrCreateDefaultFile();
                 Config = new Config(Path.Combine(DataDir, "Config.json"));
                 Config.LoadOrCreateDefaultFile();
+
+                NotificationManager = DependencyService.Get<INotificationManager>();
+                NotificationManager.Initialize();
 
                 WalletManager = new WalletManager(Network, new WalletDirectories(DataDir));
 
@@ -354,7 +358,7 @@ namespace Chaincase
 				}
 			}
 
-}
+        }
 
         private void WalletManager_WalletRelevantTransactionProcessed(object sender, ProcessedResult e)
         {
@@ -478,8 +482,11 @@ namespace Chaincase
         {
             message = Guard.Correct(message);
             title = Guard.Correct(title);
-            // TODO Notify
-            //NotificationHelpers.Notify(message, title, notificationType, async () => await FileHelpers.OpenFileInTextEditorAsync(Logger.FilePath));
+            // other types are best left logged for now
+            if (notificationType == NotificationType.Success)
+			{
+                NotificationManager.ScheduleNotification(title, message, 1);
+            }
             Logger.LogInfo($"Transaction Notification ({notificationType}): {title} - {message} - {e.Transaction.GetHash()}");
         }
 

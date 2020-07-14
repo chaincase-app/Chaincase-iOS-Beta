@@ -1,5 +1,5 @@
 ﻿using System;
-namespace Chaincase
+namespace Chaincase.Notifications
 {
     // https://docs.microsoft.com/en-us/xamarin/xamarin-forms/app-fundamentals/local-notifications#create-the-ios-interface-implementation
     public interface INotificationManager

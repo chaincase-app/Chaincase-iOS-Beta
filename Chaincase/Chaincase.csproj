@@ -74,6 +74,7 @@
     <Folder Include="Converters\" />
     <Folder Include="Controls\" />
     <Folder Include="ViewModels\Validation\" />
+    <Folder Include="Notifications\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Views\MainPage.xaml.cs">

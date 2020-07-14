@@ -1,5 +1,5 @@
 ﻿using System;
-namespace Chaincase
+namespace Chaincase.Notifications
 { 
     public class NotificationEventArgs : EventArgs
     {
