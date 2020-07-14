@@ -1,4 +1,5 @@
 ﻿using System;
+using Chaincase.Notifications;
 using UserNotifications;
 using Xamarin.Forms;
 
