@@ -24,6 +24,10 @@ namespace Chaincase.Views
 					vm => vm.ExtendedAccountPublicKey,
 					v => v.ExtendedAccountPublicKeyLabel.Text)
 					.DisposeWith(d);
+				this.BindCommand(ViewModel,
+					vm => vm.ShareLogsCommand,
+					v => v.ShareLogsButton)
+                    .DisposeWith(d);
 			});
 
 			var tapGestureRecognizer = new TapGestureRecognizer();

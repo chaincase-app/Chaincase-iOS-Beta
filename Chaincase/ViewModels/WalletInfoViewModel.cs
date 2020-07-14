@@ -12,6 +12,8 @@ using Chaincase.Navigation;
 using WalletWasabi.Blockchain.Keys;
 using Xamarin.Forms;
 using Chaincase.ViewModels.Validation;
+using Xamarin.Essentials;
+using System.IO;
 
 namespace Chaincase.ViewModels
 {
@@ -74,7 +76,21 @@ namespace Chaincase.ViewModels
 					return false;
 				}
 			});
+
+			ShareLogsCommand = ReactiveCommand.CreateFromTask(ShareLogs);
+
 		}
+
+		public async Task ShareLogs()
+        {
+            var file = Path.Combine(Global.DataDir, "Logs.txt");
+
+            await Share.RequestAsync(new ShareFileRequest
+            {
+                Title = "Share Logs",
+                File = new ShareFile(file)
+            });
+        }
 
 		private void ClearSensitiveData(bool passwordToo)
 		{
@@ -97,6 +113,7 @@ namespace Chaincase.ViewModels
 		public string AccountKeyPath => $"m/{ Global.Wallet.KeyManager.AccountKeyPath}";
 		public string MasterKeyFingerprint => Global.Wallet.KeyManager.MasterFingerprint.ToString();
 		public ReactiveCommand<Unit, bool> ToggleSensitiveKeysCommand { get; }
+		public ReactiveCommand<Unit, Unit> ShareLogsCommand;
 
 		public bool ShowSensitiveKeys
 		{
