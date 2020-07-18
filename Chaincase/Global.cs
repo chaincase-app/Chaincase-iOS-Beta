@@ -175,7 +175,7 @@ namespace Chaincase
 
                 #region AddressManagerInitialization
 
-                AddressManagerBehavior addressManagerBehavior = await addrManTask;
+                    AddressManagerBehavior addressManagerBehavior = await addrManTask;
                 connectionParameters.TemplateBehaviors.Add(addressManagerBehavior);
 
                 #endregion AddressManagerInitialization
@@ -629,9 +629,9 @@ namespace Chaincase
             string dataDir;
             if (Device.RuntimePlatform == Device.iOS)
             {
-                var documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                var library = Path.Combine(documents, "..", "Library", "Client");
-                dataDir = library;
+                var library = Environment.GetFolderPath(Environment.SpecialFolder.Resources);
+                var client = Path.Combine(library, "Client");
+                dataDir = client;
             }
             else
             {
