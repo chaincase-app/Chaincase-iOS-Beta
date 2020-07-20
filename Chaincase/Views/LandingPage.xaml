@@ -8,27 +8,24 @@
                           xmlns:controls="clr-namespace:Chaincase.Controls"
                           NavigationPage.HasNavigationBar="false">
 
-  <Grid>
-    <Grid.RowDefinitions>
-        <RowDefinition Height="*" />
-    </Grid.RowDefinitions>
+  <StackLayout
+     VerticalOptions="Center">
     <Image Source="logo_vertical.png"
            VerticalOptions="Center"
-           HorizontalOptions="Center"
-           Margin="0,0,0,172" />
+           HorizontalOptions="Center"/>
 
     <Label Text="PRIVATE BY DESIGN"
            FontAttributes="Bold"
            VerticalOptions="Center"
-           HorizontalTextAlignment="Center" />
+           HorizontalTextAlignment="Center"
+           Margin="0,24,0,60"/>
 
 
     <controls:NeuButton Text="NEW WALLET"
             x:Name="NewWalletButton"
-            VerticalOptions="Center"
-            Margin="0,172,0,0" />
-    <!-- Button Text="Recover Wallet >"
-            x:Name="RecoverWalletButton" /-->
-  </Grid>
+            VerticalOptions="Center"/>
+    <controls:NeuButton Text="LOAD WALLET"
+            x:Name="LoadWalletButton"/>
+  </StackLayout>
 </rxui:ReactiveContentPage>
 

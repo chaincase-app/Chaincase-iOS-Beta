@@ -17,10 +17,16 @@ namespace Chaincase.ViewModels
 				ViewStackService.PushPage(new NewPasswordViewModel()).Subscribe();
 				return Observable.Return(Unit.Default);
 			});
+
+			LoadWalletCommand = ReactiveCommand.CreateFromObservable(() =>
+			{
+				ViewStackService.PushPage(new LoadWalletViewModel()).Subscribe();
+				return Observable.Return(Unit.Default);
+			});
 		}
 
 		public ReactiveCommand<Unit, Unit> NewWalletCommand;
-		public ReactiveCommand<Unit, Unit> RecoverWalletCommand;
+		public ReactiveCommand<Unit, Unit> LoadWalletCommand;
 
 	}
 }

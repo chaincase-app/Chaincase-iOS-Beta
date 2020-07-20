@@ -18,11 +18,11 @@ namespace Chaincase.Views
                     vm => vm.NewWalletCommand,
                     v => v.NewWalletButton)
                     .DisposeWith(d);
-                //this.BindCommand(ViewModel,
-                //    vm => vm.RecoverWalletCommand,
-                //    v => v.RecoverWalletButton)
-                //    .DisposeWith(d);
-            });
+				this.BindCommand(ViewModel,
+					vm => vm.LoadWalletCommand,
+					v => v.LoadWalletButton)
+					.DisposeWith(d);
+			});
         }
     }
 }

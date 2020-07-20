@@ -7,6 +7,7 @@ using NBitcoin;
 using ReactiveUI;
 using Splat;
 using WalletWasabi.Blockchain.Keys;
+using WalletWasabi.Helpers;
 using Xamarin.Forms;
 
 namespace Chaincase.ViewModels
@@ -26,6 +27,8 @@ namespace Chaincase.ViewModels
 			
 			SubmitCommand = ReactiveCommand.CreateFromObservable(() =>
 			{
+				PasswordHelper.Guard(Password); // Here we are not letting anything that will be autocorrected later. We need to generate the wallet exactly with the entered password bacause of compatibility.
+
 				string walletFilePath = Path.Combine(Global.WalletManager.WalletDirectories.WalletsDir, $"{Global.Network}.json");
 				KeyManager.CreateNew(out Mnemonic seedWords, Password, walletFilePath);
 
