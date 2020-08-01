@@ -21,9 +21,8 @@ namespace Chaincase.Views
 					v => v.Memo.Text)
 					.DisposeWith(d);
 				this.OneWayBind(ViewModel,
-					vm => vm.Address,
-					v => v.QrCode.BarcodeValue,
-					AddressToBitcoinUrl)
+					vm => vm.BitcoinUri,
+					v => v.QrCode.BarcodeValue)
 					.DisposeWith(d);
 				this.Bind(ViewModel,
 					vm => vm.Address,
@@ -59,10 +58,5 @@ namespace Chaincase.Views
 			};
 			Address.GestureRecognizers.Add(tapGestureRecognizer);
 		}
-
-        public string AddressToBitcoinUrl(string address)
-        {
-			return "bitcoin:" + address;
-        }
 	}
 }

@@ -26,28 +26,15 @@ namespace Chaincase.ViewModels
 
 			Model = model;
 
-			Task.Run(() =>
-			{
-				var encoder = new QrEncoder(ErrorCorrectionLevel.M);
-				encoder.TryEncode(Address, out var qrCode);
-
-				return qrCode.Matrix.InternalArray;
-			}).ContinueWith(x =>
-			{
-				QrCode = x.Result;
-			});
-
 			_bitcoinUri = this
 				.WhenAnyValue(x => x.RequestAmountViewModel.RequestAmount)
 				.Select(amount => {
-					var uri = $"bitcoin:{Address}";
-
-					if (amount is { })
-						uri += $"?amount={amount}";
-
-					return uri;
+					return $"bitcoin:{Address}?amount={amount}";
 				})
 				.ToProperty(this, nameof(BitcoinUri));
+
+			this.WhenAnyValue(x => x.BitcoinUri)
+				.Subscribe((uri) => EncodeQRCode());
 
 			RequestAmountCommand = ReactiveCommand.CreateFromObservable<Unit, Unit>(_ =>
 			{
@@ -65,6 +52,20 @@ namespace Chaincase.ViewModels
 		    });
 		}
 
+		private void EncodeQRCode()
+		{
+			Task.Run(() =>
+			{
+				var encoder = new QrEncoder(ErrorCorrectionLevel.M);
+				encoder.TryEncode(Address, out var qrCode);
+
+				return qrCode.Matrix.InternalArray;
+			}).ContinueWith(x =>
+			{
+				QrCode = x.Result;
+			});
+		}
+
 		public string Memo => Model.Label;
 		public string Address => Model.GetP2wpkhAddress(Global.Network).ToString();
 		public string Pubkey => Model.PubKey.ToString();
@@ -77,7 +78,7 @@ namespace Chaincase.ViewModels
 
 		public HdPubKey Model { get; }
 
-		public string BitcoinUri => _bitcoinUri.Value;
+		public string BitcoinUri => _bitcoinUri.Value is { } ? _bitcoinUri.Value : $"bitcoin:{Address}";
 
 		public ReactiveCommand<Unit, Unit> RequestAmountCommand;
 		public ReactiveCommand<string, Unit> ShareCommand;

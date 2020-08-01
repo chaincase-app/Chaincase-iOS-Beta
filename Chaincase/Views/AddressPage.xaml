@@ -21,8 +21,8 @@
     </zxing:ZXingBarcodeImageView> 
     <Label x:Name="Address"
            HorizontalOptions="Center"/>
-        <Label x:Name="BitcoinUri"
-           HorizontalOptions="Center"/>
+    <Label x:Name="BitcoinUri"
+        HorizontalOptions="Center"/>
     <controls:NeuButton Text="REQUEST WITH AMOUNT"
         x:Name="RequestAmountButton"
         VerticalOptions="EndAndExpand"/>
