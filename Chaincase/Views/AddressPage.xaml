@@ -11,8 +11,8 @@
                           NavigationPage.HasBackButton="False"
                           Title="Receive">
   <StackLayout>
-    <Label Text="Memo" />
-    <Label x:Name="Memo" />
+    <Label x:Name="Memo"
+           HorizontalTextAlignment="Center"/>
     <zxing:ZXingBarcodeImageView x:Name="QrCode"
                                  BarcodeFormat="QR_CODE" IsVisible="True" BarcodeValue="Foo">
       <zxing:ZXingBarcodeImageView.BarcodeOptions>
@@ -21,9 +21,13 @@
     </zxing:ZXingBarcodeImageView> 
     <Label x:Name="Address"
            HorizontalOptions="Center"/>
+        <Label x:Name="BitcoinUri"
+           HorizontalOptions="Center"/>
+    <controls:NeuButton Text="REQUEST WITH AMOUNT"
+        x:Name="RequestAmountButton"
+        VerticalOptions="EndAndExpand"/>
     <controls:NeuButton Text="SHARE"
-            x:Name="ShareButton"
-            VerticalOptions="EndAndExpand"/>
+            x:Name="ShareButton" />
     <controls:NeuButton Text="BACK "
             x:Name="WalletButton" />
   </StackLayout>

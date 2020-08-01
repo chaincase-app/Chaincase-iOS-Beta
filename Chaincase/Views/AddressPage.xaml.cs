@@ -20,14 +20,22 @@ namespace Chaincase.Views
 					vm => vm.Memo,
 					v => v.Memo.Text)
 					.DisposeWith(d);
-				this.Bind(ViewModel,
-					vm => vm.Address,
-					v => v.Address.Text)
-					.DisposeWith(d);
 				this.OneWayBind(ViewModel,
 					vm => vm.Address,
 					v => v.QrCode.BarcodeValue,
 					AddressToBitcoinUrl)
+					.DisposeWith(d);
+				this.Bind(ViewModel,
+					vm => vm.Address,
+					v => v.Address.Text)
+					.DisposeWith(d);
+				this.Bind(ViewModel,
+					vm => vm.BitcoinUri,
+					v => v.BitcoinUri.Text)
+						.DisposeWith(d);
+				this.BindCommand(ViewModel,
+					vm => vm.RequestAmountCommand,
+					v => v.RequestAmountButton)
 					.DisposeWith(d);
 				this.BindCommand(ViewModel,
 					vm => vm.ShareCommand,

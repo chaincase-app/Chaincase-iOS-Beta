@@ -34,6 +34,7 @@ namespace Chaincase
 				.RegisterView<LoadWalletPage, LoadWalletViewModel>()
 				.RegisterView<ReceivePage, ReceiveViewModel>()
 				.RegisterView<AddressPage, AddressViewModel>()
+				.RegisterView<RequestAmountModal, RequestAmountViewModel>()
 				.RegisterView<SendAmountPage, SendAmountViewModel>()
 				.RegisterView<FeeModal,FeeViewModel>()
 				.RegisterView<CoinSelectModal, CoinListViewModel>()
