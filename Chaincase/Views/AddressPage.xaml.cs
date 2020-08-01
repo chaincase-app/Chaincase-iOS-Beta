@@ -39,7 +39,7 @@ namespace Chaincase.Views
 				this.BindCommand(ViewModel,
 					vm => vm.ShareCommand,
 					v => v.ShareButton,
-                    vm => vm.Address)
+                    vm => vm.BitcoinUri)
 					.DisposeWith(d);
 				this.BindCommand(ViewModel,
 					vm => vm.NavWalletCommand,
@@ -47,16 +47,27 @@ namespace Chaincase.Views
 					 .DisposeWith(d);
 			});
 
-			var tapGestureRecognizer = new TapGestureRecognizer();
-			tapGestureRecognizer.Tapped += async (s, e) => {
+			var addressGestureRecognizer = new TapGestureRecognizer();
+			addressGestureRecognizer.Tapped += async (s, e) => {
 				Clipboard.SetTextAsync(Address.Text);
 				if (Clipboard.HasText)
 				{
 					var text = await Clipboard.GetTextAsync();
-					DisplayAlert("Success", string.Format("Copied to clipboard", text), "OK");
+					DisplayAlert("Success", string.Format("Copied address to clipboard", text), "OK");
 				}
 			};
-			Address.GestureRecognizers.Add(tapGestureRecognizer);
+			Address.GestureRecognizers.Add(addressGestureRecognizer);
+
+			var bitcoinUriGestureRecognizer = new TapGestureRecognizer();
+			bitcoinUriGestureRecognizer.Tapped += async (s, e) => {
+				Clipboard.SetTextAsync(BitcoinUri.Text);
+				if (Clipboard.HasText)
+				{
+					var text = await Clipboard.GetTextAsync();
+					DisplayAlert("Success", string.Format("Copied bitcoin URI to clipboard", text), "OK");
+				}
+			};
+			BitcoinUri.GestureRecognizers.Add(bitcoinUriGestureRecognizer);
 		}
 	}
 }

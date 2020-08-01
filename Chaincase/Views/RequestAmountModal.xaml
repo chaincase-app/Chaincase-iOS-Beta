@@ -6,13 +6,12 @@
                           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                           xmlns="http://xamarin.com/schemas/2014/forms"
                           xmlns:controls="clr-namespace:Chaincase.Controls">
-  <StackLayout>
+  <StackLayout VerticalOptions="CenterAndExpand">
     <StackLayout Orientation="Horizontal">
       <Label Text="Amount ₿" HorizontalOptions="FillAndExpand" />
       <Entry x:Name="RequestAmountEntry" Keyboard="Numeric" WidthRequest="130" HorizontalTextAlignment="End"/>
     </StackLayout>
     <controls:NeuButton Text="CREATE"
-        x:Name="CreateButton"
-        VerticalOptions="EndAndExpand"/>
+        x:Name="CreateButton"/>
   </StackLayout>
 </rxui:ReactiveContentPage>

@@ -44,7 +44,7 @@ namespace Chaincase.ViewModels
 				ViewStackService.PushModal(RequestAmountViewModel).Subscribe();
 				return Observable.Return(Unit.Default);
 			});
-			ShareCommand = ReactiveCommand.CreateFromTask<string>(ShareAddress);
+			ShareCommand = ReactiveCommand.CreateFromTask<string>(ShareBoundString);
 			NavWalletCommand = ReactiveCommand.CreateFromObservable<Unit, Unit>(_ =>
 			{
 				ViewStackService.PopPage(false);
@@ -84,11 +84,11 @@ namespace Chaincase.ViewModels
 		public ReactiveCommand<string, Unit> ShareCommand;
 		public ReactiveCommand<Unit, Unit> NavWalletCommand;
 
-		public async Task ShareAddress(string address)
+		public async Task ShareBoundString(string boundString)
         {
 			await Share.RequestAsync(new ShareTextRequest
 			{
-				Text = address
+				Text = boundString // should be bitcoinUri
 			});
         }
 

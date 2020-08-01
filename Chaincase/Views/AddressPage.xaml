@@ -18,11 +18,12 @@
       <zxing:ZXingBarcodeImageView.BarcodeOptions>
         <zxcm:EncodingOptions Width="300" Height="300" />
       </zxing:ZXingBarcodeImageView.BarcodeOptions>
-    </zxing:ZXingBarcodeImageView> 
-    <Label x:Name="Address"
-           HorizontalOptions="Center"/>
+    </zxing:ZXingBarcodeImageView>
+    <Label Text="URI" FontAttributes="Bold"/>
     <Label x:Name="BitcoinUri"
         HorizontalOptions="Center"/>
+    <Label Text="Address" FontAttributes="Bold"/>
+    <Label x:Name="Address"/>
     <controls:NeuButton Text="REQUEST WITH AMOUNT"
         x:Name="RequestAmountButton"
         VerticalOptions="EndAndExpand"/>
