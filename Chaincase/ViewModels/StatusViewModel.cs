@@ -76,7 +76,6 @@ namespace Chaincase.ViewModels
                         case StatusType.Connecting:
                         default:
                             return 0.3;
-
                     }
                 })
                 .ToProperty(this, x => x.ProgressPercent);
@@ -150,14 +149,14 @@ namespace Chaincase.ViewModels
                                    var wallet = Global.Wallet;
                                    if (wallet is { })
                                    {
-                                       var segwitActivationHeight = SmartHeader.GetStartingHeader(wallet.Network).Height;
+                                       var startingHeight = SmartHeader.GetStartingHeader(wallet.Network).Height;
                                        if (wallet.LastProcessedFilter?.Header?.Height is uint lastProcessedFilterHeight
-                                            && lastProcessedFilterHeight > segwitActivationHeight
+                                            && lastProcessedFilterHeight > startingHeight
                                             && Global.BitcoinStore?.SmartHeaderChain?.TipHeight is uint tipHeight
-                                            && tipHeight > segwitActivationHeight)
+                                            && tipHeight > startingHeight)
                                        {
-                                           var allFilters = tipHeight - segwitActivationHeight;
-                                           var processedFilters = lastProcessedFilterHeight - segwitActivationHeight;
+                                           var allFilters = tipHeight - startingHeight;
+                                           var processedFilters = lastProcessedFilterHeight - startingHeight;
                                            var perc = allFilters == 0 ?
                                                 100
                                                 : ((decimal)processedFilters / allFilters * 100);
@@ -205,7 +204,7 @@ namespace Chaincase.ViewModels
 							{
                                 _maxFilters = filtersLeft;
                             }
-                            perc =  Convert.ToUInt16((double)(_maxFilters - filtersLeft) / filtersLeft * 100);
+                            perc =  Convert.ToUInt16((double)(_maxFilters - filtersLeft) / _maxFilters * 100);
                         }
 
                         TryAddStatus(StatusType.Synchronizing, perc);
@@ -249,7 +248,7 @@ namespace Chaincase.ViewModels
             set => this.RaiseAndSetIfChanged(ref _peers, value);
         }
 
-        public double ProgressPercent => _progressPercent?.Value ?? 0.4;
+        public double ProgressPercent => _progressPercent?.Value ?? 0;
 
         public int FiltersLeft => _filtersLeft?.Value ?? 0;
 
