@@ -25,6 +25,10 @@ namespace Chaincase.Views
 					v => v.ExtendedAccountPublicKeyLabel.Text)
 					.DisposeWith(d);
 				this.BindCommand(ViewModel,
+					vm => vm.NavBackUpCommand,
+					v => v.BackUpButton)
+					.DisposeWith(d);
+				this.BindCommand(ViewModel,
 					vm => vm.ShareLogsCommand,
 					v => v.ShareLogsButton)
                     .DisposeWith(d);

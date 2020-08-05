@@ -14,6 +14,7 @@ using Xamarin.Forms;
 using Chaincase.ViewModels.Validation;
 using Xamarin.Essentials;
 using System.IO;
+using System.Reactive.Linq;
 
 namespace Chaincase.ViewModels
 {
@@ -77,6 +78,14 @@ namespace Chaincase.ViewModels
 				}
 			});
 
+			var canBackUp = this.WhenAnyValue(x => x.Global.UiConfig.HasSeed, hs => hs == true);
+
+			NavBackUpCommand = ReactiveCommand.CreateFromObservable(() =>
+			{
+				ViewStackService.PushPage(new StartBackUpViewModel()).Subscribe();
+				return Observable.Return(Unit.Default);
+			}, canBackUp);
+
 			ShareLogsCommand = ReactiveCommand.CreateFromTask(ShareLogs);
 
 		}
@@ -112,7 +121,9 @@ namespace Chaincase.ViewModels
 		public string ExtendedAccountZpub => Global.Wallet.KeyManager.ExtPubKey.ToZpub(Global.Network);
 		public string AccountKeyPath => $"m/{ Global.Wallet.KeyManager.AccountKeyPath}";
 		public string MasterKeyFingerprint => Global.Wallet.KeyManager.MasterFingerprint.ToString();
+
 		public ReactiveCommand<Unit, bool> ToggleSensitiveKeysCommand { get; }
+		public ReactiveCommand<Unit, Unit> NavBackUpCommand;
 		public ReactiveCommand<Unit, Unit> ShareLogsCommand;
 
 		public bool ShowSensitiveKeys

@@ -10,11 +10,14 @@
   <StackLayout>
     <Label Text="Account Key Path:"
            FontAttributes="Bold"/>
-   <Label x:Name="AccountKeyPathLabel"/>
-   <Label Text="Extended Public Key:"
+    <Label x:Name="AccountKeyPathLabel"/>
+    <Label Text="Extended Public Key:"
           FontAttributes="Bold"/>
-   <Label x:Name="ExtendedAccountPublicKeyLabel"/>
-   <controls:NeuButton Text="SHARE DEBUG LOG"
+    <Label x:Name="ExtendedAccountPublicKeyLabel"/>
+    <controls:NeuButton Text="BACK UP WALLET"
+        x:Name="BackUpButton"
+        VerticalOptions="End" />
+    <controls:NeuButton Text="SHARE DEBUG LOG"
         x:Name="ShareLogsButton"
         VerticalOptions="End" />
   </StackLayout>
