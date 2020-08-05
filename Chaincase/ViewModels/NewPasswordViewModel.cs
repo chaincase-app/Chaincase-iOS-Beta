@@ -35,7 +35,7 @@ namespace Chaincase.ViewModels
 				Hsm.SetAsync($"{Global.Network}-seedWords", seedWords.ToString()); // PROMPT
 				Global.UiConfig.HasSeed = true;
 				Global.UiConfig.ToFile();
-				ViewStackService.PushPage(new MnemonicViewModel(seedWords.ToString())).Subscribe();
+				ViewStackService.PushPage(new MainViewModel()).Subscribe();
 				return Observable.Return(Unit.Default);
 			});
 		}
