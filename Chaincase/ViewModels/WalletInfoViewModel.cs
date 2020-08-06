@@ -132,7 +132,7 @@ namespace Chaincase.ViewModels
 			set => this.RaiseAndSetIfChanged(ref _showSensitiveKeys, value);
 		}
 
-		public ErrorDescriptors ValidatePassword() => PasswordHelper.ValidatePassword(Password);
+		public void ValidatePassword(IValidationErrors errors) => PasswordHelper.ValidatePassword(errors, Password);
 
 		[ValidateMethod(nameof(ValidatePassword))]
 		public string Password
