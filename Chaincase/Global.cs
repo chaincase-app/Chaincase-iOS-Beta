@@ -1,4 +1,5 @@
 ﻿using Chaincase.Notifications;
+using Microsoft.Extensions.Caching.Memory;
 using NBitcoin;
 using NBitcoin.Protocol;
 using NBitcoin.Protocol.Behaviors;
@@ -13,8 +14,11 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using WalletWasabi.Blockchain.Analysis.FeesEstimation;
+using WalletWasabi.Blockchain.Blocks;
+using WalletWasabi.Blockchain.Mempool;
 using WalletWasabi.Blockchain.TransactionBroadcasting;
 using WalletWasabi.Blockchain.TransactionProcessing;
+using WalletWasabi.Blockchain.Transactions;
 using WalletWasabi.CoinJoin.Client;
 using WalletWasabi.Helpers;
 using WalletWasabi.Logging;
@@ -53,6 +57,8 @@ namespace Chaincase
 
 		public Network Network => Config.Network;
 
+        public MemoryCache Cache { get; private set; }
+
         // Chaincase Specific
         #region chaincase
 
@@ -66,22 +72,28 @@ namespace Chaincase
             {
                 StoppingCts = new CancellationTokenSource();
                 DataDir = GetDataDir();
-                TorLogsFile = Path.Combine(DataDir, "TorLogs.txt");
                 Directory.CreateDirectory(DataDir);
+                Config = new Config(Path.Combine(DataDir, "Config.json"));
+                UiConfig = new UiConfig(Path.Combine(DataDir, "UiConfig.json"));
+                TorLogsFile = Path.Combine(DataDir, "TorLogs.txt");
 
                 Logger.InitializeDefaults(Path.Combine(DataDir, "Logs.txt"));
 
-                UiConfig = new UiConfig(Path.Combine(DataDir, "UiConfig.json"));
                 UiConfig.LoadOrCreateDefaultFile();
-                Config = new Config(Path.Combine(DataDir, "Config.json"));
                 Config.LoadOrCreateDefaultFile();
 
                 NotificationManager = DependencyService.Get<INotificationManager>();
                 NotificationManager.Initialize();
 
                 WalletManager = new WalletManager(Network, new WalletDirectories(DataDir));
-
                 WalletManager.WalletRelevantTransactionProcessed += WalletManager_WalletRelevantTransactionProcessed;
+
+                var indexStore = new IndexStore(Network, new SmartHeaderChain());
+
+                BitcoinStore = new BitcoinStore(
+                    Path.Combine(DataDir, "BitcoinStore"), Network,
+                    indexStore, new AllTransactionStore(), new MempoolService()
+                );
             }
         }
 
@@ -105,15 +117,20 @@ namespace Chaincase
 
             try
             {
-                BitcoinStore = new BitcoinStore();
-                var bstoreInitTask = BitcoinStore.InitializeAsync(Path.Combine(DataDir, "BitcoinStore"), Network);
+                Cache = new MemoryCache(new MemoryCacheOptions
+                {
+                    SizeLimit = 1_000,
+                    ExpirationScanFrequency = TimeSpan.FromSeconds(30)
+                });
+                var bstoreInitTask = BitcoinStore.InitializeAsync();
                 var addressManagerFolderPath = Path.Combine(DataDir, "AddressManager");
 
                 AddressManagerFilePath = Path.Combine(addressManagerFolderPath, $"AddressManager{Network}.dat");
                 var addrManTask = InitializeAddressManagerBehaviorAsync();
 
                 var blocksFolderPath = Path.Combine(DataDir, $"Blocks{Network}");
-                var connectionParameters = new NodeConnectionParameters { UserAgent = "/Satoshi:0.18.1/" };
+                var userAgent = Constants.UserAgents.RandomElement();
+                var connectionParameters = new NodeConnectionParameters { UserAgent = userAgent };
 
                 if (Config.UseTor)
                 {
@@ -127,6 +144,7 @@ namespace Chaincase
                 cancel.ThrowIfCancellationRequested();
 
                 #region TorProcessInitialization
+
                 if (Config.UseTor)
                 {
                     TorManager = DependencyService.Get<ITorManager>();
@@ -145,9 +163,14 @@ namespace Chaincase
 
                 #endregion TorProcessInitialization
 
+                cancel.ThrowIfCancellationRequested();
+
                 #region BitcoinStoreInitialization
 
-                await bstoreInitTask;
+                await bstoreInitTask.ConfigureAwait(false);
+
+                // Make sure that the height of the wallets will not be better than the current height of the filters.
+                WalletManager.SetMaxBestHeight(BitcoinStore.IndexStore.SmartHeaderChain.TipHeight);
 
                 #endregion BitcoinStoreInitialization
 
@@ -173,12 +196,16 @@ namespace Chaincase
 
                 #endregion MempoolInitialization
 
+                cancel.ThrowIfCancellationRequested();
+
                 #region AddressManagerInitialization
 
-                    AddressManagerBehavior addressManagerBehavior = await addrManTask;
+                AddressManagerBehavior addressManagerBehavior = await addrManTask;
                 connectionParameters.TemplateBehaviors.Add(addressManagerBehavior);
 
                 #endregion AddressManagerInitialization
+
+                cancel.ThrowIfCancellationRequested();
 
                 #region P2PInitialization
 
@@ -204,7 +231,7 @@ namespace Chaincase
                 }
                 else
                 {
-                    if (Config.UseTor is true)
+                    if (Config.UseTor)
                     {
                         // onlyForOnionHosts: false - Connect to clearnet IPs through Tor, too.
                         connectionParameters.TemplateBehaviors.Add(new SocksSettingsBehavior(Config.TorSocks5EndPoint, onlyForOnionHosts: false, networkCredential: null, streamIsolation: true));
@@ -212,10 +239,10 @@ namespace Chaincase
                         // This of course makes the first setting unneccessary, but it's better if that's around, in case someone wants to tinker here.
                         connectionParameters.EndpointConnector = new DefaultEndpointConnector(allowOnlyTorEndpoints: Network == Network.Main);
 
-                        await AddKnownBitcoinFullNodeAsHiddenServiceAsync(AddressManager);
+                        await AddKnownBitcoinFullNodeAsHiddenServiceAsync(AddressManager).ConfigureAwait(false);
                     }
                     Nodes = new NodesGroup(Network, connectionParameters, requirements: Constants.NodeRequirements);
-
+                    Nodes.MaximumNodeConnection = 12;
                     RegTestMempoolServingNode = null;
                 }
 
@@ -253,18 +280,17 @@ namespace Chaincase
                 TransactionBroadcaster = new TransactionBroadcaster(Network, BitcoinStore, Synchronizer, Nodes, WalletManager, null);
                 CoinJoinProcessor = new CoinJoinProcessor(Synchronizer, WalletManager, null);
 
-                WalletManager.RegisterServices(BitcoinStore, Synchronizer, Nodes, Config.ServiceConfiguration, FeeProviders, null);
-            }
-            catch (Exception ex)
-            {
-                if (!cancel.IsCancellationRequested)
-                {
-                    Logger.LogCritical(ex);
-                }
+                #region Blocks provider
 
-                InitializationCompleted = true;
-                await DisposeAsync().ConfigureAwait(false);
-                Environment.Exit(1);
+                var blockProvider = new CachedBlockProvider(
+                    new SmartBlockProvider(
+                        new P2pBlockProvider(Nodes, null, Synchronizer, Config.ServiceConfiguration, Network),
+                        Cache),
+                    new FileSystemBlockRepository(blocksFolderPath, Network));
+
+                #endregion Blocks provider
+
+                WalletManager.RegisterServices(BitcoinStore, Synchronizer, Nodes, Config.ServiceConfiguration, FeeProviders, null);
             }
             finally
             {
@@ -284,16 +310,16 @@ namespace Chaincase
             {
                 try
                 {
-                    AddressManager = await NBitcoinHelpers.LoadAddressManagerFromPeerFileAsync(AddressManagerFilePath);
+                    AddressManager = await NBitcoinHelpers.LoadAddressManagerFromPeerFileAsync(AddressManagerFilePath).ConfigureAwait(false);
 
-                    // The most of the times we don't need to discover new peers. Instead, we can connect to
-                    // some of those that we already discovered in the past. In this case we assume that we
-                    // assume that discovering new peers could be necessary if out address manager has less
-                    // than 500 addresses. A 500 addresses could be okay because previously we tried with
+                    // Most of the times we do not need to discover new peers. Instead, we can connect to
+                    // some of those that we already discovered in the past. In this case we assume that
+                    // discovering new peers could be necessary if our address manager has less
+                    // than 500 addresses. 500 addresses could be okay because previously we tried with
                     // 200 and only one user reported he/she was not able to connect (there could be many others,
                     // of course).
                     // On the other side, increasing this number forces users that do not need to discover more peers
-                    // to spend resources (CPU/bandwith) to discover new peers.
+                    // to spend resources (CPU/bandwidth) to discover new peers.
                     needsToDiscoverPeers = Config.UseTor == true || AddressManager.Count < 500;
                     Logger.LogInfo($"Loaded {nameof(AddressManager)} from `{AddressManagerFilePath}`.");
                 }
@@ -347,14 +373,14 @@ namespace Chaincase
             // Then filtered to include only /Satoshi:0.17.x
             var fullBaseDirectory = EnvironmentHelpers.GetFullBaseDirectory();
 
-			var onions = await File.ReadAllLinesAsync(Path.Combine(fullBaseDirectory, "OnionSeeds", $"{Network}OnionSeeds.txt"));
+			var onions = await File.ReadAllLinesAsync(Path.Combine(fullBaseDirectory, "OnionSeeds", $"{Network}OnionSeeds.txt")).ConfigureAwait(false);
 
 			onions.Shuffle();
 			foreach (var onion in onions.Take(60))
 			{
 				if (EndPointParser.TryParse(onion, Network.DefaultPort, out var endpoint))
 				{
-					await addressManager.AddAsync(endpoint);
+					await addressManager.AddAsync(endpoint).ConfigureAwait(false);
 				}
 			}
 
@@ -364,7 +390,7 @@ namespace Chaincase
         {
             try
             {
-                // If there are no news, then don't bother too.
+                // If there are no news, then don't bother.
                 if (!e.IsNews || (sender as Wallet).State != WalletState.Started)
                 {
                     return;
@@ -436,7 +462,7 @@ namespace Chaincase
                     {
                         NotifyAndLog($"Mining Fee: {amountString} BTC", "Self Spend Confirmed", NotificationType.Information, e);
                     }
-                    else if (isConfirmedSpent && receiveSpentDiff.Almost(Money.Zero, Money.Coins(0.01m)) && e.IsLikelyOwnCoinJoin)
+                    else if (isConfirmedSpent && e.IsLikelyOwnCoinJoin)
                     {
                         NotifyAndLog($"CoinJoin Confirmed!", "", NotificationType.Information, e);
                     }
@@ -590,7 +616,7 @@ namespace Chaincase
                     nodes.Disconnect();
                     while (nodes.ConnectedNodes.Any(x => x.IsConnected))
                     {
-                        await Task.Delay(50);
+                        await Task.Delay(50).ConfigureAwait(false);
                     }
                     nodes.Dispose();
                     Logger.LogInfo($"{nameof(Nodes)} are disposed.");
@@ -606,9 +632,16 @@ namespace Chaincase
                 var torManager = TorManager;
                 if (torManager is { })
                 {
-                    torManager.StopAsync();
+                    torManager.StopAsync().ConfigureAwait(false);
                     Logger.LogInfo($"{nameof(TorManager)} is stopped.");
                 }
+
+                var cache = Cache;
+                if (cache is { })
+                {
+                    cache.Dispose();
+                }
+
             }
             catch (Exception ex)
             {
