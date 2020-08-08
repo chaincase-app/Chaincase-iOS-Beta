@@ -20,8 +20,9 @@
     <PackageReference Include="ReactiveUI" Version="11.2.3" />
     <PackageReference Include="ReactiveUI.XamForms" Version="11.2.3" />
     <PackageReference Include="Xamarin.Essentials" Version="1.5.1" />
-    <PackageReference Include="NBitcoin" Version="5.0.15" />
     <PackageReference Include="ZXing.Net.Mobile.Forms" Version="2.4.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="NBitcoin" Version="5.0.47" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Crypto\StringCipher.cs" />
@@ -119,6 +120,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\WalletWasabi\WalletWasabi.Standard\WalletWasabi\WalletWasabi.Standard.csproj" />
+    <ProjectReference Include="..\WalletWasabi\WalletWasabi.Standard\WalletWasabi.Standard.csproj" />
   </ItemGroup>
 </Project>

@@ -3,9 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.ComponentModel;
-using System.IO;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 using WalletWasabi.Bases;
 using WalletWasabi.Exceptions;
@@ -17,7 +15,7 @@ using WalletWasabi.TorSocks5;
 
 namespace Chaincase
 {
-    [JsonObject(MemberSerialization.OptIn)]
+	[JsonObject(MemberSerialization.OptIn)]
     public class Config : ConfigBase
     {
         public const int DefaultPrivacyLevelSome = 2;
@@ -26,6 +24,11 @@ namespace Chaincase
         public const int DefaultMixUntilAnonymitySet = 50;
         public const int DefaultTorSock5Port = 9050;
         public static readonly Money DefaultDustThreshold = Money.Coins(Constants.DefaultDustThreshold);
+
+        private int _mixUntilAnonymitySet;
+        private int _privacyLevelSome;
+        private int _privacyLevelFine;
+        private int _privacyLevelStrong;
 
         [JsonProperty(PropertyName = "Network")]
         [JsonConverter(typeof(NetworkJsonConverter))]
@@ -93,7 +96,7 @@ namespace Chaincase
                 {
                     if (ServiceConfiguration != default)
                     {
-                        ServiceConfiguration.MixUntilAnonymitySet = value;
+                        ServiceConfiguration.MixUntilAnonymitySet = value.ToString();
                     }
                 }
             }
@@ -221,11 +224,6 @@ namespace Chaincase
             return _fallbackBackendUri;
         }
 
-        private int _mixUntilAnonymitySet;
-        private int _privacyLevelSome;
-        private int _privacyLevelFine;
-        private int _privacyLevelStrong;
-
         public EndPoint GetBitcoinP2pEndPoint()
         {
             if (Network == NBitcoin.Network.Main)
@@ -252,7 +250,7 @@ namespace Chaincase
 
         public Config(string filePath) : base(filePath)
         {
-            ServiceConfiguration = new ServiceConfiguration(MixUntilAnonymitySet, PrivacyLevelSome, PrivacyLevelFine, PrivacyLevelStrong, GetBitcoinP2pEndPoint(), DustThreshold);
+            ServiceConfiguration = new ServiceConfiguration(MixUntilAnonymitySet.ToString(), PrivacyLevelSome, PrivacyLevelFine, PrivacyLevelStrong, GetBitcoinP2pEndPoint(), DustThreshold);
         }
 
         /// <inheritdoc />
@@ -260,7 +258,7 @@ namespace Chaincase
         {
             base.LoadFile();
 
-            ServiceConfiguration = new ServiceConfiguration(MixUntilAnonymitySet, PrivacyLevelSome, PrivacyLevelFine, PrivacyLevelStrong, GetBitcoinP2pEndPoint(), DustThreshold);
+            ServiceConfiguration = new ServiceConfiguration(MixUntilAnonymitySet.ToString(), PrivacyLevelSome, PrivacyLevelFine, PrivacyLevelStrong, GetBitcoinP2pEndPoint(), DustThreshold);
 
             // Just debug convenience.
             _backendUri = GetCurrentBackendUri();

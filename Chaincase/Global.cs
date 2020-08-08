@@ -4,7 +4,6 @@ using NBitcoin;
 using NBitcoin.Protocol;
 using NBitcoin.Protocol.Behaviors;
 using NBitcoin.Protocol.Connectors;
-using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -29,7 +28,7 @@ using Xamarin.Forms;
 
 namespace Chaincase
 {
-    public class Global
+	public class Global
 	{
 		public string DataDir { get; }
 		public string TorLogsFile { get; }
