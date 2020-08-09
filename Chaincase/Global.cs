@@ -52,9 +52,7 @@ namespace Chaincase
 
         public HostedServices HostedServices { get; }
 
-        public bool KillRequested { get; private set; } = false;
-
-		public Network Network => Config.Network;
+        public Network Network => Config.Network;
 
         public MemoryCache Cache { get; private set; }
 
@@ -199,7 +197,7 @@ namespace Chaincase
 
                 #region AddressManagerInitialization
 
-                AddressManagerBehavior addressManagerBehavior = await addrManTask;
+                AddressManagerBehavior addressManagerBehavior = await addrManTask.ConfigureAwait(false);
                 connectionParameters.TemplateBehaviors.Add(addressManagerBehavior);
 
                 #endregion AddressManagerInitialization
