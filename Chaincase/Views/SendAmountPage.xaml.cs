@@ -7,6 +7,7 @@ using Xamarin.Forms;
 using Chaincase.Converters;
 using NBitcoin;
 using System.Globalization;
+using System.Threading.Tasks;
 
 namespace Chaincase.Views
 {
@@ -55,11 +56,7 @@ namespace Chaincase.Views
 					v => v.NextButton.Text,
 					isWarning => isWarning ? "⚠️ SEND" : "SEND")
 					.DisposeWith(d);
-				this.BindCommand(ViewModel,
-					vm => vm.GoNext,
-					v => v.NextButton)
-					.DisposeWith(d);
-
+				NextButton.Clicked += GoNext;
 			}); 
 		}
 
@@ -67,5 +64,28 @@ namespace Chaincase.Views
         {
             return "~"+ rate.SatoshiPerByte.ToString() + " sat/vByte";
         }
-    }
+
+		async void GoNext(object sender, EventArgs e)
+		{
+			Button button = (Button)sender;
+			if (button.IsEnabled)
+			{
+				if (ViewModel.CoinList.WarnCertainLink)
+				{
+					bool willProceed = await WarnAndAskOkToProceed(button, e);
+					if (!willProceed) return;
+				}
+				ViewModel.GoNext.Execute();
+			}
+		}
+
+		async Task<bool> WarnAndAskOkToProceed(object sender, EventArgs e)
+		{
+			string warning = ViewModel.CoinList.SelectedCount == 1 ?
+				"Sending the selected coin makes a sure link to you in public.\n CoinJoin first to make it private.\n Proceed anyway?" :
+				"Sending the selected coins makes a sure link to you in public.\n CoinJoin first to make coins private.\n Proceed anyway?";
+			bool answer = await DisplayAlert("⚠️ Warning", warning, "Yes", "No");
+			return answer;
+		}
+	}
 }
