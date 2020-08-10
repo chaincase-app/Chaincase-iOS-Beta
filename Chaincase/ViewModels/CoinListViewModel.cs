@@ -28,7 +28,7 @@ namespace Chaincase.ViewModels
         private bool _isCoinListLoading;
         private bool _isAnyCoinSelected;
         private int _selectedCount;
-        private bool _warnCommonOwnership;
+        private bool _warnCertainLink;
         private object SelectionChangedLock { get; } = new object();
 
         public event EventHandler CoinListShown;
@@ -151,9 +151,8 @@ namespace Chaincase.ViewModels
                         IsAnyCoinSelected = selectedCoins.Any();
                         SelectedCount = selectedCoins.Count();
 
-                        WarnCommonOwnership = selectedCoins
-                                .Where(c => c.AnonymitySet == 1)
-                                .Any(x => selectedCoins.Any(x => x.AnonymitySet > 1));
+                        WarnCertainLink = selectedCoins
+                                .Any(c => c.AnonymitySet == 1);
 
                         SelectionChanged?.Invoke(this, null);
                     }
@@ -265,10 +264,10 @@ namespace Chaincase.ViewModels
             }
         }
 
-        public bool WarnCommonOwnership
+        public bool WarnCertainLink
         {
-            get => _warnCommonOwnership;
-            set => this.RaiseAndSetIfChanged(ref _warnCommonOwnership, value);
+            get => _warnCertainLink;
+            set => this.RaiseAndSetIfChanged(ref _warnCertainLink, value);
         }
 
     }

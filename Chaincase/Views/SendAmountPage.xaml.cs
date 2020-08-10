@@ -50,6 +50,11 @@ namespace Chaincase.Views
 					AddFeeUnits)
 					.DisposeWith(d);
 
+				this.OneWayBind(ViewModel,
+					vm => vm.CoinList.WarnCertainLink,
+					v => v.NextButton.Text,
+					isWarning => isWarning ? "⚠️ SEND" : "SEND")
+					.DisposeWith(d);
 				this.BindCommand(ViewModel,
 					vm => vm.GoNext,
 					v => v.NextButton)
