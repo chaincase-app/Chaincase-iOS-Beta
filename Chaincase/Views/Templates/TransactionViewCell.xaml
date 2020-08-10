@@ -21,6 +21,7 @@
            Grid.ColumnSpan="2"/>
     <Label x:Name="AmountBtc"
            HorizontalOptions="EndAndExpand"
+           HorizontalTextAlignment="End"
            VerticalOptions="Center"
            Grid.Column="1"/>
     <BoxView HeightRequest="1"
