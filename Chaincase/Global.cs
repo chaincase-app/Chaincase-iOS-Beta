@@ -287,7 +287,7 @@ namespace Chaincase
 
                 #endregion Blocks provider
 
-                WalletManager.RegisterServices(BitcoinStore, Synchronizer, Nodes, Config.ServiceConfiguration, FeeProviders, null);
+                WalletManager.RegisterServices(BitcoinStore, Synchronizer, Nodes, Config.ServiceConfiguration, FeeProviders, blockProvider);
             }
             finally
             {
