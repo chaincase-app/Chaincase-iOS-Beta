@@ -130,6 +130,7 @@ namespace Chaincase.ViewModels
                 }).DisposeWith(Disposables);
 
             CoinJoinCommand = ReactiveCommand.CreateFromTask<string, bool>(DoEnqueueAsync);
+            ExitCoinJoinCommand = ReactiveCommand.CreateFromTask(ExitCoinJoinAsync);
 
             var canPromptPassword = this.WhenAnyValue(
                 x => x.CoinList.SelectedAmount,
@@ -164,6 +165,9 @@ namespace Chaincase.ViewModels
                 ).Sum(c => (long?)c.Amount) ?? 0
                 ).ToString();
         }
+
+        private async Task ExitCoinJoinAsync()
+            => await DoDequeueAsync(CoinList.RootList.Items.Where(c => c.CoinJoinInProgress).Select(c => c.Model));
 
         private async Task DoDequeueAsync(params SmartCoin[] coins)
             => await DoDequeueAsync(coins as IEnumerable<SmartCoin>);
@@ -404,6 +408,8 @@ namespace Chaincase.ViewModels
         }
 
         public ReactiveCommand<string, bool> CoinJoinCommand { get; }
+        public ReactiveCommand<Unit, Unit> ExitCoinJoinCommand { get; }
+
         private PasswordPromptViewModel _promptViewModel;
         public ReactiveCommand<Unit, Unit> PromptCommand { get; }
     }

@@ -5,6 +5,7 @@ using Chaincase.ViewModels;
 using System;
 using Chaincase.Converters;
 using Chaincase.Models;
+using NBitcoin;
 
 namespace Chaincase.Views
 {
@@ -38,10 +39,29 @@ namespace Chaincase.Views
                     .DisposeWith(d);
                 this.BindCommand(ViewModel,
                     vm => vm.PromptCommand,
-                    v => v.ConfirmButton)
+                    v => v.CoinJoinButton)
+                    .DisposeWith(d);
+                this.OneWayBind(ViewModel,
+                    vm => vm.AmountQueued,
+                    v => v.CoinJoinButton.IsVisible,
+                    amount => !(amount.CompareTo(Money.Zero) != 0))
+                    .DisposeWith(d);
+                this.BindCommand(ViewModel,
+                    vm => vm.ExitCoinJoinCommand,
+                    v => v.ExitButton)
+                    .DisposeWith(d);
+                this.OneWayBind(ViewModel,
+                    vm => vm.AmountQueued,
+                    v => v.ExitButton.IsVisible,
+                    amount => amount.CompareTo(Money.Zero) != 0)
                     .DisposeWith(d);
             });
         }
+
+        private bool AmountQueuedNonzero(Money amount)
+		{
+            return amount.CompareTo(Money.Zero) != 0;
+		}
 
         private string FormatTimeLeftLabel(TimeSpan t)
         {

@@ -18,7 +18,10 @@
     <Label Text="{Binding PeersRegistered, StringFormat='{0} peers registered'}" />
     <Label Text="{Binding CoordinatorFeePercent, StringFormat='Coordinator Fee: {0}% per anonymity set'}" />
     <controls:NeuButton Text="COINJOIN SELECTED"
-            x:Name="ConfirmButton"
+            x:Name="CoinJoinButton"
             VerticalOptions="End" />
+    <controls:NeuButton Text="EXIT COINJOIN"
+                         x:Name="ExitButton"
+                         VerticalOptions="End" />
   </StackLayout>
 </rxui:ReactiveContentPage>
