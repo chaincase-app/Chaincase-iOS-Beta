@@ -1,23 +1,21 @@
-# Chaincase
-Xamarin.Forms WasabiWallet implementation
+# Chaincase - The Private way to Bitcoin
+A non-custodial iOS bitcoin wallet supporting [Chaumian CoinJoin](https://github.com/nopara73/ZeroLink/#ii-chaumian-coinjoin).
 
-https://github.com/zkSNACKs/WalletWasabi
+The main privacy features on the network level:
+- Tor-only by default.
+- BIP 158 block filters for private light client.
 
-Wasabi wallet is built on .NET Core. .NET Core is meant for console applications and so has a hacked-on-top UI.
-I see wasabidaemon eventually being a .NET standard library with the presentation layer on top. UX 相處得很好 will help foster adoption.
+and on the blockchain level:
+- Intuitive ZeroLink CoinJoin integration.
+- Superb coin selection and labeling.
+- Dust attack protections.
 
-https://github.com/lassana/XamarinFormsPinView This may be a place to stop to encrypt the wallet
-https://github.com/iCepa/Tor.framework I think this is the only way Tor can be incorporated into an application in iOS at the moment.
+special thanks to [Wasabi](https://github.com/zkSNACKs/WalletWasabi) for making this possible
 
-# Build
-after you clone the repository, don't forget to
+# [Download Chaincase on iOS TestFlight](https://testflight.apple.com/join/e31v3Ydj)
 
-```console
-git submodule update --init --recursive
-```
+Chaincase is a Xamarin.Forms application built on top of the famed Wasabi Wallet privacy wallet.
 
-The macOS version should be stable to build and recieve coins.
+It binds to [Tor.framework](https://github.com/iCepa/Tor.framework) for an anonymous connection to the outside world
 
-To use testnet, go to `/Users/<youruser>/.chaincase/Client/Config.json` and make sure the Network line reads: `Network": "TestNet`. Beware, anything lower than the `DustThreshold` amount will not show up in the UI.
-
-_This software is experimental. Use at your own risk. You may lose coins._
+This is *experimental* beta software. Your feedback is greatly appreciated 🗽
