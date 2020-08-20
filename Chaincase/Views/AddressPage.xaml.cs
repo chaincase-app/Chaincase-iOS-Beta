@@ -28,10 +28,6 @@ namespace Chaincase.Views
 					vm => vm.Address,
 					v => v.Address.Text)
 					.DisposeWith(d);
-				this.Bind(ViewModel,
-					vm => vm.BitcoinUri,
-					v => v.BitcoinUri.Text)
-						.DisposeWith(d);
 				this.BindCommand(ViewModel,
 					vm => vm.RequestAmountCommand,
 					v => v.RequestAmountButton)
@@ -57,17 +53,6 @@ namespace Chaincase.Views
 				}
 			};
 			Address.GestureRecognizers.Add(addressGestureRecognizer);
-
-			var bitcoinUriGestureRecognizer = new TapGestureRecognizer();
-			bitcoinUriGestureRecognizer.Tapped += async (s, e) => {
-				Clipboard.SetTextAsync(BitcoinUri.Text);
-				if (Clipboard.HasText)
-				{
-					var text = await Clipboard.GetTextAsync();
-					DisplayAlert("Success", string.Format("Copied bitcoin URI to clipboard", text), "OK");
-				}
-			};
-			BitcoinUri.GestureRecognizers.Add(bitcoinUriGestureRecognizer);
 		}
 	}
 }
