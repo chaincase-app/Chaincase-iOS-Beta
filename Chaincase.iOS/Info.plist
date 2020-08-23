@@ -28,17 +28,19 @@
 	<key>CFBundleIdentifier</key>
 	<string>cash.chaincase.chaincase</string>
 	<key>CFBundleVersion</key>
-	<string>0.4.2</string>
+	<string>0.4.4</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>CFBundleName</key>
 	<string>Chaincase</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.4</string>
+	<string>0.4.0</string>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/AppIcon.appiconset</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Chaincase can use your camera to scan QR codes</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Your seed words are protected by Face ID</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
