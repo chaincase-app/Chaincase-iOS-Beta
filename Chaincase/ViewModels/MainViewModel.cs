@@ -15,6 +15,7 @@ using Chaincase.Models;
 using WalletWasabi.Logging;
 using NBitcoin;
 using System.Threading;
+using WalletWasabi.Wallets;
 
 namespace Chaincase.ViewModels
 {
@@ -53,6 +54,8 @@ namespace Chaincase.ViewModels
             {
                 throw new Exception("Wallet opened before it was closed.");
             }
+
+            // init with UI config
             Balance = Global.UiConfig.Balance;
 
             Transactions = new ObservableCollection<TransactionViewModel>();
@@ -64,27 +67,28 @@ namespace Chaincase.ViewModels
             });
 
             TryWriteTableFromCache();
+
             Task.Run(async () =>
             {
-                // WaitForInitializationCompletedAsync could be refined to Global.Wallet.Coins/TxProc/Chaumian etc init via Rx
-                using var initCts = new CancellationTokenSource(TimeSpan.FromMinutes(6));
-                await Global.WaitForInitializationCompletedAsync(initCts.Token).ConfigureAwait(false);
-
-                Observable.FromEventPattern(Global.Wallet.TransactionProcessor, nameof(Global.Wallet.TransactionProcessor.WalletRelevantTransactionProcessed))
-                    .Throttle(TimeSpan.FromSeconds(0.1))
-                    .ObserveOn(RxApp.MainThreadScheduler)
-                    .Subscribe(_ =>
-                    {
-                        Balance = Global.Wallet.Coins.TotalAmount().ToString();
-                        HasPrivateCoins = Enumerable.Where(
-                                Global.Wallet.Coins,
-                                c => c.Unspent && !c.SpentAccordingToBackend && c.AnonymitySet > 1
-                            ).Sum(c => (long?)c.Amount) > 0;
-                    });
+                while(Global.Wallet.State != WalletState.Initialized)
+				{
+                    await Task.Delay(200);
+				}
 
                 Device.BeginInvokeOnMainThread(() =>
                 {
                     CoinList = new CoinListViewModel();
+                    Observable.FromEventPattern(Global.Wallet.TransactionProcessor, nameof(Global.Wallet.TransactionProcessor.WalletRelevantTransactionProcessed))
+                       .Throttle(TimeSpan.FromSeconds(0.1))
+                       .ObserveOn(RxApp.MainThreadScheduler)
+                       .Subscribe(_ =>
+                       {
+                           Balance = Global.Wallet.Coins.TotalAmount().ToString();
+                           HasPrivateCoins = Enumerable.Where(
+                                   Global.Wallet.Coins,
+                                   c => c.Unspent && !c.SpentAccordingToBackend && c.AnonymitySet > 1
+                               ).Sum(c => (long?)c.Amount) > 0;
+                       });
 
                     Observable.FromEventPattern(Global.Wallet, nameof(Global.Wallet.NewBlockProcessed))
                         .Merge(Observable.FromEventPattern(Global.Wallet.TransactionProcessor, nameof(Global.Wallet.TransactionProcessor.WalletRelevantTransactionProcessed)))
