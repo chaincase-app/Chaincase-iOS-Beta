@@ -64,12 +64,21 @@ namespace Chaincase.ViewModels
                 .ToProperty(this, x => x.Status)
                 .DisposeWith(Disposables);
 
-            _progressPercent = ActiveStatuses.WhenAnyValue(x => x.CurrentStatus)
-                .Select(status =>
+            bool progressReset = true;
+            _progressPercent = this.WhenAnyValue(x => x.ActiveStatuses.CurrentStatus, x=> x.Peers)
+                .Select(tup =>
                 {
+                    var (status, peers) = tup;
+                    if (peers == 0 && progressReset)
+					{
+                        progressReset = false;
+                        return 0.01;
+                    }
+
                     switch (status.Type)
                     {
                         case StatusType.Ready:
+                             progressReset = true;
                             return 1;
                         case StatusType.Synchronizing:
                             return status.Percentage / 200.0 + 0.3;

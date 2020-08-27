@@ -29,8 +29,7 @@
     <MtouchDebug>true</MtouchDebug>
     <LangVersion>default</LangVersion>
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-    <CodesignKey>Apple Development: dc.sled@gmail.com (BDA534V858)</CodesignKey>
-    <CodesignProvision>VS: cash.chaincase.chaincase Development</CodesignProvision>
+    <CodesignKey>iPhone Distribution: Chaincase LLC (9Z72DXKVXK)</CodesignKey>
 <MtouchFastDev>true</MtouchFastDev>
 <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
   </PropertyGroup>
@@ -64,7 +63,7 @@
     <LangVersion>default</LangVersion>
     <MtouchLink>None</MtouchLink>
     <MtouchInterpreter>-all</MtouchInterpreter>
-    <CodesignProvision>VS: cash.chaincase.chaincase Development</CodesignProvision>
+    <CodesignProvision>VS: WildCard Development</CodesignProvision>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
     <DebugType>none</DebugType>

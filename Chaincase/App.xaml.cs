@@ -9,12 +9,15 @@ using System.Diagnostics;
 using Chaincase.ViewModels;
 using Splat;
 using WalletWasabi.Blockchain.Keys;
+using WalletWasabi.Helpers;
+using NBitcoin;
 
 namespace Chaincase
 {
 	public partial class App : Application
 	{
 
+		private bool inStartupPhase = true;
 		private static Global Global;
 
 		public App()
@@ -67,6 +70,7 @@ namespace Chaincase
 
 		protected override void OnStart()
 		{
+			Debug.WriteLine("OnStart");
 			if (!WalletExists())
 			{
 				Logger.LogCritical("no wallet");
@@ -76,13 +80,48 @@ namespace Chaincase
 
 		protected override void OnSleep()
 		{
+			// save app state
 			Debug.WriteLine("OnSleep");
-			// Task.Run(async () => { await Global.DisposeAsync(); }).Wait();
+			Logger.LogInfo("App entering background state.");
+			var mgr = DependencyService.Get<ITorManager>();
+			if (mgr?.State != TorState.Stopped)
+			{
+				mgr.StopAsync();
+				var global = Locator.Current.GetService<Global>();
+				global.Nodes.Disconnect();
+
+
+				var synchronizer = Global.Synchronizer;
+				if (synchronizer is { })
+				{
+					synchronizer.StopAsync();
+					Logger.LogInfo($"{nameof(Global.Synchronizer)} is stopped.");
+				}
+			}
 		}
 
 		protected override void OnResume()
 		{
 			// Handle when your app resumes
+			Debug.WriteLine("OnResume");
+			var mgr = DependencyService.Get<ITorManager>();
+			if (mgr?.State != TorState.Started && mgr.State != TorState.Connected)
+			{
+				mgr.Start(true, GetDataDir());
+				var global = Locator.Current.GetService<Global>();
+				global.Nodes.Connect();
+
+				var requestInterval = TimeSpan.FromSeconds(30);
+				if (Global.Network == Network.RegTest)
+				{
+					requestInterval = TimeSpan.FromSeconds(5);
+				}
+
+				int maxFiltSyncCount = Global.Network == Network.Main ? 1000 : 10000; // On testnet, filters are empty, so it's faster to query them together
+
+				Global.Synchronizer.Start(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
+				Logger.LogInfo("Start synchronizing filters...");
+			}
 		}
 
 		private static void TaskScheduler_UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
@@ -124,6 +163,22 @@ namespace Chaincase
 			var walletName = Global.Network.ToString();
 			(string walletFullPath, _) = Global.WalletManager.WalletDirectories.GetWalletFilePaths(walletName);
 			return File.Exists(walletFullPath);
+		}
+
+		private string GetDataDir()
+		{
+			string dataDir;
+			if (Device.RuntimePlatform == Device.iOS)
+			{
+				var documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+				var library = Path.Combine(documents, "..", "Library", "Client");
+				dataDir = library;
+			}
+			else
+			{
+				dataDir = EnvironmentHelpers.GetDataDir(Path.Combine("Chaincase", "Client"));
+			}
+			return dataDir;
 		}
 	}
 }
