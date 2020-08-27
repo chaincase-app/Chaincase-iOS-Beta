@@ -11,6 +11,9 @@ using Splat;
 using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Helpers;
 using NBitcoin;
+using NBitcoin.Protocol.Behaviors;
+using System.Linq;
+using NBitcoin.Protocol;
 
 namespace Chaincase
 {
@@ -78,7 +81,7 @@ namespace Chaincase
 			}
 		}
 
-		protected override void OnSleep()
+		protected async override void OnSleep()
 		{
 			// save app state
 			Debug.WriteLine("OnSleep");
@@ -86,29 +89,49 @@ namespace Chaincase
 			var mgr = DependencyService.Get<ITorManager>();
 			if (mgr?.State != TorState.Stopped)
 			{
-				mgr.StopAsync();
 				var global = Locator.Current.GetService<Global>();
-				global.Nodes.Disconnect();
-
 
 				var synchronizer = Global.Synchronizer;
 				if (synchronizer is { })
 				{
-					synchronizer.StopAsync();
+					await synchronizer.StopAsync();
 					Logger.LogInfo($"{nameof(Global.Synchronizer)} is stopped.");
 				}
+
+				var addressManagerFilePath = global.AddressManagerFilePath;
+				if (addressManagerFilePath is { })
+				{
+					IoHelpers.EnsureContainingDirectoryExists(addressManagerFilePath);
+					var addressManager = global.AddressManager;
+					if (addressManager is { })
+					{
+						addressManager.SavePeerFile(global.AddressManagerFilePath, global.Config.Network);
+						Logger.LogInfo($"{nameof(AddressManager)} is saved to `{global.AddressManagerFilePath}`.");
+					}
+				}
+
+				await mgr.StopAsync();
+				global.Nodes.Disconnect();
 			}
 		}
 
-		protected override void OnResume()
+		protected async override void OnResume()
 		{
 			// Handle when your app resumes
 			Debug.WriteLine("OnResume");
 			var mgr = DependencyService.Get<ITorManager>();
 			if (mgr?.State != TorState.Started && mgr.State != TorState.Connected)
 			{
-				mgr.Start(true, GetDataDir());
 				var global = Locator.Current.GetService<Global>();
+
+				var userAgent = Constants.UserAgents.RandomElement();
+				var connectionParameters = new NodeConnectionParameters { UserAgent = userAgent };
+				var addrManTask = global.InitializeAddressManagerBehaviorAsync();
+				AddressManagerBehavior addressManagerBehavior = await addrManTask.ConfigureAwait(false);
+				connectionParameters.TemplateBehaviors.Add(addressManagerBehavior);
+
+
+				mgr.Start(true, GetDataDir());
 				global.Nodes.Connect();
 
 				var requestInterval = TimeSpan.FromSeconds(30);

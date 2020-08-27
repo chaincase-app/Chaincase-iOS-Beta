@@ -295,7 +295,7 @@ namespace Chaincase
             }
 		}
 
-        private async Task<AddressManagerBehavior> InitializeAddressManagerBehaviorAsync()
+        public async Task<AddressManagerBehavior> InitializeAddressManagerBehaviorAsync()
         {
             var needsToDiscoverPeers = true;
             if (Network == NBitcoin.Network.RegTest)
