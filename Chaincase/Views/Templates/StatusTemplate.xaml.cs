@@ -34,16 +34,6 @@ namespace Chaincase.Views.Templates
             });
         }
 
-        private bool IsStatusReadyConv(string status)
-        {
-            return status == "Ready";
-        }
-
-        private bool IsStatusNotReadyConv(string status)
-        {
-            return status != "Ready";
-        }
-
         private string TorStatusConv(TorStatus status)
         {
             switch(status)
@@ -51,7 +41,7 @@ namespace Chaincase.Views.Templates
                 case TorStatus.Running:
                     return "Tor running";
                 default:
-                    return "";
+                    return "Starting Tor...";
             }
         }
     }
