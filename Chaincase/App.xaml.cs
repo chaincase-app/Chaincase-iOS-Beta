@@ -28,7 +28,6 @@ namespace Chaincase
 			InitializeComponent();
 
 			Global = new Global();
-			Task.Run(async () => { await Global.InitializeNoWalletAsync(); }); // this is the only thing that takes forever
 			Locator.CurrentMutable.RegisterConstant(Global);
 
 			Locator
@@ -42,7 +41,7 @@ namespace Chaincase
 				.RegisterView<AddressPage, AddressViewModel>()
 				.RegisterView<RequestAmountModal, RequestAmountViewModel>()
 				.RegisterView<SendAmountPage, SendAmountViewModel>()
-				.RegisterView<FeeModal,FeeViewModel>()
+				.RegisterView<FeeModal, FeeViewModel>()
 				.RegisterView<CoinSelectModal, CoinListViewModel>()
 				.RegisterView<CoinDetailModal, CoinViewModel>()
 				.RegisterView<SendWhoPage, SendWhoViewModel>()
@@ -67,25 +66,34 @@ namespace Chaincase
 
 			AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 			TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
-
-			
 		}
+
+		private event EventHandler Starting = delegate { };
 
 		protected override void OnStart()
 		{
 			Debug.WriteLine("OnStart");
-			if (!WalletExists())
-			{
-				Logger.LogCritical("no wallet");
-				//Navigator.NavigateTo(new PassphraseViewModel(Navigator));
-			}
+			Starting += OnStarting;
+			Starting(this, EventArgs.Empty);
 		}
 
-		protected async override void OnSleep()
+		private async void OnStarting(object sender, EventArgs args)
 		{
-			// save app state
+			await Global.InitializeNoWalletAsync(); // this takes ~12s
+		}
+
+
+		private event EventHandler Sleeping = delegate { };
+
+		protected override void OnSleep()
+		{
 			Debug.WriteLine("OnSleep");
-			Logger.LogInfo("App entering background state.");
+			Sleeping += OnSleeping;
+			Sleeping(this, EventArgs.Empty);			
+		}
+
+		private async void OnSleeping(object sender, EventArgs args)
+		{
 			var mgr = DependencyService.Get<ITorManager>();
 			if (mgr?.State != TorState.Stopped)
 			{
@@ -115,10 +123,21 @@ namespace Chaincase
 			}
 		}
 
-		protected async override void OnResume()
+		private event EventHandler Resuming = delegate { };
+
+		protected override void OnResume()
 		{
-			// Handle when your app resumes
 			Debug.WriteLine("OnResume");
+			Resuming += OnResuming;
+			// Execute Async code
+			Resuming(this, EventArgs.Empty);
+		}
+
+		private async void OnResuming(object sender, EventArgs args)
+		{
+			//unsubscribe from event
+			Resuming -= OnResuming;
+			//perform non-blocking actions
 			var mgr = DependencyService.Get<ITorManager>();
 			if (mgr?.State != TorState.Started && mgr.State != TorState.Connected)
 			{
@@ -129,7 +148,6 @@ namespace Chaincase
 				var addrManTask = global.InitializeAddressManagerBehaviorAsync();
 				AddressManagerBehavior addressManagerBehavior = await addrManTask.ConfigureAwait(false);
 				connectionParameters.TemplateBehaviors.Add(addressManagerBehavior);
-
 
 				mgr.Start(true, GetDataDir());
 				global.Nodes.Connect();
