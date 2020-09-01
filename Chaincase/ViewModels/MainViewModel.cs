@@ -68,38 +68,8 @@ namespace Chaincase.ViewModels
 
             TryWriteTableFromCache();
 
-            Task.Run(async () =>
-            {
-                while(Global.Wallet.State != WalletState.Initialized)
-				{
-                    await Task.Delay(200);
-				}
-
-                Device.BeginInvokeOnMainThread(() =>
-                {
-                    CoinList = new CoinListViewModel();
-                    Observable.FromEventPattern(Global.Wallet.TransactionProcessor, nameof(Global.Wallet.TransactionProcessor.WalletRelevantTransactionProcessed))
-                       .Throttle(TimeSpan.FromSeconds(0.1))
-                       .ObserveOn(RxApp.MainThreadScheduler)
-                       .Subscribe(_ =>
-                       {
-                           Balance = Global.Wallet.Coins.TotalAmount().ToString();
-                           HasPrivateCoins = Enumerable.Where(
-                                   Global.Wallet.Coins,
-                                   c => c.Unspent && !c.SpentAccordingToBackend && c.AnonymitySet > 1
-                               ).Sum(c => (long?)c.Amount) > 0;
-                       });
-
-                    Observable.FromEventPattern(Global.Wallet, nameof(Global.Wallet.NewBlockProcessed))
-                        .Merge(Observable.FromEventPattern(Global.Wallet.TransactionProcessor, nameof(Global.Wallet.TransactionProcessor.WalletRelevantTransactionProcessed)))
-                        .Throttle(TimeSpan.FromSeconds(3))
-                        .ObserveOn(RxApp.MainThreadScheduler)
-                        .Subscribe(async _ => await TryRewriteTableAsync());
-
-                    CoinJoinViewModel = new CoinJoinViewModel(CoinList);
-                    SendAmountViewModel = new SendAmountViewModel(CoinList);
-                });
-            });
+            Initializing += OnInit;
+            Initializing(this, EventArgs.Empty);
 
             StatusViewModel = new StatusViewModel();
 
@@ -147,6 +117,43 @@ namespace Chaincase.ViewModels
                 .WhenAnyValue(x => x.Balance)
                 .Select(bal => Money.Parse(bal) > 0)
                 .ToProperty(this, nameof(HasCoins));           
+        }
+
+        private event EventHandler Initializing = delegate { };
+
+        private async void OnInit(object sender, EventArgs args)
+        {
+            Initializing -= OnInit;
+
+            while (Global.Wallet.State < WalletState.Initialized)
+            {
+                await Task.Delay(200);
+            }
+
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                CoinList = new CoinListViewModel();
+                Observable.FromEventPattern(Global.Wallet.TransactionProcessor, nameof(Global.Wallet.TransactionProcessor.WalletRelevantTransactionProcessed))
+                   .Throttle(TimeSpan.FromSeconds(0.1))
+                   .ObserveOn(RxApp.MainThreadScheduler)
+                   .Subscribe(_ =>
+                   {
+                       Balance = Global.Wallet.Coins.TotalAmount().ToString();
+                       HasPrivateCoins = Enumerable.Where(
+                               Global.Wallet.Coins,
+                               c => c.Unspent && !c.SpentAccordingToBackend && c.AnonymitySet > 1
+                           ).Sum(c => (long?)c.Amount) > 0;
+                   });
+
+                Observable.FromEventPattern(Global.Wallet, nameof(Global.Wallet.NewBlockProcessed))
+                    .Merge(Observable.FromEventPattern(Global.Wallet.TransactionProcessor, nameof(Global.Wallet.TransactionProcessor.WalletRelevantTransactionProcessed)))
+                    .Throttle(TimeSpan.FromSeconds(3))
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Subscribe(async _ => await TryRewriteTableAsync());
+
+                CoinJoinViewModel = new CoinJoinViewModel(CoinList);
+                SendAmountViewModel = new SendAmountViewModel(CoinList);
+            });
         }
 
         private void TryWriteTableFromCache()
