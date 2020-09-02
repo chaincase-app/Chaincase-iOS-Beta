@@ -30,31 +30,5 @@ namespace Chaincase.iOS
 
 			return base.FinishedLaunching(application, options);
 		}
-
-		//public override void OnActivated(UIApplication application)
-		//{
-		//	base.OnActivated(application);
-		//}
-
-		//public override void DidEnterBackground(UIApplication application)
-		//{
-
-
-		//}
-
-
-
-		//public override void OnResignActivation(UIApplication application)
-		//{
-		//	Logger.LogInfo("OnResignActivation called, App moving to inactive state.");
-		//}
-
-		//// not guaranteed that this will run
-		//public override void WillTerminate(UIApplication application)
-		//{
-		//	Logger.LogInfo("App is terminating.");
-		//}
-
-
 	}
 }

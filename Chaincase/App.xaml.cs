@@ -79,6 +79,7 @@ namespace Chaincase
 
 		private async void OnStarting(object sender, EventArgs args)
 		{
+			Starting -= OnStarting;
 			await Global.InitializeNoWalletAsync(); // this takes ~12s
 		}
 
@@ -94,6 +95,7 @@ namespace Chaincase
 
 		private async void OnSleeping(object sender, EventArgs args)
 		{
+			Sleeping -= OnSleeping;
 			var mgr = DependencyService.Get<ITorManager>();
 			if (mgr?.State != TorState.Stopped)
 			{
