@@ -14,7 +14,7 @@ namespace Chaincase.iOS
 
         public event EventHandler NotificationReceived;
 
-        public void Initialize()
+        public void RequestAuthorization()
         {
             // request the permission to use local notifications
             UNUserNotificationCenter.Current.RequestAuthorization(UNAuthorizationOptions.Alert, (approved, err) =>

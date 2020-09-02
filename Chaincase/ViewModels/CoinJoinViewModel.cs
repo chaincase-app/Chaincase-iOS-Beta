@@ -51,6 +51,7 @@ namespace Chaincase.ViewModels
             : base(Locator.Current.GetService<IViewStackService>())
         {
             Global = Locator.Current.GetService<Global>();
+
             SetBalance();
             notificationManager = Global.NotificationManager;
 
@@ -220,6 +221,7 @@ namespace Chaincase.ViewModels
 
                     await Global.Wallet.ChaumianClient.QueueCoinsToMixAsync(password, coins.ToArray());
                     ScheduleConfirmNotification(null, null);
+                    Global.NotificationManager.RequestAuthorization();
                     return true;
                 }
                 catch (SecurityException ex)
@@ -245,6 +247,7 @@ namespace Chaincase.ViewModels
             {
                 IsEnqueueBusy = false;
             }
+            Global.NotificationManager.RequestAuthorization();
             return false;
         }
 

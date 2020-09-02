@@ -6,7 +6,7 @@ namespace Chaincase.Notifications
     {
         event EventHandler NotificationReceived;
 
-        void Initialize();
+        void RequestAuthorization();
 
         int ScheduleNotification(string title, string message, double timeInterval);
 

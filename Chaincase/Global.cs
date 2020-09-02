@@ -79,10 +79,9 @@ namespace Chaincase
                 UiConfig.LoadOrCreateDefaultFile();
                 Config.LoadOrCreateDefaultFile();
 
-                NotificationManager = DependencyService.Get<INotificationManager>();
-                NotificationManager.Initialize();
+				NotificationManager = DependencyService.Get<INotificationManager>();
 
-                WalletManager = new WalletManager(Network, new WalletDirectories(DataDir));
+				WalletManager = new WalletManager(Network, new WalletDirectories(DataDir));
                 WalletManager.WalletRelevantTransactionProcessed += WalletManager_WalletRelevantTransactionProcessed;
 
                 var indexStore = new IndexStore(Network, new SmartHeaderChain());

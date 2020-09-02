@@ -23,6 +23,7 @@ namespace Chaincase.ViewModels
 			: base(Locator.Current.GetService<IViewStackService>())
 		{
 			Global = Locator.Current.GetService<Global>();
+			Global.NotificationManager.RequestAuthorization();
 
 			Model = model;
 
