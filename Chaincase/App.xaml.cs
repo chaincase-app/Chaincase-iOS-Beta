@@ -26,8 +26,8 @@ namespace Chaincase
 		public App()
 		{
 			InitializeComponent();
-
 			Global = new Global();
+			Task.Run(async () => { await Global.InitializeNoWalletAsync().ConfigureAwait(false); });
 			Locator.CurrentMutable.RegisterConstant(Global);
 
 			Locator
@@ -67,22 +67,6 @@ namespace Chaincase
 			AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 			TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
 		}
-
-		private event EventHandler Starting = delegate { };
-
-		protected override void OnStart()
-		{
-			Debug.WriteLine("OnStart");
-			Starting += OnStarting;
-			Starting(this, EventArgs.Empty);
-		}
-
-		private async void OnStarting(object sender, EventArgs args)
-		{
-			Starting -= OnStarting;
-			await Global.InitializeNoWalletAsync(); // this takes ~12s
-		}
-
 
 		private event EventHandler Sleeping = delegate { };
 
