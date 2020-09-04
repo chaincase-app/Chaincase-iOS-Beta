@@ -18,7 +18,7 @@ We'll notify you when registration ends to open."
            FontAttributes="Bold"
            TextColor="White"
            BackgroundColor="{StaticResource ChaincaseGold}"
-           Padding="10 10 10 10"/>
+           Padding="10,10,10,10"/>
     <Label Text="{Binding RequiredBTC, StringFormat='₿ {0} required to CoinJoin'}" />
     <Label x:Name="PhaseLabel" />
     <Label x:Name="TimeLeftLabel" />
