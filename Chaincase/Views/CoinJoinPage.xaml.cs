@@ -28,6 +28,11 @@ namespace Chaincase.Views
                     v => v.CoinList.ViewModel)
                     .DisposeWith(d);
                 this.OneWayBind(ViewModel,
+                    vm => vm.AmountQueued,
+                    v => v.WarnToOpenLabel.IsVisible,
+                    amount => amount.CompareTo(Money.Zero) != 0)
+                    .DisposeWith(d);
+                this.OneWayBind(ViewModel,
                     vm => vm.RoundPhaseState,
                     v => v.PhaseLabel.Text,
                     FormatPhaseLabel)

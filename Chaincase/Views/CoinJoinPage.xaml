@@ -11,6 +11,14 @@
   <StackLayout>
     <templates:CoinListTemplate x:Name="CoinList"
                                 VerticalOptions="FillAndExpand" />
+    <Label x:Name="WarnToOpenLabel"
+           Text="Chaincase must be open to complete a CoinJoin.
+We'll notify you when registration ends to open."
+           HorizontalTextAlignment="Center"
+           FontAttributes="Bold"
+           TextColor="White"
+           BackgroundColor="{StaticResource ChaincaseGold}"
+           Padding="10 10 10 10"/>
     <Label Text="{Binding RequiredBTC, StringFormat='₿ {0} required to CoinJoin'}" />
     <Label x:Name="PhaseLabel" />
     <Label x:Name="TimeLeftLabel" />
