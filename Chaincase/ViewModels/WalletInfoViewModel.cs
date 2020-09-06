@@ -87,7 +87,7 @@ namespace Chaincase.ViewModels
 			}, canBackUp);
 
 			ShareLogsCommand = ReactiveCommand.CreateFromTask(ShareLogs);
-
+			ExportWalletCommand = ReactiveCommand.CreateFromTask(ExportWallet);
 		}
 
 		public async Task ShareLogs()
@@ -100,6 +100,17 @@ namespace Chaincase.ViewModels
                 File = new ShareFile(file)
             });
         }
+
+		public async Task ExportWallet()
+		{
+			var file = Path.Combine(Global.DataDir, $"Wallets/{Global.Network}.json");
+
+			await Share.RequestAsync(new ShareFileRequest
+			{
+				Title = "Export Wallet",
+				File = new ShareFile(file)
+			});
+		}
 
 		private void ClearSensitiveData(bool passwordToo)
 		{
@@ -125,6 +136,7 @@ namespace Chaincase.ViewModels
 		public ReactiveCommand<Unit, bool> ToggleSensitiveKeysCommand { get; }
 		public ReactiveCommand<Unit, Unit> NavBackUpCommand;
 		public ReactiveCommand<Unit, Unit> ShareLogsCommand;
+		public ReactiveCommand<Unit, Unit> ExportWalletCommand;
 
 		public bool ShowSensitiveKeys
 		{

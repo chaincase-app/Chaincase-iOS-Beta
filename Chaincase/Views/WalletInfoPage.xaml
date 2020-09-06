@@ -20,5 +20,8 @@
     <controls:NeuButton Text="SHARE DEBUG LOG"
         x:Name="ShareLogsButton"
         VerticalOptions="End" />
+    <controls:NeuButton Text="EXPORT WALLET FILE"
+        x:Name="ExportWalletButton"
+        VerticalOptions="End" />
   </StackLayout>
 </rxui:ReactiveContentPage>

@@ -32,6 +32,10 @@ namespace Chaincase.Views
 					vm => vm.ShareLogsCommand,
 					v => v.ShareLogsButton)
                     .DisposeWith(d);
+				this.BindCommand(ViewModel,
+					vm => vm.ExportWalletCommand,
+					v => v.ExportWalletButton)
+					.DisposeWith(d);
 			});
 
 			var tapGestureRecognizer = new TapGestureRecognizer();
