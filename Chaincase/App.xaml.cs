@@ -135,7 +135,7 @@ namespace Chaincase
 				AddressManagerBehavior addressManagerBehavior = await addrManTask.ConfigureAwait(false);
 				connectionParameters.TemplateBehaviors.Add(addressManagerBehavior);
 
-				mgr.Start(true, GetDataDir());
+				mgr.Start(false, GetDataDir());
 				global.Nodes.Connect();
 
 				var requestInterval = TimeSpan.FromSeconds(30);

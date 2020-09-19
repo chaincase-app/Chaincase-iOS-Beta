@@ -144,12 +144,12 @@ namespace Chaincase
                 if (Config.UseTor)
                 {
                     TorManager = DependencyService.Get<ITorManager>();
-                    TorManager.Start(true, DataDir);
+                    TorManager.Start(ensureRunning: false, DataDir);
                 }
                 else
                 {
                     TorManager = DependencyService.Get<ITorManager>().Mock();
-                    TorManager.Start(true, "mock");
+                    TorManager.Start(ensureRunning: true, "mock");
                 }
 
                 var fallbackRequestTestUri = new Uri(Config.GetFallbackBackendUri(), "/api/software/versions");
