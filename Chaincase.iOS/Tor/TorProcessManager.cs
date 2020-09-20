@@ -30,10 +30,18 @@ namespace Chaincase.iOS.Tor
 
     public class OnionManager : ITorManager
     {
+        private const long StateNotStarted = 0;
+
+        private const long StateRunning = 1;
+
+        private const long StateStopping = 2;
+
+        private const long StateStopped = 3;
+
         /// <summary>
-        /// 0: Not started, 1: Running, 2: Stopping, 3: Stopped
+        /// Value can be any of: <see cref="StateNotStarted"/>, <see cref="StateRunning"/>, <see cref="StateStopping"/> and <see cref="StateStopped"/>.
         /// </summary>
-        private long _running;
+        private long _monitorState;
         private NSData Cookie; 
         public TorState State { get; set; }
         private DispatchBlock initRetry;
@@ -41,7 +49,7 @@ namespace Chaincase.iOS.Tor
         public OnionManager()
         {
             TorSocks5EndPoint = new IPEndPoint(IPAddress.Loopback, 9050);
-            _running = 0;
+            _monitorState = StateNotStarted;
             Stop = new CancellationTokenSource();
             TorController = null;
             Cookie = NSData.FromUrl(torBaseConf.DataDirectory.Append("control_auth_cookie", false));
@@ -60,7 +68,7 @@ namespace Chaincase.iOS.Tor
 
         private TORThread torThread;
 
-        public bool IsRunning => Interlocked.Read(ref _running) == 1;
+        public bool IsRunning => Interlocked.Read(ref _monitorState) == StateRunning;
 
         private CancellationTokenSource Stop { get; set; }
 
@@ -111,6 +119,7 @@ namespace Chaincase.iOS.Tor
             }
 
             if (torThread?.IsCancelled ?? true) {
+                torThread?.Dispose();
                 torThread = null;
 
                 var torConf = this.torBaseConf;
@@ -271,7 +280,7 @@ namespace Chaincase.iOS.Tor
             }
 
             Logger.LogInfo("Starting Tor monitor...");
-            if (Interlocked.CompareExchange(ref _running, 1, 0) != 0)
+            if (Interlocked.CompareExchange(ref _monitorState, StateRunning, StateNotStarted) != StateNotStarted)
             {
                 return;
             }
@@ -332,25 +341,21 @@ namespace Chaincase.iOS.Tor
                 }
                 finally
                 {
-                    Interlocked.CompareExchange(ref _running, 3, 2); // If IsStopping, make it stopped.
+                    Interlocked.CompareExchange(ref _monitorState, StateStopped, StateStopping); // If IsStopping, make it stopped.
                 }
             });
         }
 
         public async Task StopAsync()
         {
-            Interlocked.CompareExchange(ref _running, 2, 1); // If running, make it stopping.
+            Interlocked.CompareExchange(ref _monitorState, StateStopping, StateRunning); // If running, make it stopping.   
 
             if (TorSocks5EndPoint is null)
             {
-                Interlocked.Exchange(ref _running, 3);
+                Interlocked.Exchange(ref _monitorState, StateStopped);
             }
 
             Stop?.Cancel();
-            while (Interlocked.CompareExchange(ref _running, 3, 0) == 2)
-            {
-                await Task.Delay(50).ConfigureAwait(false);
-            }
 
             // Under the hood, TORController will SIGNAL SHUTDOWN and set it's channel to nil, so
             // we actually rely on that to stop Tor and reset the state of torController. (we can
@@ -364,6 +369,11 @@ namespace Chaincase.iOS.Tor
             torThread = null;
 
             State = TorState.Stopped;
+
+            while (Interlocked.CompareExchange(ref _monitorState, StateStopped, StateNotStarted) == StateStopping)
+            {
+                await Task.Delay(50).ConfigureAwait(false);
+            }
         }
 
         #endregion Monitor
