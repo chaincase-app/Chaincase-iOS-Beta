@@ -83,8 +83,6 @@ namespace Chaincase
 			var mgr = DependencyService.Get<ITorManager>();
 			if (mgr?.State != TorState.Stopped)
 			{
-				var global = Locator.Current.GetService<Global>();
-
 				var synchronizer = Global.Synchronizer;
 				if (synchronizer is { })
 				{
@@ -92,20 +90,31 @@ namespace Chaincase
 					Logger.LogInfo($"{nameof(Global.Synchronizer)} is stopped.");
 				}
 
-				var addressManagerFilePath = global.AddressManagerFilePath;
+				var addressManagerFilePath = Global.AddressManagerFilePath;
 				if (addressManagerFilePath is { })
 				{
 					IoHelpers.EnsureContainingDirectoryExists(addressManagerFilePath);
-					var addressManager = global.AddressManager;
+					var addressManager = Global.AddressManager;
 					if (addressManager is { })
 					{
-						addressManager.SavePeerFile(global.AddressManagerFilePath, global.Config.Network);
-						Logger.LogInfo($"{nameof(AddressManager)} is saved to `{global.AddressManagerFilePath}`.");
+						addressManager.SavePeerFile(Global.AddressManagerFilePath, Global.Config.Network);
+						Logger.LogInfo($"{nameof(AddressManager)} is saved to `{Global.AddressManagerFilePath}`.");
 					}
 				}
 
 				await mgr.StopAsync();
-				global.Nodes.Disconnect();
+
+				var nodes = Global.Nodes;
+				if (nodes is { })
+				{
+					nodes.Disconnect();
+					while (nodes.ConnectedNodes.Any(x => x.IsConnected))
+					{
+						await Task.Delay(50).ConfigureAwait(false);
+					}
+					nodes.Dispose();
+					Logger.LogInfo($"{nameof(Global.Nodes)} are disposed.");
+				}
 			}
 		}
 
@@ -127,16 +136,14 @@ namespace Chaincase
 			var mgr = DependencyService.Get<ITorManager>();
 			if (mgr?.State != TorState.Started && mgr.State != TorState.Connected)
 			{
-				var global = Locator.Current.GetService<Global>();
-
 				var userAgent = Constants.UserAgents.RandomElement();
 				var connectionParameters = new NodeConnectionParameters { UserAgent = userAgent };
-				var addrManTask = global.InitializeAddressManagerBehaviorAsync();
+				var addrManTask = Global.InitializeAddressManagerBehaviorAsync();
 				AddressManagerBehavior addressManagerBehavior = await addrManTask.ConfigureAwait(false);
 				connectionParameters.TemplateBehaviors.Add(addressManagerBehavior);
 
 				mgr.Start(false, GetDataDir());
-				global.Nodes.Connect();
+				Global.Nodes.Connect();
 
 				var requestInterval = TimeSpan.FromSeconds(30);
 				if (Global.Network == Network.RegTest)
