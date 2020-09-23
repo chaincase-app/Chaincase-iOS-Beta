@@ -14,6 +14,7 @@ using NBitcoin;
 using NBitcoin.Protocol.Behaviors;
 using System.Linq;
 using NBitcoin.Protocol;
+using System.Threading;
 
 namespace Chaincase
 {
@@ -80,41 +81,53 @@ namespace Chaincase
 		private async void OnSleeping(object sender, EventArgs args)
 		{
 			Sleeping -= OnSleeping;
-			var mgr = DependencyService.Get<ITorManager>();
-			if (mgr?.State != TorState.Stopped)
+			// Interrlocked _dispose???
+
+			try
 			{
-				var synchronizer = Global.Synchronizer;
-				if (synchronizer is { })
-				{
-					await synchronizer.StopAsync();
-					Logger.LogInfo($"{nameof(Global.Synchronizer)} is stopped.");
-				}
+				using var dequeueCts = new CancellationTokenSource(TimeSpan.FromMinutes(6));
+				await Global.WalletManager.RemoveAndStopAllAsync(dequeueCts.Token).ConfigureAwait(false);
+			}
+			catch (Exception ex)
+			{
+				Logger.LogError($"Error during {nameof(Global.WalletManager.RemoveAndStopAllAsync)}: {ex}");
+			}
 
-				var addressManagerFilePath = Global.AddressManagerFilePath;
-				if (addressManagerFilePath is { })
-				{
-					IoHelpers.EnsureContainingDirectoryExists(addressManagerFilePath);
-					var addressManager = Global.AddressManager;
-					if (addressManager is { })
-					{
-						addressManager.SavePeerFile(Global.AddressManagerFilePath, Global.Config.Network);
-						Logger.LogInfo($"{nameof(AddressManager)} is saved to `{Global.AddressManagerFilePath}`.");
-					}
-				}
+			var synchronizer = Global.Synchronizer;
+			if (synchronizer is { })
+			{
+				await synchronizer.StopAsync();
+				Logger.LogInfo($"{nameof(Global.Synchronizer)} is stopped.");
+			}
 
+			var addressManagerFilePath = Global.AddressManagerFilePath;
+			if (addressManagerFilePath is { })
+			{
+				IoHelpers.EnsureContainingDirectoryExists(addressManagerFilePath);
+				var addressManager = Global.AddressManager;
+				if (addressManager is { })
+				{
+					addressManager.SavePeerFile(Global.AddressManagerFilePath, Global.Config.Network);
+					Logger.LogInfo($"{nameof(AddressManager)} is saved to `{Global.AddressManagerFilePath}`.");
+				}
+			}
+
+			var nodes = Global.Nodes;
+			if (nodes is { })
+			{
+				nodes.Disconnect();
+				while (nodes.ConnectedNodes.Any(x => x.IsConnected))
+				{
+					await Task.Delay(50).ConfigureAwait(false);
+				}
+				nodes.Dispose();
+				Logger.LogInfo($"{nameof(Global.Nodes)} are disposed.");
+			}
+
+			var mgr = DependencyService.Get<ITorManager>();
+			if (mgr?.State != TorState.Stopped) // OnionBrowser && Dispose@Global
+			{
 				await mgr.StopAsync();
-
-				var nodes = Global.Nodes;
-				if (nodes is { })
-				{
-					nodes.Disconnect();
-					while (nodes.ConnectedNodes.Any(x => x.IsConnected))
-					{
-						await Task.Delay(50).ConfigureAwait(false);
-					}
-					nodes.Dispose();
-					Logger.LogInfo($"{nameof(Global.Nodes)} are disposed.");
-				}
 			}
 		}
 
