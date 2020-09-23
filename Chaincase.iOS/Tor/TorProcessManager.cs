@@ -153,8 +153,7 @@ namespace Chaincase.iOS.Tor
                     }
                 }
 
-                //var cookie = Guard.NotNull(nameof(Cookie), Cookie);
-                var cookie = NSData.FromUrl(torBaseConf.DataDirectory.Append("control_auth_cookie", false));
+                var cookie = Guard.NotNull(nameof(Cookie), Cookie);
 
                 TorController?.AuthenticateWithData(cookie, (success, error) =>
                 {
@@ -362,11 +361,9 @@ namespace Chaincase.iOS.Tor
             // SIGNAL SHUTDOWN here, but we can't reset the torController "isConnected" state.)
             TorController?.Disconnect();
             TorController?.Dispose();
-            TorController = null;
 
             torThread?.Cancel();
             torThread?.Dispose();
-            torThread = null;
 
             State = TorState.Stopped;
 
