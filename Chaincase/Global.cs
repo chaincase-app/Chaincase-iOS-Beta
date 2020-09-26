@@ -102,7 +102,7 @@ namespace Chaincase
 
         private bool InitializationStarted { get; set; } = false;
 
-        private CancellationTokenSource StoppingCts { get; }
+        private CancellationTokenSource StoppingCts { get; set; }
 
         public async Task InitializeNoWalletAsync()
 		{
@@ -651,7 +651,166 @@ namespace Chaincase
             }
         }
 
-        #region Chaincase
+        #region chaincase
+
+        private bool ResumeCompleted { get; set; } = true;
+
+        /// <returns>If resume is successful, otherwise it was interrupted which means stopping was requested.</returns>
+        public async Task<bool> WaitForResumeCompletedAsync(CancellationToken cancellationToken)
+        {
+            while (!ResumeCompleted)
+            {
+                await Task.Delay(100, cancellationToken).ConfigureAwait(false);
+            }
+
+            return !StoppingCts.IsCancellationRequested;
+        }
+
+        private bool inStartupPhase = true;
+
+        public async Task OnResuming()
+		{
+            ResumeCompleted = false;
+            var cancel = StoppingCts.Token;
+
+			try
+			{
+				var userAgent = Constants.UserAgents.RandomElement();
+				var connectionParameters = new NodeConnectionParameters { UserAgent = userAgent };
+				var addrManTask = InitializeAddressManagerBehaviorAsync();
+				AddressManagerBehavior addressManagerBehavior = await addrManTask.ConfigureAwait(false);
+				connectionParameters.TemplateBehaviors.Add(addressManagerBehavior);
+
+                cancel.ThrowIfCancellationRequested();
+
+                var tor = DependencyService.Get<ITorManager>();
+				if (!inStartupPhase && tor?.State != TorState.Started && tor.State != TorState.Connected)
+				{
+					tor.Start(false, GetDataDir());
+				} else
+				{
+                    inStartupPhase = false;
+				}
+
+                cancel.ThrowIfCancellationRequested();
+
+                Nodes.Connect();
+				Logger.LogInfo("Start connecting to nodes...");
+
+                cancel.ThrowIfCancellationRequested();
+
+                var requestInterval = TimeSpan.FromSeconds(30);
+				if (Network == Network.RegTest)
+				{
+					requestInterval = TimeSpan.FromSeconds(5);
+				}
+
+				int maxFiltSyncCount = Network == Network.Main ? 1000 : 10000; // On testnet, filters are empty, so it's faster to query them together
+
+				Synchronizer.Start(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
+				Logger.LogInfo("Start synchronizing filters...");
+			}
+            finally
+            {
+                ResumeCompleted = true;
+            }
+        }
+
+        public async Task OnSleeping()
+		{
+
+            try
+            {
+                StoppingCts?.Cancel();
+
+                if (!InitializationStarted)
+                {
+                    return;
+                }
+
+                try
+                {
+                    using var initCts = new CancellationTokenSource(TimeSpan.FromMinutes(6));
+                    await WaitForInitializationCompletedAsync(initCts.Token).ConfigureAwait(false);                   
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError($"Error during {nameof(WaitForInitializationCompletedAsync)}: {ex}");
+                }
+
+
+                if (!ResumeCompleted)
+				{
+                    try
+                    {
+                        using var resumeCts = new CancellationTokenSource(TimeSpan.FromMinutes(6));
+                        await WaitForResumeCompletedAsync(resumeCts.Token).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Error during {nameof(WaitForResumeCompletedAsync)}: {ex}");
+                    }
+                }
+
+                try
+                {
+                    using var dequeueCts = new CancellationTokenSource(TimeSpan.FromMinutes(6));
+                    await WalletManager.RemoveAndStopAllAsync(dequeueCts.Token).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError($"Error during {nameof(WalletManager.RemoveAndStopAllAsync)}: {ex}");
+                }
+
+                var synchronizer = Synchronizer;
+                if (synchronizer is { })
+                {
+                    await synchronizer.StopAsync();
+                    Logger.LogInfo($"{nameof(Synchronizer)} is stopped.");
+                }
+
+                var addressManagerFilePath = AddressManagerFilePath;
+                if (addressManagerFilePath is { })
+                {
+                    IoHelpers.EnsureContainingDirectoryExists(addressManagerFilePath);
+                    var addressManager = AddressManager;
+                    if (addressManager is { })
+                    {
+                        addressManager.SavePeerFile(AddressManagerFilePath, Config.Network);
+                        Logger.LogInfo($"{nameof(AddressManager)} is saved to `{AddressManagerFilePath}`.");
+                    }
+                }
+
+                var nodes = Nodes;
+                if (nodes is { })
+                {
+                    nodes.Disconnect();
+                    while (nodes.ConnectedNodes.Any(x => x.IsConnected))
+                    {
+                        await Task.Delay(50).ConfigureAwait(false);
+                    }
+
+                    Logger.LogInfo($"{nameof(Nodes)} are disconnected.");
+                }
+
+                var tor = DependencyService.Get<ITorManager>();
+                if (tor?.State != TorState.Stopped) // OnionBrowser && Dispose@Global
+                {
+                    await tor.StopAsync();
+                    Logger.LogInfo($"{nameof(tor)} is stopped.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning(ex);
+            }
+            finally
+            {
+                // StoppingCts.Dispose();
+                StoppingCts = new CancellationTokenSource();
+                Logger.LogInfo("Chaincase Sleeping"); // no real termination on iOS
+            }
+        }
 
         private string GetDataDir()
         {

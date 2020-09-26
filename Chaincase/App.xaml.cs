@@ -21,7 +21,6 @@ namespace Chaincase
 	public partial class App : Application
 	{
 
-		private bool inStartupPhase = true;
 		private static Global Global;
 
 		public App()
@@ -75,60 +74,17 @@ namespace Chaincase
 		{
 			Debug.WriteLine("OnSleep");
 			Sleeping += OnSleeping;
+			// Execute Async code
 			Sleeping(this, EventArgs.Empty);			
 		}
 
 		private async void OnSleeping(object sender, EventArgs args)
 		{
+			//unsubscribe from event
 			Sleeping -= OnSleeping;
-			// Interrlocked _dispose???
 
-			try
-			{
-				using var dequeueCts = new CancellationTokenSource(TimeSpan.FromMinutes(6));
-				await Global.WalletManager.RemoveAndStopAllAsync(dequeueCts.Token).ConfigureAwait(false);
-			}
-			catch (Exception ex)
-			{
-				Logger.LogError($"Error during {nameof(Global.WalletManager.RemoveAndStopAllAsync)}: {ex}");
-			}
-
-			var synchronizer = Global.Synchronizer;
-			if (synchronizer is { })
-			{
-				await synchronizer.StopAsync();
-				Logger.LogInfo($"{nameof(Global.Synchronizer)} is stopped.");
-			}
-
-			var addressManagerFilePath = Global.AddressManagerFilePath;
-			if (addressManagerFilePath is { })
-			{
-				IoHelpers.EnsureContainingDirectoryExists(addressManagerFilePath);
-				var addressManager = Global.AddressManager;
-				if (addressManager is { })
-				{
-					addressManager.SavePeerFile(Global.AddressManagerFilePath, Global.Config.Network);
-					Logger.LogInfo($"{nameof(AddressManager)} is saved to `{Global.AddressManagerFilePath}`.");
-				}
-			}
-
-			var nodes = Global.Nodes;
-			if (nodes is { })
-			{
-				nodes.Disconnect();
-				while (nodes.ConnectedNodes.Any(x => x.IsConnected))
-				{
-					await Task.Delay(50).ConfigureAwait(false);
-				}
-				nodes.Dispose();
-				Logger.LogInfo($"{nameof(Global.Nodes)} are disposed.");
-			}
-
-			var mgr = DependencyService.Get<ITorManager>();
-			if (mgr?.State != TorState.Stopped) // OnionBrowser && Dispose@Global
-			{
-				await mgr.StopAsync();
-			}
+			//perform non-blocking actions
+			await Global.OnSleeping();
 		}
 
 		private event EventHandler Resuming = delegate { };
@@ -145,30 +101,9 @@ namespace Chaincase
 		{
 			//unsubscribe from event
 			Resuming -= OnResuming;
+
 			//perform non-blocking actions
-			var mgr = DependencyService.Get<ITorManager>();
-			if (mgr?.State != TorState.Started && mgr.State != TorState.Connected)
-			{
-				var userAgent = Constants.UserAgents.RandomElement();
-				var connectionParameters = new NodeConnectionParameters { UserAgent = userAgent };
-				var addrManTask = Global.InitializeAddressManagerBehaviorAsync();
-				AddressManagerBehavior addressManagerBehavior = await addrManTask.ConfigureAwait(false);
-				connectionParameters.TemplateBehaviors.Add(addressManagerBehavior);
-
-				mgr.Start(false, GetDataDir());
-				Global.Nodes.Connect();
-
-				var requestInterval = TimeSpan.FromSeconds(30);
-				if (Global.Network == Network.RegTest)
-				{
-					requestInterval = TimeSpan.FromSeconds(5);
-				}
-
-				int maxFiltSyncCount = Global.Network == Network.Main ? 1000 : 10000; // On testnet, filters are empty, so it's faster to query them together
-
-				Global.Synchronizer.Start(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
-				Logger.LogInfo("Start synchronizing filters...");
-			}
+			await Global.OnResuming();
 		}
 
 		private static void TaskScheduler_UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
