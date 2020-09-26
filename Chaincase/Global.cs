@@ -666,8 +666,6 @@ namespace Chaincase
             return !StoppingCts.IsCancellationRequested;
         }
 
-        private bool inStartupPhase = true;
-
         public async Task OnResuming()
 		{
             ResumeCompleted = false;
@@ -684,12 +682,9 @@ namespace Chaincase
                 cancel.ThrowIfCancellationRequested();
 
                 var tor = DependencyService.Get<ITorManager>();
-				if (!inStartupPhase && tor?.State != TorState.Started && tor.State != TorState.Connected)
+				if (tor?.State != TorState.Started && tor.State != TorState.Connected)
 				{
 					tor.Start(false, GetDataDir());
-				} else
-				{
-                    inStartupPhase = false;
 				}
 
                 cancel.ThrowIfCancellationRequested();
