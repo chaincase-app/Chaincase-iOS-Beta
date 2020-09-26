@@ -152,9 +152,6 @@ namespace Chaincase
                     TorManager.Start(ensureRunning: true, "mock");
                 }
 
-                var fallbackRequestTestUri = new Uri(Config.GetFallbackBackendUri(), "/api/software/versions");
-                TorManager.StartMonitor(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(7), DataDir, fallbackRequestTestUri);
-
                 Logger.LogInfo($"{nameof(TorManager)} is initialized.");
 
                 #endregion TorProcessInitialization
