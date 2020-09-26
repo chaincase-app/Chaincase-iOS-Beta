@@ -20,8 +20,6 @@ namespace Chaincase
 
         ITorManager Mock();
 
-        public void StartMonitor(TimeSpan torMisbehaviorCheckPeriod, TimeSpan checkIfRunningAfterTorMisbehavedFor, string dataDirToStartWith, Uri fallBackTestRequestUri);
-
         Task StopAsync();
     }
 }

@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using CoreFoundation;
@@ -13,7 +12,6 @@ using WalletWasabi.Exceptions;
 using WalletWasabi.Helpers;
 using WalletWasabi.Logging;
 using WalletWasabi.TorSocks5;
-using WalletWasabi.TorSocks5.Models.Fields.OctetFields;
 using Xamarin.Forms;
 
 [assembly: Dependency(typeof(Chaincase.iOS.Tor.OnionManager))]
@@ -30,18 +28,7 @@ namespace Chaincase.iOS.Tor
 
     public class OnionManager : ITorManager
     {
-        private const long StateNotStarted = 0;
 
-        private const long StateRunning = 1;
-
-        private const long StateStopping = 2;
-
-        private const long StateStopped = 3;
-
-        /// <summary>
-        /// Value can be any of: <see cref="StateNotStarted"/>, <see cref="StateRunning"/>, <see cref="StateStopping"/> and <see cref="StateStopped"/>.
-        /// </summary>
-        private long _monitorState;
         private NSData Cookie; 
         public TorState State { get; set; }
         private DispatchBlock initRetry;
@@ -49,8 +36,6 @@ namespace Chaincase.iOS.Tor
         public OnionManager()
         {
             TorSocks5EndPoint = new IPEndPoint(IPAddress.Loopback, 9050);
-            _monitorState = StateNotStarted;
-            Stop = new CancellationTokenSource();
             TorController = null;
             Cookie = NSData.FromUrl(torBaseConf.DataDirectory.Append("control_auth_cookie", false));
         }
@@ -67,10 +52,6 @@ namespace Chaincase.iOS.Tor
         public TORController TorController { get; private set; }
 
         private TORThread torThread;
-
-        public bool IsRunning => Interlocked.Read(ref _monitorState) == StateRunning;
-
-        private CancellationTokenSource Stop { get; set; }
 
         public ITorManager Mock() // Mock, do not use Tor at all for debug.
         {
@@ -269,92 +250,9 @@ namespace Chaincase.iOS.Tor
             return true;
         }
 
-        #region Monitor
-
-        public void StartMonitor(TimeSpan torMisbehaviorCheckPeriod, TimeSpan checkIfRunningAfterTorMisbehavedFor, string dataDirToStartWith, Uri fallBackTestRequestUri)
-        {
-            if (TorSocks5EndPoint is null)
-            {
-                return;
-            }
-
-            Logger.LogInfo("Starting Tor monitor...");
-            if (Interlocked.CompareExchange(ref _monitorState, StateRunning, StateNotStarted) != StateNotStarted)
-            {
-                return;
-            }
-
-            Task.Run(async () =>
-            {
-                try
-                {
-                    while (IsRunning)
-                    {
-                        try
-                        {
-                            await Task.Delay(torMisbehaviorCheckPeriod, Stop.Token).ConfigureAwait(false);
-
-                            if (TorHttpClient.TorDoesntWorkSince != null) // If Tor misbehaves.
-                            {
-                                TimeSpan torMisbehavedFor = (DateTimeOffset.UtcNow - TorHttpClient.TorDoesntWorkSince) ?? TimeSpan.Zero;
-
-                                if (torMisbehavedFor > checkIfRunningAfterTorMisbehavedFor)
-                                {
-                                    if (TorHttpClient.LatestTorException is TorSocks5FailureResponseException torEx)
-                                    {
-                                        if (torEx.RepField == RepField.HostUnreachable)
-                                        {
-                                            Uri baseUri = new Uri($"{fallBackTestRequestUri.Scheme}://{fallBackTestRequestUri.DnsSafeHost}");
-                                            using (var client = new TorHttpClient(baseUri, TorSocks5EndPoint))
-                                            {
-                                                var message = new HttpRequestMessage(HttpMethod.Get, fallBackTestRequestUri);
-                                                await client.SendAsync(message, Stop.Token).ConfigureAwait(false);
-                                            }
-
-                                            // Check if it changed in the meantime...
-                                            if (TorHttpClient.LatestTorException is TorSocks5FailureResponseException torEx2 && torEx2.RepField == RepField.HostUnreachable)
-                                            {
-                                                // Fallback here...
-                                                RequestFallbackAddressUsage = true;
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        Logger.LogInfo($"Tor did not work properly for {(int)torMisbehavedFor.TotalSeconds} seconds. Maybe it crashed. Attempting to start it...");
-                                        Start(true, dataDirToStartWith); // Try starting Tor, if it does not work it'll be another issue.
-                                        await Task.Delay(14000, Stop.Token).ConfigureAwait(false);
-                                    }
-                                }
-                            }
-                        }
-                        catch (Exception ex) when (ex is OperationCanceledException || ex is TaskCanceledException || ex is TimeoutException)
-                        {
-                            Logger.LogTrace(ex);
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.LogDebug(ex);
-                        }
-                    }
-                }
-                finally
-                {
-                    Interlocked.CompareExchange(ref _monitorState, StateStopped, StateStopping); // If IsStopping, make it stopped.
-                }
-            });
-        }
-
         public async Task StopAsync()
         {
-            Interlocked.CompareExchange(ref _monitorState, StateStopping, StateRunning); // If running, make it stopping.   
-
-            if (TorSocks5EndPoint is null)
-            {
-                Interlocked.Exchange(ref _monitorState, StateStopped);
-            }
-
-            Stop?.Cancel();
+            Logger.LogDebug($"{this} #stopAsync");
 
             // Under the hood, TORController will SIGNAL SHUTDOWN and set it's channel to nil, so
             // we actually rely on that to stop Tor and reset the state of torController. (we can
@@ -366,14 +264,7 @@ namespace Chaincase.iOS.Tor
             torThread?.Dispose();
 
             State = TorState.Stopped;
-
-            while (Interlocked.CompareExchange(ref _monitorState, StateStopped, StateNotStarted) == StateStopping)
-            {
-                await Task.Delay(50).ConfigureAwait(false);
-            }
         }
-
-        #endregion Monitor
 
         private static string NSHomeDirectory() => Directory.GetParent(NSFileManager.DefaultManager.GetUrls(NSSearchPathDirectory.LibraryDirectory, NSSearchPathDomain.User).First().Path).FullName;
 
