@@ -254,14 +254,16 @@ namespace Chaincase.iOS.Tor
         {
             Logger.LogDebug($"{this} #stopAsync");
 
-            // Under the hood, TORController will SIGNAL SHUTDOWN and set it's channel to nil, so
+            // Under the hood, TORController will SIGNAL SHUTDOWN and set it's channel to null, so
             // we actually rely on that to stop Tor and reset the state of torController. (we can
             // SIGNAL SHUTDOWN here, but we can't reset the torController "isConnected" state.)
             TorController?.Disconnect();
             TorController?.Dispose();
+            TorController = null;
 
             torThread?.Cancel();
             torThread?.Dispose();
+            torThread = null;
 
             State = TorState.Stopped;
         }
