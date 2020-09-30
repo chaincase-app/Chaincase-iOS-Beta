@@ -29,7 +29,7 @@ namespace Chaincase.iOS.Tor
     public class OnionManager : ITorManager
     {
 
-        private NSData Cookie; 
+        private NSData Cookie => NSData.FromUrl(torBaseConf.DataDirectory.Append("control_auth_cookie", false));
         public TorState State { get; set; }
         private DispatchBlock initRetry;
 
@@ -37,7 +37,6 @@ namespace Chaincase.iOS.Tor
         {
             TorSocks5EndPoint = new IPEndPoint(IPAddress.Loopback, 9050);
             TorController = null;
-            Cookie = NSData.FromUrl(torBaseConf.DataDirectory.Append("control_auth_cookie", false));
         }
 
         /// <summary>
