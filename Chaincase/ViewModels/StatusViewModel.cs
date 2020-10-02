@@ -89,49 +89,7 @@ namespace Chaincase.ViewModels
                 })
                 .ToProperty(this, x => x.ProgressPercent);
 
-            Task.Run(async () =>
-            {
-                // WaitForInitializationCompletedAsync could tune to wait for Global.[Nodes.ConnectedNodes/Synchronizer] init via Rx
-                using var initCts = new CancellationTokenSource(TimeSpan.FromMinutes(6));
-                await Global.WaitForInitializationCompletedAsync(initCts.Token).ConfigureAwait(false);
-                var nodes = Global.Nodes.ConnectedNodes;
-                var synchronizer = Global.Synchronizer;
-                Device.BeginInvokeOnMainThread(() =>
-                {
-                    Nodes = nodes;
-                    Synchronizer = synchronizer;
-                    HashChain = synchronizer.BitcoinStore.SmartHeaderChain;
-
-                    Observable
-                        .Merge(Observable.FromEventPattern<NodeEventArgs>(nodes, nameof(nodes.Added)).Select(x => true)
-                        .Merge(Observable.FromEventPattern<NodeEventArgs>(nodes, nameof(nodes.Removed)).Select(x => true)
-                        .Merge(Synchronizer.WhenAnyValue(x => x.TorStatus).Select(x => true))))
-                        .ObserveOn(RxApp.MainThreadScheduler)
-                        .Subscribe(_ => Peers = Synchronizer.TorStatus == TorStatus.NotRunning ? 0 : Nodes.Count) // Set peers to 0 if Tor is not running, because we get Tor status from backend answer so it seems to the user that peers are connected over clearnet, while they are not.
-                        .DisposeWith(Disposables);
-
-                    Synchronizer.WhenAnyValue(x => x.TorStatus)
-                        .ObserveOn(RxApp.MainThreadScheduler)
-                        .Subscribe(status => Tor = UseTor ? status : TorStatus.TurnedOff)
-                        .DisposeWith(Disposables);
-
-                    Synchronizer.WhenAnyValue(x => x.BackendStatus)
-                        .ObserveOn(RxApp.MainThreadScheduler)
-                        .Subscribe(_ => Backend = Synchronizer.BackendStatus)
-                        .DisposeWith(Disposables);
-
-                    _filtersLeft = HashChain.WhenAnyValue(x => x.HashesLeft)
-                        .Throttle(TimeSpan.FromMilliseconds(100))
-                        .ObserveOn(RxApp.MainThreadScheduler)
-                        .ToProperty(this, x => x.FiltersLeft)
-                        .DisposeWith(Disposables);
-
-                    Synchronizer.WhenAnyValue(x => x.UsdExchangeRate)
-                        .ObserveOn(RxApp.MainThreadScheduler)
-                        .Subscribe(usd => BtcPrice = $"${(long)usd}")
-                        .DisposeWith(Disposables);
-                });
-            });
+            Global.Initialized += OnInitialized;
 
             Peers = Tor == TorStatus.NotRunning ? 0 : Nodes.Count;
 
@@ -239,7 +197,49 @@ namespace Chaincase.ViewModels
                 });
         }
 
-        public BackendStatus Backend
+        public async void OnInitialized(object sender, EventArgs args)
+        {
+            var nodes = Global.Nodes.ConnectedNodes;
+            var synchronizer = Global.Synchronizer;
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                Nodes = nodes;
+                Synchronizer = synchronizer;
+                HashChain = synchronizer.BitcoinStore.SmartHeaderChain;
+
+                Observable
+                    .Merge(Observable.FromEventPattern<NodeEventArgs>(nodes, nameof(nodes.Added)).Select(x => true)
+                    .Merge(Observable.FromEventPattern<NodeEventArgs>(nodes, nameof(nodes.Removed)).Select(x => true)
+                    .Merge(Synchronizer.WhenAnyValue(x => x.TorStatus).Select(x => true))))
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Subscribe(_ => Peers = Synchronizer.TorStatus == TorStatus.NotRunning ? 0 : Nodes.Count) // Set peers to 0 if Tor is not running, because we get Tor status from backend answer so it seems to the user that peers are connected over clearnet, while they are not.
+                    .DisposeWith(Disposables);
+
+                Synchronizer.WhenAnyValue(x => x.TorStatus)
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Subscribe(status => Tor = UseTor ? status : TorStatus.TurnedOff)
+                    .DisposeWith(Disposables);
+
+                Synchronizer.WhenAnyValue(x => x.BackendStatus)
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Subscribe(_ => Backend = Synchronizer.BackendStatus)
+                    .DisposeWith(Disposables);
+
+                _filtersLeft = HashChain.WhenAnyValue(x => x.HashesLeft)
+                    .Throttle(TimeSpan.FromMilliseconds(100))
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .ToProperty(this, x => x.FiltersLeft)
+                    .DisposeWith(Disposables);
+
+                Synchronizer.WhenAnyValue(x => x.UsdExchangeRate)
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Subscribe(usd => BtcPrice = $"${(long)usd}")
+                    .DisposeWith(Disposables);
+            });
+        }
+  
+
+public BackendStatus Backend
         {
             get => _backend;
             set => this.RaiseAndSetIfChanged(ref _backend, value);
