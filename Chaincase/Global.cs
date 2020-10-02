@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using WalletWasabi.Blockchain.Analysis.FeesEstimation;
@@ -98,7 +99,11 @@ namespace Chaincase
              Wallet = WalletManager.GetWalletByName(Network.ToString());
         }
 
-		private bool InitializationCompleted { get; set; } = false;
+        public event EventHandler Initialized = delegate { };
+
+        public bool IsInitialized { get; private set; } = false;
+
+        private bool InitializationCompleted { get; set; } = false;
 
         private bool InitializationStarted { get; set; } = false;
 
@@ -284,12 +289,16 @@ namespace Chaincase
                 #endregion Blocks provider
 
                 WalletManager.RegisterServices(BitcoinStore, Synchronizer, Nodes, Config.ServiceConfiguration, FeeProviders, blockProvider);
+
+                Initialized(this, EventArgs.Empty);
+                IsInitialized = true;
             }
             finally
             {
                 InitializationCompleted = true;
+                StoppingCts = new CancellationTokenSource();
             }
-		}
+        }
 
         public async Task<AddressManagerBehavior> InitializeAddressManagerBehaviorAsync()
         {
@@ -665,12 +674,27 @@ namespace Chaincase
 
         public async Task OnResuming()
 		{
-            ResumeCompleted = false;
+
+            if (!IsInitialized)
+			{
+                try
+                {
+                    await InitializeNoWalletAsync().ConfigureAwait(false);
+                }
+                catch (OperationCanceledException ex)
+                {
+                    Logger.LogTrace(ex);
+                }
+                return;
+            }
+
             var cancel = StoppingCts.Token;
 
 			try
 			{
-				var userAgent = Constants.UserAgents.RandomElement();
+                ResumeCompleted = false;
+
+                var userAgent = Constants.UserAgents.RandomElement();
 				var connectionParameters = new NodeConnectionParameters { UserAgent = userAgent };
 				var addrManTask = InitializeAddressManagerBehaviorAsync();
 				AddressManagerBehavior addressManagerBehavior = await addrManTask.ConfigureAwait(false);
@@ -702,6 +726,10 @@ namespace Chaincase
 				Synchronizer.Start(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
 				Logger.LogInfo("Start synchronizing filters...");
 			}
+            catch (OperationCanceledException ex)
+            {
+                Logger.LogTrace(ex);
+            }
             finally
             {
                 ResumeCompleted = true;

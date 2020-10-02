@@ -27,7 +27,18 @@ namespace Chaincase
 		{
 			InitializeComponent();
 			Global = new Global();
-			Task.Run(async () => { await Global.InitializeNoWalletAsync().ConfigureAwait(false); });
+			Task.Run(async () =>
+			{
+				try
+				{
+					await Global.InitializeNoWalletAsync().ConfigureAwait(false);
+				}
+				catch (OperationCanceledException ex)
+				{
+					Logger.LogTrace(ex);
+				}
+			});
+
 			Locator.CurrentMutable.RegisterConstant(Global);
 
 			Locator
