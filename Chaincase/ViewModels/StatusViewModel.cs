@@ -89,7 +89,14 @@ namespace Chaincase.ViewModels
                 })
                 .ToProperty(this, x => x.ProgressPercent);
 
-            Global.Initialized += OnInitialized;
+            if (Global.IsInitialized)
+            {
+                OnInitialized(this, EventArgs.Empty);
+            }
+            else
+            {
+                Global.Initialized += OnInitialized;
+            }
 
             Peers = Tor == TorStatus.NotRunning ? 0 : Nodes.Count;
 
