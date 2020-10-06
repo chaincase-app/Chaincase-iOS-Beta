@@ -17,15 +17,18 @@ using WalletWasabi.Blockchain.Analysis.FeesEstimation;
 using WalletWasabi.Blockchain.Blocks;
 using WalletWasabi.Blockchain.Mempool;
 using WalletWasabi.Blockchain.TransactionBroadcasting;
+using WalletWasabi.Blockchain.TransactionOutputs;
 using WalletWasabi.Blockchain.TransactionProcessing;
 using WalletWasabi.Blockchain.Transactions;
 using WalletWasabi.CoinJoin.Client;
+using WalletWasabi.CoinJoin.Client.Clients.Queuing;
 using WalletWasabi.Helpers;
 using WalletWasabi.Logging;
 using WalletWasabi.Services;
 using WalletWasabi.Stores;
 using WalletWasabi.Wallets;
 using Xamarin.Forms;
+using Xamarin.Forms.Internals;
 
 namespace Chaincase
 {
@@ -83,6 +86,7 @@ namespace Chaincase
 				NotificationManager = DependencyService.Get<INotificationManager>();
 
 				WalletManager = new WalletManager(Network, new WalletDirectories(DataDir));
+                WalletManager.OnDequeue += WalletManager_OnDequeue;
                 WalletManager.WalletRelevantTransactionProcessed += WalletManager_WalletRelevantTransactionProcessed;
 
                 var indexStore = new IndexStore(Network, new SmartHeaderChain());
@@ -386,6 +390,28 @@ namespace Chaincase
 				}
 			}
 
+        }
+
+
+        private IEnumerable<SmartCoin> QueuedCoins;
+
+        private void WalletManager_OnDequeue(object? sender, DequeueResult e)
+        {
+            try
+            {
+                foreach (var success in e.Successful.Where(x => x.Value.Any()))
+                {
+                    DequeueReason reason = success.Key;
+                    if (reason == DequeueReason.ApplicationExit)
+                    {
+                        QueuedCoins = success.Value;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning(ex);
+            }
         }
 
         private void WalletManager_WalletRelevantTransactionProcessed(object sender, ProcessedResult e)
@@ -726,6 +752,12 @@ namespace Chaincase
                 Synchronizer = new WasabiSynchronizer(Network, BitcoinStore, () => Config.GetCurrentBackendUri(), Config.TorSocks5EndPoint);
                 Synchronizer.Start(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
 				Logger.LogInfo("Start synchronizing filters...");
+
+                if (QueuedCoins is { })
+				{
+                    await Wallet.ChaumianClient.QueueCoinsToMixAsync(QueuedCoins);
+                    QueuedCoins = null;
+				}
 			}
             catch (OperationCanceledException ex)
             {
@@ -776,11 +808,11 @@ namespace Chaincase
                 try
                 {
                     using var dequeueCts = new CancellationTokenSource(TimeSpan.FromMinutes(6));
-                    await WalletManager.RemoveAndStopAllAsync(dequeueCts.Token).ConfigureAwait(false);
+                    await WalletManager.DequeueAllCoinsGracefullyAsync(DequeueReason.ApplicationExit, dequeueCts.Token).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogError($"Error during {nameof(WalletManager.RemoveAndStopAllAsync)}: {ex}");
+                    Logger.LogError($"Error during {nameof(WalletManager.DequeueAllCoinsGracefullyAsync)}: {ex}");
                 }
 
                 var synchronizer = Synchronizer;
