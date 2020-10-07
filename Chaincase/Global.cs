@@ -393,7 +393,7 @@ namespace Chaincase
         }
 
 
-        private IEnumerable<SmartCoin> QueuedCoins;
+        private IEnumerable<SmartCoin> SleepingCoins;
 
         private void WalletManager_OnDequeue(object? sender, DequeueResult e)
         {
@@ -404,7 +404,7 @@ namespace Chaincase
                     DequeueReason reason = success.Key;
                     if (reason == DequeueReason.ApplicationExit)
                     {
-                        QueuedCoins = success.Value;
+                        SleepingCoins = success.Value;
                     }
                 }
             }
@@ -753,10 +753,10 @@ namespace Chaincase
                 Synchronizer.Start(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
 				Logger.LogInfo("Start synchronizing filters...");
 
-                if (QueuedCoins is { })
+                if (SleepingCoins is { })
 				{
-                    await Wallet.ChaumianClient.QueueCoinsToMixAsync(QueuedCoins);
-                    QueuedCoins = null;
+                    await Wallet.ChaumianClient.QueueCoinsToMixAsync(SleepingCoins);
+                    SleepingCoins = null;
 				}
 			}
             catch (OperationCanceledException ex)
