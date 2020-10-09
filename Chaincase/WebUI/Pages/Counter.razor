@@ -1,0 +1,35 @@
+﻿@page "/counter"
+@inject CounterState CounterState
+@using System.Threading.Tasks
+@using System
+@using Microsoft.Extensions.DependencyInjection
+@implements System.IDisposable
+<h1>Counter</h1>
+
+@inject IServiceProvider ServiceProvider;
+<p>Current count: @CounterState.CurrentCount</p>
+
+<button class="btn btn-primary testme" @onclick="CounterState.IncrementCount">Click me</button>
+<button class="btn btn-primary testme" @onclick="ShowSrc">show src</button>
+<textarea id="src"></textarea>
+
+
+
+@code {
+
+    public async Task ShowSrc()
+    {
+        
+        await ServiceProvider.GetService<IJSRuntime>().InvokeVoidAsync("showSource");
+    }
+    protected override void OnInitialized()
+    {
+        
+        CounterState.StateChanged += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        CounterState.StateChanged -= StateHasChanged;
+    }
+}

@@ -1,34 +1,44 @@
-﻿using Foundation;
-using Splat;
-using UIKit;
-using UserNotifications;
-using WalletWasabi.Logging;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Chaincase.Common.Xamarin;
 using Xamarin.Forms;
+
+using Foundation;
+using Microsoft.Extensions.DependencyInjection;
+using UIKit;
 
 namespace Chaincase.iOS
 {
-	// The UIApplicationDelegate for the application. This class is responsible for launching the 
-	// User Interface of the application, as well as listening (and optionally responding) to 
-	// application events from iOS.
-	[Register("AppDelegate")]
-	public partial class AppDelegate : global::Xamarin.Forms.Platform.iOS.FormsApplicationDelegate
-	{
-		//
-		// This method is invoked when the application has loaded and is ready to run. In this 
-		// method you should instantiate the window, load the UI into it and then make the window
-		// visible.
-		//
-		// You have 17 seconds to return from this method, or iOS will terminate your application.
-		//
-		public override bool FinishedLaunching(UIApplication application, NSDictionary options)
-		{
-			global::Xamarin.Forms.Forms.Init();
+    // The UIApplicationDelegate for the application. This class is responsible for launching the
+    // User Interface of the application, as well as listening (and optionally responding) to
+    // application events from iOS.
+    [Register("AppDelegate")]
+    public partial class AppDelegate : global::Xamarin.Forms.Platform.iOS.FormsApplicationDelegate
+    {
+        //
+        // This method is invoked when the application has loaded and is ready to run. In this
+        // method you should instantiate the window, load the UI into it and then make the window
+        // visible.
+        //
+        // You have 17 seconds to return from this method, or iOS will terminate your application.
+        //
+        public override bool FinishedLaunching(UIApplication app, NSDictionary options)
+        {
+            global::Xamarin.Forms.Forms.Init();
 
-			UNUserNotificationCenter.Current.Delegate = new iOSNotificationReceiver();
-			ZXing.Net.Mobile.Forms.iOS.Platform.Init();
-			LoadApplication(new App());
+            // For iOS, wrap inside a navigation page, otherwise the header looks wrong
+            var formsApp = new App(ConfigureDi);
+            formsApp.MainPage = new NavigationPage(formsApp.MainPage);
 
-			return base.FinishedLaunching(application, options);
-		}
-	}
+            LoadApplication(formsApp);
+
+            return base.FinishedLaunching(app, options);
+        }
+
+        private void ConfigureDi(IServiceCollection obj)
+        {
+            obj.ConfigureCommonXamarinServices();
+        }
+    }
 }
