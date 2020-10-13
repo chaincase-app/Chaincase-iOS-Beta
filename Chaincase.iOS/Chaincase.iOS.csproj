@@ -131,7 +131,7 @@
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <ItemGroup>
     <ProjectReference Include="..\Chaincase.Common\Chaincase.Common.csproj">
-      <Project>{bec8eb9d-c235-4977-9319-fb861a6dcb2f}</Project>
+      <Project>{D2A69BA5-D079-4E10-A399-84E721D16C09}</Project>
       <Name>Chaincase.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\Chaincase\Chaincase.csproj">

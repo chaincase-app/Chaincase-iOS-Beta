@@ -1,4 +1,3 @@
 [submodule "WalletWasabi"]
 	path = WalletWasabi
-	url = https://github.com/dangould/WalletWasabi
-	branch = master
+	url = https://github.com/chaincase-app/WalletWasabi.Standard
