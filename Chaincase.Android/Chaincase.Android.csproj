@@ -16,7 +16,6 @@
     <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
     <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
     <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
-    <AndroidUseLatestPlatformSdk>false</AndroidUseLatestPlatformSdk>
     <TargetFrameworkVersion>v9.0</TargetFrameworkVersion>
     <AndroidCommandLineToolsVersion>latest</AndroidCommandLineToolsVersion>
     <AndroidEnableSGenConcurrent>true</AndroidEnableSGenConcurrent>
@@ -98,10 +97,6 @@
     <ProjectReference Include="..\Chaincase.Common\Chaincase.Common.csproj">
       <Project>{bec8eb9d-c235-4977-9319-fb861a6dcb2f}</Project>
       <Name>Chaincase.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Chaincase.Xamarin\Chaincase.Xamarin.csproj">
-      <Project>{8b5c0d1c-1d33-4f7b-98e9-784f818d6271}</Project>
-      <Name>Chaincase.Xamarin</Name>
     </ProjectReference>
     <ProjectReference Include="..\Chaincase\Chaincase.csproj">
       <Project>{BAC5541F-A9DA-4195-AF14-78D5EDC7F0CF}</Project>
