@@ -26,6 +26,7 @@
     <MtouchArch>x86_64</MtouchArch>
     <MtouchLink>None</MtouchLink>
     <MtouchDebug>true</MtouchDebug>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
     <DebugType>none</DebugType>
@@ -35,6 +36,7 @@
     <WarningLevel>4</WarningLevel>
     <MtouchLink>None</MtouchLink>
     <MtouchArch>x86_64</MtouchArch>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhone' ">
     <DebugSymbols>true</DebugSymbols>
@@ -50,6 +52,7 @@
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <MtouchLink>None</MtouchLink>
     <MtouchInterpreter>-all</MtouchInterpreter>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
     <DebugType>none</DebugType>
@@ -60,6 +63,7 @@
     <MtouchArch>ARM64</MtouchArch>
     <CodesignKey>iPhone Developer</CodesignKey>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
@@ -68,6 +72,10 @@
     <None Include="Info.plist" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Renderers\NeuButtonRenderer.cs" />
+    <Compile Include="HsmStorage.cs" />
+    <Compile Include="iOSNotificationManager.cs" />
+    <Compile Include="iOSNotificationReceiver.cs" />
+    <Compile Include="Tor\TorProcessManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />
@@ -141,6 +149,14 @@
     <ProjectReference Include="..\Chaincase\Chaincase.csproj">
       <Project>{BAC5541F-A9DA-4195-AF14-78D5EDC7F0CF}</Project>
       <Name>Chaincase</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WalletWasabi\WalletWasabi.Standard\WalletWasabi.Standard.csproj">
+      <Project>{0D4DDFEC-7BFA-47D4-8244-6CD3879DCDA4}</Project>
+      <Name>WalletWasabi.Standard</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TorFramework\TorFramework.csproj">
+      <Project>{4B9C81E8-049C-425D-BD7A-BFBF586A7F64}</Project>
+      <Name>TorFramework</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

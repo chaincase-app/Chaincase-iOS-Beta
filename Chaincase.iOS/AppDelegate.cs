@@ -7,6 +7,7 @@ using Xamarin.Forms;
 using Foundation;
 using Microsoft.Extensions.DependencyInjection;
 using UIKit;
+using UserNotifications;
 
 namespace Chaincase.iOS
 {
@@ -27,9 +28,10 @@ namespace Chaincase.iOS
         {
             global::Xamarin.Forms.Forms.Init();
 
-            // For iOS, wrap inside a navigation page, otherwise the header looks wrong
+            UNUserNotificationCenter.Current.Delegate = new iOSNotificationReceiver();
+            ZXing.Net.Mobile.Forms.iOS.Platform.Init();
+
             var formsApp = new App(ConfigureDi);
-            formsApp.MainPage = new NavigationPage(formsApp.MainPage);
 
             LoadApplication(formsApp);
 
