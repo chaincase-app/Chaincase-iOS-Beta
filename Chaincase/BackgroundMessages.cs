@@ -1,7 +1,7 @@
 ﻿using System;
 namespace Chaincase.Background
 {
-	public class StartLongRunningTaskMessage { }
+	public class StartOnSleepingTaskMessage { }
 
 	public class StopLongRunningTaskMessage { }
 }

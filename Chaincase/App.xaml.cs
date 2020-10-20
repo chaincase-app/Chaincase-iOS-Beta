@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using Chaincase.Background;
 using Chaincase.Navigation;
 using Chaincase.Services;
 using Chaincase.ViewModels;
@@ -43,17 +44,6 @@ namespace Chaincase
 			//	.Build();
 
 			Global = new Global();
-			Task.Run(async () =>
-			{
-				try
-				{
-					await Global.InitializeNoWalletAsync().ConfigureAwait(false);
-				}
-				catch (OperationCanceledException ex)
-				{
-					Logger.LogTrace(ex);
-				}
-			});
 
 			Locator.CurrentMutable.RegisterConstant(Global);
 
@@ -94,8 +84,8 @@ namespace Chaincase
 			AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 			TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
 
-            //host.AddComponent<Main>(parent: MainPage);
-        }
+			//host.AddComponent<Main>(parent: MainPage);
+		}
 
 		private event EventHandler Sleeping = delegate { };
 
@@ -104,7 +94,9 @@ namespace Chaincase
 			Debug.WriteLine("OnSleep");
 			Sleeping += OnSleeping;
 			// Execute Async code
-			Sleeping(this, EventArgs.Empty);
+			//Sleeping(this, EventArgs.Empty);
+			var message = new StartOnSleepingTaskMessage();
+			MessagingCenter.Send(message, "StartOnSleepingTaskMessage");
 		}
 
 		private async void OnSleeping(object sender, EventArgs args)
@@ -192,4 +184,10 @@ namespace Chaincase
 			return dataDir;
 		}
 	}
+
+	// classes to communicate between Libs & specific platforms via messaging center
+
+	public class StartLongRunningTaskMessage { }
+
+	public class StopLongRunningTaskMessage { }
 }
