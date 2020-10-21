@@ -44,8 +44,11 @@ namespace Chaincase
 			//	.Build();
 
 			Global = new Global();
-
 			Locator.CurrentMutable.RegisterConstant(Global);
+
+			// This relies on Global registered
+			var message = new InitializeNoWalletTaskMessage();
+			MessagingCenter.Send(message, "InitializeNoWalletTaskMessage");
 
 			Locator
 				.CurrentMutable
@@ -87,25 +90,13 @@ namespace Chaincase
 			//host.AddComponent<Main>(parent: MainPage);
 		}
 
-		private event EventHandler Sleeping = delegate { };
-
 		protected override void OnSleep()
 		{
 			Debug.WriteLine("OnSleep");
-			Sleeping += OnSleeping;
-			// Execute Async code
-			//Sleeping(this, EventArgs.Empty);
-			var message = new StartOnSleepingTaskMessage();
-			MessagingCenter.Send(message, "StartOnSleepingTaskMessage");
-		}
 
-		private async void OnSleeping(object sender, EventArgs args)
-		{
-			//unsubscribe from event
-			Sleeping -= OnSleeping;
-
-			//perform non-blocking actions
-			await Global.OnSleeping();
+			// Execute Sleeping Background Task
+			var message = new OnSleepingTaskMessage();
+			MessagingCenter.Send(message, "OnSleepingTaskMessage");
 		}
 
 		private event EventHandler Resuming = delegate { };

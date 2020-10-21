@@ -5,25 +5,16 @@ using Splat;
 using UIKit;
 using Xamarin.Forms;
 
-namespace Chaincase.iOS
+namespace Chaincase.iOS.Backgrounding
 {
-	public class iOSLifecycleEvents
+	public class iOSOnSleepingContext
 	{
 		nint _taskId;
 
 		public async Task OnSleeping()
 		{
 			_taskId = UIApplication.SharedApplication.BeginBackgroundTask("OnSleeping", OnExpiration);
-
-			try
-			{
-				//INVOKE THE SHARED CODE TODO cts.Cancel enable
-				await Locator.Current.GetService<Global>().OnSleeping();
-			}
-			catch (OperationCanceledException)
-			{
-			}
-
+			await Locator.Current.GetService<Global>().OnSleeping();
 			UIApplication.SharedApplication.EndBackgroundTask(_taskId);
 		}
 

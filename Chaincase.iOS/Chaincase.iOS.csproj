@@ -76,7 +76,8 @@
     <Compile Include="iOSNotificationManager.cs" />
     <Compile Include="iOSNotificationReceiver.cs" />
     <Compile Include="Tor\TorProcessManager.cs" />
-    <Compile Include="iOSLifecycleEvents.cs" />
+    <Compile Include="Backgrounding\iOSOnSleepingTask.cs" />
+    <Compile Include="Backgrounding\iOSInitializeNoWalletContext.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />
@@ -159,5 +160,8 @@
       <Project>{4B9C81E8-049C-425D-BD7A-BFBF586A7F64}</Project>
       <Name>TorFramework</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Backgrounding\" />
   </ItemGroup>
 </Project>

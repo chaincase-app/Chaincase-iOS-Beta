@@ -1,23 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Threading.Tasks;
+using Chaincase.Background;
 using Chaincase.Common.Xamarin;
-using Xamarin.Forms;
-
+using Chaincase.iOS.Backgrounding;
 using Foundation;
 using Microsoft.Extensions.DependencyInjection;
 using UIKit;
 using UserNotifications;
-using Splat;
-using System.Threading.Tasks;
-using Chaincase.Background;
+using Xamarin.Forms;
 
 namespace Chaincase.iOS
 {
-    // The UIApplicationDelegate for the application. This class is responsible for launching the
-    // User Interface of the application, as well as listening (and optionally responding) to
-    // application events from iOS.
-    [Register("AppDelegate")]
+	// The UIApplicationDelegate for the application. This class is responsible for launching the
+	// User Interface of the application, as well as listening (and optionally responding) to
+	// application events from iOS.
+	[Register("AppDelegate")]
     public partial class AppDelegate : global::Xamarin.Forms.Platform.iOS.FormsApplicationDelegate
     {
         //
@@ -34,24 +31,19 @@ namespace Chaincase.iOS
             UNUserNotificationCenter.Current.Delegate = new iOSNotificationReceiver();
             ZXing.Net.Mobile.Forms.iOS.Platform.Init();
 
-            var formsApp = new App(ConfigureDi);
-
-            MessagingCenter.Subscribe<StartOnSleepingTaskMessage>(this, "StartOnSleepingTaskMessage", async message => {
-                var lifecycle = new iOSLifecycleEvents();
-                await lifecycle.OnSleeping();
-            });
-
-            nint taskID = 0;
-
-            // register a long running task, and then start it on a new thread so that this method can return
-            taskID = UIApplication.SharedApplication.BeginBackgroundTask(() =>
+            MessagingCenter.Subscribe<OnSleepingTaskMessage>(this, "OnSleepingTaskMessage", async message =>
             {
-                Console.WriteLine("Running out of time to complete you background task!");
-                UIApplication.SharedApplication.EndBackgroundTask(taskID);
+                var context = new iOSOnSleepingContext();
+                await context.OnSleeping();
             });
 
-            Task.Factory.StartNew(() => FinishLongRunningTask(taskID));
+            MessagingCenter.Subscribe<InitializeNoWalletTaskMessage>(this, "InitializeNoWalletTaskMessage", async message =>
+            {
+                var context = new iOSInitializeNoWalletContext();
+                await context.InitializeNoWallet();
+            });
 
+            var formsApp = new App(ConfigureDi);
             LoadApplication(formsApp);
 
             return base.FinishedLaunching(app, options);
@@ -60,20 +52,6 @@ namespace Chaincase.iOS
         private void ConfigureDi(IServiceCollection obj)
         {
             obj.ConfigureCommonXamarinServices();
-        }
-
-        private void FinishLongRunningTask(nint taskID)
-        {
-            Console.WriteLine($"Starting task {taskID}");
-            Console.WriteLine($"Background time remaining: {UIApplication.SharedApplication.BackgroundTimeRemaining}");
-
-            Locator.Current.GetService<Global>().InitializeNoWalletAsync();
-
-            Console.WriteLine($"Task {taskID} finished");
-            Console.WriteLine($"Background time remaining: {UIApplication.SharedApplication.BackgroundTimeRemaining}");
-
-            // call our end task
-            UIApplication.SharedApplication.EndBackgroundTask(taskID);
         }
     }
 }
