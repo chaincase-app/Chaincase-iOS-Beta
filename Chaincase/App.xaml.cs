@@ -3,19 +3,14 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Chaincase.Navigation;
-using Chaincase.Services;
 using Chaincase.ViewModels;
 using Chaincase.Views;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.JSInterop;
 using Microsoft.MobileBlazorBindings;
-using Microsoft.MobileBlazorBindings.WebView;
 using Splat;
 using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Helpers;
 using WalletWasabi.Logging;
-using Xamarin.Essentials;
 using Xamarin.Forms;
 
 namespace Chaincase

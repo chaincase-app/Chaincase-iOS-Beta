@@ -15,9 +15,6 @@ namespace Chaincase.Common
         TorState State { get; }
     
         void Start(bool ensureRunning, string dataDir);
-
-        ITorManager Mock();
-
         Task StopAsync();
     }
 }

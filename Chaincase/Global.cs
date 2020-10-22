@@ -153,18 +153,15 @@ namespace Chaincase
 
 				#region TorProcessInitialization
 
+				
 				if (Config.UseTor)
 				{
 					TorManager = Host.Services.GetService<ITorManager>();
 					TorManager.Start(ensureRunning: false, DataDir);
-				}
-				else
-				{
-					TorManager = Host.Services.GetService<ITorManager>().Mock();
-					TorManager.Start(ensureRunning: true, "mock");
+					
+					Logger.LogInfo($"{nameof(TorManager)} is initialized.");
 				}
 
-				Logger.LogInfo($"{nameof(TorManager)} is initialized.");
 
 				#endregion TorProcessInitialization
 
@@ -733,12 +730,16 @@ namespace Chaincase
 
 				cancel.ThrowIfCancellationRequested();
 
-				var tor = Host.Services.GetService<ITorManager>();
-				if (tor?.State != TorState.Started && tor.State != TorState.Connected)
+				if (Config.UseTor)
 				{
-					tor.Start(false, GetDataDir());
-				}
+					var tor = Host.Services.GetService<ITorManager>();
+					if (tor?.State != TorState.Started && tor?.State != TorState.Connected)
+					{
+						tor.Start(false, GetDataDir());
+					}
 
+				}
+				
 				cancel.ThrowIfCancellationRequested();
 
 				Nodes.Connect();
@@ -853,11 +854,14 @@ namespace Chaincase
 					Logger.LogInfo($"{nameof(Nodes)} are disconnected.");
 				}
 
-				var tor = Host.Services.GetService<ITorManager>();
-				if (tor?.State != TorState.Stopped) // OnionBrowser && Dispose@Global
+				if (Config.UseTor)
 				{
-					await tor.StopAsync();
-					Logger.LogInfo($"{nameof(tor)} is stopped.");
+					var tor = Host.Services.GetService<ITorManager>();
+					if (tor!= null &&  tor?.State != TorState.Stopped) // OnionBrowser && Dispose@Global
+					{
+						await tor.StopAsync();
+						Logger.LogInfo($"{nameof(tor)} is stopped.");
+					}
 				}
 			}
 			catch (Exception ex)

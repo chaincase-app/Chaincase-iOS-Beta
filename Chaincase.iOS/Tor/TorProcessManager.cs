@@ -50,12 +50,7 @@ namespace Chaincase.iOS.Tor
 
         private TORThread torThread;
 
-        public ITorManager Mock() // Mock, do not use Tor at all for debug.
-        {
-            return new OnionManager();
-        }
-
-		public void Start(bool ensureRunning, string dataDir)
+        public void Start(bool ensureRunning, string dataDir)
 		{
 			if (TorSocks5EndPoint is null)
 			{
