@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using Chaincase.Background;
 using Chaincase.Navigation;
 using Chaincase.Services;
 using Chaincase.ViewModels;
@@ -43,19 +44,11 @@ namespace Chaincase
 			//	.Build();
 
 			Global = new Global();
-			Task.Run(async () =>
-			{
-				try
-				{
-					await Global.InitializeNoWalletAsync().ConfigureAwait(false);
-				}
-				catch (OperationCanceledException ex)
-				{
-					Logger.LogTrace(ex);
-				}
-			});
-
 			Locator.CurrentMutable.RegisterConstant(Global);
+
+			// This relies on Global registered
+			var message = new InitializeNoWalletTaskMessage();
+			MessagingCenter.Send(message, "InitializeNoWalletTaskMessage");
 
 			Locator
 				.CurrentMutable
@@ -94,26 +87,16 @@ namespace Chaincase
 			AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 			TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
 
-            //host.AddComponent<Main>(parent: MainPage);
-        }
-
-		private event EventHandler Sleeping = delegate { };
+			//host.AddComponent<Main>(parent: MainPage);
+		}
 
 		protected override void OnSleep()
 		{
 			Debug.WriteLine("OnSleep");
-			Sleeping += OnSleeping;
-			// Execute Async code
-			Sleeping(this, EventArgs.Empty);
-		}
 
-		private async void OnSleeping(object sender, EventArgs args)
-		{
-			//unsubscribe from event
-			Sleeping -= OnSleeping;
-
-			//perform non-blocking actions
-			await Global.OnSleeping();
+			// Execute Sleeping Background Task
+			var message = new OnSleepingTaskMessage();
+			MessagingCenter.Send(message, "OnSleepingTaskMessage");
 		}
 
 		private event EventHandler Resuming = delegate { };
@@ -192,4 +175,10 @@ namespace Chaincase
 			return dataDir;
 		}
 	}
+
+	// classes to communicate between Libs & specific platforms via messaging center
+
+	public class StartLongRunningTaskMessage { }
+
+	public class StopLongRunningTaskMessage { }
 }

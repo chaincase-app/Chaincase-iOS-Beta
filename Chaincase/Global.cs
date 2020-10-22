@@ -117,7 +117,6 @@ namespace Chaincase
 			InitializationStarted = true;
 			AddressManager = null;
 			TorManager = null;
-			var cancel = StoppingCts.Token;
 
 			try
 			{
@@ -145,8 +144,6 @@ namespace Chaincase
 					Synchronizer = new WasabiSynchronizer(Network, BitcoinStore, Config.GetFallbackBackendUri(), null);
 				}
 
-				cancel.ThrowIfCancellationRequested();
-
 				#region TorProcessInitialization
 
 				if (Config.UseTor)
@@ -164,7 +161,6 @@ namespace Chaincase
 
 				#endregion TorProcessInitialization
 
-				cancel.ThrowIfCancellationRequested();
 
 				#region BitcoinStoreInitialization
 
@@ -175,7 +171,6 @@ namespace Chaincase
 
 				#endregion BitcoinStoreInitialization
 
-				cancel.ThrowIfCancellationRequested();
 
 				#region FeeProviderInitialization
 				// Mirrors #region BitcoinCoreInitialization in WalletWasabi
@@ -189,7 +184,6 @@ namespace Chaincase
 
 				#endregion FeeProviderInitialization
 
-				cancel.ThrowIfCancellationRequested();
 
 				#region MempoolInitialization
 
@@ -197,7 +191,6 @@ namespace Chaincase
 
 				#endregion MempoolInitialization
 
-				cancel.ThrowIfCancellationRequested();
 
 				#region AddressManagerInitialization
 
@@ -206,7 +199,6 @@ namespace Chaincase
 
 				#endregion AddressManagerInitialization
 
-				cancel.ThrowIfCancellationRequested();
 
 				#region P2PInitialization
 
@@ -259,7 +251,6 @@ namespace Chaincase
 
 				#endregion P2PInitialization
 
-				cancel.ThrowIfCancellationRequested();
 
 				#region SynchronizerInitialization
 
@@ -276,7 +267,6 @@ namespace Chaincase
 
 				#endregion SynchronizerInitialization
 
-				cancel.ThrowIfCancellationRequested();
 
 				TransactionBroadcaster = new TransactionBroadcaster(Network, BitcoinStore, Synchronizer, Nodes, WalletManager, null);
 				CoinJoinProcessor = new CoinJoinProcessor(Synchronizer, WalletManager, null);
@@ -390,7 +380,6 @@ namespace Chaincase
 			}
 
 		}
-
 
 		private IEnumerable<SmartCoin> SleepingCoins;
 
@@ -543,145 +532,6 @@ namespace Chaincase
 			Logger.LogInfo($"Transaction Notification ({notificationType}): {title} - {message} - {e.Transaction.GetHash()}");
 		}
 
-		private long _dispose = 0;
-
-		public async Task DisposeAsync()
-		{
-			var compareRes = Interlocked.CompareExchange(ref _dispose, 1, 0);
-			if (compareRes == 1)
-			{
-				while (Interlocked.Read(ref _dispose) != 2)
-				{
-					await Task.Delay(50);
-				}
-				return;
-			}
-			else if (compareRes == 2)
-			{
-				return;
-			}
-			Logger.LogWarning("Process is exiting.", nameof(Global));
-
-			try
-			{
-				StoppingCts?.Cancel();
-
-				if (!InitializationStarted)
-				{
-					return;
-				}
-
-				try
-				{
-					using var initCts = new CancellationTokenSource(TimeSpan.FromMinutes(6));
-					await WaitForInitializationCompletedAsync(initCts.Token).ConfigureAwait(false);
-				}
-				catch (Exception ex)
-				{
-					Logger.LogError($"Error during {nameof(WaitForInitializationCompletedAsync)}: {ex}");
-				}
-
-				try
-				{
-					using var dequeueCts = new CancellationTokenSource(TimeSpan.FromMinutes(6));
-					await WalletManager.RemoveAndStopAllAsync(dequeueCts.Token).ConfigureAwait(false);
-				}
-				catch (Exception ex)
-				{
-					Logger.LogError($"Error during {nameof(WalletManager.RemoveAndStopAllAsync)}: {ex}");
-				}
-
-				//window?.close
-
-				WalletManager.WalletRelevantTransactionProcessed -= WalletManager_WalletRelevantTransactionProcessed;
-
-				var feeProviders = FeeProviders;
-				if (feeProviders is { })
-				{
-					feeProviders.Dispose();
-					Logger.LogInfo($"Disposed {nameof(FeeProviders)}.");
-				}
-
-				var coinJoinProcessor = CoinJoinProcessor;
-				if (coinJoinProcessor is { })
-				{
-					coinJoinProcessor.Dispose();
-					Logger.LogInfo($"{nameof(CoinJoinProcessor)} is disposed.");
-				}
-
-				var synchronizer = Synchronizer;
-				if (synchronizer is { })
-				{
-					await synchronizer.StopAsync();
-					Logger.LogInfo($"{nameof(Synchronizer)} is stopped.");
-				}
-
-				var backgroundServices = HostedServices;
-				if (backgroundServices is { })
-				{
-					using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(21));
-					await backgroundServices.StopAllAsync(cts.Token).ConfigureAwait(false);
-					backgroundServices.Dispose();
-					Logger.LogInfo("Stopped background services.");
-				}
-
-				var addressManagerFilePath = AddressManagerFilePath;
-				if (addressManagerFilePath is { })
-				{
-					IoHelpers.EnsureContainingDirectoryExists(addressManagerFilePath);
-					var addressManager = AddressManager;
-					if (addressManager is { })
-					{
-						addressManager.SavePeerFile(AddressManagerFilePath, Config.Network);
-						Logger.LogInfo($"{nameof(AddressManager)} is saved to `{AddressManagerFilePath}`.");
-					}
-				}
-
-				var nodes = Nodes;
-				if (nodes is { })
-				{
-					nodes.Disconnect();
-					while (nodes.ConnectedNodes.Any(x => x.IsConnected))
-					{
-						await Task.Delay(50).ConfigureAwait(false);
-					}
-					nodes.Dispose();
-					Logger.LogInfo($"{nameof(Nodes)} are disposed.");
-				}
-
-				var regTestMempoolServingNode = RegTestMempoolServingNode;
-				if (regTestMempoolServingNode is { })
-				{
-					regTestMempoolServingNode.Disconnect();
-					Logger.LogInfo($"{nameof(RegTestMempoolServingNode)} is disposed.");
-				}
-
-				var torManager = TorManager;
-				if (torManager is { })
-				{
-					torManager.StopAsync().ConfigureAwait(false);
-					Logger.LogInfo($"{nameof(TorManager)} is stopped.");
-				}
-
-				var cache = Cache;
-				if (cache is { })
-				{
-					cache.Dispose();
-				}
-
-			}
-			catch (Exception ex)
-			{
-				Logger.LogWarning(ex);
-			}
-			finally
-			{
-				StoppingCts?.Dispose();
-				Interlocked.Exchange(ref _dispose, 2);
-				Logger.LogSoftwareStopped("Wasabi");
-			}
-		}
-
 		#region chaincase
 
 		private bool ResumeCompleted { get; set; } = true;
@@ -700,24 +550,21 @@ namespace Chaincase
 		public async Task OnResuming()
 		{
 
-			if (!IsInitialized)
-			{
-				try
-				{
-					await InitializeNoWalletAsync().ConfigureAwait(false);
-				}
-				catch (OperationCanceledException ex)
-				{
-					Logger.LogTrace(ex);
-				}
-				return;
-			}
-
 			var cancel = StoppingCts.Token;
 
 			try
 			{
 				ResumeCompleted = false;
+
+				try
+				{
+					await WaitForInitializationCompletedAsync(cancel).ConfigureAwait(false);
+				}
+				catch (OperationCanceledException ex)
+				{
+					Logger.LogTrace(ex);
+					return;
+				}
 
 				var userAgent = Constants.UserAgents.RandomElement();
 				var connectionParameters = new NodeConnectionParameters { UserAgent = userAgent };
@@ -748,11 +595,17 @@ namespace Chaincase
 
 				int maxFiltSyncCount = Network == Network.Main ? 1000 : 10000; // On testnet, filters are empty, so it's faster to query them together
 
-				Synchronizer = new WasabiSynchronizer(Network, BitcoinStore, () => Config.GetCurrentBackendUri(), Config.TorSocks5EndPoint);
-				Synchronizer.Start(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
-				Logger.LogInfo("Start synchronizing filters...");
+				if (!Synchronizer.IsRunning)
+				{
+					Synchronizer = new WasabiSynchronizer(Network, BitcoinStore, () => Config.GetCurrentBackendUri(), Config.TorSocks5EndPoint);
+					Synchronizer.Start(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
+					Logger.LogInfo("Start synchronizing filters...");
+				}
 
-				Synchronizer.ResponseArrived += Wallet.ChaumianClient.Synchronizer_ResponseArrivedAsync;
+				if (Wallet?.ChaumianClient is { })
+				{
+					Synchronizer.ResponseArrived += Wallet.ChaumianClient.Synchronizer_ResponseArrivedAsync;
+				}
 
 				if (SleepingCoins is { })
 				{
@@ -792,6 +645,13 @@ namespace Chaincase
 					Logger.LogError($"Error during {nameof(WaitForInitializationCompletedAsync)}: {ex}");
 				}
 
+				if (Wallet is { })
+				{
+					while (Wallet.State < WalletState.Initialized)
+					{
+						await Task.Delay(200);
+					}
+				}
 
 				if (!ResumeCompleted)
 				{
@@ -816,6 +676,13 @@ namespace Chaincase
 					Logger.LogError($"Error during {nameof(WalletManager.DequeueAllCoinsGracefullyAsync)}: {ex}");
 				}
 
+				var tor = DependencyService.Get<ITorManager>();
+				if (tor?.State != TorState.Stopped) // OnionBrowser && Dispose@Global
+				{
+					await tor.StopAsync();
+					Logger.LogInfo($"{nameof(tor)} is stopped.");
+				}
+
 				var synchronizer = Synchronizer;
 				if (synchronizer is { })
 				{
@@ -825,7 +692,7 @@ namespace Chaincase
 
 				var addressManagerFilePath = AddressManagerFilePath;
 				if (addressManagerFilePath is { })
-				{
+ 				{
 					IoHelpers.EnsureContainingDirectoryExists(addressManagerFilePath);
 					var addressManager = AddressManager;
 					if (addressManager is { })
@@ -847,12 +714,7 @@ namespace Chaincase
 					Logger.LogInfo($"{nameof(Nodes)} are disconnected.");
 				}
 
-				var tor = DependencyService.Get<ITorManager>();
-				if (tor?.State != TorState.Stopped) // OnionBrowser && Dispose@Global
-				{
-					await tor.StopAsync();
-					Logger.LogInfo($"{nameof(tor)} is stopped.");
-				}
+
 			}
 			catch (Exception ex)
 			{
