@@ -7,8 +7,11 @@ using System.Net.Sockets;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Chaincase.Common;
 using Chaincase.Notifications;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using NBitcoin;
 using NBitcoin.Protocol;
 using NBitcoin.Protocol.Behaviors;
@@ -66,8 +69,9 @@ namespace Chaincase
 
 		#endregion chaincase
 
-		public Global()
+		public Global(IHost host)
 		{
+			Host = host;
 			using (BenchmarkLogger.Measure())
 			{
 				StoppingCts = new CancellationTokenSource();
@@ -82,7 +86,7 @@ namespace Chaincase
 				UiConfig.LoadOrCreateDefaultFile();
 				Config.LoadOrCreateDefaultFile();
 
-				NotificationManager = DependencyService.Get<INotificationManager>();
+				NotificationManager = Host.Services.GetService<INotificationManager>();
 
 				WalletManager = new WalletManager(Network, new WalletDirectories(DataDir));
 				WalletManager.OnDequeue += WalletManager_OnDequeue;
@@ -151,12 +155,12 @@ namespace Chaincase
 
 				if (Config.UseTor)
 				{
-					TorManager = DependencyService.Get<ITorManager>();
+					TorManager = Host.Services.GetService<ITorManager>();
 					TorManager.Start(ensureRunning: false, DataDir);
 				}
 				else
 				{
-					TorManager = DependencyService.Get<ITorManager>().Mock();
+					TorManager = Host.Services.GetService<ITorManager>().Mock();
 					TorManager.Start(ensureRunning: true, "mock");
 				}
 
@@ -685,6 +689,8 @@ namespace Chaincase
 		#region chaincase
 
 		private bool ResumeCompleted { get; set; } = true;
+		public IHost Host { get; set; }
+		
 
 		/// <returns>If resume is successful, otherwise it was interrupted which means stopping was requested.</returns>
 		public async Task<bool> WaitForResumeCompletedAsync(CancellationToken cancellationToken)
@@ -727,7 +733,7 @@ namespace Chaincase
 
 				cancel.ThrowIfCancellationRequested();
 
-				var tor = DependencyService.Get<ITorManager>();
+				var tor = Host.Services.GetService<ITorManager>();
 				if (tor?.State != TorState.Started && tor.State != TorState.Connected)
 				{
 					tor.Start(false, GetDataDir());
@@ -847,7 +853,7 @@ namespace Chaincase
 					Logger.LogInfo($"{nameof(Nodes)} are disconnected.");
 				}
 
-				var tor = DependencyService.Get<ITorManager>();
+				var tor = Host.Services.GetService<ITorManager>();
 				if (tor?.State != TorState.Stopped) // OnionBrowser && Dispose@Global
 				{
 					await tor.StopAsync();

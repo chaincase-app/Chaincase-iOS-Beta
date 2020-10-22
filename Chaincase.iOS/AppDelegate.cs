@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Chaincase.Common.Xamarin;
-using Xamarin.Forms;
-
+﻿using Chaincase.Common;
+using Chaincase.iOS.Tor;
 using Foundation;
 using Microsoft.Extensions.DependencyInjection;
 using UIKit;
@@ -28,11 +24,11 @@ namespace Chaincase.iOS
         {
             global::Xamarin.Forms.Forms.Init();
 
-            UNUserNotificationCenter.Current.Delegate = new iOSNotificationReceiver();
             ZXing.Net.Mobile.Forms.iOS.Platform.Init();
 
             var formsApp = new App(ConfigureDi);
-
+            UNUserNotificationCenter.Current.Delegate = 
+	            formsApp.Global.Host.Services.GetService<iOSNotificationReceiver>();
             LoadApplication(formsApp);
 
             return base.FinishedLaunching(app, options);
@@ -40,7 +36,10 @@ namespace Chaincase.iOS
 
         private void ConfigureDi(IServiceCollection obj)
         {
-            obj.ConfigureCommonXamarinServices();
+	        obj.AddSingleton<IHsmStorage, HsmStorage>();
+	        obj.AddSingleton<INotificationManager, iOSNotificationManager>();
+	        obj.AddSingleton<iOSNotificationReceiver>();
+	        obj.AddSingleton<ITorManager, OnionManager>();
         }
     }
 }

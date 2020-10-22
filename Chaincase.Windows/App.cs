@@ -1,5 +1,6 @@
 ﻿using Microsoft.MobileBlazorBindings.WebView.Windows;
 using System;
+using Chaincase.Common;
 using Chaincase.Common.Xamarin;
 using Microsoft.Extensions.DependencyInjection;
 using Xamarin.Forms;
@@ -25,7 +26,7 @@ namespace Chaincase.Windows
 
         private void ConfigureDi(IServiceCollection obj)
         {
-            obj.ConfigureCommonXamarinServices();
+	        obj.AddSingleton<IHsmStorage, XamarinHsmStorage>();
         }
     }
 }

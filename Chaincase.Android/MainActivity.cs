@@ -5,6 +5,7 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using Android.OS;
+using Chaincase.Common;
 using Chaincase.Common.Xamarin;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.MobileBlazorBindings.WebView.Android;
@@ -29,7 +30,7 @@ namespace Chaincase.Droid
 
         private void ConfigureDi(IServiceCollection obj)
         {
-            obj.ConfigureCommonXamarinServices();
+	        obj.AddSingleton<IHsmStorage, XamarinHsmStorage>();
         }
 
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)

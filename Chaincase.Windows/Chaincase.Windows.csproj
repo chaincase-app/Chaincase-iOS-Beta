@@ -18,7 +18,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Chaincase.Common\Chaincase.Common.csproj" />
-    <ProjectReference Include="..\Chaincase.Xamarin\Chaincase.Xamarin.csproj" />
     <ProjectReference Include="..\Chaincase\Chaincase.csproj" />
   </ItemGroup>
 
