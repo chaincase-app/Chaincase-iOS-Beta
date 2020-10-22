@@ -1,125 +1,62 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <ProduceAssemblyReference>true</ProduceAssemblyReference>
+    <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+    <RazorLangVersion>3.0</RazorLangVersion>
+    <EnableDefaultCssItems>false</EnableDefaultCssItems>
+    <WwwRootResourcePath>WebUI\wwwroot</WwwRootResourcePath>
+    <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
+    <DebugType>portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <LangVersion>default</LangVersion>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <LangVersion>default</LangVersion>
-  </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Xamarin.Forms" Version="4.5.0.396" />
-    <PackageReference Include="ReactiveUI" Version="11.2.3" />
-    <PackageReference Include="ReactiveUI.XamForms" Version="11.2.3" />
-    <PackageReference Include="Xamarin.Essentials" Version="1.5.1" />
+    <EmbeddedResource Include="$(WwwRootResourcePath)\**" />
+    <EmbeddedResource Include="style.css" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LiveSharp" Version="1.6.12" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="3.1.5" />
+    <PackageReference Include="Microsoft.MobileBlazorBindings" Version="0.4.74-preview" />
+    <PackageReference Include="System.Net.Http.Json" Version="3.2.1" />
+    <PackageReference Include="Xamarin.Essentials" Version="1.5.3.2" />
+    <PackageReference Include="Xamarin.Forms" Version="4.8.0.1534" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0-rc.2.20475.5" />
     <PackageReference Include="ZXing.Net.Mobile.Forms" Version="2.4.1" />
+    <PackageReference Include="ReactiveUI" Version="11.5.35" />
+    <PackageReference Include="NBitcoin" Version="5.0.58" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="NBitcoin" Version="5.0.47" />
+    <PackageReference Include="ReactiveUI.XamForms" Version="11.5.35" />
+    <PackageReference Include="System.Collections.Immutable" Version="1.7.1" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Remove="Crypto\StringCipher.cs" />
-    <Compile Remove="Crypto\TokenGenerator.cs" />
-    <Compile Remove="Helpers\ByteArrayBuilder.cs" />
-    <Compile Remove="Helpers\ByteHelpers.cs" />
-    <Compile Remove="Helpers\Constants.cs" />
-    <Compile Remove="JsonConverters\BigIntegerJsonConverter.cs" />
-    <Compile Remove="JsonConverters\BitcoinAddressJsonConverter.cs" />
-    <Compile Remove="JsonConverters\OutPointJsonConverter.cs" />
-    <Compile Remove="JsonConverters\PubKeyJsonConverter.cs" />
-    <Compile Remove="JsonConverters\ScriptJsonConverter.cs" />
-    <Compile Remove="JsonConverters\TransactionJsonConverter.cs" />
-    <Compile Remove="JsonConverters\Uint256JsonConverter.cs" />
-    <Compile Remove="JsonConverters\UnblindedSignatureJsonConverter.cs" />
-    <Compile Remove="Logging\LogLevel.cs" />
-    <Compile Remove="Logging\LogMode.cs" />
-    <Compile Remove="Logging\Logger.cs" />
-    <Compile Remove="Nito\AsyncEx\AsyncLock.cs" />
-    <Compile Remove="Nito\AsyncEx\AsyncMutex.cs" />
-    <Compile Remove="Nito\AsyncEx\AsyncWaitQueueExtensions.cs" />
-    <Compile Remove="Nito\AsyncEx\AwaitableDisposable.cs" />
-    <Compile Remove="Nito\AsyncEx\DefaultAsyncWaitQueue.cs" />
-    <Compile Remove="Nito\AsyncEx\ExceptionHelpers.cs" />
-    <Compile Remove="Nito\AsyncEx\IAsyncWaitQueue.cs" />
-    <Compile Remove="Nito\AsyncEx\IdManager.cs" />
-    <Compile Remove="Nito\AsyncEx\TaskCompletionSourceExtensions.cs" />
-    <Compile Remove="Nito\AsyncEx\Synchronous\SynchronousTaskExtensions.cs" />
-    <Compile Remove="Nito\Collections\CollectionHelpers.cs" />
-    <Compile Remove="Nito\Collections\Deque.cs" />
-    <Compile Remove="Nito\Disposables\SingleDisposable.cs" />
-    <Compile Remove="Nito\Disposables\Internals\BoundAction.cs" />
-    <Compile Remove="BlockCypher\Models\BlockCypherGeneralInformation.cs" />
-    <Compile Remove="Views\ReceivePage %28copy%29.xaml.cs" />
-    <Compile Remove="Views\RecieveAddressPage.xaml.cs" />
-    <Compile Remove="Views\SendAmountPage %28copy%29.xaml.cs" />
-    <Compile Remove="Views\MyView.cs" />
-    <Compile Remove="Views\MyPage.xaml.cs" />
-    <Compile Remove="Views\SpendWhoPage.cs" />
-    <Compile Remove="Views\SendAmountPage %28copy%29.xaml.cs" />
-    <Compile Remove="Views\MnemonicPage %28copy%29.xaml.cs" />
-    <Compile Remove="Views\SendWhoPage %28copy%29.xaml.cs" />
-    <Compile Remove="Views\AddressPage %28copy%29.xaml.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Navigation\" />
-    <Folder Include="Views\" />
-    <Folder Include="ViewModels\" />
-    <Folder Include="Models\" />
-    <Folder Include="Converters\" />
-    <Folder Include="Controls\" />
-    <Folder Include="ViewModels\Validation\" />
-    <Folder Include="Notifications\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Update="Views\MainPage.xaml.cs">
-      <DependentUpon>MainPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Condition=" '$(EnableDefaultCompileItems)' == 'true' " Update="Views\Templates\CoinViewTemplate.xaml.cs">
-      <DependentUpon>CoinViewTemplate.xaml</DependentUpon>
-    </Compile>
-    <Compile Condition=" '$(EnableDefaultCompileItems)' == 'true' " Update="Views\MnemonicPage %28copy%29.xaml.cs">
-      <DependentUpon>MnemonicPage %28copy%29.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Condition=" '$(EnableDefaultCompileItems)' == 'true' " Update="Views\AddressPage.xaml.cs">
-      <DependentUpon>AddressPage.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Condition=" '$(EnableDefaultCompileItems)' == 'true' " Update="Views\Templates\AddressTemplate %28copy%29.xaml.cs">
-      <DependentUpon>AddressTemplate %28copy%29.xaml</DependentUpon>
-    </Compile>
-    <Compile Condition=" '$(EnableDefaultCompileItems)' == 'true' " Update="Views\Templates\StatusTemplate.xaml.cs">
-      <DependentUpon>StatusTemplate.xaml</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="CustomBuildActions.targets" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Remove="Views\ReceivePage %28copy%29.xaml" />
-    <EmbeddedResource Remove="Views\ReceivePage %28copy%29.xaml" />
-    <EmbeddedResource Remove="Views\ReceivePage %28copy%29.xaml" />
-    <EmbeddedResource Remove="Views\RecieveAddressPage.xaml" />
-    <EmbeddedResource Remove="Views\SendAmountPage %28copy%29.xaml" />
-    <EmbeddedResource Remove="Views\ReceivePage %28copy%29.xaml" />
-    <EmbeddedResource Remove="Views\MyPage.xaml" />
-    <EmbeddedResource Remove="Views\SendPage.xaml" />
-    <EmbeddedResource Remove="Views\ReceivePage %28copy%29.xaml" />
-    <EmbeddedResource Remove="Models\CoinJoinPage.xaml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Xamarin.Mac">
-      <HintPath>..\..\..\..\..\..\..\Library\Frameworks\Xamarin.Mac.framework\Versions\6.8.3.0\lib\reference\mobile\Xamarin.Mac.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
+    <ProjectReference Include="..\Chaincase.Common\Chaincase.Common.csproj" />
     <ProjectReference Include="..\WalletWasabi\WalletWasabi.Standard\WalletWasabi.Standard.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Controls\" />
+    <Folder Include="Models\" />
+    <Folder Include="Navigation\" />
+    <Folder Include="Notifications\" />
+    <Folder Include="ViewModels\" />
+    <Folder Include="Converters\" />
+    <Folder Include="Views\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="FormsUI\Views\CoinSelectModal.xaml.cs" />
+    <Compile Remove="FormsUI\Views\MainPage.xaml.cs" />
+    <Compile Remove="FormsUI\Views\TransactionDetailPage.xaml.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Remove="FormsUI\Views\FeeModal.xaml" />
+    <EmbeddedResource Remove="FormsUI\Views\Templates\CoinViewTemplate.xaml" />
+    <EmbeddedResource Remove="FormsUI\Views\TransactionDetailPage.xaml" />
+    <EmbeddedResource Remove="FormsUI\Views\VerifyMnemonicPage.xaml" />
   </ItemGroup>
 </Project>

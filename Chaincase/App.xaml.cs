@@ -1,31 +1,47 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
-using WalletWasabi.Logging;
 using Chaincase.Navigation;
-using Chaincase.Views;
-using Xamarin.Forms;
-using System.Diagnostics;
+using Chaincase.Services;
 using Chaincase.ViewModels;
+using Chaincase.Views;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.JSInterop;
+using Microsoft.MobileBlazorBindings;
+using Microsoft.MobileBlazorBindings.WebView;
 using Splat;
 using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Helpers;
-using NBitcoin;
-using NBitcoin.Protocol.Behaviors;
-using System.Linq;
-using NBitcoin.Protocol;
-using System.Threading;
+using WalletWasabi.Logging;
+using Xamarin.Essentials;
+using Xamarin.Forms;
 
 namespace Chaincase
 {
-	public partial class App : Application
-	{
-
+    public partial class App : Application
+    {
 		private static Global Global;
-
-		public App()
-		{
+			
+		public App(Action<IServiceCollection> configureDI)
+        {
 			InitializeComponent();
+			//BlazorHybridHost.AddResourceAssembly(GetType().Assembly, contentRoot: "WebUI/wwwroot");
+
+			//var host = MobileBlazorBindingsHost.CreateDefaultBuilder()
+			//	.ConfigureServices((hostContext, services) =>
+			//	{
+			//		// Adds web-specific services such as NavigationManager
+			//		services.AddBlazorHybrid();
+
+			//		// Register app-specific services
+			//		services.AddSingleton<CounterState>();
+			//		services.AddSingleton<AppStateService>();
+			//		configureDI?.Invoke(services);
+			//	})
+			//	.Build();
+
 			Global = new Global();
 			Task.Run(async () =>
 			{
@@ -77,7 +93,9 @@ namespace Chaincase
 
 			AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 			TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
-		}
+
+            //host.AddComponent<Main>(parent: MainPage);
+        }
 
 		private event EventHandler Sleeping = delegate { };
 
@@ -86,7 +104,7 @@ namespace Chaincase
 			Debug.WriteLine("OnSleep");
 			Sleeping += OnSleeping;
 			// Execute Async code
-			Sleeping(this, EventArgs.Empty);			
+			Sleeping(this, EventArgs.Empty);
 		}
 
 		private async void OnSleeping(object sender, EventArgs args)
