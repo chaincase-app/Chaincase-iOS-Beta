@@ -1,20 +1,20 @@
 ﻿using System;
-using System.Threading.Tasks;
-using Chaincase.Background;
+using System.Collections.Generic;
+using System.Linq;
 using Chaincase.Common.Xamarin;
-using Chaincase.iOS.Backgrounding;
+using Xamarin.Forms;
+
 using Foundation;
 using Microsoft.Extensions.DependencyInjection;
 using UIKit;
 using UserNotifications;
-using Xamarin.Forms;
 
 namespace Chaincase.iOS
 {
-	// The UIApplicationDelegate for the application. This class is responsible for launching the
-	// User Interface of the application, as well as listening (and optionally responding) to
-	// application events from iOS.
-	[Register("AppDelegate")]
+    // The UIApplicationDelegate for the application. This class is responsible for launching the
+    // User Interface of the application, as well as listening (and optionally responding) to
+    // application events from iOS.
+    [Register("AppDelegate")]
     public partial class AppDelegate : global::Xamarin.Forms.Platform.iOS.FormsApplicationDelegate
     {
         //
@@ -31,19 +31,8 @@ namespace Chaincase.iOS
             UNUserNotificationCenter.Current.Delegate = new iOSNotificationReceiver();
             ZXing.Net.Mobile.Forms.iOS.Platform.Init();
 
-            MessagingCenter.Subscribe<OnSleepingTaskMessage>(this, "OnSleepingTaskMessage", async message =>
-            {
-                var context = new iOSOnSleepingContext();
-                await context.OnSleeping();
-            });
-
-            MessagingCenter.Subscribe<InitializeNoWalletTaskMessage>(this, "InitializeNoWalletTaskMessage", async message =>
-            {
-                var context = new iOSInitializeNoWalletContext();
-                await context.InitializeNoWallet();
-            });
-
             var formsApp = new App(ConfigureDi);
+
             LoadApplication(formsApp);
 
             return base.FinishedLaunching(app, options);
