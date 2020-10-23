@@ -12,6 +12,7 @@ using WalletWasabi.Blockchain.TransactionOutputs;
 using WalletWasabi.Helpers;
 using System.Security;
 using System.Text;
+using Chaincase.Common;
 using WalletWasabi.Logging;
 using Chaincase.Navigation;
 using Splat;

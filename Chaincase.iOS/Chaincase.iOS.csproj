@@ -144,10 +144,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <ItemGroup>
-    <ProjectReference Include="..\Chaincase.Common\Chaincase.Common.csproj">
-      <Project>{D2A69BA5-D079-4E10-A399-84E721D16C09}</Project>
-      <Name>Chaincase.Common</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Chaincase\Chaincase.csproj">
       <Project>{BAC5541F-A9DA-4195-AF14-78D5EDC7F0CF}</Project>
       <Name>Chaincase</Name>
@@ -159,6 +155,10 @@
     <ProjectReference Include="..\TorFramework\TorFramework.csproj">
       <Project>{4B9C81E8-049C-425D-BD7A-BFBF586A7F64}</Project>
       <Name>TorFramework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Chaincase.Common\Chaincase.Common.csproj">
+      <Project>{9C6BB4B3-010D-4AC9-86E3-B170ACEF374D}</Project>
+      <Name>Chaincase.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -1,7 +1,7 @@
-﻿using System;
-namespace Chaincase.Notifications
+using System;
+
+namespace Chaincase.Common
 {
-    // https://docs.microsoft.com/en-us/xamarin/xamarin-forms/app-fundamentals/local-notifications#create-the-ios-interface-implementation
     public interface INotificationManager
     {
         event EventHandler NotificationReceived;
@@ -13,5 +13,11 @@ namespace Chaincase.Notifications
         void ReceiveNotification(string title, string message);
 
         void RemoveAllPendingNotifications();
+    }
+    
+    public class NotificationEventArgs : EventArgs
+    {
+        public string Title { get; set; }
+        public string Message { get; set; }
     }
 }

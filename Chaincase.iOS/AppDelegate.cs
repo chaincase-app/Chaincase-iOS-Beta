@@ -1,8 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
 using Chaincase.Background;
-using Chaincase.Common.Xamarin;
+using Chaincase.Common;
 using Chaincase.iOS.Backgrounding;
+using Chaincase.iOS.Tor;
 using Foundation;
 using Microsoft.Extensions.DependencyInjection;
 using UIKit;
@@ -28,7 +27,6 @@ namespace Chaincase.iOS
         {
             global::Xamarin.Forms.Forms.Init();
 
-            UNUserNotificationCenter.Current.Delegate = new iOSNotificationReceiver();
             ZXing.Net.Mobile.Forms.iOS.Platform.Init();
 
             MessagingCenter.Subscribe<OnSleepingTaskMessage>(this, "OnSleepingTaskMessage", async message =>
@@ -44,6 +42,8 @@ namespace Chaincase.iOS
             });
 
             var formsApp = new App(ConfigureDi);
+            UNUserNotificationCenter.Current.Delegate = 
+	            formsApp.Global.Host.Services.GetService<iOSNotificationReceiver>();
             LoadApplication(formsApp);
 
             return base.FinishedLaunching(app, options);
@@ -51,7 +51,10 @@ namespace Chaincase.iOS
 
         private void ConfigureDi(IServiceCollection obj)
         {
-            obj.ConfigureCommonXamarinServices();
+	        obj.AddSingleton<IHsmStorage, HsmStorage>();
+	        obj.AddSingleton<INotificationManager, iOSNotificationManager>();
+	        obj.AddSingleton<iOSNotificationReceiver>();
+	        obj.AddSingleton<ITorManager, OnionManager>();
         }
     }
 }
