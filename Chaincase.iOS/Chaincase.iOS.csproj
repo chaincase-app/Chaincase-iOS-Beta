@@ -125,6 +125,8 @@
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Icon20.png">
       <Visible>false</Visible>
     </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\logo_vertical.imageset\logo_vertical.png" />
+    <ImageAsset Include="Assets.xcassets\logo_vertical.imageset\Contents.json" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
