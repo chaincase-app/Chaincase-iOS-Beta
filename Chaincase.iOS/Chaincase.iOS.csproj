@@ -58,12 +58,14 @@
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\iPhone\Release</OutputPath>
+    <DefineConstants>__IOS__;__MOBILE__;__UNIFIED__;LIVESHARP_DISABLE;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <MtouchArch>ARM64</MtouchArch>
-    <CodesignKey>iPhone Developer</CodesignKey>
+    <CodesignKey>iPhone Distribution: Chaincase LLC (9Z72DXKVXK)</CodesignKey>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <LangVersion>8.0</LangVersion>
+    <CodesignProvision>Chaincase App Store</CodesignProvision>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
@@ -133,7 +135,6 @@
     <Reference Include="Xamarin.iOS" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="LiveSharp" Version="1.6.12" />
     <PackageReference Include="Microsoft.MobileBlazorBindings.WebView.iOS" Version="0.4.74-preview" />
     <PackageReference Include="System.Memory" Version="4.5.4" IncludeAssets="None" />
     <PackageReference Include="Xamarin.Forms" Version="4.7.0.968" />
@@ -141,13 +142,12 @@
     <PackageReference Include="ZXing.Net.Mobile.Forms">
       <Version>2.4.1</Version>
     </PackageReference>
+    <PackageReference Include="LiveSharp">
+      <Version>1.6.12</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <ItemGroup>
-    <ProjectReference Include="..\Chaincase.Common\Chaincase.Common.csproj">
-      <Project>{D2A69BA5-D079-4E10-A399-84E721D16C09}</Project>
-      <Name>Chaincase.Common</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Chaincase\Chaincase.csproj">
       <Project>{BAC5541F-A9DA-4195-AF14-78D5EDC7F0CF}</Project>
       <Name>Chaincase</Name>
