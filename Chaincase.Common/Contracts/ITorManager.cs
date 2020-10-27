@@ -1,8 +1,6 @@
-﻿using System;
-using System.Net;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
-namespace Chaincase
+namespace Chaincase.Common
 {
     public enum TorState
     {
@@ -17,9 +15,6 @@ namespace Chaincase
         TorState State { get; }
     
         void Start(bool ensureRunning, string dataDir);
-
-        ITorManager Mock();
-
         Task StopAsync();
     }
 }

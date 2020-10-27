@@ -4,46 +4,43 @@ using System.IO;
 using System.Threading.Tasks;
 using Chaincase.Background;
 using Chaincase.Navigation;
-using Chaincase.Services;
 using Chaincase.ViewModels;
 using Chaincase.Views;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.JSInterop;
 using Microsoft.MobileBlazorBindings;
-using Microsoft.MobileBlazorBindings.WebView;
 using Splat;
 using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Helpers;
 using WalletWasabi.Logging;
-using Xamarin.Essentials;
 using Xamarin.Forms;
 
 namespace Chaincase
 {
     public partial class App : Application
     {
-		private static Global Global;
+	    public Global Global { get; }
 			
 		public App(Action<IServiceCollection> configureDI)
         {
 			InitializeComponent();
 			//BlazorHybridHost.AddResourceAssembly(GetType().Assembly, contentRoot: "WebUI/wwwroot");
 
-			//var host = MobileBlazorBindingsHost.CreateDefaultBuilder()
-			//	.ConfigureServices((hostContext, services) =>
-			//	{
-			//		// Adds web-specific services such as NavigationManager
-			//		services.AddBlazorHybrid();
+			var host = MobileBlazorBindingsHost.CreateDefaultBuilder()
+				.ConfigureServices((hostContext, services) =>
+				{
+					// Adds web-specific services such as NavigationManager
+					services.AddBlazorHybrid();
 
 			//		// Register app-specific services
 			//		services.AddSingleton<CounterState>();
 			//		services.AddSingleton<AppStateService>();
-			//		configureDI?.Invoke(services);
-			//	})
-			//	.Build();
+					configureDI?.Invoke(services);
+				})
+				.Build();
 
-			Global = new Global();
+
+			Global = new Global(host);
+			
 			Locator.CurrentMutable.RegisterConstant(Global);
 
 			// This relies on Global registered
@@ -130,8 +127,9 @@ namespace Chaincase
 
 		public static async Task LoadWalletAsync()
 		{
-			string walletName = Global.Network.ToString();
-			KeyManager keyManager = Global.WalletManager.GetWalletByName(walletName).KeyManager;
+			var global = Locator.Current.GetService<Global>();
+			string walletName = global.Network.ToString();
+			KeyManager keyManager = global.WalletManager.GetWalletByName(walletName).KeyManager;
 			if (keyManager is null)
 			{
 				return;
@@ -139,7 +137,7 @@ namespace Chaincase
 
 			try
 			{
-				Global.Wallet = await Global.WalletManager.StartWalletAsync(keyManager);
+				global.Wallet = await global.WalletManager.StartWalletAsync(keyManager);
 				// Successfully initialized.
 			}
 			catch (OperationCanceledException ex)

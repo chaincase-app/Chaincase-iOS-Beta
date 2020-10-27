@@ -162,6 +162,10 @@
       <Project>{4B9C81E8-049C-425D-BD7A-BFBF586A7F64}</Project>
       <Name>TorFramework</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Chaincase.Common\Chaincase.Common.csproj">
+      <Project>{96670874-0C12-47C2-94A3-4B7CA7DBCED4}</Project>
+      <Name>Chaincase.Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Backgrounding\" />
