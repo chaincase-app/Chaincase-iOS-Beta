@@ -64,13 +64,7 @@ namespace Chaincase
 		/// Responsible for keeping one life cycle event in critical sections at once
 		/// </summary>
 		private readonly AsyncLock LifeCycleMutex = new AsyncLock();
-		/// <summary>
-		// The following two spinlocks are
-		// responsible for maintaing order of life cycle methods
-		/// </summary>
-		private readonly AsyncLock ResumeMutex = new AsyncLock();
-		private readonly AsyncLock SleepMutex = new AsyncLock();
-
+		
 		// Chaincase Specific
 		#region chaincase
 

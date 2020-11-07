@@ -42,9 +42,9 @@ namespace Chaincase.ViewModels
         {
             Global = Locator.Current.GetService<Global>();
             Global.SetDefaultWallet();
-            //Task.Run(async () => await App.LoadWalletAsync());
+			Task.Run(async () => await App.LoadWalletAsync());
 
-            ShowWalletInfoCommand = ReactiveCommand.CreateFromObservable(() =>
+			ShowWalletInfoCommand = ReactiveCommand.CreateFromObservable(() =>
             {
                 ViewStackService.PushPage(new WalletInfoViewModel(Global.Wallet.KeyManager)).Subscribe();
                 return Observable.Return(Unit.Default);
