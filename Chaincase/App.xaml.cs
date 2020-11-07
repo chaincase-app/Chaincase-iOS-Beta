@@ -83,7 +83,6 @@ namespace Chaincase
 
 		protected override void OnSleep()
 		{
-			Debug.WriteLine("OnSleep");
 			Sleeping += OnSleeping;
 			// Execute Async code
 			Sleeping(this, EventArgs.Empty);			
@@ -102,7 +101,6 @@ namespace Chaincase
 
 		protected override void OnResume()
 		{
-			Debug.WriteLine("OnResume");
 			Resuming += OnResuming;
 			// Execute Async code
 			Resuming(this, EventArgs.Empty);

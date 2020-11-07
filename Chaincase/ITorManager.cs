@@ -21,5 +21,7 @@ namespace Chaincase
         ITorManager Mock();
 
         Task StopAsync();
+
+        Task StartAsync(bool enrureRunning, string dataDir);
     }
 }
