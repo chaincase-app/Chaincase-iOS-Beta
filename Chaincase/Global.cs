@@ -740,7 +740,7 @@ namespace Chaincase
 					Synchronizer.Start(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
 					Logger.LogInfo("Global.OnResuming():Start synchronizing filters...");
 
-					//Synchronizer.ResponseArrived += Wallet.ChaumianClient.Synchronizer_ResponseArrivedAsync;
+					Synchronizer.ResponseArrived += Wallet.ChaumianClient.Synchronizer_ResponseArrivedAsync;
 
 					if (SleepingCoins is { })
 					{
