@@ -232,7 +232,7 @@ namespace Chaincase.iOS.Tor
 
 			// On first load: If Tor hasn't finished bootstrap in 30 seconds,
 			// HUP tor once in case we have partially bootstrapped but got stuck.
-			//DispatchQueue.MainQueue.DispatchAfter(new DispatchTime(DispatchTime.Now, TimeSpan.FromSeconds(15)), initRetry!);
+			DispatchQueue.MainQueue.DispatchAfter(new DispatchTime(DispatchTime.Now, TimeSpan.FromSeconds(15)), initRetry!);
 		}
 
         private TORConfiguration torBaseConf

@@ -64,7 +64,8 @@ namespace Chaincase
 		/// Responsible for keeping one life cycle event in critical sections at once
 		/// </summary>
 		private readonly AsyncLock LifeCycleMutex = new AsyncLock();
-		
+		private readonly AsyncLock SleepMutex = new AsyncLock();
+
 		// Chaincase Specific
 		#region chaincase
 
@@ -704,9 +705,8 @@ namespace Chaincase
 		public async Task OnResuming()
 		{
 			if (!InitializationCompleted || !ResumeCompleted)
-			{
 				return;
-			}
+
 			try
 			{
 				Logger.LogDebug($"Global.OnResuming(): Waiting for a lock");
@@ -762,10 +762,14 @@ namespace Chaincase
 
 		public async Task OnSleeping()
 		{
-			if (!InitializationCompleted || !SleepCompleted ) return;
+			using (await SleepMutex.LockAsync())
+			{
+				if (!SleepCompleted) return;
+				while (!InitializationCompleted) Task.Yield();
+				SleepCompleted = false;
+			}
 			try
 			{
-				SleepCompleted = false;
 				Logger.LogDebug($"Global.OnSleeping(): Waiting for a lock");
 				using (await LifeCycleMutex.LockAsync())
 				{
