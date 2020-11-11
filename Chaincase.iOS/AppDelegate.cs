@@ -43,7 +43,7 @@ namespace Chaincase.iOS
 
             var formsApp = new App(ConfigureDi);
             UNUserNotificationCenter.Current.Delegate = 
-	            formsApp.Global.Host.Services.GetService<iOSNotificationReceiver>();
+	            formsApp.Container.GetService<iOSNotificationReceiver>();
             LoadApplication(formsApp);
 
             return base.FinishedLaunching(app, options);

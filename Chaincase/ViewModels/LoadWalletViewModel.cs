@@ -29,7 +29,7 @@ namespace Chaincase.ViewModels
             : base(Locator.Current.GetService<IViewStackService>())
 		{
 			Global = Locator.Current.GetService<Global>();
-			Hsm = Global.Host.Services.GetService<IHsmStorage>();
+			Hsm = Locator.Current.GetService<IHsmStorage>();
 
 			var canLoadWallet = this.WhenAnyValue(x => x.SeedWords, x => x.ACCOUNT_KEY_PATH, x => x.MIN_GAP_LIMIT,
 				(seedWords, keyPath, minGapLimit) =>

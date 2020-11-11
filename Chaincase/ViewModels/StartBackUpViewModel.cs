@@ -19,7 +19,7 @@ namespace Chaincase.ViewModels
             : base(Locator.Current.GetService<IViewStackService>())
 		{
 			Global = Locator.Current.GetService<Global>();
-			var hsm = Global.Host.Services.GetService<IHsmStorage>();
+			var hsm = Locator.Current.GetService<IHsmStorage>();
 
 			NextCommand = ReactiveCommand.CreateFromObservable(() =>
 			{

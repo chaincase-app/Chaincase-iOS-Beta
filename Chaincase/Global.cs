@@ -16,6 +16,7 @@ using NBitcoin;
 using NBitcoin.Protocol;
 using NBitcoin.Protocol.Behaviors;
 using NBitcoin.Protocol.Connectors;
+using Splat;
 using WalletWasabi.Blockchain.Analysis.FeesEstimation;
 using WalletWasabi.Blockchain.Blocks;
 using WalletWasabi.Blockchain.Mempool;
@@ -69,9 +70,8 @@ namespace Chaincase
 
 		#endregion chaincase
 
-		public Global(IHost host)
+		public Global()
 		{
-			Host = host;
 			using (BenchmarkLogger.Measure())
 			{
 				StoppingCts = new CancellationTokenSource();
@@ -86,7 +86,7 @@ namespace Chaincase
 				UiConfig.LoadOrCreateDefaultFile();
 				Config.LoadOrCreateDefaultFile();
 
-				NotificationManager = Host.Services.GetService<INotificationManager>();
+				NotificationManager = Locator.Current.GetService<INotificationManager>();
 
 				WalletManager = new WalletManager(Network, new WalletDirectories(DataDir));
 				WalletManager.OnDequeue += WalletManager_OnDequeue;
@@ -153,7 +153,7 @@ namespace Chaincase
 				
 				if (Config.UseTor)
 				{
-					TorManager = Host.Services.GetService<ITorManager>();
+					TorManager = Locator.Current.GetService<ITorManager>();
 					TorManager.Start(ensureRunning: false, DataDir);
 					
 					Logger.LogInfo($"{nameof(TorManager)} is initialized.");
@@ -579,7 +579,7 @@ namespace Chaincase
 
 				if (Config.UseTor)
 				{
-					var tor = Host.Services.GetService<ITorManager>();
+					var tor = Locator.Current.GetService<ITorManager>();
 					if (tor?.State != TorState.Started && tor?.State != TorState.Connected)
 					{
 						tor.Start(false, GetDataDir());
@@ -685,7 +685,7 @@ namespace Chaincase
 
 				if (Config.UseTor)
 				{
-					var tor = Host.Services.GetService<ITorManager>();
+					var tor = Locator.Current.GetService<ITorManager>();
 					if (tor != null && tor?.State != TorState.Stopped) // OnionBrowser && Dispose@Global
 					{
 						await tor.StopAsync();

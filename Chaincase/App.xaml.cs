@@ -21,8 +21,8 @@ namespace Chaincase
 {
     public partial class App : Application
     {
-	    public Global Global { get; }
-			
+		public IServiceProvider Container { get; private set; }
+
 		public App(Action<IServiceCollection> configureOSServices)
         {
 			InitializeComponent();
@@ -38,42 +38,44 @@ namespace Chaincase
 					resolver.InitializeSplat();
 					resolver.InitializeReactiveUI();
 
+					// shorthand for e.g.
+					// services.AddTransient<IViewFor<SecondaryViewModel>, SecondaryPage>();
+
+					resolver
+						.RegisterView<MainPage, MainViewModel>()
+						.RegisterView<WalletInfoPage, WalletInfoViewModel>()
+						.RegisterView<TransactionDetailPage, TransactionViewModel>()
+						.RegisterView<LandingPage, LandingViewModel>()
+						.RegisterView<LoadWalletPage, LoadWalletViewModel>()
+						.RegisterView<ReceivePage, ReceiveViewModel>()
+						.RegisterView<AddressPage, AddressViewModel>()
+						.RegisterView<RequestAmountModal, RequestAmountViewModel>()
+						.RegisterView<SendAmountPage, SendAmountViewModel>()
+						.RegisterView<FeeModal, FeeViewModel>()
+						.RegisterView<CoinSelectModal, CoinListViewModel>()
+						.RegisterView<CoinDetailModal, CoinViewModel>()
+						.RegisterView<SendWhoPage, SendWhoViewModel>()
+						.RegisterView<SentPage, SentViewModel>()
+						.RegisterView<CoinJoinPage, CoinJoinViewModel>()
+						.RegisterView<NewPasswordPage, NewPasswordViewModel>()
+						.RegisterView<VerifyMnemonicPage, VerifyMnemonicViewModel>()
+						.RegisterView<PasswordPromptModal, PasswordPromptViewModel>()
+						.RegisterView<StartBackUpModal, StartBackUpViewModel>()
+						.RegisterView<BackUpModal, BackUpViewModel>()
+						.RegisterNavigationView(() => new NavigationView());
+
 					configureOSServices?.Invoke(services);
+
+					services.AddSingleton<Global, Global>();
 				})
 				.Build();
 
-
-			Global = new Global(host);
-			
-			Locator.CurrentMutable.RegisterConstant(Global);
+			Container = host.Services;
+			Container.UseMicrosoftDependencyResolver();
 
 			// This relies on Global registered
 			var message = new InitializeNoWalletTaskMessage();
 			MessagingCenter.Send(message, "InitializeNoWalletTaskMessage");
-
-			Locator
-				.CurrentMutable
-				.RegisterView<MainPage, MainViewModel>()
-				.RegisterView<WalletInfoPage, WalletInfoViewModel>()
-				.RegisterView<TransactionDetailPage, TransactionViewModel>()
-				.RegisterView<LandingPage, LandingViewModel>()
-				.RegisterView<LoadWalletPage, LoadWalletViewModel>()
-				.RegisterView<ReceivePage, ReceiveViewModel>()
-				.RegisterView<AddressPage, AddressViewModel>()
-				.RegisterView<RequestAmountModal, RequestAmountViewModel>()
-				.RegisterView<SendAmountPage, SendAmountViewModel>()
-				.RegisterView<FeeModal, FeeViewModel>()
-				.RegisterView<CoinSelectModal, CoinListViewModel>()
-				.RegisterView<CoinDetailModal, CoinViewModel>()
-				.RegisterView<SendWhoPage, SendWhoViewModel>()
-				.RegisterView<SentPage, SentViewModel>()
-				.RegisterView<CoinJoinPage, CoinJoinViewModel>()
-				.RegisterView<NewPasswordPage, NewPasswordViewModel>()
-				.RegisterView<VerifyMnemonicPage, VerifyMnemonicViewModel>()
-				.RegisterView<PasswordPromptModal, PasswordPromptViewModel>()
-				.RegisterView<StartBackUpModal, StartBackUpViewModel>()
-				.RegisterView<BackUpModal, BackUpViewModel>()
-				.RegisterNavigationView(() => new NavigationView());
 
 			var page = WalletExists() ? (IViewModel)new MainViewModel() : new LandingViewModel();
 
@@ -89,11 +91,6 @@ namespace Chaincase
 			TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
 
 			//host.AddComponent<Main>(parent: MainPage);
-		}
-
-		void ConfigureServices(IServiceCollection services)
-		{
-
 		}
 
 		protected override void OnSleep()
@@ -121,7 +118,7 @@ namespace Chaincase
 			Resuming -= OnResuming;
 
 			//perform non-blocking actions
-			await Global.OnResuming();
+			await Locator.Current.GetService<Global>().OnResuming();
 		}
 
 		private static void TaskScheduler_UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
@@ -161,8 +158,9 @@ namespace Chaincase
 
 		private bool WalletExists()
 		{
-			var walletName = Global.Network.ToString();
-			(string walletFullPath, _) = Global.WalletManager.WalletDirectories.GetWalletFilePaths(walletName);
+			var global = Locator.Current.GetService<Global>();
+			var walletName = global.Network.ToString();
+			(string walletFullPath, _) = global.WalletManager.WalletDirectories.GetWalletFilePaths(walletName);
 			return File.Exists(walletFullPath);
 		}
 
