@@ -3,12 +3,15 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Chaincase.Background;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Chaincase.Navigation;
 using Chaincase.ViewModels;
 using Chaincase.Views;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.MobileBlazorBindings;
+using ReactiveUI;
 using Splat;
+using Splat.Microsoft.Extensions.DependencyInjection;
 using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Helpers;
 using WalletWasabi.Logging;
@@ -20,21 +23,22 @@ namespace Chaincase
     {
 	    public Global Global { get; }
 			
-		public App(Action<IServiceCollection> configureDI)
+		public App(Action<IServiceCollection> configureOSServices)
         {
 			InitializeComponent();
 			//BlazorHybridHost.AddResourceAssembly(GetType().Assembly, contentRoot: "WebUI/wwwroot");
 
-			var host = MobileBlazorBindingsHost.CreateDefaultBuilder()
+			var host = MobileBlazorBindingsHost
+				.CreateDefaultBuilder()
 				.ConfigureServices((hostContext, services) =>
 				{
-					// Adds web-specific services such as NavigationManager
 					services.AddBlazorHybrid();
+					services.UseMicrosoftDependencyResolver();
+					var resolver = Locator.CurrentMutable;
+					resolver.InitializeSplat();
+					resolver.InitializeReactiveUI();
 
-			//		// Register app-specific services
-			//		services.AddSingleton<CounterState>();
-			//		services.AddSingleton<AppStateService>();
-					configureDI?.Invoke(services);
+					configureOSServices?.Invoke(services);
 				})
 				.Build();
 
@@ -85,6 +89,11 @@ namespace Chaincase
 			TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
 
 			//host.AddComponent<Main>(parent: MainPage);
+		}
+
+		void ConfigureServices(IServiceCollection services)
+		{
+
 		}
 
 		protected override void OnSleep()
