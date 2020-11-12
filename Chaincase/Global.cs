@@ -7,12 +7,16 @@ using System.Net.Sockets;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Chaincase.Common;
 using Chaincase.Notifications;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using NBitcoin;
 using NBitcoin.Protocol;
 using NBitcoin.Protocol.Behaviors;
 using NBitcoin.Protocol.Connectors;
+using Splat;
 using WalletWasabi.Blockchain.Analysis.FeesEstimation;
 using WalletWasabi.Blockchain.Blocks;
 using WalletWasabi.Blockchain.Mempool;
@@ -82,7 +86,7 @@ namespace Chaincase
 				UiConfig.LoadOrCreateDefaultFile();
 				Config.LoadOrCreateDefaultFile();
 
-				NotificationManager = DependencyService.Get<INotificationManager>();
+				NotificationManager = Locator.Current.GetService<INotificationManager>();
 
 				WalletManager = new WalletManager(Network, new WalletDirectories(DataDir));
 				WalletManager.OnDequeue += WalletManager_OnDequeue;
@@ -146,18 +150,15 @@ namespace Chaincase
 
 				#region TorProcessInitialization
 
+				
 				if (Config.UseTor)
 				{
-					TorManager = DependencyService.Get<ITorManager>();
+					TorManager = Locator.Current.GetService<ITorManager>();
 					TorManager.Start(ensureRunning: false, DataDir);
-				}
-				else
-				{
-					TorManager = DependencyService.Get<ITorManager>().Mock();
-					TorManager.Start(ensureRunning: true, "mock");
+					
+					Logger.LogInfo($"{nameof(TorManager)} is initialized.");
 				}
 
-				Logger.LogInfo($"{nameof(TorManager)} is initialized.");
 
 				#endregion TorProcessInitialization
 
@@ -535,6 +536,8 @@ namespace Chaincase
 		#region chaincase
 
 		private bool ResumeCompleted { get; set; } = true;
+		public IHost Host { get; set; }
+		
 
 		/// <returns>If resume is successful, otherwise it was interrupted which means stopping was requested.</returns>
 		public async Task<bool> WaitForResumeCompletedAsync(CancellationToken cancellationToken)
@@ -574,12 +577,16 @@ namespace Chaincase
 
 				cancel.ThrowIfCancellationRequested();
 
-				var tor = DependencyService.Get<ITorManager>();
-				if (tor?.State != TorState.Started && tor.State != TorState.Connected)
+				if (Config.UseTor)
 				{
-					tor.Start(false, GetDataDir());
-				}
+					var tor = Locator.Current.GetService<ITorManager>();
+					if (tor?.State != TorState.Started && tor?.State != TorState.Connected)
+					{
+						tor.Start(false, GetDataDir());
+					}
 
+				}
+				
 				cancel.ThrowIfCancellationRequested();
 
 				Nodes.Connect();
@@ -676,11 +683,14 @@ namespace Chaincase
 					Logger.LogError($"Error during {nameof(WalletManager.DequeueAllCoinsGracefullyAsync)}: {ex}");
 				}
 
-				var tor = DependencyService.Get<ITorManager>();
-				if (tor?.State != TorState.Stopped) // OnionBrowser && Dispose@Global
+				if (Config.UseTor)
 				{
-					await tor.StopAsync();
-					Logger.LogInfo($"{nameof(tor)} is stopped.");
+					var tor = Locator.Current.GetService<ITorManager>();
+					if (tor != null && tor?.State != TorState.Stopped) // OnionBrowser && Dispose@Global
+					{
+						await tor.StopAsync();
+						Logger.LogInfo($"{nameof(tor)} is stopped.");
+					}
 				}
 
 				var synchronizer = Synchronizer;
@@ -713,8 +723,6 @@ namespace Chaincase
 
 					Logger.LogInfo($"{nameof(Nodes)} are disconnected.");
 				}
-
-
 			}
 			catch (Exception ex)
 			{

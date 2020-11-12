@@ -2,14 +2,11 @@
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
-
+using Chaincase.Common;
 using Foundation;
 using LocalAuthentication;
 using Security;
 
-using Xamarin.Forms;
-
-[assembly: Dependency(typeof(Chaincase.iOS.HsmStorage))]
 namespace Chaincase.iOS
 {
 	// based on Xamarin.Essentials SecureStorage

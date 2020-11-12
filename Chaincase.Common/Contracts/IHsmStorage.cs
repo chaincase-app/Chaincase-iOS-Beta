@@ -1,8 +1,6 @@
-﻿using System;
-using System.Threading.Tasks;
-using Xamarin.Essentials;
+﻿using System.Threading.Tasks;
 
-namespace Chaincase
+namespace Chaincase.Common
 {
     // Use keys from device Hardware Security Module to encrypt
     public interface IHsmStorage

@@ -2,7 +2,9 @@
 using System.IO;
 using System.Reactive;
 using System.Reactive.Linq;
+using Chaincase.Common;
 using Chaincase.Navigation;
+using Microsoft.Extensions.DependencyInjection;
 using NBitcoin;
 using ReactiveUI;
 using Splat;
@@ -23,7 +25,7 @@ namespace Chaincase.ViewModels
             : base(Locator.Current.GetService<IViewStackService>())
 		{
 			Global = Locator.Current.GetService<Global>();
-			Hsm = DependencyService.Get<IHsmStorage>();
+			Hsm = Locator.Current.GetService<IHsmStorage>();
 			
 			SubmitCommand = ReactiveCommand.CreateFromObservable(() =>
 			{

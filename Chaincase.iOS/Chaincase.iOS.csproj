@@ -139,13 +139,13 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.MobileBlazorBindings.WebView.iOS" Version="0.4.74-preview" />
     <PackageReference Include="System.Memory" Version="4.5.4" IncludeAssets="None" />
-    <PackageReference Include="Xamarin.Forms" Version="4.7.0.968" />
+    <PackageReference Include="Xamarin.Forms" Version="4.8.0.1560" />
     <PackageReference Include="Xamarin.Essentials" Version="1.5.3.2" />
     <PackageReference Include="ZXing.Net.Mobile.Forms">
       <Version>2.4.1</Version>
     </PackageReference>
     <PackageReference Include="LiveSharp">
-      <Version>1.6.12</Version>
+      <Version>1.6.17</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
@@ -161,6 +161,10 @@
     <ProjectReference Include="..\TorFramework\TorFramework.csproj">
       <Project>{4B9C81E8-049C-425D-BD7A-BFBF586A7F64}</Project>
       <Name>TorFramework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Chaincase.Common\Chaincase.Common.csproj">
+      <Project>{96670874-0C12-47C2-94A3-4B7CA7DBCED4}</Project>
+      <Name>Chaincase.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

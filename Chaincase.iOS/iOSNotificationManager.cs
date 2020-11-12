@@ -1,9 +1,8 @@
 ﻿using System;
-using Chaincase.Notifications;
+using Chaincase.Common;
 using UserNotifications;
-using Xamarin.Forms;
+using NotificationEventArgs = Chaincase.Notifications.NotificationEventArgs;
 
-[assembly: Dependency(typeof(Chaincase.iOS.iOSNotificationManager))]
 namespace Chaincase.iOS
 {
     public class iOSNotificationManager : INotificationManager
