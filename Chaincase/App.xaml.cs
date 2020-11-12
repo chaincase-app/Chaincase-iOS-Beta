@@ -1,45 +1,51 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
-using WalletWasabi.Logging;
+using Chaincase.Background;
 using Chaincase.Navigation;
-using Chaincase.Views;
-using Xamarin.Forms;
-using System.Diagnostics;
+using Chaincase.Services;
 using Chaincase.ViewModels;
+using Chaincase.Views;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Splat;
 using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Helpers;
-using NBitcoin;
-using NBitcoin.Protocol.Behaviors;
-using System.Linq;
-using NBitcoin.Protocol;
-using System.Threading;
+using WalletWasabi.Logging;
+using Xamarin.Essentials;
+using Xamarin.Forms;
 
 namespace Chaincase
 {
-	public partial class App : Application
-	{
-
+    public partial class App : Application
+    {
 		private static Global Global;
-
-		public App()
-		{
+			
+		public App(Action<IServiceCollection> configureDI)
+        {
 			InitializeComponent();
-			Global = new Global();
-			Task.Run(async () =>
-			{
-				try
-				{
-					await Global.InitializeNoWalletAsync().ConfigureAwait(false);
-				}
-				catch (OperationCanceledException ex)
-				{
-					Logger.LogTrace(ex);
-				}
-			});
+			//BlazorHybridHost.AddResourceAssembly(GetType().Assembly, contentRoot: "WebUI/wwwroot");
 
+			//var host = MobileBlazorBindingsHost.CreateDefaultBuilder()
+			//	.ConfigureServices((hostContext, services) =>
+			//	{
+			//		// Adds web-specific services such as NavigationManager
+			//		services.AddBlazorHybrid();
+
+			//		// Register app-specific services
+			//		services.AddSingleton<CounterState>();
+			//		services.AddSingleton<AppStateService>();
+			//		configureDI?.Invoke(services);
+			//	})
+			//	.Build();
+
+			Global = new Global();
 			Locator.CurrentMutable.RegisterConstant(Global);
+
+			// This relies on Global registered
+			var message = new InitializeNoWalletTaskMessage();
+			MessagingCenter.Send(message, "InitializeNoWalletTaskMessage");
 
 			Locator
 				.CurrentMutable
@@ -77,24 +83,15 @@ namespace Chaincase
 
 			AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 			TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
-		}
 
-		private event EventHandler Sleeping = delegate { };
+			//host.AddComponent<Main>(parent: MainPage);
+		}
 
 		protected override void OnSleep()
 		{
-			Sleeping += OnSleeping;
-			// Execute Async code
-			Sleeping(this, EventArgs.Empty);			
-		}
-
-		private async void OnSleeping(object sender, EventArgs args)
-		{
-			//unsubscribe from event
-			Sleeping -= OnSleeping;
-
-			//perform non-blocking actions
-			await Global.OnSleeping();
+			// Execute Sleeping Background Task
+			var message = new OnSleepingTaskMessage();
+			MessagingCenter.Send(message, "OnSleepingTaskMessage");
 		}
 
 		private event EventHandler Resuming = delegate { };
@@ -172,4 +169,10 @@ namespace Chaincase
 			return dataDir;
 		}
 	}
+
+	// classes to communicate between Libs & specific platforms via messaging center
+
+	public class StartLongRunningTaskMessage { }
+
+	public class StopLongRunningTaskMessage { }
 }

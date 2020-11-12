@@ -89,18 +89,23 @@ namespace Chaincase.ViewModels
                 .DisposeWith(Disposables);
 
             Observable.FromEventPattern(Global.Wallet.ChaumianClient, nameof(Global.Wallet.ChaumianClient.OnDequeue))
-                .Subscribe(_ =>
+                .Subscribe(pattern =>
                 {
-                    var chaumianClient = Global.Wallet.ChaumianClient;
-                    if (chaumianClient is null)
+                    var e = (DequeueResult)pattern.EventArgs;
+                    try
                     {
-                        return;
+                        foreach (var success in e.Successful.Where(x => x.Value.Any()))
+                        {
+                            DequeueReason reason = success.Key;
+                            if (reason == DequeueReason.UserRequested)
+                            {
+                                notificationManager.RemoveAllPendingNotifications();
+                            }
+                        }
                     }
-
-                    var amountQueued = chaumianClient.State.SumAllQueuedCoinAmounts();
-                    if (amountQueued == Money.Zero)
+                    catch (Exception ex)
                     {
-                        notificationManager.RemoveAllPendingNotifications();
+                        Logger.LogWarning(ex);
                     }
                 })
                 .DisposeWith(Disposables);

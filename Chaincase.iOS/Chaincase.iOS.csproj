@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">iPhoneSimulator</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{A88F65A3-A460-4AA9-A844-C029044D9C2A}</ProjectGuid>
+    <ProjectGuid>{44322233-08F3-4611-9ED1-FDCF0AEB1317}</ProjectGuid>
     <ProjectTypeGuids>{FEACFBD2-3405-455C-9665-78FE426C6842};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <TemplateGuid>{6143fdea-f3c2-4a09-aafa-6e230626515e}</TemplateGuid>
     <OutputType>Exe</OutputType>
@@ -18,20 +18,15 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhoneSimulator' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
     <OutputPath>bin\iPhoneSimulator\Debug</OutputPath>
     <DefineConstants>DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <ConsolePause>false</ConsolePause>
     <MtouchArch>x86_64</MtouchArch>
     <MtouchLink>None</MtouchLink>
     <MtouchDebug>true</MtouchDebug>
-    <LangVersion>default</LangVersion>
-    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-    <CodesignKey>iPhone Distribution: Chaincase LLC (9Z72DXKVXK)</CodesignKey>
-<MtouchFastDev>true</MtouchFastDev>
-<CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
     <DebugType>none</DebugType>
@@ -41,11 +36,7 @@
     <WarningLevel>4</WarningLevel>
     <MtouchLink>None</MtouchLink>
     <MtouchArch>x86_64</MtouchArch>
-    <ConsolePause>false</ConsolePause>
-    <LangVersion>default</LangVersion>
-    <CodesignKey>Apple Development: dc.sled@gmail.com (BDA534V858)</CodesignKey>
-<MtouchUseLlvm>true</MtouchUseLlvm>
-<CodesignProvision>VS: cash.chaincase.chaincase Development</CodesignProvision>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhone' ">
     <DebugSymbols>true</DebugSymbols>
@@ -55,32 +46,26 @@
     <DefineConstants>DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <ConsolePause>false</ConsolePause>
     <MtouchArch>ARM64</MtouchArch>
-    <CodesignKey>Apple Development: dc.sled@gmail.com (BDA534V858)</CodesignKey>
+    <CodesignKey>iPhone Developer</CodesignKey>
     <MtouchDebug>true</MtouchDebug>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
-    <LangVersion>default</LangVersion>
     <MtouchLink>None</MtouchLink>
     <MtouchInterpreter>-all</MtouchInterpreter>
-    <CodesignProvision>VS: WildCard Development</CodesignProvision>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\iPhone\Release</OutputPath>
+    <DefineConstants>__IOS__;__MOBILE__;__UNIFIED__;LIVESHARP_DISABLE;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <MtouchArch>ARM64</MtouchArch>
-    <ConsolePause>false</ConsolePause>
     <CodesignKey>iPhone Distribution: Chaincase LLC (9Z72DXKVXK)</CodesignKey>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
-    <LangVersion>default</LangVersion>
-    <IOSDebugOverWiFi></IOSDebugOverWiFi>
-    <MtouchEnableSGenConc>true</MtouchEnableSGenConc>
-    <IpaPackageName></IpaPackageName>
-    <MtouchI18n></MtouchI18n>
-    <MtouchExtraArgs>--optimize=experimental-xforms-product-type </MtouchExtraArgs>
+    <LangVersion>8.0</LangVersion>
+    <CodesignProvision>Chaincase App Store</CodesignProvision>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
@@ -88,71 +73,97 @@
     <None Include="Entitlements.plist" />
     <None Include="Info.plist" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Tor\TorProcessManager.cs" />
+    <Compile Include="Renderers\NeuButtonRenderer.cs" />
+    <Compile Include="HsmStorage.cs" />
     <Compile Include="iOSNotificationManager.cs" />
     <Compile Include="iOSNotificationReceiver.cs" />
-    <Compile Include="HsmStorage.cs" />
-    <Compile Include="Renderers\NeuButtonRenderer.cs" />
+    <Compile Include="Tor\TorProcessManager.cs" />
+    <Compile Include="Backgrounding\iOSOnSleepingTask.cs" />
+    <Compile Include="Backgrounding\iOSInitializeNoWalletContext.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Icon1024.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Icon180.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Icon167.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Icon152.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Icon120.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Icon87.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Icon80.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Icon76.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Icon60.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Icon58.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Icon40.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Icon29.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Icon20.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\logo_vertical.imageset\logo_vertical.png" />
+    <ImageAsset Include="Assets.xcassets\logo_vertical.imageset\Contents.json" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
-    <Reference Include="Xamarin.iOS" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Numerics.Vectors" />
-    <Reference Include="System.Net.Http">
-      <HintPath>..\..\..\..\..\..\..\Library\Frameworks\Xamarin.Mac.framework\Versions\6.10.0.21\lib\mono\Xamarin.Mac\System.Net.Http.dll</HintPath>
-    </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="Xamarin.iOS" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Xamarin.Forms" Version="4.5.0.396" />
-    <PackageReference Include="Xamarin.Essentials" Version="1.5.1" />
+    <PackageReference Include="Microsoft.MobileBlazorBindings.WebView.iOS" Version="0.4.74-preview" />
+    <PackageReference Include="System.Memory" Version="4.5.4" IncludeAssets="None" />
+    <PackageReference Include="Xamarin.Forms" Version="4.7.0.968" />
+    <PackageReference Include="Xamarin.Essentials" Version="1.5.3.2" />
     <PackageReference Include="ZXing.Net.Mobile.Forms">
       <Version>2.4.1</Version>
     </PackageReference>
+    <PackageReference Include="LiveSharp">
+      <Version>1.6.12</Version>
+    </PackageReference>
   </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <ItemGroup>
     <ProjectReference Include="..\Chaincase\Chaincase.csproj">
-      <Project>{37F3D097-35F5-46BC-BDFE-F11DFD310926}</Project>
+      <Project>{BAC5541F-A9DA-4195-AF14-78D5EDC7F0CF}</Project>
       <Name>Chaincase</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WalletWasabi\WalletWasabi.Standard\WalletWasabi.Standard.csproj">
+      <Project>{0D4DDFEC-7BFA-47D4-8244-6CD3879DCDA4}</Project>
+      <Name>WalletWasabi.Standard</Name>
     </ProjectReference>
     <ProjectReference Include="..\TorFramework\TorFramework.csproj">
       <Project>{4B9C81E8-049C-425D-BD7A-BFBF586A7F64}</Project>
       <Name>TorFramework</Name>
     </ProjectReference>
-    <ProjectReference Include="..\WalletWasabi\WalletWasabi.Standard\WalletWasabi.Standard.csproj">
-      <Project>{77BDB5AD-EC21-41E8-995F-F37AF07866C9}</Project>
-      <Name>WalletWasabi.Standard</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Tor\" />
-    <Folder Include="Assets.xcassets\logo_vertical.imageset\" />
-    <Folder Include="Assets.xcassets\logo_vertical.imageset\" />
-    <Folder Include="Renderers\" />
+    <Folder Include="Backgrounding\" />
   </ItemGroup>
-  <ItemGroup>
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Icon167.png" />
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Icon29.png" />
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Icon1024.png" />
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\.DS_Store" />
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Icon60.png" />
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Icon76.png" />
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Icon58.png" />
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Icon40.png" />
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Icon80.png" />
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Icon87.png" />
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Icon120.png" />
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Icon152.png" />
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Icon20.png" />
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Icon180.png" />
-    <ImageAsset Include="Assets.xcassets\logo_vertical.imageset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\logo_vertical.imageset\logo_vertical.png" />
-  </ItemGroup>
-  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
 </Project>
