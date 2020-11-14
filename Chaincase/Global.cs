@@ -121,181 +121,178 @@ namespace Chaincase
             TorManager = null;
             var cancel = StoppingCts.Token;
             Logger.LogDebug($"Global.InitializeNoWalletAsync(): Waiting for a lock");
-            using (await LifeCycleMutex.LockAsync())
+            try
             {
-                try
+                InitializationStarted = true;
+
+                Logger.LogDebug($"Global.InitializeNoWalletAsync(): Got lock");
+
+                Cache = new MemoryCache(new MemoryCacheOptions
                 {
-                    InitializationStarted = true;
+                    SizeLimit = 1_000,
+                    ExpirationScanFrequency = TimeSpan.FromSeconds(30)
+                });
+                var bstoreInitTask = BitcoinStore.InitializeAsync();
+                var addressManagerFolderPath = Path.Combine(DataDir, "AddressManager");
 
-                    Logger.LogDebug($"Global.InitializeNoWalletAsync(): Got lock");
+                AddressManagerFilePath = Path.Combine(addressManagerFolderPath, $"AddressManager{Network}.dat");
+                var addrManTask = InitializeAddressManagerBehaviorAsync();
 
-                    Cache = new MemoryCache(new MemoryCacheOptions
+                var blocksFolderPath = Path.Combine(DataDir, $"Blocks{Network}");
+                var userAgent = Constants.UserAgents.RandomElement();
+                var connectionParameters = new NodeConnectionParameters { UserAgent = userAgent };
+
+                if (Config.UseTor)
+                {
+                    Synchronizer = new WasabiSynchronizer(Network, BitcoinStore, () => Config.GetCurrentBackendUri(), Config.TorSocks5EndPoint);
+                }
+                else
+                {
+                    Synchronizer = new WasabiSynchronizer(Network, BitcoinStore, Config.GetFallbackBackendUri(), null);
+                }
+                cancel.ThrowIfCancellationRequested();
+
+                #region TorProcessInitialization
+
+                if (Config.UseTor)
+                {
+                    TorManager = DependencyService.Get<ITorManager>();
+                    await TorManager.StartAsync(false, DataDir);
+                }
+                else
+                {
+                    TorManager = DependencyService.Get<ITorManager>().Mock();
+                    await TorManager.StartAsync(false, DataDir);
+                }
+
+                Logger.LogInfo($"Global.InitializeNoWalletAsync():{nameof(TorManager)} is initialized.");
+
+                #endregion TorProcessInitialization
+
+                #region BitcoinStoreInitialization
+
+                await bstoreInitTask.ConfigureAwait(false);
+
+                // Make sure that the height of the wallets will not be better than the current height of the filters.
+                WalletManager.SetMaxBestHeight(BitcoinStore.IndexStore.SmartHeaderChain.TipHeight);
+
+                #endregion BitcoinStoreInitialization
+
+                #region FeeProviderInitialization
+                // Mirrors #region BitcoinCoreInitialization in WalletWasabi
+
+                var feeProviderList = new List<IFeeProvider>
+            {
+                Synchronizer
+            };
+
+                FeeProviders = new FeeProviders(feeProviderList);
+
+                #endregion FeeProviderInitialization
+
+                #region MempoolInitialization
+
+                connectionParameters.TemplateBehaviors.Add(BitcoinStore.CreateUntrustedP2pBehavior());
+
+                #endregion MempoolInitialization
+
+                #region AddressManagerInitialization
+
+                AddressManagerBehavior addressManagerBehavior = await addrManTask.ConfigureAwait(false);
+                connectionParameters.TemplateBehaviors.Add(addressManagerBehavior);
+
+                #endregion AddressManagerInitialization
+
+                #region P2PInitialization
+
+                if (Network == Network.RegTest)
+                {
+                    Nodes = new NodesGroup(Network, requirements: Constants.NodeRequirements);
+                    try
                     {
-                        SizeLimit = 1_000,
-                        ExpirationScanFrequency = TimeSpan.FromSeconds(30)
-                    });
-                    var bstoreInitTask = BitcoinStore.InitializeAsync();
-                    var addressManagerFolderPath = Path.Combine(DataDir, "AddressManager");
+                        EndPoint bitcoinCoreEndpoint = Config.GetBitcoinP2pEndPoint();
 
-                    AddressManagerFilePath = Path.Combine(addressManagerFolderPath, $"AddressManager{Network}.dat");
-                    var addrManTask = InitializeAddressManagerBehaviorAsync();
+                        Node node = await Node.ConnectAsync(NBitcoin.Network.RegTest, bitcoinCoreEndpoint).ConfigureAwait(false);
 
-                    var blocksFolderPath = Path.Combine(DataDir, $"Blocks{Network}");
-                    var userAgent = Constants.UserAgents.RandomElement();
-                    var connectionParameters = new NodeConnectionParameters { UserAgent = userAgent };
+                        Nodes.ConnectedNodes.Add(node);
 
+                        RegTestMempoolServingNode = await Node.ConnectAsync(NBitcoin.Network.RegTest, bitcoinCoreEndpoint).ConfigureAwait(false);
+
+                        RegTestMempoolServingNode.Behaviors.Add(BitcoinStore.CreateUntrustedP2pBehavior());
+                    }
+                    catch (SocketException ex)
+                    {
+                        Logger.LogError(ex);
+                    }
+                }
+                else
+                {
                     if (Config.UseTor)
                     {
-                        Synchronizer = new WasabiSynchronizer(Network, BitcoinStore, () => Config.GetCurrentBackendUri(), Config.TorSocks5EndPoint);
+                        // onlyForOnionHosts: false - Connect to clearnet IPs through Tor, too.
+                        connectionParameters.TemplateBehaviors.Add(new SocksSettingsBehavior(Config.TorSocks5EndPoint, onlyForOnionHosts: false, networkCredential: null, streamIsolation: true));
+                        // allowOnlyTorEndpoints: true - Connect only to onions and don't connect to clearnet IPs at all.
+                        // This of course makes the first setting unneccessary, but it's better if that's around, in case someone wants to tinker here.
+                        connectionParameters.EndpointConnector = new DefaultEndpointConnector(allowOnlyTorEndpoints: Network == Network.Main);
+
+                        await AddKnownBitcoinFullNodeAsHiddenServiceAsync(AddressManager).ConfigureAwait(false);
                     }
-                    else
-                    {
-                        Synchronizer = new WasabiSynchronizer(Network, BitcoinStore, Config.GetFallbackBackendUri(), null);
-                    }
-                    cancel.ThrowIfCancellationRequested();
-
-                    #region TorProcessInitialization
-
-                    if (Config.UseTor)
-                    {
-                        TorManager = DependencyService.Get<ITorManager>();
-                        await TorManager.StartAsync(false, DataDir);
-                    }
-                    else
-                    {
-                        TorManager = DependencyService.Get<ITorManager>().Mock();
-                        await TorManager.StartAsync(false, DataDir);
-                    }
-
-                    Logger.LogInfo($"Global.InitializeNoWalletAsync():{nameof(TorManager)} is initialized.");
-
-                    #endregion TorProcessInitialization
-
-                    #region BitcoinStoreInitialization
-
-                    await bstoreInitTask.ConfigureAwait(false);
-
-                    // Make sure that the height of the wallets will not be better than the current height of the filters.
-                    WalletManager.SetMaxBestHeight(BitcoinStore.IndexStore.SmartHeaderChain.TipHeight);
-
-                    #endregion BitcoinStoreInitialization
-
-                    #region FeeProviderInitialization
-                    // Mirrors #region BitcoinCoreInitialization in WalletWasabi
-
-                    var feeProviderList = new List<IFeeProvider>
-                {
-                    Synchronizer
-                };
-
-                    FeeProviders = new FeeProviders(feeProviderList);
-
-                    #endregion FeeProviderInitialization
-
-                    #region MempoolInitialization
-
-                    connectionParameters.TemplateBehaviors.Add(BitcoinStore.CreateUntrustedP2pBehavior());
-
-                    #endregion MempoolInitialization
-
-                    #region AddressManagerInitialization
-
-                    AddressManagerBehavior addressManagerBehavior = await addrManTask.ConfigureAwait(false);
-                    connectionParameters.TemplateBehaviors.Add(addressManagerBehavior);
-
-                    #endregion AddressManagerInitialization
-
-                    #region P2PInitialization
-
-                    if (Network == Network.RegTest)
-                    {
-                        Nodes = new NodesGroup(Network, requirements: Constants.NodeRequirements);
-                        try
-                        {
-                            EndPoint bitcoinCoreEndpoint = Config.GetBitcoinP2pEndPoint();
-
-                            Node node = await Node.ConnectAsync(NBitcoin.Network.RegTest, bitcoinCoreEndpoint).ConfigureAwait(false);
-
-                            Nodes.ConnectedNodes.Add(node);
-
-                            RegTestMempoolServingNode = await Node.ConnectAsync(NBitcoin.Network.RegTest, bitcoinCoreEndpoint).ConfigureAwait(false);
-
-                            RegTestMempoolServingNode.Behaviors.Add(BitcoinStore.CreateUntrustedP2pBehavior());
-                        }
-                        catch (SocketException ex)
-                        {
-                            Logger.LogError(ex);
-                        }
-                    }
-                    else
-                    {
-                        if (Config.UseTor)
-                        {
-                            // onlyForOnionHosts: false - Connect to clearnet IPs through Tor, too.
-                            connectionParameters.TemplateBehaviors.Add(new SocksSettingsBehavior(Config.TorSocks5EndPoint, onlyForOnionHosts: false, networkCredential: null, streamIsolation: true));
-                            // allowOnlyTorEndpoints: true - Connect only to onions and don't connect to clearnet IPs at all.
-                            // This of course makes the first setting unneccessary, but it's better if that's around, in case someone wants to tinker here.
-                            connectionParameters.EndpointConnector = new DefaultEndpointConnector(allowOnlyTorEndpoints: Network == Network.Main);
-
-                            await AddKnownBitcoinFullNodeAsHiddenServiceAsync(AddressManager).ConfigureAwait(false);
-                        }
-                        Nodes = new NodesGroup(Network, connectionParameters, requirements: Constants.NodeRequirements);
-                        Nodes.MaximumNodeConnection = 12;
-                        RegTestMempoolServingNode = null;
-                    }
-
-                    Nodes.Connect();
-                    Logger.LogInfo("Global.InitializeNoWalletAsync(): Start connecting to nodes...");
-
-                    var regTestMempoolServingNode = RegTestMempoolServingNode;
-                    if (regTestMempoolServingNode != null)
-                    {
-                        regTestMempoolServingNode.VersionHandshake();
-                        Logger.LogInfo("Global.InitializeNoWalletAsync(): Start connecting to mempool serving regtest node...");
-                    }
-
-                    #endregion P2PInitialization
-
-                    #region SynchronizerInitialization
-
-                    var requestInterval = TimeSpan.FromSeconds(30);
-                    if (Network == Network.RegTest)
-                    {
-                        requestInterval = TimeSpan.FromSeconds(5);
-                    }
-
-                    int maxFiltSyncCount = Network == Network.Main ? 1000 : 10000; // On testnet, filters are empty, so it's faster to query them together
-
-                    Synchronizer.Start(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
-                    Logger.LogInfo("Global.InitializeNoWalletAsync(): Start synchronizing filters...");
-
-                    #endregion SynchronizerInitialization
-
-                    TransactionBroadcaster = new TransactionBroadcaster(Network, BitcoinStore, Synchronizer, Nodes, WalletManager, null);
-                    CoinJoinProcessor = new CoinJoinProcessor(Synchronizer, WalletManager, null);
-
-                    #region Blocks provider
-
-                    var blockProvider = new CachedBlockProvider(
-                        new SmartBlockProvider(
-                            new P2pBlockProvider(Nodes, null, Synchronizer, Config.ServiceConfiguration, Network),
-                            Cache),
-                        new FileSystemBlockRepository(blocksFolderPath, Network));
-
-                    #endregion Blocks provider
-
-                    WalletManager.RegisterServices(BitcoinStore, Synchronizer, Nodes, Config.ServiceConfiguration, FeeProviders, blockProvider);
-
-                    Initialized(this, EventArgs.Empty);
-                    IsInitialized = true;
+                    Nodes = new NodesGroup(Network, connectionParameters, requirements: Constants.NodeRequirements);
+                    Nodes.MaximumNodeConnection = 12;
+                    RegTestMempoolServingNode = null;
                 }
-                finally
-                {
-                    InitializationCompleted = true;
-                    StoppingCts = new CancellationTokenSource();
-                    Logger.LogDebug($"Global.InitializeNoWalletAsync(): Global.InitializeNoWalletAsync(): Finished init");
 
+                Nodes.Connect();
+                Logger.LogInfo("Global.InitializeNoWalletAsync(): Start connecting to nodes...");
+
+                var regTestMempoolServingNode = RegTestMempoolServingNode;
+                if (regTestMempoolServingNode != null)
+                {
+                    regTestMempoolServingNode.VersionHandshake();
+                    Logger.LogInfo("Global.InitializeNoWalletAsync(): Start connecting to mempool serving regtest node...");
                 }
+
+                #endregion P2PInitialization
+
+                #region SynchronizerInitialization
+
+                var requestInterval = TimeSpan.FromSeconds(30);
+                if (Network == Network.RegTest)
+                {
+                    requestInterval = TimeSpan.FromSeconds(5);
+                }
+
+                int maxFiltSyncCount = Network == Network.Main ? 1000 : 10000; // On testnet, filters are empty, so it's faster to query them together
+
+                Synchronizer.Start(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
+                Logger.LogInfo("Global.InitializeNoWalletAsync(): Start synchronizing filters...");
+
+                #endregion SynchronizerInitialization
+
+                TransactionBroadcaster = new TransactionBroadcaster(Network, BitcoinStore, Synchronizer, Nodes, WalletManager, null);
+                CoinJoinProcessor = new CoinJoinProcessor(Synchronizer, WalletManager, null);
+
+                #region Blocks provider
+
+                var blockProvider = new CachedBlockProvider(
+                    new SmartBlockProvider(
+                        new P2pBlockProvider(Nodes, null, Synchronizer, Config.ServiceConfiguration, Network),
+                        Cache),
+                    new FileSystemBlockRepository(blocksFolderPath, Network));
+
+                #endregion Blocks provider
+
+                WalletManager.RegisterServices(BitcoinStore, Synchronizer, Nodes, Config.ServiceConfiguration, FeeProviders, blockProvider);
+
+                Initialized(this, EventArgs.Empty);
+                IsInitialized = true;
+            }
+            finally
+            {
+                InitializationCompleted = true;
+                StoppingCts = new CancellationTokenSource();
+                Logger.LogDebug($"Global.InitializeNoWalletAsync(): Global.InitializeNoWalletAsync(): Finished init");
+
             }
         }
 
@@ -538,23 +535,28 @@ namespace Chaincase
             Logger.LogInfo($"Transaction Notification ({notificationType}): {title} - {message} - {e.Transaction.GetHash()}");
         }
 
-        private bool ResumeCompleted { get; set; } = true;
-        private bool SleepCompleted { get; set; } = true;
+        private CancellationTokenSource ResumeCts { get; set; } = new CancellationTokenSource();
+        private protected bool IsResuming { get; set; } = false;
 
         public async Task OnResuming()
         {
-            if (!InitializationCompleted || !ResumeCompleted)
+            if (IsResuming)
+			{
+                SleepCts.Cancel();
                 return;
+			}
 
             try
             {
                 Logger.LogDebug($"Global.OnResuming(): Waiting for a lock");
-                using (await LifeCycleMutex.LockAsync())
+                using (await LifeCycleMutex.LockAsync(ResumeCts.Token))
                 {
+                    #region CriticalSection
+                    IsResuming = true;
                     Logger.LogDebug($"Global.OnResuming(): Entered critical section");
 
-                    #region CriticalSection
-                    ResumeCompleted = false;
+                    // don't ever cancel Init. use an ephemeral token
+                    await WaitForInitializationCompletedAsync(new CancellationToken());
 
                     var userAgent = Constants.UserAgents.RandomElement();
                     var connectionParameters = new NodeConnectionParameters { UserAgent = userAgent };
@@ -584,6 +586,9 @@ namespace Chaincase
                         await Wallet.ChaumianClient.QueueCoinsToMixAsync(SleepingCoins);
                         SleepingCoins = null;
                     }
+
+                    IsResuming = false;
+                    ResumeCts = new CancellationTokenSource();
                     #endregion CriticalSection
                 }
             }
@@ -593,25 +598,32 @@ namespace Chaincase
             }
             finally
             {
-                ResumeCompleted = true;
+                Logger.LogDebug("Global.OnResuming():Chaincase Resumed");
             }
         }
 
+        private CancellationTokenSource SleepCts { get;  set; } = new CancellationTokenSource();
+        private protected bool IsGoingToSleep = false;
         public async Task OnSleeping()
         {
-            using (await SleepMutex.LockAsync())
+            if (IsGoingToSleep)
             {
-                if (!SleepCompleted) return;
-                while (!InitializationCompleted) Task.Yield(); // Do not await on purpose --- TODO WHYYYYY
-                SleepCompleted = false;
+                ResumeCts.Cancel();
+                return;
             }
+
             try
             {
                 Logger.LogDebug($"Global.OnSleeping(): Waiting for a lock");
-                using (await LifeCycleMutex.LockAsync())
+                using (await LifeCycleMutex.LockAsync(SleepCts.Token))
                 {
-                    Logger.LogDebug($"Global.OnSleeping(): Entered critical section");
                     #region CriticalSection
+                    Logger.LogDebug($"Global.OnSleeping(): Entered critical section");
+
+                    IsGoingToSleep = true;
+
+                    // don't ever cancel Init. use an ephemeral token
+                    await WaitForInitializationCompletedAsync(new CancellationToken());
 
                     var tor = DependencyService.Get<ITorManager>();
                     if (tor?.State != TorState.Stopped) // OnionBrowser && Dispose@Global
@@ -661,6 +673,9 @@ namespace Chaincase
 
                         Logger.LogInfo($"Global.OnSleeping():{nameof(Nodes)} are disconnected.");
                     }
+
+                    IsGoingToSleep = false;
+                    SleepCts = new CancellationTokenSource();
                     #endregion CriticalSection
                 }
             }
@@ -670,8 +685,7 @@ namespace Chaincase
             }
             finally
             {
-                Logger.LogInfo("Global.OnSleeping():Chaincase Sleeping"); // no real termination on iOS
-                SleepCompleted = true;
+                Logger.LogDebug("Global.OnSleeping():Chaincase Sleeping"); // no real termination on iOS
             }
         }
 
