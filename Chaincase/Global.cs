@@ -535,13 +535,14 @@ namespace Chaincase
             Logger.LogInfo($"Transaction Notification ({notificationType}): {title} - {message} - {e.Transaction.GetHash()}");
         }
 
-        private CancellationTokenSource ResumeCts { get; set; } = new CancellationTokenSource();
+        private protected CancellationTokenSource ResumeCts { get; set; } = new CancellationTokenSource();
         private protected bool IsResuming { get; set; } = false;
 
         public async Task OnResuming()
         {
             if (IsResuming)
 			{
+                Logger.LogDebug($"Global.OnResuming(): SleepCts.Cancel()");
                 SleepCts.Cancel();
                 return;
 			}
@@ -549,6 +550,8 @@ namespace Chaincase
             try
             {
                 Logger.LogDebug($"Global.OnResuming(): Waiting for a lock");
+                ResumeCts.Dispose();
+                ResumeCts = new CancellationTokenSource();
                 using (await LifeCycleMutex.LockAsync(ResumeCts.Token))
                 {
                     #region CriticalSection
@@ -588,7 +591,6 @@ namespace Chaincase
                     }
 
                     IsResuming = false;
-                    ResumeCts = new CancellationTokenSource();
                     #endregion CriticalSection
                 }
             }
@@ -602,12 +604,13 @@ namespace Chaincase
             }
         }
 
-        private CancellationTokenSource SleepCts { get;  set; } = new CancellationTokenSource();
+        private protected CancellationTokenSource SleepCts { get;  set; } = new CancellationTokenSource();
         private protected bool IsGoingToSleep = false;
         public async Task OnSleeping()
         {
             if (IsGoingToSleep)
             {
+                Logger.LogDebug($"Global.OnResuming(): ResumeCts.Cancel()");
                 ResumeCts.Cancel();
                 return;
             }
@@ -615,6 +618,8 @@ namespace Chaincase
             try
             {
                 Logger.LogDebug($"Global.OnSleeping(): Waiting for a lock");
+                SleepCts.Dispose();
+                SleepCts = new CancellationTokenSource();
                 using (await LifeCycleMutex.LockAsync(SleepCts.Token))
                 {
                     #region CriticalSection
@@ -675,7 +680,6 @@ namespace Chaincase
                     }
 
                     IsGoingToSleep = false;
-                    SleepCts = new CancellationTokenSource();
                     #endregion CriticalSection
                 }
             }
