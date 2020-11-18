@@ -1,4 +1,79 @@
-﻿.pageHeading {
-    font-size:24;
-    margin-bottom:32;
+﻿/* colors
+    ChaincasePurple: #593CFE
+    ChaincaseGold:#FF8600</Color >
+    LightPageBackgroundColor">#F2F2F3
+
+*/
+
+^navigationpage {
+    -xf-bar-background-color: #f2f2f3;
+    -xf-bar-text-color: #593cfe;
+}
+
+^contentpage {
+    background-color: #f2f2f3;
+    padding: 10 24 10 24;
+}
+
+listview,
+entry {
+    background-color: #f2f2f3;
+}
+
+progressbar,
+#ShowLabel {
+    color: #593cfe;
+}
+
+#ShowLabel {
+    font-style: bold;
+    padding: 0 0 10 0;
+}
+
+slider {
+    -xf-min-track-color: #593cfe;
+}
+
+switch {
+    color: #ff8600;
+}
+
+#WarnToOpenLabel {
+    padding: 10 10 10 10;
+    color: #fff;
+    background-color: #ff8600;
+    text-align: center;
+    font-style: bold;
+}
+
+.status {
+    -xf-spacing: 10;
+}
+
+.status label,
+.light-label {
+    color: gray;
+}
+
+^button {
+    font-style: bold;
+    text-transform: uppercase;
+    color: #593cfe;
+    border-color: #593cfe;
+    border-radius: 4;
+    border-width: 1;
+    height: 40;
+    margin: 8;
+    background: linear-gradient(180deg, #F1F1F2 0%, #F6F6F7 100%);
+}
+
+neubutton {
+    border-radius: 21;
+    border-width: 0;
+    background: linear-gradient(180deg, #F1F1F2 0%, #F6F6F7 100%);
+}
+
+.pageheading {
+    font-size: 24;
+    margin-bottom: 32;
 }

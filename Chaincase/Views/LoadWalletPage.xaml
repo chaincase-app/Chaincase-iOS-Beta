@@ -25,7 +25,6 @@
       <Label x:Name="ShowLabel"
              Text="SHOW"
              FontAttributes="Bold"
-             TextColor="{StaticResource ChaincasePurple}"
              Padding="0,0,10,0"
              HorizontalOptions="End"
              VerticalOptions="Center"
@@ -35,8 +34,8 @@
         </Label.GestureRecognizers>
       </Label>
       </Grid>
-      <Label Text="Your wallet will load with the password you supply. We cannot check whether or not it is correct."
-             Style="{StaticResource LightLabel}"/>
+      <Label StyleClass="light-label"
+             Text="Your wallet will load with the password you supply. We cannot check whether or not it is correct." />
 
     <Label Text="Enter your seed words from Chaincase or Wasabi"
            FontAttributes="Bold"/>
