@@ -3,73 +3,83 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Chaincase.Background;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Chaincase.Navigation;
-using Chaincase.Services;
 using Chaincase.ViewModels;
 using Chaincase.Views;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.JSInterop;
+using Microsoft.MobileBlazorBindings;
+using Microsoft.MobileBlazorBindings.WebView;
+using ReactiveUI;
 using Splat;
+using Splat.Microsoft.Extensions.DependencyInjection;
 using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Helpers;
 using WalletWasabi.Logging;
-using Xamarin.Essentials;
 using Xamarin.Forms;
 
 namespace Chaincase
 {
     public partial class App : Application
     {
-		private static Global Global;
-			
-		public App(Action<IServiceCollection> configureDI)
+		public IServiceProvider Container { get; private set; }
+
+		public App(Action<IServiceCollection> configureOSServices)
         {
 			InitializeComponent();
 			//BlazorHybridHost.AddResourceAssembly(GetType().Assembly, contentRoot: "WebUI/wwwroot");
 
-			//var host = MobileBlazorBindingsHost.CreateDefaultBuilder()
-			//	.ConfigureServices((hostContext, services) =>
-			//	{
-			//		// Adds web-specific services such as NavigationManager
-			//		services.AddBlazorHybrid();
+			var host = MobileBlazorBindingsHost
+				.CreateDefaultBuilder()
+				.ConfigureServices((hostContext, services) =>
+				{
+					services.AddBlazorHybrid();
+					services.UseMicrosoftDependencyResolver();
+					var resolver = Locator.CurrentMutable;
+					resolver.InitializeSplat();
+					resolver.InitializeReactiveUI();
 
-			//		// Register app-specific services
-			//		services.AddSingleton<CounterState>();
-			//		services.AddSingleton<AppStateService>();
-			//		configureDI?.Invoke(services);
-			//	})
-			//	.Build();
+					// shorthand for e.g.
+					// services.AddTransient<IViewFor<SecondaryViewModel>, SecondaryPage>();
 
-			Global = new Global();
-			Locator.CurrentMutable.RegisterConstant(Global);
+					resolver
+						.RegisterView<MainPage, MainViewModel>()
+						.RegisterView<WalletInfoPage, WalletInfoViewModel>()
+						.RegisterView<TransactionDetailPage, TransactionViewModel>()
+						.RegisterView<LandingPage, LandingViewModel>()
+						.RegisterView<LoadWalletPage, LoadWalletViewModel>()
+						.RegisterView<ReceivePage, ReceiveViewModel>()
+						.RegisterView<AddressPage, AddressViewModel>()
+						.RegisterView<RequestAmountModal, RequestAmountViewModel>()
+						.RegisterView<SendAmountPage, SendAmountViewModel>()
+						.RegisterView<FeeModal, FeeViewModel>()
+						.RegisterView<CoinSelectModal, CoinListViewModel>()
+						.RegisterView<CoinDetailModal, CoinViewModel>()
+						.RegisterView<SendWhoPage, SendWhoViewModel>()
+						.RegisterView<SentPage, SentViewModel>()
+						.RegisterView<CoinJoinPage, CoinJoinViewModel>()
+						.RegisterView<NewPasswordPage, NewPasswordViewModel>()
+						.RegisterView<VerifyMnemonicPage, VerifyMnemonicViewModel>()
+						.RegisterView<PasswordPromptModal, PasswordPromptViewModel>()
+						.RegisterView<StartBackUpModal, StartBackUpViewModel>()
+						.RegisterView<BackUpModal, BackUpViewModel>()
+						.RegisterNavigationView(() => new NavigationView());
+
+					configureOSServices?.Invoke(services);
+
+					services.AddSingleton<Global, Global>();
+				})
+				.Build();
+
+			Container = host.Services;
+			Container.UseMicrosoftDependencyResolver();
 
 			// This relies on Global registered
 			var message = new InitializeNoWalletTaskMessage();
 			MessagingCenter.Send(message, "InitializeNoWalletTaskMessage");
-
-			Locator
-				.CurrentMutable
-				.RegisterView<MainPage, MainViewModel>()
-				.RegisterView<WalletInfoPage, WalletInfoViewModel>()
-				.RegisterView<TransactionDetailPage, TransactionViewModel>()
-				.RegisterView<LandingPage, LandingViewModel>()
-				.RegisterView<LoadWalletPage, LoadWalletViewModel>()
-				.RegisterView<ReceivePage, ReceiveViewModel>()
-				.RegisterView<AddressPage, AddressViewModel>()
-				.RegisterView<RequestAmountModal, RequestAmountViewModel>()
-				.RegisterView<SendAmountPage, SendAmountViewModel>()
-				.RegisterView<FeeModal, FeeViewModel>()
-				.RegisterView<CoinSelectModal, CoinListViewModel>()
-				.RegisterView<CoinDetailModal, CoinViewModel>()
-				.RegisterView<SendWhoPage, SendWhoViewModel>()
-				.RegisterView<SentPage, SentViewModel>()
-				.RegisterView<CoinJoinPage, CoinJoinViewModel>()
-				.RegisterView<NewPasswordPage, NewPasswordViewModel>()
-				.RegisterView<VerifyMnemonicPage, VerifyMnemonicViewModel>()
-				.RegisterView<PasswordPromptModal, PasswordPromptViewModel>()
-				.RegisterView<StartBackUpModal, StartBackUpViewModel>()
-				.RegisterView<BackUpModal, BackUpViewModel>()
-				.RegisterNavigationView(() => new NavigationView());
 
 			var page = WalletExists() ? (IViewModel)new MainViewModel() : new LandingViewModel();
 
@@ -109,7 +119,7 @@ namespace Chaincase
 			Resuming -= OnResuming;
 
 			//perform non-blocking actions
-			await Global.OnResuming();
+			await Locator.Current.GetService<Global>().OnResuming();
 		}
 
 		private static void TaskScheduler_UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
@@ -124,8 +134,9 @@ namespace Chaincase
 
 		public static async Task LoadWalletAsync()
 		{
-			string walletName = Global.Network.ToString();
-			KeyManager keyManager = Global.WalletManager.GetWalletByName(walletName).KeyManager;
+			var global = Locator.Current.GetService<Global>();
+			string walletName = global.Network.ToString();
+			KeyManager keyManager = global.WalletManager.GetWalletByName(walletName).KeyManager;
 			if (keyManager is null)
 			{
 				return;
@@ -133,7 +144,7 @@ namespace Chaincase
 
 			try
 			{
-				Global.Wallet = await Global.WalletManager.StartWalletAsync(keyManager);
+				global.Wallet = await global.WalletManager.StartWalletAsync(keyManager);
 				// Successfully initialized.
 			}
 			catch (OperationCanceledException ex)
@@ -148,8 +159,9 @@ namespace Chaincase
 
 		private bool WalletExists()
 		{
-			var walletName = Global.Network.ToString();
-			(string walletFullPath, _) = Global.WalletManager.WalletDirectories.GetWalletFilePaths(walletName);
+			var global = Locator.Current.GetService<Global>();
+			var walletName = global.Network.ToString();
+			(string walletFullPath, _) = global.WalletManager.WalletDirectories.GetWalletFilePaths(walletName);
 			return File.Exists(walletFullPath);
 		}
 

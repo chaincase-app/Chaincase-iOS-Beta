@@ -66,7 +66,7 @@ namespace Chaincase.Views
 
                 this.BindCommand(ViewModel,
                     vm => vm.NavReceiveCommand,
-                    v => v.NavReceiveCommand)
+                    v => v.NavReceiveButton)
                     .DisposeWith(d);
                 this.BindCommand(ViewModel,
                     vm => vm.InitCoinJoin,

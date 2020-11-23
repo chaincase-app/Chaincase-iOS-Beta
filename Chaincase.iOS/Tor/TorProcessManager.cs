@@ -2,8 +2,8 @@
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
+using Chaincase.Common;
 using CoreFoundation;
 using Foundation;
 using ObjCRuntime;
@@ -12,10 +12,9 @@ using WalletWasabi.Exceptions;
 using WalletWasabi.Helpers;
 using WalletWasabi.Logging;
 using WalletWasabi.TorSocks5;
-using Xamarin.Forms;
 using Nito.AsyncEx;
+using Xamarin.Forms;
 
-[assembly: Dependency(typeof(Chaincase.iOS.Tor.OnionManager))]
 namespace Chaincase.iOS.Tor
 {
     public interface OnionManagerDelegate
@@ -55,12 +54,7 @@ namespace Chaincase.iOS.Tor
 
         private TORThread torThread;
 
-        public ITorManager Mock() // Mock, do not use Tor at all for debug.
-        {
-            return new OnionManager();
-        }
-
-		public void Start(bool ensureRunning, string dataDir)
+        public void Start(bool ensureRunning, string dataDir)
 		{
 			if (TorSocks5EndPoint is null)
 			{

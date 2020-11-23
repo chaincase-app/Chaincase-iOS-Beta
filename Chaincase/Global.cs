@@ -7,7 +7,6 @@ using System.Net.Sockets;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Chaincase.Notifications;
 using Microsoft.Extensions.Caching.Memory;
 using NBitcoin;
 using NBitcoin.Protocol;
@@ -29,7 +28,8 @@ using WalletWasabi.Stores;
 using WalletWasabi.Wallets;
 using Nito.AsyncEx;
 using Xamarin.Forms;
-
+using Chaincase.Common;
+using Splat;
 
 namespace Chaincase
 {
@@ -85,7 +85,7 @@ namespace Chaincase
                 UiConfig.LoadOrCreateDefaultFile();
                 Config.LoadOrCreateDefaultFile();
 
-                NotificationManager = DependencyService.Get<INotificationManager>();
+                NotificationManager = Locator.Current.GetService<INotificationManager>();
 
                 WalletManager = new WalletManager(Network, new WalletDirectories(DataDir));
                 WalletManager.OnDequeue += WalletManager_OnDequeue;
@@ -119,7 +119,6 @@ namespace Chaincase
         {
             AddressManager = null;
             TorManager = null;
-            var cancel = StoppingCts.Token;
             Logger.LogDebug($"Global.InitializeNoWalletAsync(): Waiting for a lock");
             try
             {
@@ -150,19 +149,14 @@ namespace Chaincase
                 {
                     Synchronizer = new WasabiSynchronizer(Network, BitcoinStore, Config.GetFallbackBackendUri(), null);
                 }
-                cancel.ThrowIfCancellationRequested();
 
                 #region TorProcessInitialization
 
                 if (Config.UseTor)
                 {
-                    TorManager = DependencyService.Get<ITorManager>();
-                    await TorManager.StartAsync(false, DataDir);
-                }
-                else
-                {
-                    TorManager = DependencyService.Get<ITorManager>().Mock();
-                    await TorManager.StartAsync(false, DataDir);
+                    TorManager = Locator.Current.GetService<ITorManager>();
+                    await TorManager.StartAsync(ensureRunning: false, DataDir);
+                    Logger.LogInfo($"{nameof(TorManager)} is initialized.");
                 }
 
                 Logger.LogInfo($"Global.InitializeNoWalletAsync():{nameof(TorManager)} is initialized.");
@@ -291,8 +285,7 @@ namespace Chaincase
             {
                 InitializationCompleted = true;
                 StoppingCts = new CancellationTokenSource();
-                Logger.LogDebug($"Global.InitializeNoWalletAsync(): Global.InitializeNoWalletAsync(): Finished init");
-
+                Logger.LogDebug($"Initialization Completed");
             }
         }
 
@@ -567,7 +560,7 @@ namespace Chaincase
                     AddressManagerBehavior addressManagerBehavior = await addrManTask.ConfigureAwait(false);
                     connectionParameters.TemplateBehaviors.Add(addressManagerBehavior);
 
-                    var tor = DependencyService.Get<ITorManager>();
+                    var tor = Locator.Current.GetService<ITorManager>();
                     if (tor?.State != TorState.Started && tor.State != TorState.Connected)
                     {
                         await tor.StartAsync(false, GetDataDir());
@@ -582,7 +575,10 @@ namespace Chaincase
                     Synchronizer.Start(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
                     Logger.LogInfo("Global.OnResuming():Start synchronizing filters...");
 
-                    Synchronizer.ResponseArrived += Wallet.ChaumianClient.Synchronizer_ResponseArrivedAsync;
+                    if (Wallet?.ChaumianClient is { })
+                    {
+                        Synchronizer.ResponseArrived += Wallet.ChaumianClient.Synchronizer_ResponseArrivedAsync;
+                    }
 
                     if (SleepingCoins is { })
                     {
@@ -606,6 +602,7 @@ namespace Chaincase
 
         private protected CancellationTokenSource SleepCts { get;  set; } = new CancellationTokenSource();
         private protected bool IsGoingToSleep = false;
+
         public async Task OnSleeping()
         {
             if (IsGoingToSleep)
@@ -630,7 +627,7 @@ namespace Chaincase
                     // don't ever cancel Init. use an ephemeral token
                     await WaitForInitializationCompletedAsync(new CancellationToken());
 
-                    var tor = DependencyService.Get<ITorManager>();
+                    var tor = Locator.Current.GetService<ITorManager>();
                     if (tor?.State != TorState.Stopped) // OnionBrowser && Dispose@Global
                     {
                         await tor.StopAsync();

@@ -37,7 +37,7 @@
             TextColor="DarkRed"
             />
     <controls:NeuButton Text="GET RECEIVE ADDRESS"
-            x:Name="NavReceiveCommand"
+            x:Name="NavReceiveButton"
             VerticalOptions="EndAndExpand" />
     <controls:NeuButton Text="COINJOIN"
             x:Name="CoinJoinButton"

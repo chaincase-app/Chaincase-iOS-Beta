@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
+using Chaincase.Common;
 using Chaincase.Navigation;
-using NBitcoin;
+using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
 using Splat;
-using WalletWasabi.Blockchain.Keys;
-using Xamarin.Forms;
 
 namespace Chaincase.ViewModels
 {
@@ -21,7 +19,7 @@ namespace Chaincase.ViewModels
             : base(Locator.Current.GetService<IViewStackService>())
 		{
 			Global = Locator.Current.GetService<Global>();
-			var hsm = DependencyService.Get<IHsmStorage>();
+			var hsm = Locator.Current.GetService<IHsmStorage>();
 
 			NextCommand = ReactiveCommand.CreateFromObservable(() =>
 			{
