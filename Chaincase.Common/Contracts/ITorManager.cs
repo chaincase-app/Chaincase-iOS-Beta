@@ -14,7 +14,8 @@ namespace Chaincase.Common
     {
         TorState State { get; }
     
-        void Start(bool ensureRunning, string dataDir);
         Task StopAsync();
+
+        Task StartAsync(bool ensureRunning, string dataDir);
     }
 }

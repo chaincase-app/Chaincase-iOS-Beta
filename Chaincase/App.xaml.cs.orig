@@ -8,12 +8,19 @@ using Microsoft.Extensions.Hosting;
 using Chaincase.Navigation;
 using Chaincase.ViewModels;
 using Chaincase.Views;
+<<<<<<< HEAD
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+||||||| fbb7e07
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.JSInterop;
 using Microsoft.MobileBlazorBindings;
 using Microsoft.MobileBlazorBindings.WebView;
+=======
+using Microsoft.MobileBlazorBindings;
 using ReactiveUI;
+>>>>>>> master
 using Splat;
 using Splat.Microsoft.Extensions.DependencyInjection;
 using WalletWasabi.Blockchain.Keys;

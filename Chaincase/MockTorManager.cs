@@ -8,8 +8,9 @@ namespace Chaincase
 	{
 		public TorState State { get; } = TorState.Connected;
 
-		public void Start(bool ensureRunning, string dataDir)
+		public Task StartAsync(bool ensureRunning, string dataDir)
 		{
+			return Task.CompletedTask;
 		}
 
 		public Task StopAsync()
