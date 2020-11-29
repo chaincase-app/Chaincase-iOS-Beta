@@ -26,7 +26,7 @@
     <MtouchArch>x86_64</MtouchArch>
     <MtouchLink>None</MtouchLink>
     <MtouchDebug>true</MtouchDebug>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>9.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
     <DebugType>none</DebugType>
@@ -36,7 +36,7 @@
     <WarningLevel>4</WarningLevel>
     <MtouchLink>None</MtouchLink>
     <MtouchArch>x86_64</MtouchArch>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>9.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhone' ">
     <DebugSymbols>true</DebugSymbols>
@@ -64,8 +64,10 @@
     <MtouchArch>ARM64</MtouchArch>
     <CodesignKey>iPhone Distribution: Chaincase LLC (9Z72DXKVXK)</CodesignKey>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>9.0</LangVersion>
     <CodesignProvision>Chaincase App Store</CodesignProvision>
+    <MtouchLink>SdkOnly</MtouchLink>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
@@ -130,16 +132,13 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Numerics.Vectors" />
-    <Reference Include="System.Xml" />
     <Reference Include="Xamarin.iOS" />
+    <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.MobileBlazorBindings.WebView.iOS" Version="0.4.74-preview" />
     <PackageReference Include="System.Memory" Version="4.5.4" IncludeAssets="None" />
-    <PackageReference Include="Xamarin.Forms" Version="4.8.0.1560" />
+    <PackageReference Include="Xamarin.Forms" Version="4.8.0.1687" />
     <PackageReference Include="Xamarin.Essentials" Version="1.5.3.2" />
     <PackageReference Include="ZXing.Net.Mobile.Forms">
       <Version>2.4.1</Version>
