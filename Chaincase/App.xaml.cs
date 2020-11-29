@@ -30,7 +30,6 @@ namespace Chaincase
 		public App(Action<IServiceCollection> configureOSServices)
         {
 			InitializeComponent();
-			//BlazorHybridHost.AddResourceAssembly(GetType().Assembly, contentRoot: "WebUI/wwwroot");
 
 			var host = MobileBlazorBindingsHost
 				.CreateDefaultBuilder()
@@ -72,6 +71,7 @@ namespace Chaincase
 
 					services.AddSingleton<Global, Global>();
 				})
+				.UseWebRoot("wwwroot")
 				.Build();
 
 			Container = host.Services;

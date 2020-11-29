@@ -2,6 +2,7 @@
 @using System.Text.Json
 @using System.Threading.Tasks
 @using System
+@inject Microsoft.Extensions.FileProviders.IFileProvider FileProvider
 
 <h1>Weather forecast</h1>
 
@@ -41,20 +42,24 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        if (Microsoft.MobileBlazorBindings.WebView.BlazorHybridHost.TryGetEmbeddedResourceFile("weather.json", out var stream))
+      var fileInfo = FileProvider.GetFileInfo("_content/Chaincase/weather.json");
+      if (fileInfo != null && fileInfo.Exists)
+      {
+        using (var stream = fileInfo.CreateReadStream())
         {
-            forecasts = await JsonSerializer.DeserializeAsync<WeatherForecast[]>(stream, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+          var data = await JsonSerializer.DeserializeAsync<WeatherForecast[]>(stream, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         }
+      }
     }
 
     public class WeatherForecast
     {
-        public DateTime Date { get; set; }
+      public DateTime Date { get; set; }
 
-        public int TemperatureC { get; set; }
+      public int TemperatureC { get; set; }
 
-        public string Summary { get; set; }
+      public string Summary { get; set; }
 
-        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+      public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
     }
 }
