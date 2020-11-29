@@ -20,7 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="LiveSharp" Version="1.6.17" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="5.0.0" />
     <PackageReference Include="Microsoft.MobileBlazorBindings" Version="0.4.74-preview" />
     <PackageReference Include="System.Net.Http.Json" Version="5.0.0" />
