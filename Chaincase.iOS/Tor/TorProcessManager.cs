@@ -54,32 +54,6 @@ namespace Chaincase.iOS.Tor
 
         private TORThread torThread;
 
-        public void Start(bool ensureRunning, string dataDir)
-		{
-			if (TorSocks5EndPoint is null)
-			{
-				return;
-			}
-
-			if (dataDir == "mock")
-			{
-				return;
-			}
-			
-            StartTor(null);
-			Logger.LogInfo($"Started Tor process with Tor.framework");
-
-			if (ensureRunning)
-			{
-				Task.Delay(3000).ConfigureAwait(false).GetAwaiter().GetResult(); // dotnet brainfart, ConfigureAwait(false) IS NEEDED HERE otherwise (only on) Manjuro Linux fails, WTF?!!
-				if (!IsTorRunningAsync(TorSocks5EndPoint).GetAwaiter().GetResult())
-				{
-					throw new TorException("Attempted to start Tor, but it is not running.");
-				}
-				Logger.LogInfo("Tor is running.");
-			}
-		}
-
         public async Task StartAsync(bool ensureRunning, string dataDir)
         {
             if (TorSocks5EndPoint is null)
