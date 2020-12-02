@@ -27,14 +27,10 @@ namespace Chaincase.macOS
             NSApplication.SharedApplication.MainMenu = MakeMainMenu();
 
             Xamarin.Forms.Forms.Init();
-            LoadApplication(new App(ConfigureDi));
+            LoadApplication(new App(collection => { }));
             base.DidFinishLaunching(notification);
         }
 
-        private void ConfigureDi(IServiceCollection obj)
-        {
-            obj.ConfigureCommonXamarinServices();
-        }
 
         public override void WillTerminate(NSNotification notification)
         {

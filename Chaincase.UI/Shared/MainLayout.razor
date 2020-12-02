@@ -1,0 +1,39 @@
+﻿@inherits Microsoft.AspNetCore.Components.LayoutComponentBase
+@using Chaincase.UI.Services
+@implements System.IDisposable
+@inject UIStateService StateService
+<ion-split-pane when="sm" content-id="main-content">
+    <ion-menu content-id="main-content">
+        <NavMenu/>
+    </ion-menu>
+
+    <ion-page class="ion-page" id="main-content">
+        <ion-header>
+            <ion-toolbar>
+                <ion-buttons slot="start">
+                    <ion-menu-button></ion-menu-button>
+                </ion-buttons>
+                <ion-buttons slot="end">
+                    <ion-button href="http://blazor.net" target="_blank">About</ion-button>
+                </ion-buttons>
+                <ion-title>@StateService.Title</ion-title>
+            </ion-toolbar>
+        </ion-header>
+        @Body
+    </ion-page>
+</ion-split-pane>
+
+@code{
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        StateService.StateChanged += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        StateService.StateChanged -= StateHasChanged;
+    }
+
+}

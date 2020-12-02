@@ -52,6 +52,15 @@
     <PackageReference Include="Splat.Microsoft.Extensions.DependencyInjection" Version="9.7.1" />
     <PackageReference Include="LiveSharp" Version="1.6.33" />
   </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release' ">
+    <DefineConstants>LIVESHARP_DISABLE</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(Configuration)' != 'Release' ">
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.1.8" />
+    <PackageReference Include="LiveSharp" Version="1.6.33" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <ProjectReference Include="..\WalletWasabi\WalletWasabi.Standard\WalletWasabi.Standard.csproj" />

@@ -1,0 +1,19 @@
+﻿@page "/"
+@using Chaincase.UI.Services
+
+<ion-content class="ion-padding">
+    <h1>Hello, world!</h1>
+    <p>This is the default Blazor application Web Assembly template that has been adjusted to use <a href="https://github.com/Kukks/Blazor.Ionic"> Blazor.Ionic</a></p>
+
+</ion-content>
+@inject UIStateService UIStateService
+
+@code{
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        UIStateService.Title = "Home";
+    }
+
+}

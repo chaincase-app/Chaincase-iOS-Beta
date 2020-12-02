@@ -55,7 +55,6 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="LiveSharp" Version="1.6.12" />
     <PackageReference Include="Microsoft.MobileBlazorBindings.WebView.Android" Version="0.4.74-preview" />
     <PackageReference Include="System.Text.Encodings.Web" Version="4.7.1" />
     <PackageReference Include="Xamarin.Essentials" Version="1.5.3.2" />
@@ -66,6 +65,14 @@
     <PackageReference Include="ZXing.Net.Mobile">
       <Version>2.4.1</Version>
     </PackageReference>
+  </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release' ">
+    <DefineConstants>LIVESHARP_DISABLE</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(Configuration)' != 'Release' ">
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.1.8" />
+    <PackageReference Include="LiveSharp" Version="1.6.33" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="LiveSharp.dashboard.cs" />

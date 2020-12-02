@@ -1,0 +1,37 @@
+﻿@page "/"
+@using Chaincase.UI
+@namespace Chaincase.SSB.Pages
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Chaincase.SSB</title>
+    <base href="~/"/>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@@ionic/core/dist/ionic/ionic.esm.js"></script>
+    <script nomodule src="https://cdn.jsdelivr.net/npm/@@ionic/core/dist/ionic/ionic.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@ionic/core/css/ionic.bundle.css"/>
+    <script src="_content/BlazorIonic/ionic-bridge.js"></script>
+</head>
+<body>
+<component type="typeof(App)" render-mode="ServerPrerendered"/>
+
+<div id="blazor-error-ui" style="display: none; width:100%; left:0; z-index:1000; position:fixed; padding: 0.6rem 1.25rem 0.7rem 1.25rem; ">
+    <environment include="Staging,Production">
+        An error has occurred. This application may no longer respond until reloaded.
+    </environment>
+    <environment include="Development">
+        An unhandled exception has occurred. See browser dev tools for details.
+    </environment>
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>
+
+<script src="_framework/blazor.server.js"></script>
+</body>
+</html>
