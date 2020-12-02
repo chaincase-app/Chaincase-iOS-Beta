@@ -25,166 +25,175 @@ namespace Chaincase
 {
     public partial class App : Application
     {
-		public IServiceProvider Container { get; private set; }
+        private readonly IHost _host;
 
-		public App(Action<IServiceCollection> configureOSServices)
+        public IServiceProvider Container => _host.Services;
+
+        public App(Action<IServiceCollection> configureOSServices, Microsoft.Extensions.FileProviders.IFileProvider fileProvider = null)
         {
-			InitializeComponent();
+            InitializeComponent();
 
-			var host = MobileBlazorBindingsHost
-				.CreateDefaultBuilder()
-				.ConfigureServices((hostContext, services) =>
-				{
-					services.AddBlazorHybrid();
-					services.UseMicrosoftDependencyResolver();
-					var resolver = Locator.CurrentMutable;
-					resolver.InitializeSplat();
-					resolver.InitializeReactiveUI();
+            var hostBuilder = MobileBlazorBindingsHost.CreateDefaultBuilder()
+                .ConfigureServices((hostContext, services) =>
+                {
+                    services.AddBlazorHybrid();
+                    services.UseMicrosoftDependencyResolver();
+                    var resolver = Locator.CurrentMutable;
+                    resolver.InitializeSplat();
+                    resolver.InitializeReactiveUI();
 
-					// shorthand for e.g.
-					// services.AddTransient<IViewFor<SecondaryViewModel>, SecondaryPage>();
+                    // shorthand for e.g.
+                    // services.AddTransient<IViewFor<SecondaryViewModel>, SecondaryPage>();
 
-					resolver
-						.RegisterView<MainPage, MainViewModel>()
-						.RegisterView<WalletInfoPage, WalletInfoViewModel>()
-						.RegisterView<TransactionDetailPage, TransactionViewModel>()
-						.RegisterView<LandingPage, LandingViewModel>()
-						.RegisterView<LoadWalletPage, LoadWalletViewModel>()
-						.RegisterView<ReceivePage, ReceiveViewModel>()
-						.RegisterView<AddressPage, AddressViewModel>()
-						.RegisterView<RequestAmountModal, RequestAmountViewModel>()
-						.RegisterView<SendAmountPage, SendAmountViewModel>()
-						.RegisterView<FeeModal, FeeViewModel>()
-						.RegisterView<CoinSelectModal, CoinListViewModel>()
-						.RegisterView<CoinDetailModal, CoinViewModel>()
-						.RegisterView<SendWhoPage, SendWhoViewModel>()
-						.RegisterView<SentPage, SentViewModel>()
-						.RegisterView<CoinJoinPage, CoinJoinViewModel>()
-						.RegisterView<NewPasswordPage, NewPasswordViewModel>()
-						.RegisterView<VerifyMnemonicPage, VerifyMnemonicViewModel>()
-						.RegisterView<PasswordPromptModal, PasswordPromptViewModel>()
-						.RegisterView<StartBackUpModal, StartBackUpViewModel>()
-						.RegisterView<BackUpModal, BackUpViewModel>()
-						.RegisterNavigationView(() => new NavigationView());
+                    resolver
+                        .RegisterView<MainPage, MainViewModel>()
+                        .RegisterView<WalletInfoPage, WalletInfoViewModel>()
+                        .RegisterView<TransactionDetailPage, TransactionViewModel>()
+                        .RegisterView<LandingPage, LandingViewModel>()
+                        .RegisterView<LoadWalletPage, LoadWalletViewModel>()
+                        .RegisterView<ReceivePage, ReceiveViewModel>()
+                        .RegisterView<AddressPage, AddressViewModel>()
+                        .RegisterView<RequestAmountModal, RequestAmountViewModel>()
+                        .RegisterView<SendAmountPage, SendAmountViewModel>()
+                        .RegisterView<FeeModal, FeeViewModel>()
+                        .RegisterView<CoinSelectModal, CoinListViewModel>()
+                        .RegisterView<CoinDetailModal, CoinViewModel>()
+                        .RegisterView<SendWhoPage, SendWhoViewModel>()
+                        .RegisterView<SentPage, SentViewModel>()
+                        .RegisterView<CoinJoinPage, CoinJoinViewModel>()
+                        .RegisterView<NewPasswordPage, NewPasswordViewModel>()
+                        .RegisterView<VerifyMnemonicPage, VerifyMnemonicViewModel>()
+                        .RegisterView<PasswordPromptModal, PasswordPromptViewModel>()
+                        .RegisterView<StartBackUpModal, StartBackUpViewModel>()
+                        .RegisterView<BackUpModal, BackUpViewModel>()
+                        .RegisterNavigationView(() => new NavigationView());
 
-					configureOSServices?.Invoke(services);
+                    configureOSServices?.Invoke(services);
 
-					services.AddSingleton<Global, Global>();
-				})
-				.UseWebRoot("wwwroot")
-				.Build();
+                    services.AddSingleton<Global, Global>();
+                })
+                .UseWebRoot("wwwroot");
 
-			Container = host.Services;
-			Container.UseMicrosoftDependencyResolver();
+            if (fileProvider != null)
+            {
+                hostBuilder.UseStaticFiles(fileProvider);
+            }
+            else
+            {
+                hostBuilder.UseStaticFiles();
+            }
 
-			// This relies on Global registered
-			var message = new InitializeNoWalletTaskMessage();
-			MessagingCenter.Send(message, "InitializeNoWalletTaskMessage");
+            _host = hostBuilder.Build();
+            Container.UseMicrosoftDependencyResolver();
 
-			var page = WalletExists() ? (IViewModel)new MainViewModel() : new LandingViewModel();
+            // This relies on Global registered
+            var message = new InitializeNoWalletTaskMessage();
+            MessagingCenter.Send(message, "InitializeNoWalletTaskMessage");
 
-			Locator
-				.Current
-				.GetService<IViewStackService>()
-				.PushPage(page, null, true, false)
-				.Subscribe();
+            var page = WalletExists() ? (IViewModel)new MainViewModel() : new LandingViewModel();
 
-			MainPage = Locator.Current.GetNavigationView();
+            Locator
+                .Current
+                .GetService<IViewStackService>()
+                .PushPage(page, null, true, false)
+                .Subscribe();
 
-			AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-			TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
+            MainPage = Locator.Current.GetNavigationView();
 
-			//host.AddComponent<Main>(parent: MainPage);
-		}
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
 
-		protected override void OnSleep()
-		{
-			// Execute Sleeping Background Task
-			var message = new OnSleepingTaskMessage();
-			MessagingCenter.Send(message, "OnSleepingTaskMessage");
-		}
+            //host.AddComponent<Main>(parent: MainPage);
+        }
 
-		private event EventHandler Resuming = delegate { };
+        protected override void OnSleep()
+        {
+            // Execute Sleeping Background Task
+            var message = new OnSleepingTaskMessage();
+            MessagingCenter.Send(message, "OnSleepingTaskMessage");
+        }
 
-		protected override void OnResume()
-		{
-			Resuming += OnResuming;
-			// Execute Async code
-			Resuming(this, EventArgs.Empty);
-		}
+        private event EventHandler Resuming = delegate { };
 
-		private async void OnResuming(object sender, EventArgs args)
-		{
-			//unsubscribe from event
-			Resuming -= OnResuming;
+        protected override void OnResume()
+        {
+            Resuming += OnResuming;
+            // Execute Async code
+            Resuming(this, EventArgs.Empty);
+        }
 
-			//perform non-blocking actions
-			await Locator.Current.GetService<Global>().OnResuming();
-		}
+        private async void OnResuming(object sender, EventArgs args)
+        {
+            //unsubscribe from event
+            Resuming -= OnResuming;
 
-		private static void TaskScheduler_UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
-		{
-			Logger.LogWarning(e?.Exception, "UnobservedTaskException");
-		}
+            //perform non-blocking actions
+            await Locator.Current.GetService<Global>().OnResuming();
+        }
 
-		private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
-		{
-			Logger.LogWarning(e?.ExceptionObject as Exception, "UnhandledException");
-		}
+        private static void TaskScheduler_UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
+        {
+            Logger.LogWarning(e?.Exception, "UnobservedTaskException");
+        }
 
-		public static async Task LoadWalletAsync()
-		{
-			var global = Locator.Current.GetService<Global>();
-			string walletName = global.Network.ToString();
-			KeyManager keyManager = global.WalletManager.GetWalletByName(walletName).KeyManager;
-			if (keyManager is null)
-			{
-				return;
-			}
+        private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            Logger.LogWarning(e?.ExceptionObject as Exception, "UnhandledException");
+        }
 
-			try
-			{
-				global.Wallet = await global.WalletManager.StartWalletAsync(keyManager);
-				// Successfully initialized.
-			}
-			catch (OperationCanceledException ex)
-			{
-				Logger.LogTrace(ex);
-			}
-			catch (Exception ex)
-			{
-				Logger.LogError(ex);
-			}
-		}
+        public static async Task LoadWalletAsync()
+        {
+            var global = Locator.Current.GetService<Global>();
+            string walletName = global.Network.ToString();
+            KeyManager keyManager = global.WalletManager.GetWalletByName(walletName).KeyManager;
+            if (keyManager is null)
+            {
+                return;
+            }
 
-		private bool WalletExists()
-		{
-			var global = Locator.Current.GetService<Global>();
-			var walletName = global.Network.ToString();
-			(string walletFullPath, _) = global.WalletManager.WalletDirectories.GetWalletFilePaths(walletName);
-			return File.Exists(walletFullPath);
-		}
+            try
+            {
+                global.Wallet = await global.WalletManager.StartWalletAsync(keyManager);
+                // Successfully initialized.
+            }
+            catch (OperationCanceledException ex)
+            {
+                Logger.LogTrace(ex);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex);
+            }
+        }
 
-		private string GetDataDir()
-		{
-			string dataDir;
-			if (Device.RuntimePlatform == Device.iOS)
-			{
-				var documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-				var library = Path.Combine(documents, "..", "Library", "Client");
-				dataDir = library;
-			}
-			else
-			{
-				dataDir = EnvironmentHelpers.GetDataDir(Path.Combine("Chaincase", "Client"));
-			}
-			return dataDir;
-		}
-	}
+        private bool WalletExists()
+        {
+            var global = Locator.Current.GetService<Global>();
+            var walletName = global.Network.ToString();
+            (string walletFullPath, _) = global.WalletManager.WalletDirectories.GetWalletFilePaths(walletName);
+            return File.Exists(walletFullPath);
+        }
 
-	// classes to communicate between Libs & specific platforms via messaging center
+        private string GetDataDir()
+        {
+            string dataDir;
+            if (Device.RuntimePlatform == Device.iOS)
+            {
+                var documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                var library = Path.Combine(documents, "..", "Library", "Client");
+                dataDir = library;
+            }
+            else
+            {
+                dataDir = EnvironmentHelpers.GetDataDir(Path.Combine("Chaincase", "Client"));
+            }
+            return dataDir;
+        }
+    }
 
-	public class StartLongRunningTaskMessage { }
+    // classes to communicate between Libs & specific platforms via messaging center
 
-	public class StopLongRunningTaskMessage { }
+    public class StartLongRunningTaskMessage { }
+
+    public class StopLongRunningTaskMessage { }
 }

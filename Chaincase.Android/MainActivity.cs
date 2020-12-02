@@ -15,14 +15,14 @@ namespace Chaincase.Droid
         protected override void OnCreate(Bundle savedInstanceState)
         {
             BlazorHybridAndroid.Init();
-
+            var fileProvider = new AssetFileProvider(Assets, "wwwroot");
 
             base.OnCreate(savedInstanceState);
 
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             ZXing.Net.Mobile.Forms.Android.Platform.Init();
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
-            LoadApplication(new App(ConfigureDi));
+            LoadApplication(new App(ConfigureDi, fileProvider));
         }
 
         private void ConfigureDi(IServiceCollection obj)
