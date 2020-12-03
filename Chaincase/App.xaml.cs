@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Chaincase.Background;
@@ -8,11 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Chaincase.Navigation;
 using Chaincase.ViewModels;
 using Chaincase.Views;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.JSInterop;
 using Microsoft.MobileBlazorBindings;
-using Microsoft.MobileBlazorBindings.WebView;
 using ReactiveUI;
 using Splat;
 using Splat.Microsoft.Extensions.DependencyInjection;
@@ -29,7 +24,7 @@ namespace Chaincase
 
         public IServiceProvider Container => _host.Services;
 
-        public App(Action<IServiceCollection> configureOSServices, Microsoft.Extensions.FileProviders.IFileProvider fileProvider = null)
+        public App(Action<IServiceCollection> configureOSServices)
         {
             InitializeComponent();
 
@@ -74,14 +69,8 @@ namespace Chaincase
                 })
                 .UseWebRoot("wwwroot");
 
-            if (fileProvider != null)
-            {
-                hostBuilder.UseStaticFiles(fileProvider);
-            }
-            else
-            {
-                hostBuilder.UseStaticFiles();
-            }
+            hostBuilder.UseStaticFiles();
+            
 
             _host = hostBuilder.Build();
             Container.UseMicrosoftDependencyResolver();

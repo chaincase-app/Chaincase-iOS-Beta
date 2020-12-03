@@ -19,6 +19,8 @@ namespace LiveSharp
         {
             app.Config.SetValue("pageHotReloadMethod", "build");
             app.UseDefaultXamarinFormsHandler();
+            app.Config.SetValue("disableBlazorCSS", "false");
+            app.UseDefaultBlazorHandler();
         }
         
         public void Run(ILiveSharpRuntime app)
