@@ -1,4 +1,5 @@
 ﻿using Android.App;
+using Android.Content;
 using Android.Content.PM;
 using Android.Runtime;
 using Android.OS;
@@ -6,6 +7,7 @@ using Chaincase.Common;
 using Chaincase.Common.Xamarin;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.MobileBlazorBindings.WebView.Android;
+using Xamarin.Forms;
 
 namespace Chaincase.Droid
 {

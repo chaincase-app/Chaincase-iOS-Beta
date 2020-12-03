@@ -19,21 +19,6 @@
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="style.css" />
-    <EmbeddedResource Include="wwwroot\css\app.css" />
-    <EmbeddedResource Include="wwwroot\css\bootstrap\bootstrap.min.css" />
-    <EmbeddedResource Include="wwwroot\css\bootstrap\bootstrap.min.css.map" />
-    <EmbeddedResource Include="wwwroot\css\open-iconic\font\css\open-iconic-bootstrap.min.css" />
-    <EmbeddedResource Include="wwwroot\css\open-iconic\font\fonts\open-iconic.eot" />
-    <EmbeddedResource Include="wwwroot\css\open-iconic\font\fonts\open-iconic.otf" />
-    <EmbeddedResource Include="wwwroot\css\open-iconic\font\fonts\open-iconic.svg" />
-    <EmbeddedResource Include="wwwroot\css\open-iconic\font\fonts\open-iconic.ttf" />
-    <EmbeddedResource Include="wwwroot\css\open-iconic\font\fonts\open-iconic.woff" />
-    <EmbeddedResource Include="wwwroot\css\open-iconic\FONT-LICENSE" />
-    <EmbeddedResource Include="wwwroot\css\open-iconic\ICON-LICENSE" />
-    <EmbeddedResource Include="wwwroot\css\open-iconic\README.md" />
-    <EmbeddedResource Include="wwwroot\favicon.ico" />
-    <EmbeddedResource Include="wwwroot\index.html" />
-    <EmbeddedResource Include="wwwroot\weather.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -63,6 +48,7 @@
 
 
   <ItemGroup>
+    <ProjectReference Include="..\Chaincase.UI\Chaincase.UI.csproj" />
     <ProjectReference Include="..\WalletWasabi\WalletWasabi.Standard\WalletWasabi.Standard.csproj" />
     <ProjectReference Include="..\Chaincase.Common\Chaincase.Common.csproj" />
   </ItemGroup>
@@ -74,6 +60,5 @@
     <Folder Include="ViewModels\" />
     <Folder Include="Converters\" />
     <Folder Include="Views\" />
-    <Folder Include="wwwroot\" />
   </ItemGroup>
 </Project>
