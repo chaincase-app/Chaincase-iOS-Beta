@@ -28,9 +28,12 @@ namespace Hara.iOS
 
             // For iOS, wrap inside a navigation page, otherwise the header looks wrong
             var formsApp = new App(null,
-                collection => { collection.AddSingleton<INotificationManager, iOSNotificationManager>(); });
+                collection => {
+                    collection.AddSingleton<INotificationManager, iOSNotificationManager>();
+                    collection.AddSingleton<iOSNotificationReceiver>();
+                });
             UNUserNotificationCenter.Current.Delegate =
-                new iOSNotificationReceiver(formsApp.ServiceProvider.GetService<iOSNotificationManager>());
+                formsApp.ServiceProvider.GetService<iOSNotificationReceiver>();
             LoadApplication(formsApp);
 
             return base.FinishedLaunching(app, options);
