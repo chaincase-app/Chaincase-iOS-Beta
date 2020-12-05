@@ -42,9 +42,9 @@ namespace Chaincase.iOS
                 await context.InitializeNoWallet();
             });
 
-            var formsApp = new App(ConfigureDi);
+            var formsApp = new BlazorApp(fileProvider: null, ConfigureDi);
             UNUserNotificationCenter.Current.Delegate = 
-	            formsApp.Container.GetService<iOSNotificationReceiver>();
+	            formsApp.ServiceProvider.GetService<iOSNotificationReceiver>();
             LoadApplication(formsApp);
 
             return base.FinishedLaunching(app, options);
