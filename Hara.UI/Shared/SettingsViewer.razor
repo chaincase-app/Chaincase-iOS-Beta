@@ -1,0 +1,103 @@
+@using Hara.Abstractions.Contracts
+@inject IConfigProvider _configProvider
+@inject ISecureConfigProvider _secureConfigProvider
+
+@if (loading)
+{
+    <h1>LOADING</h1>
+}
+<ion-list>
+    @for (int i = 0; i < Items.Count; i++)
+    {
+        var item = Items.ElementAt(i);
+        <ion-item-sliding>
+            <ion-item>
+                <ion-label>@item.Key</ion-label>
+                <ion-input type="text" value="@item.Value" @onchange="args => UpdateItem(item.Key, (string) args.Value)"> </ion-input>
+            </ion-item>
+            <ion-item-options side="end">
+                <ion-item-option @onclick="() => RemoveItem(item.Key)">Remove</ion-item-option>
+            </ion-item-options>
+        </ion-item-sliding>
+    }
+
+    <ion-item>
+        <ion-input type="text" value="@newKey" @onchange="Callback" placeholder="Key"> </ion-input>
+        <ion-input type="text" value="@newValue" placeholder="value" > </ion-input>
+        <ion-button @onclick="AddItem" class="btn btn-primary">Add</ion-button>
+    </ion-item>
+</ion-list>
+
+@code {
+
+    IConfigProvider ConfigProvider
+    {
+        get
+        {
+            if (Encrypted)
+            {
+                return _secureConfigProvider ?? _configProvider;
+            }
+            return _configProvider;
+        }
+    }
+
+    private bool loading = true;
+    private string newKey = "";
+    private string newValue = "";
+
+    [Parameter]
+    public bool Encrypted { get; set; }
+
+    private Dictionary<string, string> Items { get; set; } = new Dictionary<string, string>();
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var keys = await ConfigProvider.Get<string[]>("settings");
+            if (keys != null)
+            {
+                foreach (var key in keys)
+                {
+                    Items.Add(key, await ConfigProvider.Get<string>(key));
+                }
+            }
+            loading = false;
+            StateHasChanged();
+        }
+        await base.OnInitializedAsync();
+    }
+
+    private async Task UpdateItem(string key, string value)
+    {
+        await ConfigProvider.Set(key, value);
+    }
+
+    private async Task RemoveItem(string key)
+    {
+        Items.Remove(key);
+        await ConfigProvider.Set("settings", Items.Keys.ToArray());
+        await ConfigProvider.Set<string>(key, null);
+    }
+
+    private async Task AddItem()
+    {
+        if (!string.IsNullOrEmpty(newKey) && !string.IsNullOrEmpty(newValue) && !Items.ContainsKey(newKey))
+        {
+            await ConfigProvider.Set("settings", Items.Keys.ToArray().Concat(new[] {newKey}));
+            await ConfigProvider.Set(newKey, newValue);
+
+            Items.Add(newKey, newValue);
+            newKey = "";
+            newValue = "";
+        }
+    }
+
+    private void Callback()
+    {
+        throw new NotImplementedException();
+    }
+
+}
