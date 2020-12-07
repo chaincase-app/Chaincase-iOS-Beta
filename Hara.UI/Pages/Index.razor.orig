@@ -4,7 +4,31 @@
 @inject UIStateService UiStateService
 @inject NavigationManager NavigationManager
 
+ @*put wallet info button in navbar*@ 
 <ion-content class="ion-padding">
+<<<<<<< Updated upstream
+    <h1>[BTC Balance]</h1>
+    <h4>[USD Balance]</h4>
+    <p>Tor running 2 peers Ready</p>
+    <ion-progress-bar color="primary" />
+
+
+    <p>First sync may be a few minutes.</p>
+    <ion-button expand="block">
+        DON'T FORGET TO MAKE A BACKUP
+    </ion-button>
+    <ion-button expand="block">GET RECEIVE ADDRESS</ion-button>
+    <ion-button expand="block">COINJOIN</ion-button>
+    <ion-button expand="block">SEND</ion-button>
+||||||| constructed merge base
+    Welcome to your new app.
+    <hr/>
+    <SurveyPrompt Title="How is Blazor working for you?"/>
+    <hr/>
+    <hr/>
+    <NotificationsTest></NotificationsTest>
+    <hr/>
+=======
     <h1>[BTC Balance]</h1>
     <h4>[USD Balance]</h4>
     <p>Tor running 2 peers Ready</p>
@@ -20,6 +44,7 @@
     <ion-button expand="block">GET RECEIVE ADDRESS</ion-button>
     <ion-button expand="block">COINJOIN</ion-button>
     <ion-button expand="block">SEND</ion-button>
+>>>>>>> Stashed changes
 </ion-content>
 
 @code{
