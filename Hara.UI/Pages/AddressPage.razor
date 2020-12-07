@@ -1,0 +1,27 @@
+﻿@page "/receive/address"
+@using Hara.Abstractions.Contracts
+@using Hara.UI.Services
+@inject UIStateService UiStateService
+@inject NavigationManager NavigationManager
+
+<ion-content class="ion-padding">
+    <p style="text-align:center;">[QR Code]</p>
+
+    <p>[label(s)]</p>
+    <ion-label>Address</ion-label>
+    <p>[address]</p>
+
+    <ion-button expand="block">REQUEST WITH AMOUNT</ion-button>
+    <!-- should be done in top with nav, but can't go back to enter memo screen! -->
+    <ion-button href="/" @onclick='() => NavigationManager.NavigateTo("/")' @onclick:preventDefault="true" expand="block">BACK</ion-button>
+    <ion-button expand="block">SHARE</ion-button>
+</ion-content>
+
+@code {
+
+    protected override void OnInitialized()
+    {
+        UiStateService.Title = "RECEIVE";
+    }
+
+}

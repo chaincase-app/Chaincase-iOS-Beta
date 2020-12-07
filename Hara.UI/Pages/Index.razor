@@ -14,11 +14,17 @@
 
     <p>First sync may be a few minutes.</p>
     <ion-button expand="block"
+                href="newpassword"
                 @onclick='() => NavigationManager.NavigateTo("newpassword")'
                 @onclick:preventDefault="true">
         DON'T FORGET TO MAKE A BACKUP
     </ion-button>
-    <ion-button expand="block">GET RECEIVE ADDRESS</ion-button>
+    <ion-button expand="block"
+                href="receive"
+                @onclick='() => NavigationManager.NavigateTo("receive")'
+                @onclick:preventDefault="true">
+        GET RECEIVE ADDRESS
+    </ion-button>
     <ion-button expand="block">COINJOIN</ion-button>
     <ion-button expand="block">SEND</ion-button>
 </ion-content>
