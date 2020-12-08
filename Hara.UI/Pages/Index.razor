@@ -26,7 +26,10 @@
         GET RECEIVE ADDRESS
     </ion-button>
     <ion-button expand="block">COINJOIN</ion-button>
-    <ion-button expand="block">SEND</ion-button>
+    <ion-button expand="block"
+                href="send"
+                @onclick='() => NavigationManager.NavigateTo("send")'
+                @onclick:preventDefault="true">SEND</ion-button>
 </ion-content>
 
 @code{

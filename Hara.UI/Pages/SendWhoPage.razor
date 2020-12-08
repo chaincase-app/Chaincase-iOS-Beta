@@ -1,0 +1,27 @@
+﻿@page "/send/who"
+@using Hara.Abstractions.Contracts
+@using Hara.UI.Services
+@inject UIStateService UiStateService
+@inject NavigationManager NavigationManager
+
+<ion-content class="ion-padding">
+    <ion-label>Label</ion-label>
+    <IonInput @bind-Value="Label" placeholder="e.g. Chloe for cat toys" />
+
+    <ion-label>Address</ion-label>
+    <IonInput @bind-Value="AddressString"/>
+
+    <ion-button href="/send/sent" @onclick='() => NavigationManager.NavigateTo("/send/sent")' @onclick:preventDefault="true" expand="block">NEXT</ion-button>
+</ion-content>
+
+@code {
+
+    private string Label { get; set; }
+    private string AddressString { get; set; }
+
+    protected override void OnInitialized()
+    {
+        UiStateService.Title = "SEND";
+    }
+
+}
