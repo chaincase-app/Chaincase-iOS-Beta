@@ -2,7 +2,7 @@
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Chaincase.Common;
+using Hara.Abstractions.Contracts;
 using Foundation;
 using LocalAuthentication;
 using Security;
