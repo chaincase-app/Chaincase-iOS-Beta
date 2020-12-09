@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Chaincase.Common
+namespace Hara.Abstractions.Contracts
 {
     // Use keys from device Hardware Security Module to encrypt
     public interface IHsmStorage
