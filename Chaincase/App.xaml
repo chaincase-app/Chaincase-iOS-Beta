@@ -6,7 +6,4 @@
              mc:Ignorable="d"
              xmlns:controls="clr-namespace:Chaincase.Controls"
              x:Class="Chaincase.App">
-  <Application.Resources>
-    <StyleSheet Source="./style.css" />
-  </Application.Resources>
 </Application>

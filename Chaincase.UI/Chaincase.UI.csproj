@@ -32,6 +32,7 @@
 
     <Target Name="NpmInstall" BeforeTargets="BeforeBuild" Inputs="package.json" Outputs="$(NpmInstallStampFile)">
         <Exec Command="npm install" />
+        <Message Text="npm installed!" />
         <Touch Files="$(NpmInstallStampFile)" AlwaysCreate="true" />
     </Target>
 </Project>
