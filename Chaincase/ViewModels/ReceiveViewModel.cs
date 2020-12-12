@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reactive;
 using System.Reactive.Linq;
+using Chaincase.Common;
 using Chaincase.Navigation;
 using ReactiveUI;
 using Splat;
@@ -9,7 +10,7 @@ using Xamarin.Forms;
 
 namespace Chaincase.ViewModels
 {
-    public class ReceiveViewModel : ViewModelBase
+	public class ReceiveViewModel : ViewModelBase
 	{
 		protected Global Global { get; }
 

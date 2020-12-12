@@ -1,5 +1,5 @@
 using System;
-using Chaincase.Common;
+using Chaincase.Common.Contracts;
 
 namespace Chaincase
 {

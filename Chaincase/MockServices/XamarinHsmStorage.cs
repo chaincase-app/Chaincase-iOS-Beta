@@ -1,9 +1,10 @@
 ﻿using System.Threading.Tasks;
+using Chaincase.Common.Contracts;
 using Xamarin.Essentials;
 
 namespace Chaincase.Common.Xamarin
 {
-    public class XamarinHsmStorage : IHsmStorage
+	public class XamarinHsmStorage : IHsmStorage
     {
         public Task SetAsync(string key, string value)
         {

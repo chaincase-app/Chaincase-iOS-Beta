@@ -1,9 +1,10 @@
 ﻿using System.Reactive.Disposables;
+using Chaincase.Common;
+using Chaincase.Converters;
+using Chaincase.ViewModels;
+using NBitcoin;
 using ReactiveUI;
 using ReactiveUI.XamForms;
-using Chaincase.ViewModels;
-using Chaincase.Converters;
-using NBitcoin;
 
 namespace Chaincase.Views.Templates
 {

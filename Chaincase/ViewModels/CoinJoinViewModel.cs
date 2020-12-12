@@ -1,30 +1,29 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Threading.Tasks;
-using NBitcoin;
-using ReactiveUI;
-using System.Linq;
-using WalletWasabi.CoinJoin.Client.Rounds;
-using System.Collections.Generic;
-using WalletWasabi.Blockchain.TransactionOutputs;
-using WalletWasabi.Helpers;
 using System.Security;
 using System.Text;
+using System.Threading.Tasks;
 using Chaincase.Common;
-using WalletWasabi.Logging;
+using Chaincase.Common.Contracts;
+using Chaincase.Common.Models;
 using Chaincase.Navigation;
+using NBitcoin;
+using ReactiveUI;
 using Splat;
+using WalletWasabi.Blockchain.TransactionOutputs;
 using WalletWasabi.CoinJoin.Client.Clients.Queuing;
+using WalletWasabi.CoinJoin.Client.Rounds;
 using WalletWasabi.CoinJoin.Common.Models;
-using Chaincase.Models;
-using Xamarin.Forms;
-using Chaincase.Notifications;
+using WalletWasabi.Helpers;
+using WalletWasabi.Logging;
 
 namespace Chaincase.ViewModels
 {
-    public class CoinJoinViewModel : ViewModelBase
+	public class CoinJoinViewModel : ViewModelBase
     {
         protected Global Global { get; }
 

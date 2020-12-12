@@ -1,5 +1,5 @@
 using Chaincase.Background;
-using Chaincase.Common;
+using Chaincase.Common.Contracts;
 using Chaincase.iOS.Backgrounding;
 using Chaincase.iOS.Tor;
 using Foundation;

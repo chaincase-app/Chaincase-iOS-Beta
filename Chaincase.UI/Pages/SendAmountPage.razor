@@ -1,0 +1,33 @@
+﻿@page "/send"
+@using Chaincase.Common.Contracts
+@using Chaincase.UI.Services
+@inject UIStateService UiStateService
+@inject NavigationManager NavigationManager
+
+<ion-content class="ion-padding">
+    <p style="text-align:center;">Send From</p>
+    <ion-button expand="block">x Coins Selected</ion-button>
+    <p style="text-align:center;">[amount] BTC available</p>
+
+    <ion-label>Amount</ion-label>
+    <IonInput @bind-Value="amount" type="number" />
+
+    <ion-label>Max</ion-label>
+    <IonToggle name="grape" color="tertiary" Value="true"></IonToggle>
+
+    <p>Fee___72 sat / vbyte</p>
+
+    <ion-button href="/send/who" @onclick='() => NavigationManager.NavigateTo("/send/who")' @onclick:preventDefault="true" expand="block">NEXT</ion-button>
+</ion-content>
+
+@code {
+
+
+    private double amount { get; set; }
+
+    protected override void OnInitialized()
+    {
+        UiStateService.Title = "SEND";
+    }
+
+}

@@ -5,7 +5,7 @@ using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using Chaincase.Common;
 using Chaincase.Navigation;
 using NBitcoin;
 using ReactiveUI;
@@ -16,7 +16,7 @@ using WalletWasabi.Helpers;
 
 namespace Chaincase.ViewModels
 {
-    public class SendAmountViewModel : ViewModelBase
+	public class SendAmountViewModel : ViewModelBase
     {
         protected Global Global { get; }
 

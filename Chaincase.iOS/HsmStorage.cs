@@ -1,8 +1,7 @@
-﻿
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Chaincase.Common;
+using Chaincase.Common.Contracts;
 using Foundation;
 using LocalAuthentication;
 using Security;

@@ -2,11 +2,12 @@
 using System.IO;
 using System.Threading.Tasks;
 using Chaincase.Background;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using Chaincase.Common;
 using Chaincase.Navigation;
 using Chaincase.ViewModels;
 using Chaincase.Views;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.MobileBlazorBindings;
 using ReactiveUI;
 using Splat;
@@ -18,7 +19,7 @@ using Xamarin.Forms;
 
 namespace Chaincase
 {
-    public partial class App : Application
+	public partial class App : Application
     {
         private readonly IHost _host;
 

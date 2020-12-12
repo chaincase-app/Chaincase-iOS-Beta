@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using Chaincase.Common;
+using Chaincase.Common.Contracts;
 
 namespace Chaincase
 {

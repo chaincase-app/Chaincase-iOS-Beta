@@ -1,11 +1,10 @@
 ﻿using System;
-using Chaincase.Common;
+using Chaincase.Common.Contracts;
 using UserNotifications;
-using Xamarin.Forms;
 
 namespace Chaincase
 {
-    public class iOSNotificationReceiver : UNUserNotificationCenterDelegate
+	public class iOSNotificationReceiver : UNUserNotificationCenterDelegate
     {
 	    private readonly INotificationManager _notificationManager;
 

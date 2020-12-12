@@ -1,7 +1,7 @@
 ﻿using System;
 using WalletWasabi.CoinJoin.Common.Models;
 using ReactiveUI;
-using Chaincase.Models;
+using Chaincase.Common.Models;
 
 namespace Chaincase.Converters
 {

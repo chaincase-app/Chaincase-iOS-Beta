@@ -1,0 +1,21 @@
+﻿@page "/landing"
+@using Chaincase.Common.Contracts
+@using Chaincase.UI.Services
+@inject UIStateService UiStateService
+@inject NavigationManager NavigationManager
+
+<ion-content class="ion-padding">
+    <h1>BITCOIN FOR HUMANS</h1>
+
+    <ion-button href="new" @onclick='() => NavigationManager.NavigateTo("new")' @onclick:preventDefault="true" expand="block">NEW WALLET</ion-button>
+    <ion-button expand="block">LOAD WALLET</ion-button>
+</ion-content>
+
+@code {
+
+    protected override void OnInitialized()
+    {
+        UiStateService.Title = "CREATE WALLET";
+    }
+
+}

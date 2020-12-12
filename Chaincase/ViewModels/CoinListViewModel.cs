@@ -1,18 +1,19 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using DynamicData;
-using ReactiveUI;
-using WalletWasabi.Logging;
-using NBitcoin;
-using WalletWasabi.Blockchain.TransactionProcessing;
+using Chaincase.Common;
 using Chaincase.Navigation;
+using DynamicData;
+using NBitcoin;
+using ReactiveUI;
 using Splat;
 using WalletWasabi.Blockchain.TransactionOutputs;
-using System.Collections.Generic;
+using WalletWasabi.Blockchain.TransactionProcessing;
+using WalletWasabi.Logging;
 
 namespace Chaincase.ViewModels
 {

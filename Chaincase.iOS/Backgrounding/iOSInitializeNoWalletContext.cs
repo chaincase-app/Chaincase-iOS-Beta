@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Chaincase.Common;
 using Splat;
 using UIKit;
 

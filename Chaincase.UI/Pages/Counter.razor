@@ -1,0 +1,27 @@
+﻿@page "/counter"
+@inject ICounterState CounterState
+@inject UIStateService UiStateService
+@using Chaincase.Common.Contracts
+@using Chaincase.UI.Services
+@implements IDisposable
+<ion-content class="ion-padding">
+    <p>Current count: @CounterState.CurrentCount</p>
+
+    <ion-button @onclick="CounterState.IncrementCount" expand="block">Increase Counter</ion-button>
+</ion-content>
+
+@code {
+
+
+    protected override void OnInitialized()
+    {
+        UiStateService.Title = "Counter";
+        CounterState.StateChanged += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        CounterState.StateChanged -= StateHasChanged;
+    }
+
+}

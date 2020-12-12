@@ -1,11 +1,12 @@
-﻿using Chaincase.Navigation;
-using Gma.QrCodeNet.Encoding;
-using ReactiveUI;
-using Splat;
-using System;
+﻿using System;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using Chaincase.Common;
+using Chaincase.Navigation;
+using Gma.QrCodeNet.Encoding;
+using ReactiveUI;
+using Splat;
 using WalletWasabi.Blockchain.Keys;
 using Xamarin.Essentials;
 

@@ -3,6 +3,7 @@ using System.IO;
 using System.Reactive;
 using System.Reactive.Linq;
 using Chaincase.Common;
+using Chaincase.Common.Contracts;
 using Chaincase.Navigation;
 using Microsoft.Extensions.DependencyInjection;
 using NBitcoin;

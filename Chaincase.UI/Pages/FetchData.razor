@@ -1,0 +1,66 @@
+﻿@page "/fetchdata"
+@using Chaincase.Common.Contracts
+@using Chaincase.UI.Services
+@inject UIStateService UiStateService
+@inject IWeatherForecastFetcher WeatherForecastFetcher
+@inject IJSRuntime JsRuntime
+
+<ion-content class="ion-padding">
+    <p>This component demonstrates fetching data from the server.</p>
+    <IonLoading Visible="@loading" message="Loading the weather"></IonLoading>
+    <ion-grid>
+        <ion-row>
+            <ion-col>
+                <div>Date</div>
+            </ion-col>
+            <ion-col>
+                <div>Temp. (C)</div>
+            </ion-col>
+            <ion-col>
+                <div>Temp. (F)</div>
+            </ion-col>
+            <ion-col>
+                <div>Summary</div>
+            </ion-col>
+        </ion-row>
+        @if (_forecasts != null)
+        {
+            @foreach (var forecast in _forecasts)
+            {
+                <ion-row>
+                    <ion-col>
+                        <div>@forecast.Date.ToShortDateString()</div>
+                    </ion-col>
+                    <ion-col>
+                        <div>@forecast.TemperatureC</div>
+                    </ion-col>
+                    <ion-col>
+                        <div>@forecast.TemperatureF</div>
+                    </ion-col>
+                    <ion-col>
+                        <div>@forecast.Summary</div>
+                    </ion-col>
+                </ion-row>
+            }
+        }
+    </ion-grid>
+</ion-content>
+
+@code {
+
+    private bool loading => _forecasts is null;
+    private IEnumerable<WeatherForecast> _forecasts;
+
+    protected override void OnInitialized()
+    {
+        UiStateService.Title = "Weather forecast";
+        _ = Task.Run(async () =>
+        {
+            await Task.Delay(5000);
+            _forecasts = await WeatherForecastFetcher.Fetch();
+            await InvokeAsync(StateHasChanged);
+        });
+        base.OnInitialized();
+    }
+
+}

@@ -4,4 +4,17 @@
         <TargetFramework>netstandard2.1</TargetFramework>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\WalletWasabi\WalletWasabi.Standard\WalletWasabi.Standard.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+      <PackageReference Include="Xamarin.Forms" Version="4.8.0.1687" />
+      <PackageReference Include="NBitcoin" Version="5.0.67" />
+      <PackageReference Include="Splat" Version="9.8.1" />
+      <PackageReference Include="ReactiveUI" Version="12.1.5" />
+      <PackageReference Include="ReactiveUI.Blazor" Version="12.1.5" />
+    </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Models\" />
+    </ItemGroup>
 </Project>

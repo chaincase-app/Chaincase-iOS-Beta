@@ -2,8 +2,8 @@
   "name": "Chaincase.UI",
   "version": "1.0.0",
   "description": "js deps for UI",
-  "license": "MIT",
-  "repository": "https://github.com/chaincase/chaincase-app",
+  "license": "GPL-3.0",
+  "repository": "https://github.com/chaincase-app/chaincase",
   "dependencies": {
     "@ionic/core": "^5.5.1",
     "copyfiles": "^2.4.1",

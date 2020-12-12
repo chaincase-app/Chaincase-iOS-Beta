@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
+using Chaincase.Common;
 using Chaincase.Navigation;
-using NBitcoin;
 using ReactiveUI;
 using Splat;
-using WalletWasabi.Blockchain.Keys;
-using Xamarin.Essentials;
-using Xamarin.Forms;
 
 namespace Chaincase.ViewModels
 {

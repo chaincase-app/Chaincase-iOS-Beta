@@ -1,0 +1,38 @@
+@using Chaincase.Common.Contracts
+@inject INotificationManager NotificationManager
+<h3>Notifications Test</h3>
+
+<button @onclick="SendNotification" class="btn btn-primary" type="button">Send Notification</button>
+<ul class="list-group">
+    @foreach (var i in Received)
+    {
+        <li  class="list-group-item">@i.Title : @i.Message</li>
+    }
+</ul>
+
+
+@code {
+
+    public bool Init { get; set; }
+    public List<NotificationEventArgs> Received = new List<NotificationEventArgs>();
+    protected override Task OnInitializedAsync()
+    {
+        NotificationManager.NotificationReceived += (sender, args) => Received.Add((NotificationEventArgs)args);
+        return base.OnInitializedAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (firstRender)
+        {
+            NotificationManager.RequestAuthorization();
+        }
+    }
+
+    private void SendNotification()
+    {
+        NotificationManager.ScheduleNotification("test", "test body", 0);
+    }
+
+}

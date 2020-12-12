@@ -144,6 +144,9 @@
     <PackageReference Include="ZXing.Net.Mobile.Forms">
       <Version>2.4.1</Version>
     </PackageReference>
+    <PackageReference Include="LiveSharp">
+      <Version>1.6.33</Version>
+    </PackageReference>
   </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release' ">
@@ -152,7 +155,6 @@
 
   <ItemGroup Condition="'$(Configuration)' != 'Release' ">
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.1.8" />
-    <PackageReference Include="LiveSharp" Version="1.6.33" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <ItemGroup>

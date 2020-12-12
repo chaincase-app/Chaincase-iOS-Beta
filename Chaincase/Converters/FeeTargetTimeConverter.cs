@@ -1,5 +1,5 @@
 ﻿using System;
-using Chaincase.Models;
+using Chaincase.Common.Models;
 using ReactiveUI;
 using WalletWasabi.Exceptions;
 using WalletWasabi.Helpers;
