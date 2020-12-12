@@ -1,0 +1,53 @@
+﻿@page "/walletinfo"
+@using Hara.Abstractions.Contracts
+@using Hara.UI.Services
+
+@inject UIStateService UiStateService
+@inject NavigationManager NavigationManager
+
+@inherits ReactiveComponentBase<WalletInfoViewModel>
+
+<ion-content class="ion-padding">
+    <ion-label>ACCOUNT KEY PATH</ion-label>
+    <ion-item>
+        <ion-label>@ViewModel.AccountKeyPath</ion-label>
+    </ion-item>
+
+    <ion-label>EXTENDED PUBLIC KEY</ion-label>
+    <ion-item>
+        <ion-label>@ViewModel.ExtendedAccountPublicKey</ion-label>
+    </ion-item>
+
+    <ion-list-header>
+        <ion-label>KEYS</ion-label>
+    </ion-list-header>
+    <ion-list>
+        <ion-item button>
+            Back Up Seed Words
+        </ion-item>
+        <ion-item button @onclick="ViewModel.ExportWallet">
+            Export Wallet File
+        </ion-item>
+    </ion-list>
+
+    <ion-list>
+        <ion-item button @onclick="ViewModel.ShareDebugLog">
+            Share Debug Log
+        </ion-item>
+    </ion-list>
+</ion-content>
+
+@code {
+
+    public WalletInfoPage()
+    {
+        ViewModel = new WalletInfoViewModel();
+    }
+
+    protected override void OnInitialized()
+    {
+        // could also lazyload a singleton service
+        UiStateService.Title = "WALLET INFO";
+    }
+
+}

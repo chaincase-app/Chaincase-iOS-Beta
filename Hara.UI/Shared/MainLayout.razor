@@ -2,6 +2,8 @@
 @using Hara.UI.Services
 @implements IDisposable
 @inject UIStateService StateService
+@inject NavigationManager NavigationManager
+ 
 <ion-split-pane when="sm" content-id="main-content">
     <ion-menu content-id="main-content">
         <NavMenu/>
@@ -14,7 +16,11 @@
                     <ion-menu-button></ion-menu-button>
                 </ion-buttons>
                 <ion-buttons slot="end">
-                    <ion-button href="http://blazor.net" target="_blank">About</ion-button>
+                    <ion-button href="walletinfo"
+                                  @onclick="NavigateWalletInfo"
+                                  @onclick:preventDefault="true">
+                        <ion-icon slot="icon-only" name="information-circle-outline"></ion-icon>
+                    </ion-button>
                 </ion-buttons>
                 <ion-title>@StateService.Title</ion-title>
             </ion-toolbar>
@@ -35,5 +41,8 @@
     {
         StateService.StateChanged -= StateHasChanged;
     }
+
+    private void NavigateWalletInfo() =>
+        NavigationManager.NavigateTo("walletinfo");
 
 }
