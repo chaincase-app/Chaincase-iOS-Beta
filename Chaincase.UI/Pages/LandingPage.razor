@@ -8,7 +8,7 @@
     <h1>BITCOIN FOR HUMANS</h1>
 
     <ion-button href="new" @onclick='() => NavigationManager.NavigateTo("new")' @onclick:preventDefault="true" expand="block">NEW WALLET</ion-button>
-    <ion-button expand="block">LOAD WALLET</ion-button>
+    <ion-button href="load" @onclick='() => NavigationManager.NavigateTo("load")' @onclick:preventDefault="true" expand="block">LOAD WALLET</ion-button>
 </ion-content>
 
 @code {

@@ -1,0 +1,68 @@
+﻿@page "/load"
+@using Chaincase.Common.Contracts
+@using Chaincase.UI.Services
+
+@inject UIStateService UiStateService
+@inject NavigationManager NavigationManager
+
+@inherits ReactiveComponentBase<NewPasswordViewModel>
+
+<ion-content class="ion-padding">
+    <h1>Load from Backup</h1>
+    <ion-label floating>SEED WORDS</ion-label>
+    <IonInput type='text' @bind-Value="@SeedWords" />
+    <p>Enter the 12 words you wrote down as a backup in order and separated by spaces.</p>
+
+    <ion-label floating>PASSWORD</ion-label>
+    <IonInput type='@(showPassword ? "text" : "password")' @bind-Value="@Password" placeholder="e.g. margaretthatcheris110%SEXY" />
+    @if (showPassword)
+    {
+        <ion-icon slot="end" name="eye" class="eye" @onclick='HideShowPassword' />
+    }
+    else
+    {
+        <ion-icon slot="end" name="eye-off" class="eye-off" @onclick='HideShowPassword' />
+    }
+    <p>
+        If funds secured using these seed words are hidden behind a password you must enter it here.
+        The password must be exactly as it was created. As it is your secret, we cannot check whether or not it is correct.
+        </p>
+
+    <ion-button @onclick='LoadWallet'
+                @onclick:preventDefault="true"
+                expand="block">
+        LOAD WALLET
+    </ion-button>
+</ion-content>
+
+@code {
+
+    bool showPassword;
+
+    string Password;
+
+    string SeedWords;
+
+    public LoadWalletPage()
+    {
+        ViewModel = new NewPasswordViewModel();
+    }
+
+    protected override void OnInitialized()
+    {
+        UiStateService.Title = "LOAD WALLET";
+    }
+
+    private void LoadWallet(MouseEventArgs _)
+    {
+        // TODO if password is empty, alert the user
+
+        // TODO Load it up baybie
+        NavigationManager.NavigateTo("");
+    }
+
+    private void HideShowPassword()
+    {
+        showPassword = !showPassword;
+    }
+}
