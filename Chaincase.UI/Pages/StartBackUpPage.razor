@@ -1,0 +1,28 @@
+﻿@page "/backup/start"
+@using Chaincase.Common.Contracts
+@using Chaincase.UI.Services
+@inject UIStateService UiStateService
+@inject NavigationManager NavigationManager
+
+<ion-content class="ion-padding">
+    <h1>BACK UP</h1>
+    <p>You will be given a list of seed words to write down on paper and keep in a safe place.</p>
+    <p>📝</p>
+    <p>The seed words together in order with your password are the only way to restore your wallet if your device is lost, broken, stolen, or upgraded.</p>
+    <p>This should take 3 minutes</p>
+
+    <ion-button href="/backup/words"
+                @onclick='() => NavigationManager.NavigateTo("/backup/words")'
+                @onclick:preventDefault="true"
+                expand="block">WRITE WORDS & BACK UP</ion-button>
+
+</ion-content>
+
+@code {
+
+    protected override void OnInitialized()
+    {
+        UiStateService.Title = "BACK UP";
+    }
+
+}

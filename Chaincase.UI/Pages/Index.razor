@@ -7,15 +7,14 @@
  @*put wallet info button in navbar*@ 
 <ion-content class="ion-padding">
     <h1>[BTC Balance]</h1>
-    <h4>XXXXX</h4>
+    <h4>[Balance]</h4>
     <p>Tor running 2 peers Ready</p>
     <ion-progress-bar color="primary" />
-
 
     <p>First sync may be a few minutes.</p>
     <ion-button expand="block"
                 href="newpassword"
-                @onclick='() => NavigationManager.NavigateTo("newpassword")'
+                @onclick='() => NavigationManager.NavigateTo("backup/start")'
                 @onclick:preventDefault="true">
         DON'T FORGET TO MAKE A BACKUP
     </ion-button>
@@ -33,7 +32,6 @@
 </ion-content>
 
 @code{
-
 
     protected override void OnInitialized()
     {
