@@ -13,7 +13,7 @@
 
     <p>First sync may be a few minutes.</p>
     <ion-button expand="block"
-                href="newpassword"
+                href="backup/start"
                 @onclick='() => NavigationManager.NavigateTo("backup/start")'
                 @onclick:preventDefault="true">
         DON'T FORGET TO MAKE A BACKUP
@@ -24,11 +24,16 @@
                 @onclick:preventDefault="true">
         GET RECEIVE ADDRESS
     </ion-button>
-    <ion-button expand="block">COINJOIN</ion-button>
+
     <ion-button expand="block"
                 href="send"
                 @onclick='() => NavigationManager.NavigateTo("send")'
                 @onclick:preventDefault="true">SEND</ion-button>
+
+    <ion-button expand="block"
+                href="coinjoin"
+                @onclick='() => NavigationManager.NavigateTo("coinjoin")'
+                @onclick:preventDefault="true">COINJOIN</ion-button>
 </ion-content>
 
 @code{
