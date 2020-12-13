@@ -1,14 +1,12 @@
 ﻿using System;
-using Chaincase.Navigation;
-using ReactiveUI;
-using System.Reactive;
-using System.Reactive.Linq;
-using Splat;
-using NBitcoin;
-using WalletWasabi.Blockchain.Keys;
-using System.IO;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Linq;
+using Chaincase.Common;
+using Chaincase.Navigation;
+using ReactiveUI;
+using Splat;
 
 namespace Chaincase.ViewModels
 {

@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Chaincase.Common
+namespace Chaincase.Common.Contracts
 {
     public enum TorState
     {

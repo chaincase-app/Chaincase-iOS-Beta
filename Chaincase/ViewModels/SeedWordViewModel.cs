@@ -1,4 +1,4 @@
-﻿using Chaincase.Models;
+﻿using Chaincase.Common.Models;
 using Chaincase.Navigation;
 using NBitcoin;
 using ReactiveUI;

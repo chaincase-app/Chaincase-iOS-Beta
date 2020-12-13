@@ -2,6 +2,7 @@
 using System.IO;
 using System.Reactive;
 using System.Reactive.Linq;
+using Chaincase.Common;
 using Chaincase.Navigation;
 using NBitcoin;
 using ReactiveUI;

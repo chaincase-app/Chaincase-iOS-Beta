@@ -1,0 +1,51 @@
+﻿@page "/coinjoin"
+@using Chaincase.UI.Services
+@inject UIStateService UiStateService
+@inject NavigationManager NavigationManager
+
+<ion-content class="ion-padding">
+    <!-- CoinListTemplate -->
+    @if (IsQueuedToCoinJoin)
+    {
+        <p style="color: red;">
+            Chaincase must be open to complete a CoinJoin.
+            We'll notify you when registration ends to open.
+        </p>
+    }
+
+    <p>₿ @RequiredBTC required to CoinJoin</p>
+
+
+    @if (IsQueuedToCoinJoin)
+    {
+        <ion-button  @onclick='() => NavigationManager.NavigateTo("/send/sent")' @onclick:preventDefault="true" expand="block">EXIT COINJOIN </ion-button>
+
+    } else
+    {
+        <ion-button href="/" @onclick='() => NavigationManager.NavigateTo("/send/sent")' @onclick:preventDefault="true" expand="block">COINJOIN</ion-button>
+
+    }
+</ion-content>
+
+@code {
+
+    bool IsQueuedToCoinJoin = true;
+    string RequiredBTC = "0.01";
+
+
+    protected override void OnInitialized()
+    {
+        UiStateService.Title = "SEND";
+    }
+
+    void ExitCoinJoin()
+    {
+        return;
+    }
+
+    void CoinJoin()
+    {
+        return;
+    }
+
+}

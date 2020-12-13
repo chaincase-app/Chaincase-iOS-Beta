@@ -1,6 +1,6 @@
 using System;
 
-namespace Chaincase.Common
+namespace Chaincase.Common.Contracts
 {
     public interface INotificationManager
     {

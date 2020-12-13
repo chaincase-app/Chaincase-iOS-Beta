@@ -1,0 +1,48 @@
+﻿@inherits LayoutComponentBase
+@using Chaincase.UI.Services
+@implements IDisposable
+@inject UIStateService StateService
+@inject NavigationManager NavigationManager
+
+<ion-split-pane when="sm" content-id="main-content">
+    <ion-menu content-id="main-content">
+        <NavMenu />
+    </ion-menu>
+
+    <ion-page class="ion-page" id="main-content">
+        <ion-header>
+            <ion-toolbar>
+                <ion-buttons slot="start">
+                    <ion-menu-button></ion-menu-button>
+                </ion-buttons>
+                <ion-buttons slot="end">
+                    <ion-button href="walletinfo"
+                                @onclick="NavigateWalletInfo"
+                                @onclick:preventDefault="true">
+                        <ion-icon slot="icon-only" name="information-circle-outline"></ion-icon>
+                    </ion-button>
+                </ion-buttons>
+                <ion-title>@StateService.Title</ion-title>
+            </ion-toolbar>
+        </ion-header>
+        @Body
+    </ion-page>
+</ion-split-pane>
+
+@code{
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        StateService.StateChanged += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        StateService.StateChanged -= StateHasChanged;
+    }
+
+    private void NavigateWalletInfo() =>
+        NavigationManager.NavigateTo("walletinfo");
+
+}

@@ -4,7 +4,7 @@ using ReactiveUI.XamForms;
 using Chaincase.ViewModels;
 using System;
 using Chaincase.Converters;
-using Chaincase.Models;
+using Chaincase.Common.Models;
 using NBitcoin;
 
 namespace Chaincase.Views

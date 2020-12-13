@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
+using Chaincase.Common;
 using Splat;
 using UIKit;
-using Xamarin.Forms;
 
 namespace Chaincase.iOS.Backgrounding
 {

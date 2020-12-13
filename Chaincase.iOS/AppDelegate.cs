@@ -1,5 +1,5 @@
 using Chaincase.Background;
-using Chaincase.Common;
+using Chaincase.Common.Contracts;
 using Chaincase.iOS.Backgrounding;
 using Chaincase.iOS.Tor;
 using Foundation;
@@ -42,9 +42,9 @@ namespace Chaincase.iOS
                 await context.InitializeNoWallet();
             });
 
-            var formsApp = new App(ConfigureDi);
+            var formsApp = new BlazorApp(fileProvider: null, ConfigureDi);
             UNUserNotificationCenter.Current.Delegate = 
-	            formsApp.Container.GetService<iOSNotificationReceiver>();
+	            formsApp.ServiceProvider.GetService<iOSNotificationReceiver>();
             LoadApplication(formsApp);
 
             return base.FinishedLaunching(app, options);

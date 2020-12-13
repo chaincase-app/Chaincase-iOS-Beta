@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Chaincase.Models;
+using Chaincase.Common;
+using Chaincase.Common.Models;
 using Chaincase.Navigation;
 using NBitcoin.Protocol;
 using ReactiveUI;
@@ -17,7 +16,7 @@ using Xamarin.Forms;
 
 namespace Chaincase.ViewModels
 {
-    public class StatusViewModel : ViewModelBase
+	public class StatusViewModel : ViewModelBase
     {
         protected Global Global { get; }
 

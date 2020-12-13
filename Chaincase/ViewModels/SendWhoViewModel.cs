@@ -5,6 +5,7 @@ using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using Chaincase.Common;
 using Chaincase.Navigation;
 using NBitcoin;
 using NBitcoin.Payment;
@@ -12,7 +13,6 @@ using ReactiveUI;
 using Splat;
 using WalletWasabi.Blockchain.Analysis.Clustering;
 using WalletWasabi.Blockchain.TransactionBuilding;
-using WalletWasabi.Blockchain.TransactionOutputs;
 using WalletWasabi.Blockchain.Transactions;
 using WalletWasabi.Exceptions;
 using WalletWasabi.Helpers;
@@ -20,7 +20,7 @@ using WalletWasabi.Logging;
 
 namespace Chaincase.ViewModels
 {
-    public class SendWhoViewModel : ViewModelBase
+	public class SendWhoViewModel : ViewModelBase
     {
         protected Global Global { get; }
 

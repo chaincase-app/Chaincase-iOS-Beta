@@ -1,20 +1,21 @@
-﻿using NBitcoin;
-using ReactiveUI;
-using System;
+﻿using System;
+using System.IO;
 using System.Reactive;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Chaincase.Common;
+using Chaincase.Navigation;
+using Chaincase.ViewModels.Validation;
+using NBitcoin;
+using ReactiveUI;
+using Splat;
+using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Helpers;
 using WalletWasabi.Models;
-using Splat;
-using Chaincase.Navigation;
-using WalletWasabi.Blockchain.Keys;
-using Xamarin.Forms;
-using Chaincase.ViewModels.Validation;
 using Xamarin.Essentials;
-using System.IO;
-using System.Reactive.Linq;
+using Xamarin.Forms;
 
 namespace Chaincase.ViewModels
 {

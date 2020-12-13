@@ -3,21 +3,20 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Chaincase.Common;
+using Chaincase.Common.Contracts;
 using CoreFoundation;
 using Foundation;
+using Nito.AsyncEx;
 using ObjCRuntime;
 using TorFramework;
 using WalletWasabi.Exceptions;
 using WalletWasabi.Helpers;
 using WalletWasabi.Logging;
 using WalletWasabi.TorSocks5;
-using Nito.AsyncEx;
-using Xamarin.Forms;
 
 namespace Chaincase.iOS.Tor
 {
-    public interface OnionManagerDelegate
+	public interface OnionManagerDelegate
     {
         void TorConnProgress(int progress);
 

@@ -1,3 +1,4 @@
+#if  DEBUG
 using LiveSharp;
 
 // Use this attribute to designate which types and methods will be available for runtime code update
@@ -18,6 +19,8 @@ namespace LiveSharp
         {
             app.Config.SetValue("pageHotReloadMethod", "build");
             app.UseDefaultXamarinFormsHandler();
+            app.Config.SetValue("disableBlazorCSS", "false");
+            app.UseDefaultBlazorHandler();
         }
         
         public void Run(ILiveSharpRuntime app)
@@ -27,3 +30,4 @@ namespace LiveSharp
         }
     } 
 }
+#endif
