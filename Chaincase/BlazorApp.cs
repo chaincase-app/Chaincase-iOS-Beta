@@ -32,7 +32,8 @@ namespace Chaincase
 					// Adds web-specific services such as NavigationManager
 					services.AddBlazorHybrid();
 					services.AddUIServices();
-					
+					services.UseMicrosoftDependencyResolver();
+
 					configureDI?.Invoke(services);
 
 					services.AddSingleton<Global, Global>();
