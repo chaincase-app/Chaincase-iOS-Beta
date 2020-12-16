@@ -8,11 +8,18 @@
 
 <ion-content class="ion-padding">
     <h1>@ViewModel.Balance</h1>
-    <h4>[Balance]</h4>
     <p>Tor running 2 peers Ready</p>
     <ion-progress-bar color="primary" />
 
-    <p>First sync may be a few minutes.</p>
+    @*@foreach (var tx in ViewModel.Transactions)
+    {
+        <p>tx</p>
+    }*@
+
+    @if (!ViewModel.Transactions.NotNullAndNotEmpty())
+    {
+        <p>Your transactions will appear here</p>
+    }
     <ion-button expand="block"
                 href="backup/start"
                 @onclick='() => NavigationManager.NavigateTo("backup/start")'

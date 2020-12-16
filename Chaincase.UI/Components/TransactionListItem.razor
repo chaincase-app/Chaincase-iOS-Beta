@@ -1,0 +1,39 @@
+﻿@using Chaincase.Common.Contracts
+@using Chaincase.UI.Services
+
+@inherits ReactiveComponentBase<TransactionViewModel>
+
+<ion-item>
+    @if(!ViewModel.Confirmed)
+    {
+        <ion-icon slot="start"
+                  style="color: grey;"
+                  name="ellipsis-horizontal-circle-outline" />
+    } else if (ViewModel.Amount > 0)
+    {
+        <ion-icon slot="start"
+                  name="add-circle-outline" />
+    } else { 
+        <ion-icon slot="start"
+                  name="remove-circle-outline" />
+    }
+    <p>@ViewModel.Label</p>
+    <p>@ViewModel.AmountBtc</p>
+</ion-item>
+
+@code {
+
+    public TransactionListItem()
+    {
+
+    }
+
+    [Parameter]
+    public TransactionViewModel TransactionViewModel { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        ViewModel = TransactionViewModel;
+        base.OnParametersSet();
+    }
+}
