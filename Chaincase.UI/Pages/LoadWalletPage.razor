@@ -5,7 +5,7 @@
 @inject UIStateService UiStateService
 @inject NavigationManager NavigationManager
 
-@inherits ReactiveComponentBase<NewPasswordViewModel>
+@inherits ReactiveComponentBase<LoadWalletViewModel>
 
 <ion-content class="ion-padding">
     <h1>Load from Backup</h1>
@@ -14,7 +14,9 @@
     <p>Enter the 12 words you wrote down as a backup in order and separated by spaces.</p>
 
     <ion-label floating>PASSWORD</ion-label>
-    <IonInput type='@(showPassword ? "text" : "password")' @bind-Value="@Password" placeholder="e.g. margaretthatcheris110%SEXY" />
+    <IonInput type='@(showPassword ? "text" : "password")'
+              @bind-Value="@Password"
+              placeholder="e.g. margaretthatcheris110%SEXY" />
     @if (showPassword)
     {
         <ion-icon slot="end" name="eye" class="eye" @onclick='HideShowPassword' />
@@ -45,7 +47,7 @@
 
     public LoadWalletPage()
     {
-        ViewModel = new NewPasswordViewModel();
+        ViewModel = new LoadWalletViewModel();
     }
 
     protected override void OnInitialized()
@@ -57,8 +59,8 @@
     {
         // TODO if password is empty, alert the user
 
-        // TODO Load it up baybie
-        NavigationManager.NavigateTo("");
+        if (ViewModel.LoadWallet())
+            NavigationManager.NavigateTo("");
     }
 
     private void HideShowPassword()
