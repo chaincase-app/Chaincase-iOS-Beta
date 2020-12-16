@@ -4,9 +4,10 @@
 @inject UIStateService UiStateService
 @inject NavigationManager NavigationManager
 
- @*put wallet info button in navbar*@ 
+@inherits ReactiveComponentBase<IndexViewModel>
+
 <ion-content class="ion-padding">
-    <h1>[BTC Balance]</h1>
+    <h1>@ViewModel.Balance</h1>
     <h4>[Balance]</h4>
     <p>Tor running 2 peers Ready</p>
     <ion-progress-bar color="primary" />
@@ -37,6 +38,12 @@
 </ion-content>
 
 @code{
+
+
+    public Index()
+    {
+        ViewModel = new IndexViewModel();
+    }
 
     protected override void OnInitialized()
     {

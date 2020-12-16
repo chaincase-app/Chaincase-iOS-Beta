@@ -1,8 +1,12 @@
 ﻿@inherits LayoutComponentBase
+
+@using System.IO
 @using Chaincase.UI.Services
+@using Chaincase.Common
 @implements IDisposable
 @inject UIStateService StateService
 @inject NavigationManager NavigationManager
+@inject Global Global  
 
 <ion-split-pane when="sm" content-id="main-content">
     <ion-menu content-id="main-content">
@@ -17,7 +21,7 @@
                 </ion-buttons>
                 <ion-buttons slot="end">
                     <ion-button href="walletinfo"
-                                @onclick="NavigateWalletInfo"
+                                @onclick="NavigateToWalletInfo"
                                 @onclick:preventDefault="true">
                         <ion-icon slot="icon-only" name="information-circle-outline"></ion-icon>
                     </ion-button>
@@ -33,6 +37,9 @@
 
     protected override void OnInitialized()
     {
+        if (!Global.WalletExists())
+            NavigationManager.NavigateTo("landing");
+
         base.OnInitialized();
         StateService.StateChanged += StateHasChanged;
     }
@@ -42,7 +49,7 @@
         StateService.StateChanged -= StateHasChanged;
     }
 
-    private void NavigateWalletInfo() =>
+    private void NavigateToWalletInfo() =>
         NavigationManager.NavigateTo("walletinfo");
 
 }

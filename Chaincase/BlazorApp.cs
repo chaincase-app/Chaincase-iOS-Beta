@@ -34,6 +34,11 @@ namespace Chaincase
 					services.AddUIServices();
 					services.UseMicrosoftDependencyResolver();
 
+					// set Locator to reference this container, too
+					var resolver = Locator.CurrentMutable;
+					resolver.InitializeSplat();
+					resolver.InitializeReactiveUI();
+
 					configureDI?.Invoke(services);
 
 					services.AddSingleton<Global, Global>();
@@ -121,14 +126,6 @@ namespace Chaincase
 			{
 				Logger.LogError(ex);
 			}
-		}
-
-		private bool WalletExists()
-		{
-			var global = Locator.Current.GetService<Global>();
-			var walletName = global.Network.ToString();
-			(string walletFullPath, _) = global.WalletManager.WalletDirectories.GetWalletFilePaths(walletName);
-			return File.Exists(walletFullPath);
 		}
 	}
 }

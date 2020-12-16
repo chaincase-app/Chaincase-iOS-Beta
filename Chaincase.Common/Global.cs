@@ -705,5 +705,13 @@ namespace Chaincase.Common
             }
             return dataDir;
         }
+
+        public bool WalletExists()
+        {
+            // this is kinda codesmell biz logic but it doesn't make sense for a full VM here
+            var walletName = Network.ToString();
+            (string walletFullPath, _) = WalletManager.WalletDirectories.GetWalletFilePaths(walletName);
+            return File.Exists(walletFullPath);
+        }
     }
 }
