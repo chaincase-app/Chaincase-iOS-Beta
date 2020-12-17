@@ -6,5 +6,9 @@
 	<array>
 		<string>chaincase.cash</string>
 	</array>
+	<key>KeyChain</key>
+	<array>
+		<string></string>
+	</array>
 </dict>
 </plist>

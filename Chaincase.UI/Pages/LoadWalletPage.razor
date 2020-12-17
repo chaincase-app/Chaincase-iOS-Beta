@@ -10,12 +10,12 @@
 <ion-content class="ion-padding">
     <h1>Load from Backup</h1>
     <ion-label floating>SEED WORDS</ion-label>
-    <IonInput type='text' @bind-Value="@SeedWords" />
+    <IonInput type='text' @bind-Value="@ViewModel.SeedWords" />
     <p>Enter the 12 words you wrote down as a backup in order and separated by spaces.</p>
 
     <ion-label floating>PASSWORD</ion-label>
     <IonInput type='@(showPassword ? "text" : "password")'
-              @bind-Value="@Password"
+              @bind-Value="@ViewModel.Password"
               placeholder="e.g. margaretthatcheris110%SEXY" />
     @if (showPassword)
     {
@@ -40,10 +40,6 @@
 @code {
 
     bool showPassword;
-
-    string Password;
-
-    string SeedWords;
 
     public LoadWalletPage()
     {
