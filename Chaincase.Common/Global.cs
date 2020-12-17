@@ -706,7 +706,7 @@ namespace Chaincase.Common
             return dataDir;
         }
 
-        public bool WalletExists()
+        public bool HasWalletFile()
         {
             // this is kinda codesmell biz logic but it doesn't make sense for a full VM here
             var walletName = Network.ToString();

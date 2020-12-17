@@ -37,7 +37,7 @@
 
     protected override void OnInitialized()
     {
-        if (!Global.WalletExists())
+        if (!Global.HasWalletFile())
             NavigationManager.NavigateTo("landing");
 
         base.OnInitialized();

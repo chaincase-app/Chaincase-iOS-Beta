@@ -35,7 +35,7 @@ namespace Chaincase.UI.ViewModels
         public IndexViewModel()
         {
             Global = Locator.Current.GetService<Global>();
-            if (Global.WalletExists())
+            if (Global.HasWalletFile() && Global.Wallet == null)
 			{
                 Global.SetDefaultWallet();
                 Task.Run(async () => await LoadWalletAsync());
@@ -43,12 +43,8 @@ namespace Chaincase.UI.ViewModels
                 Transactions = new ObservableCollection<TransactionViewModel>();
                 TryWriteTableFromCache();
             }
-                
 
             Balance = Global.UiConfig.Balance;
-
-            
-
 
             Initializing += OnInit;
             Initializing(this, EventArgs.Empty);
