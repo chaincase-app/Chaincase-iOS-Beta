@@ -41,6 +41,7 @@ namespace Chaincase
 					resolver.InitializeReactiveUI();
 
 					resolver.RegisterLazySingleton(() => new IndexViewModel(), typeof(IndexViewModel));
+					resolver.RegisterLazySingleton(() => new SendViewModel(), typeof(SendViewModel));
 
 					configureDI?.Invoke(services);
 

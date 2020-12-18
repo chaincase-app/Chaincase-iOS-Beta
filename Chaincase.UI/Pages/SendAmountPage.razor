@@ -1,33 +1,54 @@
-﻿@page "/send"
-@using Chaincase.Common.Contracts
+﻿@page "/send/amount"
 @using Chaincase.UI.Services
+@using Splat
+
 @inject UIStateService UiStateService
 @inject NavigationManager NavigationManager
 
+@inherits ReactiveComponentBase<SendViewModel>
+
 <ion-content class="ion-padding">
-    <p style="text-align:center;">Send From</p>
-    <ion-button expand="block">x Coins Selected</ion-button>
-    <p style="text-align:center;">[amount] BTC available</p>
 
-    <ion-label>Amount</ion-label>
-    <IonInput @bind-Value="amount" type="number" />
+    <ion-item>
+        <ion-label>Amount</ion-label>
+        <IonInput @bind-Value="@amount" type="number" />
+    </ion-item>
+    <span>$[dollars]</span>
 
-    <ion-label>Max</ion-label>
+    @*<ion-label>Set Max</ion-label> TODO should be a button that just sets amount & coin selection*@
     <IonToggle name="grape" color="tertiary" Value="true"></IonToggle>
 
-    <p>Fee___72 sat / vbyte</p>
+    <span style="text-align:center;">Send From</span>
+    <ion-button @onclick="ToggleSelectCoinsModal" expand="block">x Coins Selected</ion-button>
+    <span style="text-align:center;">[amount] BTC selected to fund</span>
 
-    <ion-button href="/send/who" @onclick='() => NavigationManager.NavigateTo("/send/who")' @onclick:preventDefault="true" expand="block">NEXT</ion-button>
+    <span>Fee___72 sat / vbyte</span>
+
+    <ion-button href="/send/who" @onclick='NavigateToSendConfirmPage' @onclick:preventDefault="true" expand="block">CONFIRM</ion-button>
+
+@*this is hidden until its not*@
+    <SelectCoinsModal @bind-Visible="IsSelectCoinsModalVisible"
 </ion-content>
 
 @code {
 
-
+    private bool IsSelectCoinsModalVisible;
     private double amount { get; set; }
+
+    public SendAmountPage()
+    {
+        ViewModel = Locator.Current.GetService<SendViewModel>();
+    }
 
     protected override void OnInitialized()
     {
         UiStateService.Title = "SEND";
     }
+
+    private void ToggleSelectCoinsModal() =>
+        IsSelectCoinsModalVisible = !IsSelectCoinsModalVisible;
+
+    private void NavigateToSendConfirmPage() =>
+        NavigationManager.NavigateTo("/send/confirm");
 
 }

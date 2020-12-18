@@ -1,0 +1,33 @@
+﻿@using Chaincase.Common.Contracts
+@using Chaincase.UI.Services
+
+@namespace Chaincase.UI.Components
+@inherits ReactiveComponentBase<SelectCoinsViewModel>
+
+<IonModal @bind-Visible="Visible">
+
+    @if (!ViewModel.CoinList.Any())
+    {
+        <p>Your coins will appear here</p>
+    }
+
+    @foreach(var coin in ViewModel.CoinList)
+    {
+        <CoinToSelect CoinViewModel="@coin" />
+    }
+
+</IonModal>
+    
+@code {
+
+    public bool Visible { get; set; }
+
+    [Parameter]
+    public SelectCoinsViewModel CoinSelectionViewModel { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        ViewModel = CoinSelectionViewModel;
+        base.OnParametersSet();
+    }
+}

@@ -1,0 +1,26 @@
+﻿@using Chaincase.Common.Contracts
+@using Chaincase.UI.Services
+
+@namespace Chaincase.UI.Components
+@inherits ReactiveComponentBase<CoinViewModel>
+
+<ion-item>
+    <p>@ViewModel.Address</p>
+</ion-item>
+
+@code {
+
+    public SelectableCoin()
+    {
+
+    }
+
+    [Parameter]
+    public CoinViewModel CoinViewModel { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        ViewModel = CoinViewModel;
+        base.OnParametersSet();
+    }
+}
