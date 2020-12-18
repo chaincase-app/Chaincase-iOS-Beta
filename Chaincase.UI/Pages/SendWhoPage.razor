@@ -1,17 +1,22 @@
 ﻿@page "/send/who"
 @using Chaincase.Common.Contracts
 @using Chaincase.UI.Services
+@using Splat;
+
 @inject UIStateService UiStateService
 @inject NavigationManager NavigationManager
 
+@inherits ReactiveComponentBase<SendViewModel>
+
 <ion-content class="ion-padding">
-    <ion-label>Label</ion-label>
-    <IonInput @bind-Value="Label" placeholder="e.g. Chloe for cat toys" />
+    <h1>Sending to who?</h1>
 
     <ion-label>Address</ion-label>
-    <IonInput @bind-Value="AddressString"/>
+    @* TODO put a paste button at the end of the input*@
+    <IonInput @bind-Value="AddressString" placeholder="Enter address..."/>
 
-    <ion-button href="/send/sent" @onclick='() => NavigationManager.NavigateTo("/send/sent")' @onclick:preventDefault="true" expand="block">NEXT</ion-button>
+    @*qr code reader goes here*@
+    <ion-button href="/send/label" @onclick='NavigateToSendLabelPage' @onclick:preventDefault="true" expand="block">NEXT</ion-button>
 </ion-content>
 
 @code {
@@ -19,9 +24,17 @@
     private string Label { get; set; }
     private string AddressString { get; set; }
 
+    public SendWhoPage()
+    {
+        ViewModel = Locator.Current.GetService<SendViewModel>();
+    }
+
     protected override void OnInitialized()
     {
         UiStateService.Title = "SEND";
     }
+
+    private void NavigateToSendLabelPage() =>
+        NavigationManager.NavigateTo("send/label");
 
 }

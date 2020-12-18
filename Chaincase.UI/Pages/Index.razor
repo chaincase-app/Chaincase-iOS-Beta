@@ -1,17 +1,27 @@
 ﻿@page "/"
 @using Chaincase.UI.Services
+@using Splat;
 
 @inject UIStateService UiStateService
 @inject NavigationManager NavigationManager
 
- @*put wallet info button in navbar*@ 
+@inherits ReactiveComponentBase<IndexViewModel>
+
 <ion-content class="ion-padding">
-    <h1>[BTC Balance]</h1>
-    <h4>[Balance]</h4>
-    <p>Tor running 2 peers Ready</p>
+    <h1>@ViewModel.Balance</h1>
+    <p>Tor running x peers Ready</p>
     <ion-progress-bar color="primary" />
 
-    <p>First sync may be a few minutes.</p>
+    @foreach (var transaction in ViewModel.Transactions)
+    {
+        <TransactionListItem TransactionViewModel="@transaction" />
+    }
+
+    @if (!ViewModel.Transactions.NotNullAndNotEmpty())
+    {
+        <p>Your transactions will appear here</p>
+    }
+
     <ion-button expand="block"
                 href="backup/start"
                 @onclick='() => NavigationManager.NavigateTo("backup/start")'
@@ -27,7 +37,7 @@
 
     <ion-button expand="block"
                 href="send"
-                @onclick='() => NavigationManager.NavigateTo("send")'
+                @onclick='() => NavigationManager.NavigateTo("send/who")'
                 @onclick:preventDefault="true">SEND</ion-button>
 
     <ion-button expand="block"
@@ -37,6 +47,12 @@
 </ion-content>
 
 @code{
+
+
+    public Index()
+    {
+        ViewModel = Locator.Current.GetService<IndexViewModel>();
+    }
 
     protected override void OnInitialized()
     {

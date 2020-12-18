@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Chaincase.Background;
 using Chaincase.Common;
 using Chaincase.UI.Services;
+using Chaincase.UI.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
@@ -34,9 +35,18 @@ namespace Chaincase
 					services.AddUIServices();
 					services.UseMicrosoftDependencyResolver();
 
+					// set Locator to reference this container, too
+					var resolver = Locator.CurrentMutable;
+					resolver.InitializeSplat();
+					resolver.InitializeReactiveUI();
+
+					resolver.RegisterLazySingleton(() => new IndexViewModel(), typeof(IndexViewModel));
+					resolver.RegisterLazySingleton(() => new SendViewModel(), typeof(SendViewModel));
+
 					configureDI?.Invoke(services);
 
 					services.AddSingleton<Global, Global>();
+
 				})
 				.UseWebRoot("wwwroot");
 
@@ -121,14 +131,6 @@ namespace Chaincase
 			{
 				Logger.LogError(ex);
 			}
-		}
-
-		private bool WalletExists()
-		{
-			var global = Locator.Current.GetService<Global>();
-			var walletName = global.Network.ToString();
-			(string walletFullPath, _) = global.WalletManager.WalletDirectories.GetWalletFilePaths(walletName);
-			return File.Exists(walletFullPath);
 		}
 	}
 }

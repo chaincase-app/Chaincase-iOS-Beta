@@ -49,7 +49,7 @@ namespace Chaincase.UI.ViewModels
             });
         }
 
-        public string ExtendedAccountPublicKey => Global.Wallet.KeyManager.ExtPubKey.ToString(Global.Network);
+        public string ExtendedAccountPublicKey => Global.Wallet.KeyManager.ExtPubKey.ToString(Global.Network) ?? "";
         public string AccountKeyPath => $"m/{ Global.Wallet.KeyManager.AccountKeyPath}";
     }
 }

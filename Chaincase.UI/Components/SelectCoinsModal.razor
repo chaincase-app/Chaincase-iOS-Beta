@@ -1,0 +1,51 @@
+﻿@inherits ReactiveComponentBase<SelectCoinsViewModel>
+
+<IonModal @bind-Visible="@Visible">
+    <ion-header>
+        <ion-toolbar>
+            <ion-title>Select Coins</ion-title>
+            <ion-buttons slot="end">
+                <IonButton @onclick="CloseModal">Close</IonButton>
+            </ion-buttons>
+        </ion-toolbar>
+    </ion-header>
+    <ion-content class="ion-padding">
+        @*<IonButton>CLOSE</IonButton>*@
+
+        @*@if (ViewModel.CoinList.NotNullOrEmpty() )
+        {
+            <p>Your coins will appear here</p>
+        }*@
+        <span>x</span>
+
+        @foreach(var coin in ViewModel.CoinList)
+        {
+            <span>coin</span>
+            @*<SelectableCoin CoinViewModel="@coin" />*@
+        }
+    </ion-content>
+</IonModal>
+    
+@code {
+
+    [Parameter]
+    public bool Visible { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> VisibleChanged { get; set; }
+
+    [Parameter]
+    public SelectCoinsViewModel SelectCoinsViewModel { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        ViewModel = SelectCoinsViewModel;
+        base.OnParametersSet();
+    }
+
+    private async Task CloseModal()
+    {
+        bool visible = false;
+        await VisibleChanged.InvokeAsync(visible);
+    }
+}
