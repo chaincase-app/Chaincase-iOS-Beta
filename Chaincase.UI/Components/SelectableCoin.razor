@@ -1,20 +1,10 @@
-﻿@using Chaincase.Common.Contracts
-@using Chaincase.UI.Services
-
-@namespace Chaincase.UI.Components
-@inherits ReactiveComponentBase<CoinViewModel>
+﻿@inherits ReactiveComponentBase<CoinViewModel>
 
 <ion-item>
-    <p>@ViewModel.Address</p>
+    <p>coin</p>
 </ion-item>
 
 @code {
-
-    public SelectableCoin()
-    {
-
-    }
-
     [Parameter]
     public CoinViewModel CoinViewModel { get; set; }
 

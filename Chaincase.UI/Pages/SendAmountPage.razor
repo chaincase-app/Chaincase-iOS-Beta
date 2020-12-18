@@ -24,10 +24,13 @@
 
     <span>Fee___72 sat / vbyte</span>
 
-    <ion-button href="/send/who" @onclick='NavigateToSendConfirmPage' @onclick:preventDefault="true" expand="block">CONFIRM</ion-button>
+    <ion-button href="/send/confirm"
+                @onclick='NavigateToSendConfirmPage'
+                @onclick:preventDefault="true"
+                expand="block">CONFIRM</ion-button>
 
-@*this is hidden until its not*@
-    <SelectCoinsModal @bind-Visible="IsSelectCoinsModalVisible"
+    <SelectCoinsModal @bind-Visible="@IsSelectCoinsModalVisible"
+                      SelectCoinsViewModel="@ViewModel.SelectCoinsViewModel" />
 </ion-content>
 
 @code {
