@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Chaincase.Background;
 using Chaincase.Common;
 using Chaincase.UI.Services;
+using Chaincase.UI.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
@@ -39,9 +40,12 @@ namespace Chaincase
 					resolver.InitializeSplat();
 					resolver.InitializeReactiveUI();
 
+					resolver.RegisterLazySingleton(() => new IndexViewModel(), typeof(IndexViewModel));
+
 					configureDI?.Invoke(services);
 
 					services.AddSingleton<Global, Global>();
+
 				})
 				.UseWebRoot("wwwroot");
 

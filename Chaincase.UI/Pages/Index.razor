@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using Chaincase.UI.Services
+@using Splat;
 
 @inject UIStateService UiStateService
 @inject NavigationManager NavigationManager
@@ -8,18 +9,19 @@
 
 <ion-content class="ion-padding">
     <h1>@ViewModel.Balance</h1>
-    <p>Tor running 2 peers Ready</p>
+    <p>Tor running x peers Ready</p>
     <ion-progress-bar color="primary" />
 
-    @*@foreach (var tx in ViewModel.Transactions)
+    @foreach (var transaction in ViewModel.Transactions)
     {
-        <p>tx</p>
-    }*@
+        <TransactionListItem TransactionViewModel="@transaction" />
+    }
 
     @if (!ViewModel.Transactions.NotNullAndNotEmpty())
     {
         <p>Your transactions will appear here</p>
     }
+
     <ion-button expand="block"
                 href="backup/start"
                 @onclick='() => NavigationManager.NavigateTo("backup/start")'
@@ -49,7 +51,7 @@
 
     public Index()
     {
-        ViewModel = new IndexViewModel();
+        ViewModel = Locator.Current.GetService<IndexViewModel>();
     }
 
     protected override void OnInitialized()
