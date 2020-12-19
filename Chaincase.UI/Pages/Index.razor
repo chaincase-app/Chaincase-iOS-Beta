@@ -12,12 +12,12 @@
     <p>Tor running x peers Ready</p>
     <ion-progress-bar color="primary" />
 
-    @foreach (var transaction in ViewModel.Transactions)
+    @foreach (var t in ViewModel.Transactions)
     {
-        <TransactionListItem TransactionViewModel="@transaction" />
+        <TransactionListItem TransactionViewModel="@t" />
     }
 
-    @if (!ViewModel.Transactions.NotNullAndNotEmpty())
+    @if (!ViewModel.Transactions.Any())
     {
         <p>Your transactions will appear here</p>
     }
@@ -47,8 +47,6 @@
 </ion-content>
 
 @code{
-
-
     public Index()
     {
         ViewModel = Locator.Current.GetService<IndexViewModel>();
