@@ -35,12 +35,13 @@ namespace Chaincase.UI.ViewModels
         public IndexViewModel()
         {
             Global = Locator.Current.GetService<Global>();
+            Transactions = new ObservableCollection<TransactionViewModel>();
+
             if (Global.HasWalletFile() && Global.Wallet == null)
 			{
                 Global.SetDefaultWallet();
                 Task.Run(async () => await LoadWalletAsync());
 
-                Transactions = new ObservableCollection<TransactionViewModel>();
                 TryWriteTableFromCache();
             }
 
