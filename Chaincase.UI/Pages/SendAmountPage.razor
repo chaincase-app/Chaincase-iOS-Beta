@@ -11,7 +11,7 @@
 
     <ion-item>
         <ion-label>Amount</ion-label>
-        <IonInput @bind-Value="@amount" type="number" />
+        <IonInput @bind-Value="@ViewModel.AmountText" type="number" />
     </ion-item>
     <span>$[dollars]</span>
 
@@ -22,7 +22,7 @@
     <ion-button @onclick="ToggleSelectCoinsModal" expand="block">x Coins Selected</ion-button>
     <span style="text-align:center;">[amount] BTC selected to fund</span>
 
-    <span>Fee___72 sat / vbyte</span>
+    <span>Fee @ViewModel.FeeRate sat / vbyte</span>
 
     <ion-button href="/send/confirm"
                 @onclick='NavigateToSendConfirmPage'
