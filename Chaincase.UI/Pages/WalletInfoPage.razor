@@ -9,31 +9,31 @@
 
 <ion-content class="ion-padding">
     <ion-label>ACCOUNT KEY PATH</ion-label>
-    <ion-item>
+    <IonItem>
         <ion-label>@ViewModel.AccountKeyPath</ion-label>
-    </ion-item>
+    </IonItem>
 
     <ion-label>EXTENDED PUBLIC KEY</ion-label>
-    <ion-item>
+    <IonItem>
         <ion-label>@ViewModel.ExtendedAccountPublicKey</ion-label>
-    </ion-item>
+    </IonItem>
 
     <ion-list-header>
         <ion-label>KEYS</ion-label>
     </ion-list-header>
     <ion-list>
-        <ion-item button>
+        <IonItem button>
             Back Up Seed Words
-        </ion-item>
-        <ion-item button @onclick="ViewModel.ExportWallet">
+        </IonItem>
+        <IonItem button Onclick="ViewModel.ExportWallet">
             Export Wallet File
-        </ion-item>
+        </IonItem>
     </ion-list>
 
     <ion-list>
-        <ion-item button @onclick="ViewModel.ShareDebugLog">
+        <IonItem button OnClick="ViewModel.ShareDebugLog">
             Share Debug Log
-        </ion-item>
+        </IonItem>
     </ion-list>
 </ion-content>
 

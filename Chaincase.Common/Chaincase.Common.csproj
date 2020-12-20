@@ -8,9 +8,7 @@
       <ProjectReference Include="..\WalletWasabi\WalletWasabi.Standard\WalletWasabi.Standard.csproj" />
     </ItemGroup>
     <ItemGroup>
-      <PackageReference Include="Xamarin.Forms" Version="4.8.0.1687" />
       <PackageReference Include="NBitcoin" Version="5.0.67" />
-      <PackageReference Include="Splat" Version="9.8.1" />
       <PackageReference Include="ReactiveUI" Version="12.1.5" />
       <PackageReference Include="ReactiveUI.Blazor" Version="12.1.5" />
     </ItemGroup>

@@ -6,6 +6,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Chaincase.Common;
+using Chaincase.Common.Contracts;
 using Chaincase.Common.Models;
 using ReactiveUI;
 using Splat;
@@ -14,13 +15,13 @@ using WalletWasabi.Blockchain.Transactions;
 using WalletWasabi.Logging;
 using WalletWasabi.Models;
 using WalletWasabi.Wallets;
-using Xamarin.Forms;
 
 namespace Chaincase.UI.ViewModels
 {
     public class IndexViewModel : ReactiveObject
     {
-        protected Global Global { get; }
+	    private readonly IMainThreadInvoker _mainThreadInvoker;
+	    protected Global Global { get; }
 
         private CompositeDisposable Disposables { get; set; }
         private ObservableCollection<TransactionViewModel> _transactions;
@@ -32,9 +33,10 @@ namespace Chaincase.UI.ViewModels
         private bool _hasPrivateCoins;
         readonly ObservableAsPropertyHelper<bool> _isJoining;
 
-        public IndexViewModel()
+        public IndexViewModel(Global global, IMainThreadInvoker mainThreadInvoker)
         {
-            Global = Locator.Current.GetService<Global>();
+	        Global = global;
+	        _mainThreadInvoker = mainThreadInvoker;
             Transactions = new ObservableCollection<TransactionViewModel>();
 
             if (Global.HasWalletFile() && Global.Wallet == null)
@@ -62,8 +64,7 @@ namespace Chaincase.UI.ViewModels
             {
                 await Task.Delay(200);
             }
-
-            Device.BeginInvokeOnMainThread(() =>
+			_mainThreadInvoker.Invoke(() =>
             {
                 //CoinList = new CoinListViewModel();
                 Observable.FromEventPattern(Global.Wallet.TransactionProcessor, nameof(Global.Wallet.TransactionProcessor.WalletRelevantTransactionProcessed))
