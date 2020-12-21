@@ -1,18 +1,19 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 using Chaincase.Common;
+using Chaincase.Common.Contracts;
 using ReactiveUI;
-using Splat;
-using Xamarin.Essentials;
 
 namespace Chaincase.UI.ViewModels
 {
 	public class WalletInfoViewModel : ReactiveObject
     {
-        protected Global Global { get; }
+	    private readonly IFileShare _fileShare;
+	    protected Global Global { get; }
 
-        public WalletInfoViewModel(Global global)
+        public WalletInfoViewModel(Global global, IFileShare fileShare)
         {
+	        _fileShare = fileShare;
 	        Global = global;
 
 	        // var canBackUp = this.WhenAnyValue(x => x.Global.UiConfig.HasSeed, hs => hs == true);
@@ -31,22 +32,14 @@ namespace Chaincase.UI.ViewModels
         {
             var file = Path.Combine(Global.DataDir, "Logs.txt");
 
-            await Share.RequestAsync(new ShareFileRequest
-            {
-                Title = "Share Debug Logs",
-                File = new ShareFile(file)
-            });
+            await _fileShare.ShareFile(file, "Share Debug Logs");
         }
 
         public async Task ExportWallet()
         {
             var file = Path.Combine(Global.DataDir, $"Wallets/{Global.Network}.json");
 
-            await Share.RequestAsync(new ShareFileRequest
-            {
-                Title = "Export Wallet",
-                File = new ShareFile(file)
-            });
+            await _fileShare.ShareFile(file, "Export Wallet");
         }
 
         public string ExtendedAccountPublicKey => Global.Wallet.KeyManager.ExtPubKey.ToString(Global.Network) ?? "";
