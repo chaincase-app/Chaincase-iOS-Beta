@@ -117,7 +117,6 @@ namespace Chaincase.Common
         public async Task InitializeNoWalletAsync()
         {
             AddressManager = null;
-            TorManager = null;
             Logger.LogDebug($"Global.InitializeNoWalletAsync(): Waiting for a lock");
             try
             {
