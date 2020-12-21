@@ -1,6 +1,7 @@
 using Chaincase.Common;
 using Chaincase.UI.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
+using QRCoder;
 using ReactiveUI;
 using Splat;
 
@@ -18,8 +19,12 @@ namespace Chaincase.UI.Services
 			resolver.InitializeSplat();
 			resolver.InitializeReactiveUI();
 
+			collection.AddSingleton<QRCodeGenerator>();
 			collection.AddSingleton<IndexViewModel>();
 			collection.AddSingleton<SendViewModel>();
+			collection.AddTransient<LoadWalletViewModel>();
+			collection.AddTransient<WalletInfoViewModel>();
+			collection.AddTransient<NewPasswordViewModel>();
 
 			collection.AddSingleton<Global, Global>();
 			return collection;

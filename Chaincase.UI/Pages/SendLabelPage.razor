@@ -1,8 +1,7 @@
 ﻿@page "/send/label"
 @using Chaincase.UI.Services
-@using Chaincase.Common
+@inject SendViewModel vm
 @inject UIStateService UiStateService
-@inject Global Global
 @inherits ReactiveComponentBase<SendViewModel>
 
 <ion-content class="ion-padding">
@@ -16,13 +15,9 @@
 
 @code {
 
-    public SendLabelPage()
-    {
-        ViewModel = new SendViewModel(Global);
-    }
-
     protected override void OnInitialized()
     {
+        ViewModel = vm;
         UiStateService.Title = "SEND";
     }
 

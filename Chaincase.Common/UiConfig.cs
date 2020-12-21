@@ -9,7 +9,7 @@ namespace Chaincase.Common
 	public class UiConfig : ConfigBase
 	{
         private string _balance;
-		private TransactionInfo[] _transactions;
+        private TransactionInfo[] _transactions = new TransactionInfo[0];
 		private bool _hasSeed;
 		private bool _isBackedUp;
 

@@ -1,4 +1,4 @@
-using System.Threading;
+using BlazorDownloadFile;
 using Chaincase.Common;
 using Chaincase.Common.Contracts;
 using Microsoft.AspNetCore.Builder;
@@ -30,13 +30,15 @@ namespace Chaincase.SSB
 			services.AddRazorPages();
 			services.AddDataProtection();
 			services.AddServerSideBlazor();
-			services.AddUIServices();
 			services.UseMicrosoftDependencyResolver();
+			services.AddUIServices();
 			services.AddScoped<IHsmStorage, JsInteropSecureConfigProvider>();
+			services.AddScoped<IFileShare, SSBFileShare>();
 			services.AddSingleton<IDataDirProvider, SSBDataDirProvider>();
 			services.AddSingleton<IMainThreadInvoker, SSBMainThreadInvoker>();
 			services.AddSingleton<ITorManager, MockTorManager>();
 			services.AddSingleton<INotificationManager, MockNotificationManager>();
+			services.AddBlazorDownloadFile();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -64,5 +66,6 @@ namespace Chaincase.SSB
 				endpoints.MapFallbackToPage("/_Host");
 			});
 		}
+		
 	}
 }

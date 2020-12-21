@@ -1,7 +1,6 @@
 ﻿@page "/send/who"
 @using Chaincase.UI.Services
-@using Splat;
-
+@inject SendViewModel vm
 @inject UIStateService UiStateService
 
 @inherits ReactiveComponentBase<SendViewModel>
@@ -22,13 +21,9 @@
     private string Label { get; set; }
     private string AddressString { get; set; }
 
-    public SendWhoPage()
-    {
-        ViewModel = Locator.Current.GetService<SendViewModel>();
-    }
-
     protected override void OnInitialized()
     {
+        ViewModel = vm;
         UiStateService.Title = "SEND";
     }
 }

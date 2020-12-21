@@ -41,6 +41,7 @@ namespace Chaincase
 
 					services.AddSingleton<IDataDirProvider, XamarinDataDirProvider>();
 					services.AddSingleton<IMainThreadInvoker, XamarinMainThreadInvoker>();
+					services.AddSingleton<IFileShare, XamarinFileShare>();
 
 				})
 				.UseWebRoot("wwwroot");
