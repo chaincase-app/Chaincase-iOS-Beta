@@ -1,6 +1,6 @@
 ﻿@page "/send/label"
 @using Chaincase.UI.Services
-@inject SendViewModel vm
+@inject SendViewModel SendViewModel
 @inject UIStateService UiStateService
 @inherits ReactiveComponentBase<SendViewModel>
 
@@ -17,7 +17,7 @@
 
     protected override void OnInitialized()
     {
-        ViewModel = vm;
+        ViewModel = SendViewModel;
         UiStateService.Title = "SEND";
     }
 

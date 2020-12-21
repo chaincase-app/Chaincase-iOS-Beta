@@ -1,8 +1,7 @@
 ﻿@page "/"
 @using Chaincase.UI.Services
 @using Chaincase.Common
-@using Splat
-@inject IndexViewModel vm
+@inject IndexViewModel IndexViewModel
 @inject UIStateService UiStateService
 @inject NavigationManager NavigationManager
 @inject Global Global
@@ -47,7 +46,7 @@
 
     protected override void OnInitialized()
     {
-        ViewModel = vm;
+        ViewModel = IndexViewModel;
         
         if (!Global.HasWalletFile())
             NavigationManager.NavigateTo("landing");
