@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using UIKit;
 using UserNotifications;
 using Xamarin.Forms;
+using Splat;
 
 namespace Chaincase.iOS
 {
@@ -30,6 +31,11 @@ namespace Chaincase.iOS
             global::Xamarin.Forms.Forms.Init();
 
             ZXing.Net.Mobile.Forms.iOS.Platform.Init();
+            MessagingCenter.Subscribe<InitializeNoWalletTaskMessage>(this, "InitializeNoWalletTaskMessage", async message =>
+            {
+                var context = new iOSInitializeNoWalletContext(Locator.Current.GetService<Global>());
+                await context.InitializeNoWallet();
+            });
             var formsApp = new BlazorApp(fileProvider: null, ConfigureDi);
 
             MessagingCenter.Subscribe<OnSleepingTaskMessage>(this, "OnSleepingTaskMessage", async message =>
@@ -38,11 +44,6 @@ namespace Chaincase.iOS
                 await context.OnSleeping();
             });
 
-            MessagingCenter.Subscribe<InitializeNoWalletTaskMessage>(this, "InitializeNoWalletTaskMessage", async message =>
-            {
-                var context = new iOSInitializeNoWalletContext(formsApp.ServiceProvider.GetService<Global>());
-                await context.InitializeNoWallet();
-            });
 
             UNUserNotificationCenter.Current.Delegate = 
                 formsApp.ServiceProvider.GetService<iOSNotificationReceiver>();

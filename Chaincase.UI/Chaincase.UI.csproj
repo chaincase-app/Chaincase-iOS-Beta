@@ -15,6 +15,7 @@
         <PackageReference Include="ReactiveUI" Version="12.1.5" />
         <PackageReference Include="ReactiveUI.Blazor" Version="12.1.5" />
         <PackageReference Include="LiveSharp" Version="1.6.33" />
+        <PackageReference Include="Splat.Microsoft.Extensions.DependencyInjection" Version="9.7.1" />
     </ItemGroup>
 
     <PropertyGroup Condition="'$(Configuration)' == 'Release' ">

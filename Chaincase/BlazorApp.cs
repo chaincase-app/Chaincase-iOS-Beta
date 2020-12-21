@@ -42,7 +42,6 @@ namespace Chaincase
 					configureDI?.Invoke(services);
 
 					services.AddUIServices();
-					services.UseMicrosoftDependencyResolver();
 				})
 				.UseWebRoot("wwwroot");
 
@@ -56,6 +55,7 @@ namespace Chaincase
 			}
 
 			_host = hostBuilder.Build();
+			_host.Services.UseMicrosoftDependencyResolver();
 
 			// This relies on Global registered
 			var message = new InitializeNoWalletTaskMessage();

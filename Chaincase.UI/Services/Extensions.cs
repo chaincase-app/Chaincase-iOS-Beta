@@ -4,31 +4,33 @@ using Microsoft.Extensions.DependencyInjection;
 using QRCoder;
 using ReactiveUI;
 using Splat;
+using Splat.Microsoft.Extensions.DependencyInjection;
 
 namespace Chaincase.UI.Services
 {
 	public static class Extensions
 	{
-		public static IServiceCollection AddUIServices(this IServiceCollection collection)
+		public static IServiceCollection AddUIServices(this IServiceCollection services)
 		{
-			collection.AddSingleton<UIStateService>();
-
+			services.AddSingleton<UIStateService>();
 
 			// set Locator to reference this container, too
+			services.UseMicrosoftDependencyResolver();
 			var resolver = Locator.CurrentMutable;
 			resolver.InitializeSplat();
 			resolver.InitializeReactiveUI();
 
-			collection.AddSingleton<Global>();
+			services.AddSingleton<Global>();
 
-			collection.AddSingleton<QRCodeGenerator>();
-			collection.AddSingleton<IndexViewModel>();
-			collection.AddSingleton<SendViewModel>();
-			collection.AddTransient<LoadWalletViewModel>();
-			collection.AddTransient<WalletInfoViewModel>();
-			collection.AddTransient<NewPasswordViewModel>();
+			services.AddSingleton<QRCodeGenerator>();
+			services.AddSingleton<IndexViewModel>();
+			services.AddSingleton<SendViewModel>();
+			services.AddTransient<LoadWalletViewModel>();
+			services.AddTransient<WalletInfoViewModel>();
+			services.AddTransient<NewPasswordViewModel>();
 
-			return collection;
+
+			return services;
 		}
 	}
 }
