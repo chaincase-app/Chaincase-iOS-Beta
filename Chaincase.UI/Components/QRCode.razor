@@ -1,0 +1,23 @@
+@using QRCoder
+@using System.Drawing
+@inject QRCodeGenerator QrCodeGenerator
+@((MarkupString) svgHtml)
+
+@code {
+
+    [Parameter]
+    public string Data
+    {
+        get => _data;
+        set
+        {
+            var qrCodeData = QrCodeGenerator.CreateQrCode(value, QRCodeGenerator.ECCLevel.Q);
+            var qrCode = new SvgQRCode(qrCodeData);
+            svgHtml = qrCode.GetGraphic(new Size(256, 256), "#000", "#fff", true, SvgQRCode.SizingMode.ViewBoxAttribute);
+            _data = value;
+        }
+    }
+
+    private string svgHtml = "";
+    private string _data;
+}
