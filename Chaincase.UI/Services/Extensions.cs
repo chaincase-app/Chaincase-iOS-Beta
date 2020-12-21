@@ -19,6 +19,8 @@ namespace Chaincase.UI.Services
 			resolver.InitializeSplat();
 			resolver.InitializeReactiveUI();
 
+			collection.AddSingleton<Global>();
+
 			collection.AddSingleton<QRCodeGenerator>();
 			collection.AddSingleton<IndexViewModel>();
 			collection.AddSingleton<SendViewModel>();
@@ -26,7 +28,6 @@ namespace Chaincase.UI.Services
 			collection.AddTransient<WalletInfoViewModel>();
 			collection.AddTransient<NewPasswordViewModel>();
 
-			collection.AddSingleton<Global, Global>();
 			return collection;
 		}
 	}

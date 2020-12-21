@@ -1,4 +1,5 @@
 using Chaincase.Background;
+using Chaincase.Common;
 using Chaincase.Common.Contracts;
 using Chaincase.iOS.Backgrounding;
 using Chaincase.iOS.Tor;
@@ -29,6 +30,7 @@ namespace Chaincase.iOS
             global::Xamarin.Forms.Forms.Init();
 
             ZXing.Net.Mobile.Forms.iOS.Platform.Init();
+            var formsApp = new BlazorApp(fileProvider: null, ConfigureDi);
 
             MessagingCenter.Subscribe<OnSleepingTaskMessage>(this, "OnSleepingTaskMessage", async message =>
             {
@@ -38,13 +40,12 @@ namespace Chaincase.iOS
 
             MessagingCenter.Subscribe<InitializeNoWalletTaskMessage>(this, "InitializeNoWalletTaskMessage", async message =>
             {
-                var context = new iOSInitializeNoWalletContext();
+                var context = new iOSInitializeNoWalletContext(formsApp.ServiceProvider.GetService<Global>());
                 await context.InitializeNoWallet();
             });
 
-            var formsApp = new BlazorApp(fileProvider: null, ConfigureDi);
             UNUserNotificationCenter.Current.Delegate = 
-	            formsApp.ServiceProvider.GetService<iOSNotificationReceiver>();
+                formsApp.ServiceProvider.GetService<iOSNotificationReceiver>();
             LoadApplication(formsApp);
 
             return base.FinishedLaunching(app, options);
