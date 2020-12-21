@@ -1,14 +1,12 @@
 ﻿@page "/landing"
-@using Chaincase.Common.Contracts
 @using Chaincase.UI.Services
 @inject UIStateService UiStateService
-@inject NavigationManager NavigationManager
 
 <ion-content class="ion-padding">
     <h1>BITCOIN FOR HUMANS</h1>
 
-    <ion-button href="new" @onclick='() => NavigationManager.NavigateTo("new")' @onclick:preventDefault="true" expand="block">NEW WALLET</ion-button>
-    <ion-button href="load" @onclick='() => NavigationManager.NavigateTo("load")' @onclick:preventDefault="true" expand="block">LOAD WALLET</ion-button>
+    <IonButton href="new" expand="block">NEW WALLET</IonButton>
+    <IonButton href="load" expand="block">LOAD WALLET</IonButton>
 </ion-content>
 
 @code {

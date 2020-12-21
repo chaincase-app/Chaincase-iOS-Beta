@@ -9,8 +9,16 @@
 
     <IonItem>
         <ion-label>Amount</ion-label>
+<<<<<<< HEAD
         <IonInput @bind-Value="@ViewModel.AmountText" type="number" />
-    </Ionitem>
+    </ion-item>
+||||||| c595284a2
+        <IonInput @bind-Value="@amount" type="number" />
+    </ion-item>
+=======
+        <IonInput @bind-Value="@amount" type="number" />
+    </IonItem>
+>>>>>>> 246eb97607bacd98133d840ec90f04c172464e33
     <span>$[dollars]</span>
 
     @*<ion-label>Set Max</ion-label> TODO should be a button that just sets amount & coin selection*@

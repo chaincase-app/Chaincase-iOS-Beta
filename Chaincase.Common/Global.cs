@@ -27,8 +27,6 @@ using WalletWasabi.Services;
 using WalletWasabi.Stores;
 using WalletWasabi.Wallets;
 using Nito.AsyncEx;
-using Xamarin.Forms;
-using Splat;
 using Chaincase.Common.Contracts;
 
 namespace Chaincase.Common
@@ -69,12 +67,14 @@ namespace Chaincase.Common
         // Chaincase Specific
         public Wallet Wallet { get; set; }
 
-        public Global()
+        public Global(INotificationManager notificationManager, ITorManager torManager, IDataDirProvider dataDirProvider)
         {
-            using (BenchmarkLogger.Measure())
+	        TorManager = torManager;
+	        NotificationManager = notificationManager;
+	        using (BenchmarkLogger.Measure())
             {
                 StoppingCts = new CancellationTokenSource();
-                DataDir = GetDataDir();
+                DataDir = dataDirProvider.Get();
                 Directory.CreateDirectory(DataDir);
                 Config = new Config(Path.Combine(DataDir, "Config.json"));
                 UiConfig = new UiConfig(Path.Combine(DataDir, "UiConfig.json"));
@@ -85,7 +85,6 @@ namespace Chaincase.Common
                 UiConfig.LoadOrCreateDefaultFile();
                 Config.LoadOrCreateDefaultFile();
 
-                NotificationManager = Locator.Current.GetService<INotificationManager>();
 
                 WalletManager = new WalletManager(Network, new WalletDirectories(DataDir));
                 WalletManager.OnDequeue += WalletManager_OnDequeue;
@@ -154,7 +153,6 @@ namespace Chaincase.Common
 
                 if (Config.UseTor)
                 {
-                    TorManager = Locator.Current.GetService<ITorManager>();
                     await TorManager.StartAsync(ensureRunning: false, DataDir);
                     Logger.LogInfo($"{nameof(TorManager)} is initialized.");
                 }
@@ -559,11 +557,10 @@ namespace Chaincase.Common
                     var addrManTask = InitializeAddressManagerBehaviorAsync();
                     AddressManagerBehavior addressManagerBehavior = await addrManTask.ConfigureAwait(false);
                     connectionParameters.TemplateBehaviors.Add(addressManagerBehavior);
-
-                    var tor = Locator.Current.GetService<ITorManager>();
-                    if (tor?.State != TorState.Started && tor.State != TorState.Connected)
+                    
+                    if (TorManager?.State != TorState.Started && TorManager.State != TorState.Connected)
                     {
-                        await tor.StartAsync(false, GetDataDir());
+                        await TorManager.StartAsync(false, DataDir);
                     }
 
                     Nodes.Connect();
@@ -627,11 +624,11 @@ namespace Chaincase.Common
                     // don't ever cancel Init. use an ephemeral token
                     await WaitForInitializationCompletedAsync(new CancellationToken());
 
-                    var tor = Locator.Current.GetService<ITorManager>();
-                    if (tor?.State != TorState.Stopped) // OnionBrowser && Dispose@Global
+                    
+                    if (TorManager?.State != TorState.Stopped) // OnionBrowser && Dispose@Global
                     {
-                        await tor.StopAsync();
-                        Logger.LogInfo($"Global.OnSleeping():{nameof(tor)} is stopped.");
+                        await TorManager.StopAsync();
+                        Logger.LogInfo($"Global.OnSleeping():{nameof(TorManager)} is stopped.");
                     }
 
                     try
@@ -688,22 +685,6 @@ namespace Chaincase.Common
             {
                 Logger.LogDebug("Global.OnSleeping():Chaincase Sleeping"); // no real termination on iOS
             }
-        }
-
-        private string GetDataDir()
-        {
-            string dataDir;
-            if (Device.RuntimePlatform == Device.iOS)
-            {
-                var library = Environment.GetFolderPath(Environment.SpecialFolder.Resources);
-                var client = Path.Combine(library, "Client");
-                dataDir = client;
-            }
-            else
-            {
-                dataDir = EnvironmentHelpers.GetDataDir(Path.Combine("Chaincase", "Client"));
-            }
-            return dataDir;
         }
 
         public bool HasWalletFile()

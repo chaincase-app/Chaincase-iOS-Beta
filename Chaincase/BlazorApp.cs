@@ -3,6 +3,8 @@ using System.IO;
 using System.Threading.Tasks;
 using Chaincase.Background;
 using Chaincase.Common;
+using Chaincase.Common.Contracts;
+using Chaincase.Services;
 using Chaincase.UI.Services;
 using Chaincase.UI.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,19 +35,12 @@ namespace Chaincase
 					// Adds web-specific services such as NavigationManager
 					services.AddBlazorHybrid();
 					services.AddUIServices();
+
 					services.UseMicrosoftDependencyResolver();
-
-					// set Locator to reference this container, too
-					var resolver = Locator.CurrentMutable;
-					resolver.InitializeSplat();
-					resolver.InitializeReactiveUI();
-
-					resolver.RegisterLazySingleton(() => new IndexViewModel(), typeof(IndexViewModel));
-					resolver.RegisterLazySingleton(() => new SendViewModel(), typeof(SendViewModel));
-
 					configureDI?.Invoke(services);
 
-					services.AddSingleton<Global, Global>();
+					services.AddSingleton<IDataDirProvider, XamarinDataDirProvider>();
+					services.AddSingleton<IMainThreadInvoker, XamarinMainThreadInvoker>();
 
 				})
 				.UseWebRoot("wwwroot");
@@ -95,7 +90,7 @@ namespace Chaincase
 			Resuming -= OnResuming;
 
 			//perform non-blocking actions
-			await Locator.Current.GetService<Global>().OnResuming();
+			await _host.Services.GetRequiredService<Global>().OnResuming();
 		}
 
 		private static void TaskScheduler_UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)

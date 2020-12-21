@@ -9,7 +9,7 @@
     <IonInput @bind-Value="Label" placeholder="e.g. Dan for bread" />
     <p>You must write a memo here for your accounting. It's best to write who you will give this address to.</p>
 
-    <ion-button href="/receive/address" @onclick='() => NavigationManager.NavigateTo("/receive/address")' @onclick:preventDefault="true" expand="block">NEXT</ion-button>
+    <IonButton href="/receive/address" expand="block">NEXT</IonButton>
 </ion-content>
 
 @code {

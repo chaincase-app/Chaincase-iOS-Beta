@@ -1,10 +1,10 @@
 ﻿@inherits ReactiveComponentBase<CoinViewModel>
 
-<IonItem>
+<ion-item>
     @*TODO support @bind-Value="@ViewModel.IsSelected" @ IonToggle*@
     <IonToggle slot="start" value="@ViewModel.IsSelected" />
     <p>@ViewModel.Amount</p>
-</IonItem>
+</ion-item>
 
 @code {
     [Parameter]

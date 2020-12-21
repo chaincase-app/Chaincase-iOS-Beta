@@ -1,11 +1,8 @@
 ﻿using System.IO;
-using Chaincase;
 using Chaincase.Common;
 using Chaincase.Common.Contracts;
-using Microsoft.Extensions.DependencyInjection;
 using NBitcoin;
 using ReactiveUI;
-using Splat;
 using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Helpers;
 
@@ -15,11 +12,10 @@ namespace Chaincase.UI.ViewModels
 	{
 		protected Global Global { get; }
 		protected IHsmStorage Hsm { get; }
-
-		public NewPasswordViewModel()
+		public NewPasswordViewModel(Global global, IHsmStorage hsmStorage)
 		{
-			Global = Locator.Current.GetService<Global>();
-			Hsm = Locator.Current.GetService<IHsmStorage>();
+			Global = global;
+			Hsm = hsmStorage;
 		}
 
 		public void SetPassword(string password)

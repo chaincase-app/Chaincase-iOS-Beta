@@ -36,9 +36,9 @@ namespace Chaincase.UI.ViewModels
 
         // public ReactiveCommand<CoinViewModel, Unit> OpenCoinDetail;
 
-        public SelectCoinsViewModel(bool isPrivate = false)
+        public SelectCoinsViewModel(Global global, bool isPrivate = false)
         {
-            Global = Locator.Current.GetService<Global>();
+	        Global = global;
             RootList = new SourceList<CoinViewModel>();
             RootList
                 .Connect()
