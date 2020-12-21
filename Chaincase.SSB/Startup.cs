@@ -30,8 +30,8 @@ namespace Chaincase.SSB
 			services.AddRazorPages();
 			services.AddDataProtection();
 			services.AddServerSideBlazor();
-			services.AddUIServices();
 			services.UseMicrosoftDependencyResolver();
+			services.AddUIServices();
 			services.AddScoped<IHsmStorage, JsInteropSecureConfigProvider>();
 			services.AddSingleton<IDataDirProvider, SSBDataDirProvider>();
 			services.AddSingleton<IMainThreadInvoker, SSBMainThreadInvoker>();

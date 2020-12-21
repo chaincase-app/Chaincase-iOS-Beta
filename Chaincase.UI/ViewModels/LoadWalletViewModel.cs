@@ -25,10 +25,10 @@ namespace Chaincase.UI.ViewModels
 		private readonly string ACCOUNT_KEY_PATH = $"m/{KeyManager.DefaultAccountKeyPath}";
 		private const int MIN_GAP_LIMIT = KeyManager.AbsoluteMinGapLimit * 4;
 
-		public LoadWalletViewModel()
+		public LoadWalletViewModel(Global global, IHsmStorage hsmStorage)
 		{
-			Global = Locator.Current.GetService<Global>();
-			Hsm = Locator.Current.GetService<IHsmStorage>();
+			Global = global;
+			Hsm = hsmStorage;
 		}
 
 		public bool LoadWallet()

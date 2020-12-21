@@ -99,7 +99,7 @@ namespace Chaincase.UI.ViewModels
 
                 RootList.RemoveMany(coinToRemove.Select(kp => kp.Value));
 
-                var newCoinViewModels = coinToAdd.Select(c => new CoinViewModel(c)).ToArray();
+                var newCoinViewModels = coinToAdd.Select(c => new CoinViewModel(Global,c)).ToArray();
                 foreach (var cvm in newCoinViewModels)
                 {
                     SubscribeToCoinEvents(cvm);

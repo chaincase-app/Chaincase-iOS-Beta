@@ -32,9 +32,9 @@ namespace Chaincase.UI.ViewModels
 
 		public ReactiveCommand<Unit, Unit> NavBackCommand;
 
-		public CoinViewModel(SmartCoin model)
+		public CoinViewModel(Global global, SmartCoin model)
 		{
-			Global = Locator.Current.GetService<Global>();
+			Global = global;
 			Model = model;
 
 			Disposables = new CompositeDisposable();

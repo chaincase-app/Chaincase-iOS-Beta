@@ -11,20 +11,20 @@ namespace Chaincase.UI.ViewModels
     {
         protected Global Global { get; }
 
-        public WalletInfoViewModel()
+        public WalletInfoViewModel(Global global)
         {
-            Global = Locator.Current.GetService<Global>();
+	        Global = global;
 
-            // var canBackUp = this.WhenAnyValue(x => x.Global.UiConfig.HasSeed, hs => hs == true);
+	        // var canBackUp = this.WhenAnyValue(x => x.Global.UiConfig.HasSeed, hs => hs == true);
 
-            //NavBackUpCommand = ReactiveCommand.CreateFromObservable(() =>
-            //{
-            //	ViewStackService.PushPage(new StartBackUpViewModel()).Subscribe();
-            //	return Observable.Return(Unit.Default);
-            //}, canBackUp);
+	        //NavBackUpCommand = ReactiveCommand.CreateFromObservable(() =>
+	        //{
+	        //	ViewStackService.PushPage(new StartBackUpViewModel()).Subscribe();
+	        //	return Observable.Return(Unit.Default);
+	        //}, canBackUp);
 
-            //ShareLogsCommand = ReactiveCommand.CreateFromTask(ShareLogs);
-            //ExportWalletCommand = ReactiveCommand.CreateFromTask(ExportWallet);
+	        //ShareLogsCommand = ReactiveCommand.CreateFromTask(ShareLogs);
+	        //ExportWalletCommand = ReactiveCommand.CreateFromTask(ExportWallet);
         }
 
         public async Task ShareDebugLog()

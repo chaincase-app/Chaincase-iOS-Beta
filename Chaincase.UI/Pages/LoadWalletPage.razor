@@ -1,7 +1,6 @@
 ﻿@page "/load"
-@using Chaincase.Common.Contracts
 @using Chaincase.UI.Services
-
+@inject LoadWalletViewModel vm
 @inject UIStateService UiStateService
 @inject NavigationManager NavigationManager
 
@@ -40,13 +39,9 @@
 
     bool showPassword;
 
-    public LoadWalletPage()
-    {
-        ViewModel = new LoadWalletViewModel();
-    }
-
     protected override void OnInitialized()
     {
+        ViewModel = vm;
         UiStateService.Title = "LOAD WALLET";
     }
 

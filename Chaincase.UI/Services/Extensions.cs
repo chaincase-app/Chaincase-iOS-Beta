@@ -20,6 +20,9 @@ namespace Chaincase.UI.Services
 
 			collection.AddSingleton<IndexViewModel>();
 			collection.AddSingleton<SendViewModel>();
+			collection.AddTransient<LoadWalletViewModel>();
+			collection.AddTransient<WalletInfoViewModel>();
+			collection.AddTransient<NewPasswordViewModel>();
 
 			collection.AddSingleton<Global, Global>();
 			return collection;

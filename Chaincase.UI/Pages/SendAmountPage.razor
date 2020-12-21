@@ -1,6 +1,6 @@
 ﻿@page "/send/amount"
 @using Chaincase.UI.Services
-@using Splat
+@inject SendViewModel vm
 @inject UIStateService UiStateService
 @inject NavigationManager NavigationManager
 @inherits ReactiveComponentBase<SendViewModel>
@@ -33,14 +33,9 @@
     private bool IsSelectCoinsModalVisible;
     private double amount { get; set; }
 
-    
-    public SendAmountPage()
-    {
-        ViewModel = Locator.Current.GetService<SendViewModel>();
-    }
-
     protected override void OnInitialized()
     {
+        ViewModel = vm;
         UiStateService.Title = "SEND";
     }
 
