@@ -31,19 +31,22 @@ namespace Chaincase.iOS
             global::Xamarin.Forms.Forms.Init();
 
             ZXing.Net.Mobile.Forms.iOS.Platform.Init();
+            var formsApp = new BlazorApp(fileProvider: null, ConfigureDi);
+            var serviceProvider = formsApp.ServiceProvider;
+
             MessagingCenter.Subscribe<InitializeNoWalletTaskMessage>(this, "InitializeNoWalletTaskMessage", async message =>
             {
-                var context = new iOSInitializeNoWalletContext(Locator.Current.GetService<Global>());
+                var context = new iOSInitializeNoWalletContext(serviceProvider.GetService<Global>());
                 await context.InitializeNoWallet();
             });
-            var formsApp = new BlazorApp(fileProvider: null, ConfigureDi);
 
             MessagingCenter.Subscribe<OnSleepingTaskMessage>(this, "OnSleepingTaskMessage", async message =>
             {
-                var context = new iOSOnSleepingContext();
+                var context = new iOSOnSleepingContext(serviceProvider.GetService<Global>());
                 await context.OnSleeping();
             });
 
+            formsApp.InitializeNoWallet();
 
             UNUserNotificationCenter.Current.Delegate = 
                 formsApp.ServiceProvider.GetService<iOSNotificationReceiver>();

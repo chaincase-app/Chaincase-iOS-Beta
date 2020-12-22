@@ -2,9 +2,6 @@ using Chaincase.Common;
 using Chaincase.UI.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using QRCoder;
-using ReactiveUI;
-using Splat;
-using Splat.Microsoft.Extensions.DependencyInjection;
 
 namespace Chaincase.UI.Services
 {
@@ -14,12 +11,6 @@ namespace Chaincase.UI.Services
 		{
 			services.AddSingleton<UIStateService>();
 
-			// set Locator to reference this container, too
-			services.UseMicrosoftDependencyResolver();
-			var resolver = Locator.CurrentMutable;
-			resolver.InitializeSplat();
-			resolver.InitializeReactiveUI();
-
 			services.AddSingleton<Global>();
 
 			services.AddSingleton<QRCodeGenerator>();
@@ -28,7 +19,6 @@ namespace Chaincase.UI.Services
 			services.AddTransient<LoadWalletViewModel>();
 			services.AddTransient<WalletInfoViewModel>();
 			services.AddTransient<NewPasswordViewModel>();
-
 
 			return services;
 		}

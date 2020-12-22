@@ -55,18 +55,21 @@ namespace Chaincase
 			}
 
 			_host = hostBuilder.Build();
-			_host.Services.UseMicrosoftDependencyResolver();
 
-			// This relies on Global registered
-			var message = new InitializeNoWalletTaskMessage();
-			MessagingCenter.Send(message, "InitializeNoWalletTaskMessage");
 
-			MainPage = new ContentPage {Title = "Chaincase"};
+			MainPage = new ContentPage { Title = "Chaincase" };
 
 			AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 			TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
 
 			_host.AddComponent<Main>(parent: MainPage);
+		}
+
+		public void InitializeNoWallet()
+		{
+			// This relies on Global registered
+			var message = new InitializeNoWalletTaskMessage();
+			MessagingCenter.Send(message, "InitializeNoWalletTaskMessage");
 		}
 
 		protected override void OnSleep()
