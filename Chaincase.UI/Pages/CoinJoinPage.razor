@@ -18,11 +18,11 @@
 
     @if (IsQueuedToCoinJoin)
     {
-        <ion-button  @onclick='() => NavigationManager.NavigateTo("/send/sent")' @onclick:preventDefault="true" expand="block">EXIT COINJOIN </ion-button>
+        <IonButton href="/send/sent" expand="block">EXIT COINJOIN </IonButton>
 
     } else
     {
-        <ion-button href="/" @onclick='() => NavigationManager.NavigateTo("/send/sent")' @onclick:preventDefault="true" expand="block">COINJOIN</ion-button>
+        <IonButton href="/send/sent" expand="block">COINJOIN</IonButton>
 
     }
 </ion-content>

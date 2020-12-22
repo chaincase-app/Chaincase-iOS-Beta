@@ -1,6 +1,6 @@
 ﻿@inherits ReactiveComponentBase<TransactionViewModel>
 
-<ion-item>
+<IonItem>
     @if(!ViewModel.Confirmed)
     {
         <ion-icon slot="start"
@@ -16,7 +16,7 @@
     }
     <p>@ViewModel.Label</p>
     <p>@ViewModel.AmountBtc</p>
-</ion-item>
+</IonItem>
 
 @code {
 

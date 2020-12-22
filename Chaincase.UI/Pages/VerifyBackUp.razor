@@ -1,17 +1,13 @@
 ﻿@page "/backup/verify"
 @using Chaincase.UI.Services
 @inject UIStateService UiStateService
-@inject NavigationManager NavigationManager
 
 <ion-content class="ion-padding">
     <h1>VERIFY</h1>
 
     @if (IsVerified)
     {
-         <ion-button href="/backup/verify"
-                    @onclick='() => NavigationManager.NavigateTo("/")'
-                    @onclick:preventDefault="true"
-                    expand="block">VERIFY</ion-button>
+        <IonButton href="/backup/verify" expand="block">VERIFY</IonButton>
     }
 </ion-content>
 

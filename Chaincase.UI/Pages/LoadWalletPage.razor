@@ -1,7 +1,6 @@
 ﻿@page "/load"
-@using Chaincase.Common.Contracts
 @using Chaincase.UI.Services
-
+@inject LoadWalletViewModel vm
 @inject UIStateService UiStateService
 @inject NavigationManager NavigationManager
 
@@ -30,24 +29,19 @@
         The password must be exactly as it was created. As it is your secret, we cannot check whether or not it is correct.
         </p>
 
-    <ion-button @onclick='LoadWallet'
-                @onclick:preventDefault="true"
+    <IonButton OnClick="LoadWallet"
                 expand="block">
         LOAD WALLET
-    </ion-button>
+    </IonButton>
 </ion-content>
 
 @code {
 
     bool showPassword;
 
-    public LoadWalletPage()
-    {
-        ViewModel = new LoadWalletViewModel();
-    }
-
     protected override void OnInitialized()
     {
+        ViewModel = vm;
         UiStateService.Title = "LOAD WALLET";
     }
 

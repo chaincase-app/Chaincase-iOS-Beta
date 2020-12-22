@@ -1,10 +1,7 @@
 ﻿@page "/send/label"
-@using Chaincase.Common.Contracts
 @using Chaincase.UI.Services
-
+@inject SendViewModel vm
 @inject UIStateService UiStateService
-@inject NavigationManager NavigationManager
-
 @inherits ReactiveComponentBase<SendViewModel>
 
 <ion-content class="ion-padding">
@@ -13,21 +10,15 @@
     <ion-label floating>Label</ion-label>
     <IonInput @bind-Value="@ViewModel.Label" placeholder="This transaction is for..." />
 
-    <ion-button href="send/amount"@onclick='NavigateToSendAmountPage' @onclick:preventDefault="true" expand="block">CONTINUE</ion-button>
+    <IonButton href="send/amount" expand="block">CONTINUE</IonButton>
 </ion-content>
 
 @code {
 
-    public SendLabelPage()
-    {
-        ViewModel = new SendViewModel();
-    }
-
     protected override void OnInitialized()
     {
+        ViewModel = vm;
         UiStateService.Title = "SEND";
     }
 
-   private void NavigateToSendAmountPage() =>
-        NavigationManager.NavigateTo("send/amount");
 }

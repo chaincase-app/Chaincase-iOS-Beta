@@ -6,7 +6,6 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Text.RegularExpressions;
 using Chaincase.Common;
-using Microsoft.Extensions.DependencyInjection;
 using NBitcoin;
 using ReactiveUI;
 using Splat;
@@ -38,10 +37,10 @@ namespace Chaincase.UI.ViewModels
 
         protected CompositeDisposable Disposables { get; } = new CompositeDisposable();
 
-        public SendViewModel()
+        public SendViewModel(Global global)
         {
-            Global = Locator.Current.GetService<Global>();
-            SelectCoinsViewModel = new SelectCoinsViewModel();
+	        Global = global;
+            SelectCoinsViewModel = new SelectCoinsViewModel(global);
             AmountText = "0.0";
             AllSelectedAmount = Money.Zero;
             EstimatedBtcFee = Money.Zero;

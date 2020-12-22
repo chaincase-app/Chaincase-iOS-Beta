@@ -36,9 +36,9 @@ namespace Chaincase.UI.ViewModels
 
         // public ReactiveCommand<CoinViewModel, Unit> OpenCoinDetail;
 
-        public SelectCoinsViewModel(bool isPrivate = false)
+        public SelectCoinsViewModel(Global global, bool isPrivate = false)
         {
-            Global = Locator.Current.GetService<Global>();
+	        Global = global;
             RootList = new SourceList<CoinViewModel>();
             RootList
                 .Connect()
@@ -99,7 +99,7 @@ namespace Chaincase.UI.ViewModels
 
                 RootList.RemoveMany(coinToRemove.Select(kp => kp.Value));
 
-                var newCoinViewModels = coinToAdd.Select(c => new CoinViewModel(c)).ToArray();
+                var newCoinViewModels = coinToAdd.Select(c => new CoinViewModel(Global,c)).ToArray();
                 foreach (var cvm in newCoinViewModels)
                 {
                     SubscribeToCoinEvents(cvm);
