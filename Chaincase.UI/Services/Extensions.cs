@@ -19,6 +19,7 @@ namespace Chaincase.UI.Services
 			resolver.InitializeSplat();
 			resolver.InitializeReactiveUI();
 
+			collection.AddScoped<ThemeSwitcher>();
 			collection.AddSingleton<QRCodeGenerator>();
 			collection.AddSingleton<IndexViewModel>();
 			collection.AddSingleton<SendViewModel>();
