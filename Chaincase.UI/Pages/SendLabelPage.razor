@@ -1,7 +1,11 @@
 ﻿@page "/send/label"
 @using Chaincase.UI.Services
+@using Microsoft.AspNetCore.Components
 @inject SendViewModel SendViewModel
 @inject UIStateService UiStateService
+@inject StackService StackService
+@inject IJSRuntime JsRuntime
+@inject NavigationManager NavigationManager
 @inherits ReactiveComponentBase<SendViewModel>
 
 <ion-content class="ion-padding">
@@ -10,7 +14,7 @@
     <ion-label floating>Label</ion-label>
     <IonInput @bind-Value="@ViewModel.Label" placeholder="This transaction is for..." />
 
-    <IonButton href="send/amount" expand="block">CONTINUE</IonButton>
+    <IonButton OnClick="OnContinue" expand="block">CONTINUE</IonButton>
 </ion-content>
 
 @code {
@@ -19,6 +23,15 @@
     {
         ViewModel = SendViewModel;
         UiStateService.Title = "SEND";
+    }
+
+    public void OnContinue()
+    {
+        StackService.PushStackState(async () =>
+        {
+            await NavigationManager.NavigateBack(JsRuntime, $"send/label");
+        });
+        NavigationManager.NavigateTo("send/amount");
     }
 
 }
