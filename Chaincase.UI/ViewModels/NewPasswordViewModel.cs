@@ -32,6 +32,7 @@ namespace Chaincase.UI.ViewModels
 
 			Global.UiConfig.HasSeed = true;
 			Global.UiConfig.ToFile();
+			Global.SetDefaultWallet();
 		}
 	}
 }
