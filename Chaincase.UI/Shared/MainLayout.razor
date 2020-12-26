@@ -1,18 +1,17 @@
 ﻿@inherits LayoutComponentBase
 
-@using System.IO
 @using Chaincase.UI.Services
 @using Chaincase.Common
 @implements IDisposable
 @inject UIStateService StateService
 @inject NavigationManager NavigationManager
-@inject Global Global  
+@inject ThemeSwitcher ThemeSwitcher
+@inject Global Global
 
 <ion-split-pane when="sm" content-id="main-content">
     <ion-menu content-id="main-content">
-        <NavMenu />
+        <NavMenu/>
     </ion-menu>
-
     <ion-page class="ion-page" id="main-content">
         <ion-header>
             <ion-toolbar>
@@ -20,11 +19,9 @@
                     <ion-menu-button></ion-menu-button>
                 </ion-buttons>
                 <ion-buttons slot="end">
-                    <ion-button href="walletinfo"
-                                @onclick="NavigateToWalletInfo"
-                                @onclick:preventDefault="true">
+                    <IonButton href="walletinfo">
                         <ion-icon slot="icon-only" name="information-circle-outline"></ion-icon>
-                    </ion-button>
+                    </IonButton>
                 </ion-buttons>
                 <ion-title>@StateService.Title</ion-title>
             </ion-toolbar>
@@ -37,19 +34,26 @@
 
     protected override void OnInitialized()
     {
-        if (!Global.HasWalletFile())
-            NavigationManager.NavigateTo("landing");
-
         base.OnInitialized();
-        StateService.StateChanged += StateHasChanged;
+        StateService.StateChanged += OnStateServiceOnStateChanged;
+        OnStateServiceOnStateChanged();
+        StateService.ThemeChanged += StateServiceOnThemeChanged;
+    }
+
+    private void StateServiceOnThemeChanged()
+    {
+        _ = ThemeSwitcher.ToggleDark(StateService.DarkMode);
+    }
+
+    private void OnStateServiceOnStateChanged()
+    {
+        InvokeAsync(StateHasChanged);
     }
 
     public void Dispose()
     {
-        StateService.StateChanged -= StateHasChanged;
+        StateService.StateChanged -= OnStateServiceOnStateChanged;
+        StateService.ThemeChanged -= StateServiceOnThemeChanged;
     }
-
-    private void NavigateToWalletInfo() =>
-        NavigationManager.NavigateTo("walletinfo");
 
 }

@@ -11,18 +11,24 @@
             Navigate
         </ion-list-header>
         <ion-menu-toggle auto-hide="false">
-            <ion-item href="" @onclick='() => NavigationManager.NavigateTo("")' @onclick:preventDefault="true">
+            <IonItem href="">
                 <ion-icon slot="start" name='home'></ion-icon>
                 <ion-label>
                     Home
                 </ion-label>
-            </ion-item>
-            <ion-item href="landing" @onclick='() => NavigationManager.NavigateTo("landing")' @onclick:preventDefault="true">
+            </IonItem>
+            <IonItem href="landing">
                 <ion-icon slot="start" name='home'></ion-icon>
                 <ion-label>
                     Landing
                 </ion-label>
-            </ion-item>
+            </IonItem>
+            <IonItem href="preferences">
+                <ion-icon slot="start" name='cog'></ion-icon>
+                <ion-label>
+                    Preferences
+                </ion-label>
+            </IonItem>
 
         </ion-menu-toggle>
     </ion-list>
