@@ -9,11 +9,16 @@ namespace Chaincase.iOS.Backgrounding
 	public class iOSOnSleepingContext
 	{
 		nint _taskId;
+		Global _global;
 
+		public iOSOnSleepingContext(Global global)
+		{
+			_global = global;
+		}
 		public async Task OnSleeping()
 		{
 			_taskId = UIApplication.SharedApplication.BeginBackgroundTask("OnSleeping", OnExpiration);
-			await Locator.Current.GetService<Global>().OnSleeping();
+			await _global.OnSleeping();
 			UIApplication.SharedApplication.EndBackgroundTask(_taskId);
 		}
 

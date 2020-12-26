@@ -1,4 +1,5 @@
 using Chaincase.Background;
+using Chaincase.Common;
 using Chaincase.Common.Contracts;
 using Chaincase.iOS.Backgrounding;
 using Chaincase.iOS.Tor;
@@ -7,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using UIKit;
 using UserNotifications;
 using Xamarin.Forms;
+using Splat;
 
 namespace Chaincase.iOS
 {
@@ -29,22 +31,25 @@ namespace Chaincase.iOS
             global::Xamarin.Forms.Forms.Init();
 
             ZXing.Net.Mobile.Forms.iOS.Platform.Init();
-
-            MessagingCenter.Subscribe<OnSleepingTaskMessage>(this, "OnSleepingTaskMessage", async message =>
-            {
-                var context = new iOSOnSleepingContext();
-                await context.OnSleeping();
-            });
+            var formsApp = new BlazorApp(fileProvider: null, ConfigureDi);
+            var serviceProvider = formsApp.ServiceProvider;
 
             MessagingCenter.Subscribe<InitializeNoWalletTaskMessage>(this, "InitializeNoWalletTaskMessage", async message =>
             {
-                var context = new iOSInitializeNoWalletContext();
+                var context = new iOSInitializeNoWalletContext(serviceProvider.GetService<Global>());
                 await context.InitializeNoWallet();
             });
 
-            var formsApp = new BlazorApp(fileProvider: null, ConfigureDi);
+            MessagingCenter.Subscribe<OnSleepingTaskMessage>(this, "OnSleepingTaskMessage", async message =>
+            {
+                var context = new iOSOnSleepingContext(serviceProvider.GetService<Global>());
+                await context.OnSleeping();
+            });
+
+            formsApp.InitializeNoWallet();
+
             UNUserNotificationCenter.Current.Delegate = 
-	            formsApp.ServiceProvider.GetService<iOSNotificationReceiver>();
+                formsApp.ServiceProvider.GetService<iOSNotificationReceiver>();
             LoadApplication(formsApp);
 
             return base.FinishedLaunching(app, options);

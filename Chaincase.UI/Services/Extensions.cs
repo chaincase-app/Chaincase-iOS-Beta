@@ -2,33 +2,26 @@ using Chaincase.Common;
 using Chaincase.UI.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using QRCoder;
-using ReactiveUI;
-using Splat;
 
 namespace Chaincase.UI.Services
 {
 	public static class Extensions
 	{
-		public static IServiceCollection AddUIServices(this IServiceCollection collection)
+		public static IServiceCollection AddUIServices(this IServiceCollection services)
 		{
-			collection.AddSingleton<UIStateService>();
+			services.AddSingleton<UIStateService>();
 
+			services.AddSingleton<Global>();
 
-			// set Locator to reference this container, too
-			var resolver = Locator.CurrentMutable;
-			resolver.InitializeSplat();
-			resolver.InitializeReactiveUI();
+			services.AddScoped<ThemeSwitcher>();
+			services.AddSingleton<QRCodeGenerator>();
+			services.AddSingleton<IndexViewModel>();
+			services.AddSingleton<SendViewModel>();
+			services.AddTransient<LoadWalletViewModel>();
+			services.AddTransient<WalletInfoViewModel>();
+			services.AddTransient<NewPasswordViewModel>();
 
-			collection.AddScoped<ThemeSwitcher>();
-			collection.AddSingleton<QRCodeGenerator>();
-			collection.AddSingleton<IndexViewModel>();
-			collection.AddSingleton<SendViewModel>();
-			collection.AddTransient<LoadWalletViewModel>();
-			collection.AddTransient<WalletInfoViewModel>();
-			collection.AddTransient<NewPasswordViewModel>();
-
-			collection.AddSingleton<Global, Global>();
-			return collection;
+			return services;
 		}
 	}
 }

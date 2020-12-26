@@ -1,6 +1,6 @@
 ﻿@page "/send/amount"
 @using Chaincase.UI.Services
-@inject SendViewModel vm
+@inject SendViewModel SendViewModel
 @inject UIStateService UiStateService
 @inject NavigationManager NavigationManager
 @inherits ReactiveComponentBase<SendViewModel>
@@ -9,7 +9,7 @@
 
     <IonItem>
         <ion-label>Amount</ion-label>
-        <IonInput @bind-Value="@amount" type="number" />
+        <IonInput @bind-Value="@ViewModel.AmountText" type="number" />
     </IonItem>
     <span>$[dollars]</span>
 
@@ -20,7 +20,7 @@
     <IonButton OnClick="ToggleSelectCoinsModal" expand="block">x Coins Selected</IonButton>
     <span class="ion-text-center">[amount] BTC selected to fund</span>
 
-    <span>Fee___72 sat / vbyte</span>
+    <span>Fee @ViewModel.FeeRate sat / vbyte</span>
 
     <IonButton href="/send/confirm" expand="block">CONFIRM</IonButton>
 
@@ -35,7 +35,7 @@
 
     protected override void OnInitialized()
     {
-        ViewModel = vm;
+        ViewModel = SendViewModel;
         UiStateService.Title = "SEND";
     }
 
