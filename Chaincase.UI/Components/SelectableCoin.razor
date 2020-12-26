@@ -2,13 +2,19 @@
 
 <IonItem>
     @*TODO support @bind-Value="@ViewModel.IsSelected" @ IonToggle*@
-    <IonToggle slot="start" value="@ViewModel.IsSelected" />
+    <IonCheckbox slot="start"
+                 @onclick="@OnClick"
+                 Value="ViewModel.IsSelected"
+                 ValueChanged="b => ViewModel.IsSelected = b.GetValueOrDefault(false)" />
     <p>@ViewModel.Amount</p>
 </IonItem>
 
 @code {
     [Parameter]
     public CoinViewModel CoinViewModel { get; set; }
+
+    [Parameter]
+    public EventCallback OnClick { get; set; }
 
     protected override void OnParametersSet()
     {

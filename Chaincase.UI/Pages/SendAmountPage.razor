@@ -44,7 +44,7 @@
     private bool IsFeeModalVisible;
 
     private FeeViewModel FeeViewModel { get; set; }
-
+        
     private double amount { get; set; }
 
     protected override void OnInitialized()
@@ -54,8 +54,10 @@
         UiStateService.Title = "SEND";
     }
 
-    private void ToggleSelectCoinsModal() =>
+    private void ToggleSelectCoinsModal() {
         IsSelectCoinsModalVisible = !IsSelectCoinsModalVisible;
+        StateHasChanged();
+    }
 
     private void ToggleSelectFeeModal() =>
         IsFeeModalVisible = !IsFeeModalVisible;
