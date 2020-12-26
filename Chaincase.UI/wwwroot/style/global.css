@@ -1,1 +1,54 @@
 ﻿
+/** Global **/
+* {
+    box-sizing: border-box;
+}
+
+.danger-text {
+    font-weight: bold;
+    color: darkred;
+    font-size: 16px;
+}
+
+/** CoinJoin Page **/
+
+.list-group {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.list-group li {
+    border-bottom: 1px solid #ddd;
+    margin-top: -1px; /* Prevent double borders */
+    padding: 10px;
+    font-size: 13px;
+}
+
+li.badge span {
+    float: right;
+    color: white;
+    padding: 3px 8px 3px 8px;
+    border-radius: 10px;
+}
+
+li.badge span.primary {
+    background: #3880ff;
+}
+
+li.badge span.success {
+    background: #42d77d;
+}
+
+.progress-container {
+    width: 100%;
+    color: grey;
+}
+
+.progress-bar {
+    height: 30px;
+    background-color: #4CAF50;
+    text-align: center;
+    line-height: 30px; /* To center it vertically */
+    color: white;
+}

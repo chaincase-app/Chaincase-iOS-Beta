@@ -38,7 +38,7 @@ namespace Chaincase.UI.ViewModels
             Transactions = new ObservableCollection<TransactionViewModel>();
 
             if (Global.HasWalletFile() && Global.Wallet == null)
-			{
+            {
                 Global.SetDefaultWallet();
                 Task.Run(async () => await LoadWalletAsync());
 
