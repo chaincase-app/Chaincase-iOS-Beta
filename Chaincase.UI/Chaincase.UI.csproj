@@ -47,6 +47,10 @@
         <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       </EmbeddedResource>
     </ItemGroup>
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="wwwroot\theme\theme.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\theme\theme.js" />
+    </ItemGroup>
     <PropertyGroup>
         <!-- File with mtime of last successful npm install -->
         <NpmInstallStampFile>node_modules/.install-stamp</NpmInstallStampFile>

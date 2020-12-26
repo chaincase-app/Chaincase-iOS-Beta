@@ -5,11 +5,12 @@
 @implements IDisposable
 @inject UIStateService StateService
 @inject NavigationManager NavigationManager
-@inject Global Global  
+@inject ThemeSwitcher ThemeSwitcher
+@inject Global Global
 
 <ion-split-pane when="sm" content-id="main-content">
     <ion-menu content-id="main-content">
-        <NavMenu />
+        <NavMenu/>
     </ion-menu>
     <ion-page class="ion-page" id="main-content">
         <ion-header>
@@ -35,6 +36,13 @@
     {
         base.OnInitialized();
         StateService.StateChanged += OnStateServiceOnStateChanged;
+        OnStateServiceOnStateChanged();
+        StateService.ThemeChanged += StateServiceOnThemeChanged;
+    }
+
+    private void StateServiceOnThemeChanged()
+    {
+        _ = ThemeSwitcher.ToggleDark(StateService.DarkMode);
     }
 
     private void OnStateServiceOnStateChanged()
@@ -45,6 +53,7 @@
     public void Dispose()
     {
         StateService.StateChanged -= OnStateServiceOnStateChanged;
+        StateService.ThemeChanged -= StateServiceOnThemeChanged;
     }
 
 }
