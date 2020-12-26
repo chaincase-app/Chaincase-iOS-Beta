@@ -13,7 +13,7 @@ namespace Chaincase.UI.Services
 
 			services.AddSingleton<Global>();
 
-      servces.AddScoped<ThemeSwitcher>();
+			services.AddScoped<ThemeSwitcher>();
 			services.AddSingleton<QRCodeGenerator>();
 			services.AddSingleton<IndexViewModel>();
 			services.AddSingleton<SendViewModel>();
