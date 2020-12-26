@@ -4,24 +4,21 @@
     <ion-header>
         <ion-toolbar>
             <ion-title>Select Coins</ion-title>
-            <ion-buttons slot="end">
-                <IonButton @onclick="CloseModal">Close</IonButton>
+            <ion-buttons slot="start">
+                <IonButton @onclick="CloseModal">Back</IonButton>
             </ion-buttons>
         </ion-toolbar>
     </ion-header>
     <ion-content class="ion-padding">
-        @*<IonButton>CLOSE</IonButton>*@
 
-        @*@if (ViewModel.CoinList.NotNullOrEmpty() )
+        @if (!ViewModel.CoinList.Any())
         {
             <p>Your coins will appear here</p>
-        }*@
-        <span>x</span>
+        }
 
         @foreach(var coin in ViewModel.CoinList)
         {
-            <span>coin</span>
-            @*<SelectableCoin CoinViewModel="@coin" />*@
+            <SelectableCoin CoinViewModel="@coin" />
         }
     </ion-content>
 </IonModal>

@@ -34,15 +34,14 @@ namespace Chaincase
 				{
 					// Adds web-specific services such as NavigationManager
 					services.AddBlazorHybrid();
-					services.AddUIServices();
-
-					services.UseMicrosoftDependencyResolver();
-					configureDI?.Invoke(services);
 
 					services.AddSingleton<IDataDirProvider, XamarinDataDirProvider>();
 					services.AddSingleton<IMainThreadInvoker, XamarinMainThreadInvoker>();
 					services.AddSingleton<IFileShare, XamarinFileShare>();
 
+					configureDI?.Invoke(services);
+
+					services.AddUIServices();
 				})
 				.UseWebRoot("wwwroot");
 
@@ -57,16 +56,20 @@ namespace Chaincase
 
 			_host = hostBuilder.Build();
 
-			// This relies on Global registered
-			var message = new InitializeNoWalletTaskMessage();
-			MessagingCenter.Send(message, "InitializeNoWalletTaskMessage");
 
-			MainPage = new ContentPage {Title = "Chaincase"};
+			MainPage = new ContentPage { Title = "Chaincase" };
 
 			AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 			TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
 
 			_host.AddComponent<Main>(parent: MainPage);
+		}
+
+		public void InitializeNoWallet()
+		{
+			// This relies on Global registered
+			var message = new InitializeNoWalletTaskMessage();
+			MessagingCenter.Send(message, "InitializeNoWalletTaskMessage");
 		}
 
 		protected override void OnSleep()
