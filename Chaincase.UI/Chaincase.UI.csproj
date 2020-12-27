@@ -14,7 +14,7 @@
         <PackageReference Include="QRCoder" Version="1.4.1" />
         <PackageReference Include="ReactiveUI" Version="12.1.5" />
         <PackageReference Include="ReactiveUI.Blazor" Version="12.1.5" />
-        <PackageReference Include="LiveSharp" Version="1.6.33" />
+        <PackageReference Include="LiveSharp" Version="1.6.45-beta" />
     </ItemGroup>
 
     <PropertyGroup Condition="'$(Configuration)' == 'Release' ">
