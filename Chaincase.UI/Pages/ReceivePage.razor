@@ -1,23 +1,50 @@
 ﻿@page "/receive"
 @using Chaincase.UI.Services
+
 @inject UIStateService UiStateService
 @inject NavigationManager NavigationManager
+@inject ReceiveViewModel ReceiveViewModel
+@inherits ReactiveComponentBase<ReceiveViewModel>
 
 <ion-content class="ion-padding">
-    <ion-label>Label</ion-label>
-    <IonInput @bind-Value="Label" placeholder="e.g. Dan for bread" />
-    <p>You must write a memo here for your accounting. It's best to write who you will give this address to.</p>
+    <h1>Who are you receiving from?</h1>
+    <p>This contact label is never shared with anyone else. This information will help make your future bitcoin transactions more private</p>
+    <ion-label>Contact Label</ion-label>
+    <IonInput @bind-Value="@Label" placeholder="e.g. Mt. Fox exchange" />
 
-    <IonButton href="/receive/address" expand="block">NEXT</IonButton>
+    <IonButton @onclick="@(() => IsModalVisible = true)">OPEN MODAL</IonButton>
+    <IonButton href="/receive/address" expand="block">CONTINUE</IonButton>
+
+    <IonModal Visible="@IsModalVisible">
+        <ion-header>
+            <ion-toolbar>
+                <ion-buttons slot="start">
+                    <IonButton @onclick="@(() => IsModalVisible = false)">Back</IonButton>
+                </ion-buttons>
+            </ion-toolbar>
+        </ion-header>
+        <ion-content>
+            <PasswordPrompt @bind-Password="Password"></PasswordPrompt>
+        </ion-content>
+    </IonModal>
 </ion-content>
 
 @code {
 
     private string Label { get; set; }
 
+    private string Password { get; set; }
+
+    private bool IsModalVisible { get; set; }
+
     protected override void OnInitialized()
     {
-        UiStateService.Title = "CREATE WALLET";
+        ViewModel = ReceiveViewModel;
+        UiStateService.Title = "Receive: Contact";
     }
 
+    private void Yolo()
+    {
+        return;
+    }
 }
