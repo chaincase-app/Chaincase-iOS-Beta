@@ -6,7 +6,7 @@ using Chaincase.Common.Contracts;
 
 namespace Chaincase.SSB
 {
-	public class SSBFileShare : IFileShare
+	public class SSBFileShare : IShare
 	{
 		private readonly IBlazorDownloadFileService _blazorDownloadFileService;
 

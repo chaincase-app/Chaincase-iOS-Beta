@@ -2,8 +2,9 @@
 
 namespace Chaincase.Common.Contracts
 {
-	public interface IFileShare
+	public interface IShare
 	{
-		public Task ShareFile(string file, string title);
+		public Task ShareText(string text, string title = "Share");
+		public Task ShareFile(string file, string title = "Share");
 	}
 }
