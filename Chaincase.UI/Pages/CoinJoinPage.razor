@@ -1,10 +1,11 @@
 ﻿@page "/coinjoin"
 @using Chaincase.UI.Services
-@using Chaincase.UI.ViewModels
 @using WalletWasabi.CoinJoin.Client.Rounds;
-
+@using Chaincase.Common
 @inject UIStateService UiStateService
 @inject NavigationManager NavigationManager
+@inject Global Global
+@inject CoinJoinViewModel CoinJoinViewModel
 
 @inherits ReactiveComponentBase<CoinJoinViewModel>
 
@@ -33,57 +34,64 @@
 
 
     @* Coin Selection*@
-<ion-list>
-    <ion-item>
-        <ion-toggle color="primary" />
-        <ion-label>Btc label </ion-label>
-        <ion-label> ⚠️ Anonymity set: 1</ion-label>
-        <ul style="float: right">
-            <li> ₿ 100 </li>
-            <li class="badge">
-                <span class="primary">Queued</span>
-            </li>
-        </ul>
 
-    </ion-item>
-    <ion-item>
-        <ion-toggle color="primary" />
-        <ion-label>Btc label </ion-label>
-        <ion-label>✅ Anonymity set: 1
-        </ion-label>
-        <ul style="float: right">
-            <li> ₿ 100 </li>
-            <li class="badge">
-                <span class="primary">Queued</span>
-            </li>
-        </ul>
+    <ion-list style="font-size: 13px;">
+        <ion-item>
+            <ion-toggle color="primary" />
+            <ion-label>Btc label </ion-label>
+            <ion-label> ⚠️ </ion-label>
+            <ul style="        float: right;
+        list-style: none
+">
+                <li> ₿ 100 </li>
+                <li class="badge">
+                    <span class="primary">Queued</span>
+                </li>
+            </ul>
 
-    </ion-item>
-    <ion-item>
-        <ion-toggle color="primary" />
-        <ion-label>Btc label </ion-label>
-        <ion-label> ⚠️ Anonymity set: 1</ion-label>
-        <ul style="float: right">
-            <li> ₿ 100 </li>
-            <li class="badge">
-                <span class="primary">Queued</span>
-            </li>
-        </ul>
-    </ion-item>
+        </ion-item>
+        <ion-item>
+            <ion-toggle color="primary" />
+            <ion-label>Btc label </ion-label>
+            <ion-label>
+                ✅
+            </ion-label>
+            <ul style="float: right; list-style: none">
+                <li> ₿ 100 </li>
+                <li class="badge">
+                    <span class="primary">Queued</span>
+                </li>
+            </ul>
 
-</ion-list>
-    @* Progress bar *@
+        </ion-item>
+        <ion-item>
+            <ion-toggle color="primary" />
+            <ion-label>Btc label </ion-label>
+            <ion-label> ⚠️ </ion-label>
+            <ul style="        float: right; list-style: none">
+                <li> ₿ 100 </li>
+                <li class="badge">
+                    <span class="primary">Queued</span>
+                </li>
+            </ul>
+        </ion-item>
+
+    </ion-list>
+    <SelectCoinsModal @bind-Visible="@IsQueuedToCoinJoin"
+                      SelectCoinsViewModel="@ViewModel.CoinList" />
+    Progress bar
     <ion-text color="primary">
         <h5>Percentage of peers queued in most advanced round </h5>
     </ion-text>
-    <div class="progress-container">
-        <div class="progress-bar" style="width: @(ViewModel.QueuedPercentage) %;">@ViewModel.QueuedPercentage%</div>
-    </div>
+    <ion-progress-bar value="0.25" buffer="0.5"></ion-progress-bar>
+    @*<div class="progress-container">
+            <div class="progress-bar" style="width: @(ViewModel.QueuedPercentage)%;">@ViewModel.QueuedPercentage %</div>
+        </div>*@
     @* List Coin Join round info**@
     <ul class="list-group">
         <li class="badge">
             ₿ Required to CoinJoin
-            <span class="primary">@RequiredBTC</span>
+            <span class="primary">@ViewModel.RequiredBTC</span>
         </li>
         <li class="badge">
             Phase
@@ -103,7 +111,7 @@
         </li>
         <li class="badge">
             Coordinator Fee
-            <span class="primary">@ViewModel.CoordinatorFeePercent% per anonymity set </span>
+            <span class="primary">@ViewModel.CoordinatorFeePercent % per anonymity set </span>
         </li>
     </ul>
     @if (IsQueuedToCoinJoin)
@@ -120,15 +128,14 @@
 
 @code {
     bool IsQueuedToCoinJoin = true;
-    string RequiredBTC = "0.01";
 
     public CoinJoinPage()
     {
-        ViewModel = new CoinJoinViewModel();
     }
 
     protected override void OnInitialized()
     {
+        ViewModel = CoinJoinViewModel;
         UiStateService.Title = "COIN JOIN";
     }
 

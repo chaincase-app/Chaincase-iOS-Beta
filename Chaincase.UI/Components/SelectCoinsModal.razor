@@ -15,11 +15,14 @@
         {
             <p>Your coins will appear here</p>
         }
+        @*else {*@
+            @*@foreach (var coin in ViewModel.CoinList)
+            {
+                <SelectableCoin CoinViewModel="@coin" />
+            }*@
+        @*}*@
 
-        @foreach(var coin in ViewModel.CoinList)
-        {
-            <SelectableCoin CoinViewModel="@coin" />
-        }
+
     </ion-content>
 </IonModal>
     
@@ -37,6 +40,7 @@
     protected override void OnParametersSet()
     {
         ViewModel = SelectCoinsViewModel;
+        var coins = ViewModel.CoinList;
         base.OnParametersSet();
     }
 

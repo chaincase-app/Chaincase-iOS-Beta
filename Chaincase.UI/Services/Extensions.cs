@@ -20,6 +20,7 @@ namespace Chaincase.UI.Services
 			services.AddTransient<LoadWalletViewModel>();
 			services.AddTransient<WalletInfoViewModel>();
 			services.AddTransient<NewPasswordViewModel>();
+			services.AddTransient<CoinJoinViewModel>();
 
 			return services;
 		}

@@ -41,10 +41,10 @@ namespace Chaincase.UI.ViewModels
 		private bool _isEnqueueBusy;
         private bool _isQueuedToCoinJoin = false;
 		private string _balance;
-        private CoinViewModel _coinList;
-		public CoinJoinViewModel() 
+        private SelectCoinsViewModel _coinList;
+		public CoinJoinViewModel(Global global) 
         {
-            Global = Locator.Current.GetService<Global>();
+            Global = global;
             if (Disposables != null)
             {
                 throw new Exception("Wallet opened before it was closed.");
@@ -52,7 +52,7 @@ namespace Chaincase.UI.ViewModels
 
             Disposables = new CompositeDisposable();
 			// Sum UTXOs
-			SetBalance();
+			//SetBalance();
 			// Start with 0 btc until user chooses some UTXOs
 			AmountQueued = Money.Zero;
             // Infer coordinator fee
@@ -214,7 +214,7 @@ namespace Chaincase.UI.ViewModels
             }
         }
 
-		public CoinViewModel CoinList
+		public SelectCoinsViewModel CoinList
 		{
 			get => _coinList;
 			set => this.RaiseAndSetIfChanged(ref _coinList, value);
