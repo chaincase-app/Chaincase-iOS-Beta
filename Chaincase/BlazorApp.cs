@@ -37,7 +37,7 @@ namespace Chaincase
 
 					services.AddSingleton<IDataDirProvider, XamarinDataDirProvider>();
 					services.AddSingleton<IMainThreadInvoker, XamarinMainThreadInvoker>();
-					services.AddSingleton<IFileShare, XamarinFileShare>();
+					services.AddSingleton<IShare, XamarinShare>();
 
 					configureDI?.Invoke(services);
 
