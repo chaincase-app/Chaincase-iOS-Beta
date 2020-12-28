@@ -1,10 +1,12 @@
 ﻿using System;
+using System.IO;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Chaincase.Common;
 using Chaincase.Common.Contracts;
 using Gma.QrCodeNet.Encoding;
+using NBitcoin;
 using ReactiveUI;
 using Splat;
 using WalletWasabi.Blockchain.Keys;
@@ -17,6 +19,7 @@ namespace Chaincase.UI.ViewModels
 		protected IShare Share { get; }
 
 		private string _proposedLabel;
+		private string _appliedLabel;
 		private bool[,] _qrCode;
 		private string _requestAmount;
 		private ObservableAsPropertyHelper<string> _bitcoinUri;
@@ -24,14 +27,15 @@ namespace Chaincase.UI.ViewModels
 		public ReceiveViewModel(Global global, IShare share)
 		{
 			Global = global;
-			///Global.NotificationManager.RequestAuthorization();
+			Global.NotificationManager.RequestAuthorization();
 
 			Share = share;
 
 			//_bitcoinUri = this
 			//	.WhenAnyValue(x => x.RequestAmount)
-			//	.Select(amount => {
-			//		return $"bitcoin:{Address}?amount={amount}";
+			//	.Select(amount =>
+			//	{
+			//		return $"bitcoin:{Address}";
 			//	})
 			//	.ToProperty(this, nameof(BitcoinUri));
 
@@ -54,30 +58,46 @@ namespace Chaincase.UI.ViewModels
 			});
 		}
 
-		private async Task<bool> PromptPassword(string validPassword)
+		private bool IsPasswordValid(string password)
 		{
-			//if (validPassword != null)
-			//{
-			//	return false;
-			//Device.BeginInvokeOnMainThread(() =>
-			//			{
-			//				HdPubKey toReceive = Global.Wallet.KeyManager.GetNextReceiveKey(Memo, out bool minGapLimitIncreased);
-			//Memo = "";
-			//				// move to address page
-			//}
+			string walletFilePath = Path.Combine(Global.WalletManager.WalletDirectories.WalletsDir, $"{Global.Network}.json");
+			ExtKey keyOnDisk;
+			try
+			{
+				keyOnDisk = KeyManager.FromFile(walletFilePath).GetMasterExtKey(password ?? "");
+			}
+			catch
+			{
+				// bad password
+				return false;
+			}
 			return true;
+		}
+
+		public bool DidGetNextReceiveKey(string password)
+		{
+			if (IsPasswordValid(password))
+			{
+				ReceivePubKey = Global.Wallet.KeyManager.GetNextReceiveKey(ProposedLabel, out bool minGapLimitIncreased);
+				ProposedLabel = "";
+				return true;
+			} else
+			{
+				return false;
+			}
 		}
 
 		public async Task ShareBoundString(string boundString)
 		{
 			await Share.ShareText(boundString);
 		}
-		public string AppliedLabel => Model.Label;
-		public string Address => Model.GetP2wpkhAddress(Global.Network).ToString();
-		public string Pubkey => Model.PubKey.ToString();
-		public string KeyPath => Model.FullKeyPath.ToString();
 
-		public HdPubKey Model { get; }
+		public string AppliedLabel => ReceivePubKey.Label;
+		public string Address => ReceivePubKey.GetP2wpkhAddress(Global.Network).ToString();
+		public string Pubkey => ReceivePubKey.PubKey.ToString();
+		public string KeyPath => ReceivePubKey.FullKeyPath.ToString();
+
+		public HdPubKey ReceivePubKey { get; set; }
 
 		public string BitcoinUri => _bitcoinUri.Value is { } ? _bitcoinUri.Value : $"bitcoin:{Address}";
 

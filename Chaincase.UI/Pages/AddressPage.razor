@@ -6,18 +6,13 @@
 @inherits ReactiveComponentBase<ReceiveViewModel>
 
 <ion-content class="ion-padding">
-    <p style="width: 256px; height: 256px; margin: auto">
-        <QRCode Data="http://gozo.com"></QRCode>
-    </p>
+
 
     <p>@ViewModel.AppliedLabel</p>
     <ion-label>Address</ion-label>
     <p>@ViewModel.Address</p>
 
-    @*<ion-button expand="block">REQUEST WITH AMOUNT</ion-button>*@
-    <!-- should be done in top with nav, but can't go back to enter memo screen! -->
-    <IonButton href="/"  expand="block">HOME</IonButton>
-    <IonButton expand="block">SHARE</IonButton>
+    
 </ion-content>
 
 @code {
@@ -25,7 +20,7 @@
     protected override void OnInitialized()
     {
         ViewModel = ReceiveViewModel;
-        UiStateService.Title = "RECEIVE ADDRESS";
+        UiStateService.Title = "RECEIVE";
     }
 
 }
