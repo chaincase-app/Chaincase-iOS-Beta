@@ -12,22 +12,29 @@
     <ion-label>Contact Label</ion-label>
     <IonInput @bind-Value="@ViewModel.ProposedLabel" placeholder="e.g. Mt. Fox exchange" />
 
-    <IonButton OnClick="@(() => IsModalVisible = true)" expand="block">CONTINUE</IonButton>
+    <IonLabel>Password</IonLabel>
+    <IonInput @bind-Value="@Password" />
 
+    <IonButton OnClick="ClickSubmitPassword" expand="block">Continue</IonButton>
+
+    @*<IonButton OnClick="ToggleModal" expand="block">CONTINUE</IonButton>
+
+    <IonModal @bind-Visible="@IsModalVisible">
+        <ion-header>
+            <ion-toolbar>
+                <ion-title>Authorize</ion-title>
+                <ion-buttons slot="start">
+                    <IonButton OnClick="ToggleModal">Back</IonButton>
+                </ion-buttons>
+            </ion-toolbar>
+        </ion-header>
+        <ion-content class="ion-padding">
+
+
+
+        </ion-content>
+    </IonModal>*@
 </ion-content>
-<IonModal Visible="@IsModalVisible">
-    <ion-header>
-        <ion-toolbar>
-            <ion-title>Authorize</ion-title>
-            <ion-buttons slot="start">
-                <IonButton OnClick="CloseModal">Back</IonButton>
-            </ion-buttons>
-        </ion-toolbar>
-    </ion-header>
-    <ion-content class="ion-padding">
-        <PasswordPrompt @bind-Password="Password" SubmitPassword="SubmitPassword"></PasswordPrompt>
-    </ion-content>
-</IonModal>
 
 @code {
 
@@ -43,21 +50,22 @@
         UiStateService.Title = "RECEIVE";
     }
 
+    private void ClickSubmitPassword(MouseEventArgs _)
+    {
+        SubmitPassword(Password);
+    }
+
     private void SubmitPassword(string password)
     {
-        CloseModal();
         if (ViewModel.DidGetNextReceiveKey(password ?? ""))
         {
             // PasswordPrompt modal is this page's child so it will disappear
-            NavigationManager.NavigateTo("/receive/address");
+            NavigationManager.NavigateTo("receive/address");
         }
-        StateHasChanged();
-
     }
 
-    private void CloseModal()
+    private void ToggleModal()
     {
-        IsModalVisible = false;
-        StateHasChanged();
+        IsModalVisible = !IsModalVisible;
     }
 }
