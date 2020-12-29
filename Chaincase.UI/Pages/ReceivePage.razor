@@ -1,6 +1,7 @@
 ﻿@page "/receive"
 @using Chaincase.UI.Services
 
+@inject IJSRuntime JS
 @inject UIStateService UiStateService
 @inject NavigationManager NavigationManager
 @inject ReceiveViewModel ReceiveViewModel
@@ -12,59 +13,18 @@
     <ion-label>Address Label</ion-label>
     <IonInput @bind-Value="@ViewModel.ProposedLabel" placeholder="a contact e.g. Mt. Fox exchange" />
 
-    <PasswordInputItem @bind-Value="Password" />
 
-    <IonButton OnClick="ClickSubmitPassword" expand="block">Continue</IonButton>
+    <IonButton href="receive/password" expand="block">Continue</IonButton>
 
-    @*<IonButton OnClick="ToggleModal" expand="block">CONTINUE</IonButton>
+    @*<IonButton OnClick="ToggleModal" expand="block">CONTINUE</IonButton>*@
 
-    <IonModal @bind-Visible="@IsModalVisible">
-        <ion-header>
-            <ion-toolbar>
-                <ion-title>Authorize</ion-title>
-                <ion-buttons slot="start">
-                    <IonButton OnClick="ToggleModal">Back</IonButton>
-                </ion-buttons>
-            </ion-toolbar>
-        </ion-header>
-        <ion-content class="ion-padding">
-
-
-
-        </ion-content>
-    </IonModal>*@
 </ion-content>
 
 @code {
-
-    private string Label { get; set; }
-
-    private string Password { get; set; }
-
-    private bool IsModalVisible { get; set; }
-
+  
     protected override void OnInitialized()
     {
         ViewModel = ReceiveViewModel;
         UiStateService.Title = "RECEIVE";
-    }
-
-    private void ClickSubmitPassword(MouseEventArgs _)
-    {
-        SubmitPassword(Password);
-    }
-
-    private void SubmitPassword(string password)
-    {
-        if (ViewModel.DidGetNextReceiveKey(password ?? ""))
-        {
-            // PasswordPrompt modal is this page's child so it will disappear
-            NavigationManager.NavigateTo("receive/address");
-        }
-    }
-
-    private void ToggleModal()
-    {
-        IsModalVisible = !IsModalVisible;
     }
 }

@@ -16,6 +16,7 @@
     <p>@ViewModel.Address</p>
 
     <IonButton OnClick="ShareLink" expand="block">SHARE LINK</IonButton>
+    <IonButton href="/" expand="block">DONE</IonButton>
 </ion-content>
 
 @code {
@@ -26,7 +27,7 @@
         UiStateService.Title = "RECEIVE";
     }
 
-    private void ShareLink() {
-        ViewModel.ShareText(ViewModel.BitcoinUri);
+    private async Task ShareLink() {
+         await ViewModel.ShareText(ViewModel.BitcoinUri);
     }
 }
