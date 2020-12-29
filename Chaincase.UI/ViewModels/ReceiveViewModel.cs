@@ -87,7 +87,7 @@ namespace Chaincase.UI.ViewModels
 			}
 		}
 
-		public async Task ShareBoundString(string boundString)
+		public async Task ShareText(string boundString)
 		{
 			await Share.ShareText(boundString);
 		}

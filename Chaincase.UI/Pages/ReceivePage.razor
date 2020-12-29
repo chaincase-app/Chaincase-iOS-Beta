@@ -7,12 +7,12 @@
 @inherits ReactiveComponentBase<ReceiveViewModel>
 
 <ion-content class="ion-padding">
-    <h1>Who are you receiving from?</h1>
+    <p>Who are you receiving from?</p>
     <p>This information is never shared with anyone. It will help keep your future activity private.</p>
     <ion-label>Contact Label</ion-label>
     <IonInput @bind-Value="@ViewModel.ProposedLabel" placeholder="e.g. Mt. Fox exchange" />
 
-    <IonLabel>Password</IonLabel>
+    <ion-label>Password</ion-label>
     <IonInput @bind-Value="@Password" />
 
     <IonButton OnClick="ClickSubmitPassword" expand="block">Continue</IonButton>
