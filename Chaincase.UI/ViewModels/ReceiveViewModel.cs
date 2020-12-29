@@ -92,14 +92,14 @@ namespace Chaincase.UI.ViewModels
 			await Share.ShareText(boundString);
 		}
 
-		public string AppliedLabel => ReceivePubKey.Label;
+		public string AppliedLabel => ReceivePubKey.Label ?? "";
 		public string Address => ReceivePubKey.GetP2wpkhAddress(Global.Network).ToString();
 		public string Pubkey => ReceivePubKey.PubKey.ToString();
 		public string KeyPath => ReceivePubKey.FullKeyPath.ToString();
 
 		public HdPubKey ReceivePubKey { get; set; }
 
-		public string BitcoinUri => _bitcoinUri.Value is { } ? _bitcoinUri.Value : $"bitcoin:{Address}";
+		public string BitcoinUri => $"bitcoin:{Address}";
 
 		public string ProposedLabel
 		{

@@ -14,20 +14,20 @@
 
     <IonButton OnClick="@(() => IsModalVisible = true)" expand="block">CONTINUE</IonButton>
 
-    <IonModal Visible="@IsModalVisible">
-        <ion-header>
-            <ion-toolbar>
-                <ion-title>Authorize Address</ion-title>
-                <ion-buttons slot="start">
-                    <IonButton OnClick="CloseModal">Back</IonButton>
-                </ion-buttons>
-            </ion-toolbar>
-        </ion-header>
-        <ion-content class="ion-padding">
-            <PasswordPrompt @bind-Password="Password" SubmitPassword="@SubmitPassword"></PasswordPrompt>
-        </ion-content>
-    </IonModal>
 </ion-content>
+<IonModal Visible="@IsModalVisible">
+    <ion-header>
+        <ion-toolbar>
+            <ion-title>Authorize</ion-title>
+            <ion-buttons slot="start">
+                <IonButton OnClick="CloseModal">Back</IonButton>
+            </ion-buttons>
+        </ion-toolbar>
+    </ion-header>
+    <ion-content class="ion-padding">
+        <PasswordPrompt @bind-Password="Password" SubmitPassword="SubmitPassword"></PasswordPrompt>
+    </ion-content>
+</IonModal>
 
 @code {
 
@@ -45,16 +45,13 @@
 
     private void SubmitPassword(string password)
     {
+        CloseModal();
         if (ViewModel.DidGetNextReceiveKey(password ?? ""))
         {
             // PasswordPrompt modal is this page's child so it will disappear
-            CloseModal();
             NavigationManager.NavigateTo("/receive/address");
-        } else
-        {
-            // TTODO shake instead
-            CloseModal();
         }
+        StateHasChanged();
 
     }
 
