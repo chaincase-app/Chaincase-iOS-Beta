@@ -16,7 +16,7 @@ namespace LiveSharp
         // This method will be run during the start of your application and every time you update it
         public void Configure(ILiveSharpRuntime app) 
         {
-            app.Config.SetValue("disableBlazorCSS", "false");
+            app.Config.SetValue("disableBlazorCSS", "true");
             app.UseDefaultBlazorHandler();
         }
         

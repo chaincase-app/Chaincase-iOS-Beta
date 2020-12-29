@@ -13,8 +13,10 @@ namespace Chaincase.UI.Services
 
 			services.AddSingleton<Global>();
 
+			services.AddScoped<ThemeSwitcher>();
 			services.AddSingleton<QRCodeGenerator>();
 			services.AddSingleton<IndexViewModel>();
+			services.AddSingleton<ReceiveViewModel>();
 			services.AddSingleton<SendViewModel>();
 			services.AddTransient<LoadWalletViewModel>();
 			services.AddTransient<WalletInfoViewModel>();
