@@ -9,11 +9,10 @@
 <ion-content class="ion-padding">
     <p>Who are you receiving from?</p>
     <p>This information is never shared with anyone. It will help keep your future activity private.</p>
-    <ion-label>Contact Label</ion-label>
-    <IonInput @bind-Value="@ViewModel.ProposedLabel" placeholder="e.g. Mt. Fox exchange" />
+    <ion-label>Address Label</ion-label>
+    <IonInput @bind-Value="@ViewModel.ProposedLabel" placeholder="a contact e.g. Mt. Fox exchange" />
 
-    <ion-label>Password</ion-label>
-    <IonInput @bind-Value="@Password" />
+    <PasswordInputItem @bind-Value="Password" />
 
     <IonButton OnClick="ClickSubmitPassword" expand="block">Continue</IonButton>
 
