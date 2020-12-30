@@ -26,7 +26,12 @@ namespace Chaincase.SSB
 
 		public async Task ShareText(string text, string title = null)
 		{
-			await _jsRuntime.InvokeAsync<bool>("no share drawer on web", text);
+			// only supported on a few select browsers https://caniuse.com/mdn-api_navigator_share
+			await _jsRuntime.InvokeVoidAsync("executeFunctionByName", "window", "navigator.share", new
+			{
+				title,
+				text
+			});
 		}
 	}
 }

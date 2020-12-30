@@ -1,8 +1,10 @@
 ﻿@page "/receive/address"
 @using Chaincase.UI.Services
+@using Chaincase.Common.Contracts
 @inject UIStateService UiStateService
 @inject NavigationManager NavigationManager
 @inject ReceiveViewModel ReceiveViewModel
+@inject IShare Share
 @inherits ReactiveComponentBase<ReceiveViewModel>
 
 <ion-content class="ion-padding">
@@ -28,6 +30,6 @@
     }
 
     private async Task ShareLink() {
-         await ViewModel.ShareText(ViewModel.BitcoinUri);
+         await Share.ShareText(ViewModel.BitcoinUri);
     }
 }
