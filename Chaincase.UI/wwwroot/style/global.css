@@ -1,4 +1,10 @@
-﻿/*
+﻿/* Hide stupid browsers password eye toggle*/
+input::-ms-reveal,
+input::-ms-clear {
+    display: none;
+}
+
+/*
  * Dark Colors
  * -------------------------------------------
  */
