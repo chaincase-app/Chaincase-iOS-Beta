@@ -2,27 +2,32 @@
 @using Chaincase.UI.Services
 @inject UIStateService UiStateService
 @inject NavigationManager NavigationManager
+@inject ReceiveViewModel ReceiveViewModel
+@inherits ReactiveComponentBase<ReceiveViewModel>
 
 <ion-content class="ion-padding">
     <p style="width: 256px; height: 256px; margin: auto">
-        <QRCode Data="http://gozo.com"></QRCode>
+        <QRCode Data="@ViewModel.BitcoinUri"></QRCode>
     </p>
+   
 
-    <p>[label(s)]</p>
+    <p>@ViewModel.AppliedLabel</p>
     <ion-label>Address</ion-label>
-    <p>[address]</p>
+    <p>@ViewModel.Address</p>
 
-    <ion-button expand="block">REQUEST WITH AMOUNT</ion-button>
-    <!-- should be done in top with nav, but can't go back to enter memo screen! -->
-    <IonButton href="/"  expand="block">BACK</IonButton>
-    <IonButton expand="block">SHARE</IonButton>
+    <IonButton OnClick="ShareLink" expand="block">SHARE LINK</IonButton>
+    <IonButton href="/" expand="block">DONE</IonButton>
 </ion-content>
 
 @code {
 
     protected override void OnInitialized()
     {
+        ViewModel = ReceiveViewModel;
         UiStateService.Title = "RECEIVE";
     }
 
+    private async Task ShareLink() {
+         await ViewModel.ShareText(ViewModel.BitcoinUri);
+    }
 }

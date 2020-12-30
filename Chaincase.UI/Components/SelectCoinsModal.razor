@@ -1,4 +1,6 @@
-﻿@inherits ReactiveComponentBase<SelectCoinsViewModel>
+﻿@using Chaincase.Common
+@inject Global Global 
+@inherits ReactiveComponentBase<SelectCoinsViewModel>
 
 <IonModal @bind-Visible="@Visible">
     <ion-header>
@@ -15,11 +17,22 @@
         {
             <p>Your coins will appear here</p>
         }
-
-        @foreach(var coin in ViewModel.CoinList)
+        else
         {
-            <SelectableCoin CoinViewModel="@coin" />
+
+            <IonRadioGroup @bind-Value="CoinSelectionRadios">
+                <IonItem>
+                    <ion-label>Select Private</ion-label>
+                    <ion-radio mode="md" slot="start" value="private" @onclick="SelectPrivateCoins"/>
+                </IonItem>
+            </IonRadioGroup>
+
+            @foreach(var coin in ViewModel.CoinList)
+            {
+                <SelectableCoin OnClick="CoinClickHandler" CoinViewModel="@coin" />
+            }
         }
+
     </ion-content>
 </IonModal>
     
@@ -34,6 +47,8 @@
     [Parameter]
     public SelectCoinsViewModel SelectCoinsViewModel { get; set; }
 
+    private string CoinSelectionRadios { get; set; }
+
     protected override void OnParametersSet()
     {
         ViewModel = SelectCoinsViewModel;
@@ -44,5 +59,17 @@
     {
         bool visible = false;
         await VisibleChanged.InvokeAsync(visible);
+    }
+
+    void CoinClickHandler()
+    {
+        CoinSelectionRadios = "no-sentinel";
+        StateHasChanged();
+    }
+
+    private void SelectPrivateCoins()
+    {
+        ViewModel.SelectCoins(x => x.AnonymitySet >= Global.Config.PrivacyLevelSome);
+        StateHasChanged();
     }
 }

@@ -1,0 +1,99 @@
+﻿@using WalletWasabi.Exceptions
+@using WalletWasabi.Helpers
+@inherits ReactiveComponentBase<FeeViewModel>
+
+<IonModal @bind-Visible="@Visible">
+    <ion-header>
+        <ion-toolbar>
+            <ion-title>Select Fee</ion-title>
+            <ion-buttons slot="start">
+                <IonButton @onclick="CloseModal">Back</IonButton>
+            </ion-buttons>
+        </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="ion-padding">
+        <p>
+            Bitcoin miners prioritize transactions that pay them the highest fee.
+            Only a limited number can be mined every 10 minute block.
+            These network fees are typically the least expensive on weekends and holidays and most costly when there new public interest or price changes.
+            The arrival estimate is based on current network status and is not a guarantee.
+        </p>
+        <p>
+            Fee:
+            <ion-badge class="ion-text-center">~@ViewModel.SendViewModel.FeeRate</ion-badge>
+            @FeeTargetTimeString
+        </p>
+        <IonRange min="@(-1 * ViewModel.SendViewModel.MaximumFeeTarget)"
+                  max="@(-1 * ViewModel.SendViewModel.MinimumFeeTarget)"
+                  @bind-Value="@InverseFeeTarget" />
+
+    </ion-content>
+</IonModal>
+
+@code {
+
+    [Parameter]
+    public bool Visible { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> VisibleChanged { get; set; }
+
+    [Parameter]
+    public FeeViewModel FeeViewModel { get; set; }
+
+    string FeeTargetTimeString =>
+        ConvertFeeTargetToString(ViewModel.SendViewModel.FeeTarget);
+
+    public int InverseFeeTarget
+    {
+        get => -1 * ViewModel.SendViewModel.FeeTarget;
+        set => ViewModel.SendViewModel.FeeTarget = -1 * value;
+    }
+
+    protected override void OnParametersSet()
+    {
+        ViewModel = FeeViewModel;
+        base.OnParametersSet();
+    }
+
+    private async Task CloseModal()
+    {
+        bool visible = false;
+        await VisibleChanged.InvokeAsync(visible);
+    }
+
+    #region FeeTargetTimeConverter
+    public string ConvertFeeTargetToString(int feeTarget)
+    {
+        if (feeTarget >= Constants.TwentyMinutesConfirmationTarget && feeTarget <= 6) // minutes
+        {
+            return $"{feeTarget}0 minutes";
+        }
+        else if (feeTarget >= 7 && feeTarget <= Constants.OneDayConfirmationTarget) // hours
+        {
+            var hours = feeTarget / 6; // 6 blocks per hour
+            return $"{hours} {IfPlural(hours, "hour", "hours")}";
+        }
+        else if (feeTarget >= Constants.OneDayConfirmationTarget + 1 && feeTarget < Constants.SevenDaysConfirmationTarget) // days
+        {
+            var days = feeTarget / Constants.OneDayConfirmationTarget;
+            return $"{days} {IfPlural(days, "day", "days")}";
+        }
+        else if (feeTarget == Constants.SevenDaysConfirmationTarget)
+        {
+            return "one week";
+        }
+        else
+        {
+            // this should never display
+            return "Invalid";
+        }
+    }
+
+    private static string IfPlural(int val, string singular, string plural)
+    {
+        return val == 1 ? singular : plural;
+    }
+    #endregion
+}

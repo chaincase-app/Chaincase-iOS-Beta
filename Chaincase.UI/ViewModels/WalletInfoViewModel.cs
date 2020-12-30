@@ -8,12 +8,12 @@ namespace Chaincase.UI.ViewModels
 {
 	public class WalletInfoViewModel : ReactiveObject
     {
-	    private readonly IFileShare _fileShare;
+	    private readonly IShare _share;
 	    protected Global Global { get; }
 
-        public WalletInfoViewModel(Global global, IFileShare fileShare)
+        public WalletInfoViewModel(Global global, IShare share)
         {
-	        _fileShare = fileShare;
+	        _share = share;
 	        Global = global;
 
 	        // var canBackUp = this.WhenAnyValue(x => x.Global.UiConfig.HasSeed, hs => hs == true);
@@ -32,14 +32,14 @@ namespace Chaincase.UI.ViewModels
         {
             var file = Path.Combine(Global.DataDir, "Logs.txt");
 
-            await _fileShare.ShareFile(file, "Share Debug Logs");
+            await _share.ShareFile(file, "Share Debug Logs");
         }
 
         public async Task ExportWallet()
         {
             var file = Path.Combine(Global.DataDir, $"Wallets/{Global.Network}.json");
 
-            await _fileShare.ShareFile(file, "Export Wallet");
+            await _share.ShareFile(file, "Export Wallet");
         }
 
         public string ExtendedAccountPublicKey => Global.Wallet.KeyManager.ExtPubKey.ToString(Global.Network) ?? "";

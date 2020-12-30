@@ -82,15 +82,6 @@ namespace Chaincase.UI.ViewModels
                     }
                 });
 
-            _sendFromText = this
-                .WhenAnyValue(x => x.SelectCoinsViewModel.SelectPrivateSwitchState, x => x.SelectCoinsViewModel.SelectedCount)
-                .Select(tup =>
-                {
-                    var coinGrammaticalNumber = tup.Item2 == 1 ? " Coin ▾" : " Coins ▾";
-                    return tup.Item1 ? "Auto-Select Private ▾" : (tup.Item2.ToString() + coinGrammaticalNumber);
-                })
-                .ToProperty(this, nameof(SendFromText));
-
             this.WhenAnyValue(x => x.IsMax)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(isMax =>
