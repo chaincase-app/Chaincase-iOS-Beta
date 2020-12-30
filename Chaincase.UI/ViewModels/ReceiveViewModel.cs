@@ -16,7 +16,6 @@ namespace Chaincase.UI.ViewModels
 	public class ReceiveViewModel : ReactiveObject
 	{
 		protected Global Global { get; }
-		protected IShare Share { get; }
 
 		private string _proposedLabel;
 		private string _appliedLabel;
@@ -24,12 +23,11 @@ namespace Chaincase.UI.ViewModels
 		private string _requestAmount;
 		private ObservableAsPropertyHelper<string> _bitcoinUri;
 
-		public ReceiveViewModel(Global global, IShare share)
+		public ReceiveViewModel(Global global)
 		{
 			Global = global;
 			Global.NotificationManager.RequestAuthorization();
 
-			Share = share;
 
 			//_bitcoinUri = this
 			//	.WhenAnyValue(x => x.RequestAmount)
@@ -85,11 +83,6 @@ namespace Chaincase.UI.ViewModels
 			{
 				return false;
 			}
-		}
-
-		public async Task ShareText(string boundString)
-		{
-			await Share.ShareText(boundString);
 		}
 
 		public string AppliedLabel => ReceivePubKey.Label ?? "";
