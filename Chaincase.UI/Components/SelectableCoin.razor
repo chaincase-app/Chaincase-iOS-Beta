@@ -3,9 +3,8 @@
 <IonItem>
     @*TODO support @bind-Value="@ViewModel.IsSelected" @ IonToggle*@
     <IonCheckbox slot="start"
-                 @onclick="@OnClick"
-                 Value="ViewModel.IsSelected"
-                 ValueChanged="b => ViewModel.IsSelected = b.GetValueOrDefault(false)" />
+                 OnClick="@OnClick"
+                 @bind-Value="ViewModel.IsSelected" />
     <p>@ViewModel.Amount</p>
 </IonItem>
 
