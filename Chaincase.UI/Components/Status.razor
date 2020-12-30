@@ -1,0 +1,59 @@
+﻿@using Chaincase.UI.Services
+@using Chaincase.Common
+@inject StatusViewModel StatusViewModel
+@inject Global Global
+
+@inherits ReactiveComponentBase<StatusViewModel>
+
+<ion-list>
+    <ion-item>
+        <ion-label>Numbers of Peers: @ViewModel.Peers</ion-label>
+    </ion-item>
+    <ion-item>
+        <ion-label>Backend Status: @Backendlabel()</ion-label>
+    </ion-item>
+    <ion-item>
+        <ion-label>Tor Status: @TorLabel()</ion-label>
+    </ion-item>
+    <ion-item>
+        <ion-label>Filters left: @ViewModel.FiltersLeft</ion-label>
+    </ion-item>
+
+    <ion-item>
+        <ion-progress-bar value="@ViewModel.ProgressPercent"/>
+    </ion-item>
+
+</ion-list>
+
+@code{
+
+    protected override void OnInitialized()
+    {
+        ViewModel = StatusViewModel;
+    }
+
+    public string Backendlabel() {
+        switch (ViewModel.Backend) {
+            case WalletWasabi.Models.BackendStatus.NotConnected:
+                return "⌛";
+            case WalletWasabi.Models.BackendStatus.Connected:
+                return "✅";
+            default:
+                return "⌛";
+        }
+    }
+
+    public string TorLabel() {
+        switch (ViewModel.Tor)
+        {
+            case WalletWasabi.Models.TorStatus.NotRunning:
+                return "⌛";
+            case WalletWasabi.Models.TorStatus.Running:
+                return "✅";
+            case WalletWasabi.Models.TorStatus.TurnedOff:
+                return "📴";
+            default:
+                return "⌛";
+        }
+    }
+}

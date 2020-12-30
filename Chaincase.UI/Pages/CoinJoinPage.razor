@@ -77,8 +77,8 @@
         </ion-item>
 
     </ion-list>
-    <SelectCoinsModal @bind-Visible="@IsQueuedToCoinJoin"
-                      SelectCoinsViewModel="@ViewModel.CoinList" />
+    @*<SelectCoinsModal @bind-Visible="@IsQueuedToCoinJoin"
+                      SelectCoinsViewModel="@ViewModel.CoinList" />*@
     Progress bar
     <ion-text color="primary">
         <h5>Percentage of peers queued in most advanced round </h5>
@@ -122,7 +122,6 @@
     {
         <ion-button @onclick='CoinJoin' @onclick:preventDefault="true" expand="block">COINJOIN</ion-button>
         <ion-button @onclick='ExitCoinJoin' @onclick:preventDefault="true" expand="block">Cancel </ion-button>
-
     }
 </ion-content>
 

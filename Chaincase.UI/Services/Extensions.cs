@@ -17,6 +17,7 @@ namespace Chaincase.UI.Services
 			services.AddSingleton<QRCodeGenerator>();
 			services.AddSingleton<IndexViewModel>();
 			services.AddSingleton<SendViewModel>();
+			services.AddSingleton<StatusViewModel>();
 			services.AddTransient<LoadWalletViewModel>();
 			services.AddTransient<WalletInfoViewModel>();
 			services.AddTransient<NewPasswordViewModel>();

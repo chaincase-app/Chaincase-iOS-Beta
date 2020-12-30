@@ -9,13 +9,14 @@
 @inherits ReactiveComponentBase<IndexViewModel>
 
 <ion-content class="ion-padding">
-    <h1>@ViewModel.Balance</h1>
-    <p>Tor running x peers Ready</p>
-    <ion-progress-bar color="primary"/>
+    <h1>Balance: @ViewModel.Balance</h1>
+
+    <Status />
 
     @foreach (var t in ViewModel.Transactions)
     {
-        <TransactionListItem TransactionViewModel="@t"/>    }
+        <TransactionListItem TransactionViewModel="@t"/>
+    }
 
     @if (!ViewModel.Transactions.Any())
     {
