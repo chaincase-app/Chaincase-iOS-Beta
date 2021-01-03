@@ -1,0 +1,60 @@
+﻿
+@inherits ReactiveComponentBase<CoinViewModel>
+
+<IonModal Visible="@Visible">
+    <ion-header>
+        <ion-toolbar>
+            <ion-title>Coin Detail</ion-title>
+            <ion-buttons slot="start">
+                <IonButton @onclick="CloseModal">Back</IonButton>
+            </ion-buttons>
+        </ion-toolbar>
+    </ion-header>
+    <ion-content class="ion-padding">
+        <ion-list>
+            <IonItem class="ion-no-padding">
+                <ion-label>@ViewModel.AmountBtc BTC</ion-label>
+            </IonItem>
+            <IonItem class="ion-no-padding">
+                <ion-label>Transaction ID: @ViewModel.TransactionId</ion-label>
+            </IonItem>
+            <IonItem class="ion-no-padding">
+                <ion-label>Output Index: @ViewModel.OutputIndex</ion-label>
+            </IonItem>
+            <IonItem class="ion-no-padding">
+                <ion-label>Confirmations: @ViewModel.Confirmations</ion-label>
+            </IonItem>
+            <IonItem class="ion-no-padding">
+                <ion-label>Anonymity Set: @ViewModel.AnonymitySet</ion-label>
+            </IonItem>
+            <IonItem class="ion-no-padding">
+                <ion-label>Contacts: @ViewModel.Clusters</ion-label>
+            </IonItem>
+        </ion-list>
+    </ion-content>
+</IonModal>
+
+
+@code {
+    [Parameter]
+    public bool Visible { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> VisibleChanged { get; set; }
+
+    [Parameter]
+    public CoinViewModel CoinViewModel { get; set; }
+
+    protected override void OnInitialized()
+    {
+        ViewModel = CoinViewModel;
+        base.OnInitialized();
+    }
+
+    private async Task CloseModal()
+    {
+        bool visible = false;
+        await VisibleChanged.InvokeAsync(visible);
+    }
+
+}

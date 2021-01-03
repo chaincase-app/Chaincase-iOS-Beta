@@ -22,7 +22,7 @@
     <IonToggle class="ion-float-right" name="grape" color="tertiary" Value="true" />
     <br />
     <ion-label class="ion-text-center">Choose coins</ion-label>
-    <IonButton OnClick="ToggleSelectCoinsModal" expand="block">
+    <IonButton href="send/selectcoins" expand="block">
         Automatic coin selection <ion-icon name="chevron-forward-outline" />
     </IonButton>
 
@@ -30,8 +30,8 @@
 
     <IonButton href="/send/confirm" expand="block">CONFIRM</IonButton>
 
-    <SelectCoinsModal @bind-Visible="@IsSelectCoinsModalVisible"
-                      SelectCoinsViewModel="@ViewModel.SelectCoinsViewModel" />
+    @*<SelectCoinsModal @bind-Visible="@IsSelectCoinsModalVisible"
+                      SelectCoinsViewModel="@ViewModel.SelectCoinsViewModel" />*@
 
     <FeeModal @bind-Visible="@IsFeeModalVisible"
                       FeeViewModel="@FeeViewModel" />
@@ -62,4 +62,7 @@
     private void ToggleSelectFeeModal() =>
         IsFeeModalVisible = !IsFeeModalVisible;
 
+
+    private void NavigateToSelectCoinsPage() =>
+        NavigationManager.NavigateTo("/send/selectcoins");
 }

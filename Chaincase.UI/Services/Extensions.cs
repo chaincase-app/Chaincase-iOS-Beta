@@ -21,6 +21,7 @@ namespace Chaincase.UI.Services
 			services.AddTransient<LoadWalletViewModel>();
 			services.AddTransient<WalletInfoViewModel>();
 			services.AddTransient<NewPasswordViewModel>();
+			services.AddSingleton<SelectCoinsViewModel>();
 
 			return services;
 		}

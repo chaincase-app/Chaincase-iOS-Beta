@@ -1,0 +1,77 @@
+﻿@page "/send/selectcoins"
+
+@using Chaincase.Common
+@inject Global Global
+@inject SelectCoinsViewModel SelectCoinsViewModel
+@inherits ReactiveComponentBase<SelectCoinsViewModel>
+
+
+<ion-content class="ion-padding">
+
+    @if (!ViewModel.CoinList.Any())
+    {
+        <p>Your coins will appear here</p>
+    }
+    else
+    {
+        <IonButton href="send/amount">Back TEMPORARY</IonButton>
+        <IonRadioGroup @bind-Value="CoinSelectionRadios">
+            <IonItem class="ion-no-padding">
+                <ion-label>Select Private</ion-label>
+                <ion-radio mode="md" slot="start" value="private" @onclick="SelectPrivateCoins" />
+            </IonItem>
+        </IonRadioGroup>
+
+        <div @onclick="CoinClickHandler">
+            @foreach (var coin in ViewModel.CoinList)
+            {
+                <SelectableCoin CoinViewModel="@coin" />
+            }
+        </div>
+    }
+
+</ion-content>
+
+@if (CurrentCoinViewModel != null)
+{
+    <CoinDetailModal CoinViewModel="@CurrentCoinViewModel" @bind-Visible="@IsDetailModalVisible"/>
+}
+
+
+
+@code {
+
+    private string CoinSelectionRadios { get; set; }
+
+    private bool IsDetailModalVisible { get; set; }
+
+    private CoinViewModel CurrentCoinViewModel { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        ViewModel = SelectCoinsViewModel;
+        base.OnParametersSet();
+    }
+
+    private void OpenDetail(CoinViewModel coin)
+    {
+        CurrentCoinViewModel = coin;
+        IsDetailModalVisible = true;
+    }
+
+    private void Log() => System.Diagnostics.Debug.WriteLine("Log");
+
+
+    void CoinClickHandler()
+    {
+        OpenDetail(ViewModel.CoinList.First());
+        CoinSelectionRadios = "no-sentinel";
+        StateHasChanged();
+    }
+
+    private void SelectPrivateCoins()
+    {
+        ViewModel.SelectCoins(x => x.AnonymitySet >= Global.Config.PrivacyLevelSome);
+        StateHasChanged();
+    }
+}

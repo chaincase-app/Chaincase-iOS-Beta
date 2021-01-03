@@ -1,19 +1,29 @@
-﻿
-@using Chaincase.Common
+﻿@using Chaincase.Common
 @inject Global Global  
 @inherits ReactiveComponentBase<CoinViewModel>
 
-<IonItem class="ion-no-padding">
+<IonItem class="ion-no-padding" button>
     <ion-label>@ViewModel.Amount </ion-label>
-    <ion-label slot="end">@(PrivacyLabel(ViewModel.AnonymitySet))</ion-label>
+    <ion-label slot="end" >@(PrivacyLabel(ViewModel.AnonymitySet))</ion-label>
     <IonCheckbox slot="start"
                  @bind-Value="ViewModel.IsSelected" />
 </IonItem>
 
 @code {
 
+    private bool IsDetailModalVisible { get; set; }
+
     [Parameter]
     public CoinViewModel CoinViewModel { get; set; }
+
+    [Parameter]
+    public Action OnClick { get; set; }
+
+    private void ClickHandler() {
+        OnClick.Invoke();
+    }
+
+    private void Log() => System.Diagnostics.Debug.WriteLine("Log");
 
     protected override void OnParametersSet()
     {
