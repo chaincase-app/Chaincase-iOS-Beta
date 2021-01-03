@@ -1,14 +1,14 @@
-﻿@inherits LayoutComponentBase
-
+﻿@inherits LayoutComponentBase 
 @using Chaincase.UI.Services
 @using Chaincase.Common
 @implements IDisposable
 @inject UIStateService StateService
+@inject StackService StackService
 @inject NavigationManager NavigationManager
 @inject ThemeSwitcher ThemeSwitcher
 @inject Global Global
 
-<ion-split-pane when="sm" content-id="main-content">
+<ion-split-pane when="sm" content-id="main-content" disabled="@StackService.AnyStackState">
     <ion-menu content-id="main-content">
         <NavMenu/>
     </ion-menu>
@@ -16,7 +16,14 @@
         <ion-header>
             <ion-toolbar>
                 <ion-buttons slot="start">
-                    <ion-menu-button></ion-menu-button>
+                    @if (StackService.AnyStackState)
+                    {
+                        <ion-back-button @onclick="() => StackService.InvokeStackState()" @onclick:preventDefault="true" default-href="lol"></ion-back-button>
+                    }
+                    else
+                    {
+                        <ion-menu-button></ion-menu-button>
+                    }
                 </ion-buttons>
                 <ion-buttons slot="end">
                     <IonButton href="walletinfo">
@@ -36,6 +43,7 @@
     {
         base.OnInitialized();
         StateService.StateChanged += OnStateServiceOnStateChanged;
+        StackService.StackStateChanged += OnStateServiceOnStateChanged;
         OnStateServiceOnStateChanged();
         StateService.ThemeChanged += StateServiceOnThemeChanged;
     }
@@ -54,6 +62,6 @@
     {
         StateService.StateChanged -= OnStateServiceOnStateChanged;
         StateService.ThemeChanged -= StateServiceOnThemeChanged;
+        StackService.StackStateChanged -= OnStateServiceOnStateChanged;
     }
-
 }

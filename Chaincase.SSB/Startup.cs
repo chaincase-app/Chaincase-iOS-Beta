@@ -1,5 +1,4 @@
 using BlazorDownloadFile;
-using Chaincase.Common;
 using Chaincase.Common.Contracts;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -7,10 +6,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Chaincase.UI.Services;
-using Chaincase.UI.ViewModels;
-using ReactiveUI;
-using Splat;
 using Splat.Microsoft.Extensions.DependencyInjection;
+
 
 namespace Chaincase.SSB
 {
@@ -33,7 +30,7 @@ namespace Chaincase.SSB
 			services.UseMicrosoftDependencyResolver();
 			services.AddUIServices();
 			services.AddScoped<IHsmStorage, JsInteropSecureConfigProvider>();
-			services.AddScoped<IShare, SSBFileShare>();
+			services.AddScoped<IShare, SSBShare>();
 			services.AddSingleton<IDataDirProvider, SSBDataDirProvider>();
 			services.AddSingleton<IMainThreadInvoker, SSBMainThreadInvoker>();
 			services.AddSingleton<ITorManager, MockTorManager>();
@@ -66,6 +63,5 @@ namespace Chaincase.SSB
 				endpoints.MapFallbackToPage("/_Host");
 			});
 		}
-		
 	}
 }
