@@ -27,7 +27,7 @@ namespace Chaincase.SSB
 		public async Task ShareText(string text, string title = null)
 		{
 			// only supported on a few select browsers https://caniuse.com/mdn-api_navigator_share
-			await _jsRuntime.InvokeVoidAsync("executeFunctionByName", "window", "navigator.share", new
+			await _jsRuntime.InvokeVoidAsync("IonicBridge.executeFunctionByName", "window", "navigator.share", new
 			{
 				title,
 				text
