@@ -21,16 +21,18 @@
         {
 
             <IonRadioGroup @bind-Value="CoinSelectionRadios">
-                <IonItem>
+                <IonItem class="ion-no-padding">
                     <ion-label>Select Private</ion-label>
                     <ion-radio mode="md" slot="start" value="private" @onclick="SelectPrivateCoins"/>
                 </IonItem>
             </IonRadioGroup>
 
+            <div @onclick="CoinClickHandler">
             @foreach(var coin in ViewModel.CoinList)
             {
-                <SelectableCoin OnClick="CoinClickHandler" CoinViewModel="@coin" />
+                <SelectableCoin CoinViewModel="@coin" />
             }
+            </div>
         }
 
     </ion-content>
