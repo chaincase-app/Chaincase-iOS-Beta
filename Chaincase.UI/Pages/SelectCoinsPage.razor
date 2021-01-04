@@ -14,7 +14,6 @@
     }
     else
     {
-        <IonButton href="send/amount">Back TEMPORARY</IonButton>
         <IonRadioGroup @bind-Value="CoinSelectionRadios">
             <IonItem class="ion-no-padding">
                 <ion-label>Select Private</ion-label>
@@ -22,20 +21,27 @@
             </IonItem>
         </IonRadioGroup>
 
-        <div @onclick="CoinClickHandler">
+        <IonList @onclick="CoinClickHandler">
             @foreach (var coin in ViewModel.CoinList)
             {
-                <SelectableCoin CoinViewModel="@coin" />
+                <IonItem detail="true" @onclick="@(() => OpenCoinDetail(@coin))">
+                    <SelectableCoin CoinViewModel="@coin" />
+                </IonItem>
             }
-        </div>
+            @*@for (int i=0; i < ViewModel.CoinList.Count(); i++)
+            {
+                var tmp = ViewModel.CoinList.ElementAt(i);
+                <SelectableCoin OnClick="Log" CoinViewModel="@tmp" />
+            }*@
+        </IonList>
     }
+
+    <IonButton @onclick="@OpenDetail">modal</IonButton>
 
 </ion-content>
 
-@if (CurrentCoinViewModel != null)
-{
-    <CoinDetailModal CoinViewModel="@CurrentCoinViewModel" @bind-Visible="@IsDetailModalVisible"/>
-}
+<CoinDetailModal @bind-Visible="@IsDetailModalVisible" CoinViewModel="@CurrentCoinViewModel"/>
+
 
 
 
@@ -50,13 +56,22 @@
     protected override void OnParametersSet()
     {
         ViewModel = SelectCoinsViewModel;
+        CurrentCoinViewModel = ViewModel.CoinList.First();
+
         base.OnParametersSet();
     }
 
-    private void OpenDetail(CoinViewModel coin)
+    private void OpenDetail()
+    {
+        CurrentCoinViewModel = ViewModel.CoinList.First();
+        IsDetailModalVisible = true;
+    }
+
+    private void OpenCoinDetail(CoinViewModel coin)
     {
         CurrentCoinViewModel = coin;
         IsDetailModalVisible = true;
+        StateHasChanged();
     }
 
     private void Log() => System.Diagnostics.Debug.WriteLine("Log");
@@ -64,7 +79,6 @@
 
     void CoinClickHandler()
     {
-        OpenDetail(ViewModel.CoinList.First());
         CoinSelectionRadios = "no-sentinel";
         StateHasChanged();
     }

@@ -2,12 +2,10 @@
 @inject Global Global  
 @inherits ReactiveComponentBase<CoinViewModel>
 
-<IonItem class="ion-no-padding" button>
-    <ion-label>@ViewModel.Amount </ion-label>
-    <ion-label slot="end" >@(PrivacyLabel(ViewModel.AnonymitySet))</ion-label>
-    <IonCheckbox slot="start"
-                 @bind-Value="ViewModel.IsSelected" />
-</IonItem>
+<ion-label>@ViewModel.Amount </ion-label>
+<ion-label slot="end" >@(PrivacyLabel(ViewModel.AnonymitySet))</ion-label>
+<IonCheckbox slot="start"
+                @bind-Value="ViewModel.IsSelected" />
 
 @code {
 
@@ -17,10 +15,10 @@
     public CoinViewModel CoinViewModel { get; set; }
 
     [Parameter]
-    public Action OnClick { get; set; }
+    public Action<CoinViewModel> OnClickCoin { get; set; }
 
     private void ClickHandler() {
-        OnClick.Invoke();
+        OnClickCoin?.Invoke(ViewModel);
     }
 
     private void Log() => System.Diagnostics.Debug.WriteLine("Log");

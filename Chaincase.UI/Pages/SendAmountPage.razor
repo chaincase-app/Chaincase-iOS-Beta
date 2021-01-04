@@ -1,6 +1,7 @@
 ﻿@page "/send/amount"
 @using Chaincase.UI.Services
 @inject SendViewModel SendViewModel
+@inject StackService StackService
 @inject UIStateService UiStateService
 @inject NavigationManager NavigationManager
 @inherits ReactiveComponentBase<SendViewModel>
@@ -22,7 +23,7 @@
     <IonToggle class="ion-float-right" name="grape" color="tertiary" Value="true" />
     <br />
     <ion-label class="ion-text-center">Choose coins</ion-label>
-    <IonButton href="send/selectcoins" expand="block">
+    <IonButton OnClick="NavigateToSelectCoinsPage" expand="block">
         Automatic coin selection <ion-icon name="chevron-forward-outline" />
     </IonButton>
 
@@ -31,12 +32,13 @@
     <IonButton href="/send/confirm" expand="block">CONFIRM</IonButton>
 
     @*<SelectCoinsModal @bind-Visible="@IsSelectCoinsModalVisible"
-                      SelectCoinsViewModel="@ViewModel.SelectCoinsViewModel" />*@
+        SelectCoinsViewModel="@ViewModel.SelectCoinsViewModel" />*@
 
-    <FeeModal @bind-Visible="@IsFeeModalVisible"
-                      FeeViewModel="@FeeViewModel" />
 
 </ion-content>
+
+<FeeModal @bind-Visible="@IsFeeModalVisible"
+            FeeViewModel="@FeeViewModel" />
 
 @code {
 
@@ -44,7 +46,7 @@
     private bool IsFeeModalVisible;
 
     private FeeViewModel FeeViewModel { get; set; }
-        
+
     private double amount { get; set; }
 
     protected override void OnInitialized()
@@ -54,7 +56,8 @@
         UiStateService.Title = "SEND";
     }
 
-    private void ToggleSelectCoinsModal() {
+    private void ToggleSelectCoinsModal()
+    {
         IsSelectCoinsModalVisible = !IsSelectCoinsModalVisible;
         StateHasChanged();
     }
@@ -63,6 +66,12 @@
         IsFeeModalVisible = !IsFeeModalVisible;
 
 
-    private void NavigateToSelectCoinsPage() =>
+    private void NavigateToSelectCoinsPage()
+    {
+        StackService.PushStackState(async () =>
+        {
+            await NavigationManager.NavigateBack(null, "send/amount");
+        });
         NavigationManager.NavigateTo("/send/selectcoins");
+    }
 }
