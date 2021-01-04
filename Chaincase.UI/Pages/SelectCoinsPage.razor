@@ -24,9 +24,15 @@
         <IonList @onclick="CoinClickHandler">
             @foreach (var coin in ViewModel.CoinList)
             {
-                <IonItem detail="true" @onclick="@(() => OpenCoinDetail(@coin))">
-                    <SelectableCoin CoinViewModel="@coin" />
-                </IonItem>
+                <ion-item-sliding>
+                    <IonItem>
+                        <SelectableCoin CoinViewModel="@coin" />
+                    </IonItem>
+
+                    <ion-item-options side="end">
+                        <IonItemOption @onclick="@(() => OpenCoinDetail(@coin))" color="secondary">Details</IonItemOption>
+                    </ion-item-options>
+                </ion-item-sliding>
             }
             @*@for (int i=0; i < ViewModel.CoinList.Count(); i++)
             {

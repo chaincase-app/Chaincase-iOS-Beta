@@ -2,8 +2,7 @@
 @inject Global Global  
 @inherits ReactiveComponentBase<CoinViewModel>
 
-<ion-label>@ViewModel.Amount </ion-label>
-<ion-label slot="end" >@(PrivacyLabel(ViewModel.AnonymitySet))</ion-label>
+<ion-label>@(PrivacyLabel(ViewModel.AnonymitySet)) @ViewModel.Amount </ion-label>
 <IonCheckbox slot="start"
                 @bind-Value="ViewModel.IsSelected" />
 
