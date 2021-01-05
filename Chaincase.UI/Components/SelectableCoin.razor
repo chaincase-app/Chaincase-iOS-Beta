@@ -8,19 +8,9 @@
 
 @code {
 
-    private bool IsDetailModalVisible { get; set; }
-
     [Parameter]
     public CoinViewModel CoinViewModel { get; set; }
 
-    [Parameter]
-    public Action<CoinViewModel> OnClickCoin { get; set; }
-
-    private void ClickHandler() {
-        OnClickCoin?.Invoke(ViewModel);
-    }
-
-    private void Log() => System.Diagnostics.Debug.WriteLine("Log");
 
     protected override void OnParametersSet()
     {
