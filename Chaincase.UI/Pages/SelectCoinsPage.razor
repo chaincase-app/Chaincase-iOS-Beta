@@ -21,7 +21,7 @@
             </IonItem>
         </IonRadioGroup>
 
-        <IonList @onclick="CoinClickHandler">
+        <IonList>
             @foreach (var coin in ViewModel.CoinList)
             {
                 <ion-item-sliding>
@@ -30,23 +30,16 @@
                     </IonItem>
 
                     <ion-item-options side="end">
-                        <IonItemOption @onclick="@(() => OpenCoinDetail(@coin))" color="secondary">Details</IonItemOption>
+                        <IonItemOption OnClick="@(() => OpenCoinDetail(coin))" color="secondary">Details</IonItemOption>
                     </ion-item-options>
                 </ion-item-sliding>
             }
-            @*@for (int i=0; i < ViewModel.CoinList.Count(); i++)
-            {
-                var tmp = ViewModel.CoinList.ElementAt(i);
-                <SelectableCoin OnClick="Log" CoinViewModel="@tmp" />
-            }*@
         </IonList>
     }
 
-    <IonButton @onclick="@OpenDetail">modal</IonButton>
-
 </ion-content>
 
-<CoinDetailModal @bind-Visible="@IsDetailModalVisible" CoinViewModel="@CurrentCoinViewModel"/>
+<CoinDetailModal @bind-Visible="@IsDetailModalVisible" @bind-CoinViewModel="@CurrentCoinViewModel"/>
 
 
 
@@ -67,17 +60,10 @@
         base.OnParametersSet();
     }
 
-    private void OpenDetail()
-    {
-        CurrentCoinViewModel = ViewModel.CoinList.First();
-        IsDetailModalVisible = true;
-    }
-
     private void OpenCoinDetail(CoinViewModel coin)
     {
         CurrentCoinViewModel = coin;
         IsDetailModalVisible = true;
-        StateHasChanged();
     }
 
     private void Log() => System.Diagnostics.Debug.WriteLine("Log");
