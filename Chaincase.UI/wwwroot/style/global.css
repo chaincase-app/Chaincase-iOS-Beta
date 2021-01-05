@@ -158,12 +158,12 @@ body.dark {
 }
 
 .ios .transition {
-    margin-top: 44px;
+    padding-top: 44px;
 }
 
 .md .transition {
 
-    margin-top: 60px;
+    padding-top: 60px;
 }
 
 .transition {
