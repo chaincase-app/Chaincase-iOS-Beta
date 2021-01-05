@@ -1,0 +1,77 @@
+﻿@page "/send/selectcoins"
+
+@using Chaincase.Common
+@inject Global Global
+@inject SelectCoinsViewModel SelectCoinsViewModel
+@inherits ReactiveComponentBase<SelectCoinsViewModel>
+
+
+<ion-content class="ion-padding">
+
+    @if (!ViewModel.CoinList.Any())
+    {
+        <p>Your coins will appear here</p>
+    }
+    else
+    {
+        <IonRadioGroup @bind-Value="CoinSelectionRadios">
+            <IonItem class="ion-no-padding">
+                <ion-label>Select Private</ion-label>
+                <ion-radio mode="md" slot="start" value="private" @onclick="SelectPrivateCoins" />
+            </IonItem>
+        </IonRadioGroup>
+
+        <IonList @onclick="CoinClickHandler">
+            @foreach (var coin in ViewModel.CoinList)
+            {
+                <ion-item-sliding>
+                    <IonItem>
+                        <SelectableCoin CoinViewModel="@coin" />
+                    </IonItem>
+
+                    <ion-item-options side="end">
+                        <IonItemOption OnClick="@(() => OpenCoinDetail(coin))" color="secondary">Details</IonItemOption>
+                    </ion-item-options>
+                </ion-item-sliding>
+            }
+        </IonList>
+    }
+
+</ion-content>
+
+<CoinDetailModal @bind-Visible="@IsDetailModalVisible" @bind-CoinViewModel="@CurrentCoinViewModel"/>
+
+
+
+
+@code {
+
+    private string CoinSelectionRadios { get; set; }
+
+    private bool IsDetailModalVisible { get; set; }
+
+    private CoinViewModel CurrentCoinViewModel { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        ViewModel = SelectCoinsViewModel;
+        base.OnParametersSet();
+    }
+
+    private void OpenCoinDetail(CoinViewModel coin)
+    {
+        CurrentCoinViewModel = coin;
+        IsDetailModalVisible = true;
+    }
+
+    void CoinClickHandler()
+    {
+        CoinSelectionRadios = "no-sentinel";
+    }
+
+    private void SelectPrivateCoins()
+    {
+        ViewModel.SelectCoins(x => x.AnonymitySet >= Global.Config.PrivacyLevelSome);
+        StateHasChanged();
+    }
+}

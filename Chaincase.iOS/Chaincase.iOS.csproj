@@ -177,7 +177,7 @@
       <Name>Chaincase.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\Chaincase.UI\Chaincase.UI.csproj">
-      <Project>{B50AA2D0-2829-48CE-8BDA-B1C30447DC19}</Project>
+      <Project>{63D96CED-12FE-4421-91D4-38786D0ED7D2}</Project>
       <Name>Chaincase.UI</Name>
     </ProjectReference>
   </ItemGroup>
