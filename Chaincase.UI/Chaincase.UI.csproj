@@ -56,6 +56,12 @@
         <NpmInstallStampFile>node_modules/.install-stamp</NpmInstallStampFile>
     </PropertyGroup>
 
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+      <LangVersion>9.0</LangVersion>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+      <LangVersion>9.0</LangVersion>
+    </PropertyGroup>
     <Target Name="NpmInstall" BeforeTargets="BeforeBuild" Inputs="package.json" Outputs="$(NpmInstallStampFile)">
         <Exec Command="npm install" />
         <Message Text="npm installed!" />

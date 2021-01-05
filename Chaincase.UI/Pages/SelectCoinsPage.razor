@@ -21,7 +21,7 @@
             </IonItem>
         </IonRadioGroup>
 
-        <IonList>
+        <IonList @onclick="CoinClickHandler">
             @foreach (var coin in ViewModel.CoinList)
             {
                 <ion-item-sliding>
@@ -55,8 +55,6 @@
     protected override void OnParametersSet()
     {
         ViewModel = SelectCoinsViewModel;
-        CurrentCoinViewModel = ViewModel.CoinList.First();
-
         base.OnParametersSet();
     }
 
@@ -66,13 +64,9 @@
         IsDetailModalVisible = true;
     }
 
-    private void Log() => System.Diagnostics.Debug.WriteLine("Log");
-
-
     void CoinClickHandler()
     {
         CoinSelectionRadios = "no-sentinel";
-        StateHasChanged();
     }
 
     private void SelectPrivateCoins()

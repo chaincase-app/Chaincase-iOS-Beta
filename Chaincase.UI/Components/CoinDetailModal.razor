@@ -13,28 +13,29 @@
 
     <ion-content>
 
-    <ion-list>
-        <IonItem>
-            <ion-label>@ViewModel.AmountBtc BTC</ion-label>
-        </IonItem>
-        <IonItem>
-            <ion-label>Transaction ID: @ViewModel.TransactionId</ion-label>
-        </IonItem>
-        <IonItem>
-            <ion-label>Output Index: @ViewModel.OutputIndex</ion-label>
-        </IonItem>
-        <IonItem>
-            <ion-label>Confirmations: @ViewModel.Confirmations</ion-label>
-        </IonItem>
-        <IonItem>
-            <ion-label>Anonymity Set: @ViewModel.AnonymitySet</ion-label>
-        </IonItem>
-        <IonItem>
-            <ion-label>Contacts: @ViewModel.Clusters</ion-label>
-        </IonItem>
-    </ion-list>
-
-
+   @if (ViewModel is not null)
+    {
+        <ion-list>
+            <IonItem>
+                <ion-label>@ViewModel.AmountBtc BTC</ion-label>
+            </IonItem>
+            <IonItem>
+                <ion-label>Transaction ID: @ViewModel.TransactionId</ion-label>
+            </IonItem>
+            <IonItem>
+                <ion-label>Output Index: @ViewModel.OutputIndex</ion-label>
+            </IonItem>
+            <IonItem>
+                <ion-label>Confirmations: @ViewModel.Confirmations</ion-label>
+            </IonItem>
+            <IonItem>
+                <ion-label>Anonymity Set: @ViewModel.AnonymitySet</ion-label>
+            </IonItem>
+            <IonItem>
+                <ion-label>Contacts: @ViewModel.Clusters</ion-label>
+            </IonItem>
+        </ion-list>
+    }
 
     </ion-content>
 </IonModal>
@@ -55,12 +56,6 @@
 
     [Parameter]
     public EventCallback<CoinViewModel> CoinViewModelChanged { get; set; }
-
-    protected override void OnInitialized()
-    {
-        //ViewModel = CoinViewModel;
-        base.OnInitialized();
-    }
 
     private async Task CloseModal()
     {
