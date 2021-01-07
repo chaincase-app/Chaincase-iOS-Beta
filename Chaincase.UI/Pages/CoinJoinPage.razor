@@ -45,9 +45,12 @@
     </ion-text>
 
     @* Coin Selection*@
-    <IonButton @OnClick="ToggleSelectCoinsModal" expand="block">
+    <!--<IonButton  expand="block">-->
+        @*Coin Selection <ion-icon name="chevron-forward-outline" />*@
+    <!--</IonButton>-->
+    <button @OnClick="ToggleSelectCoinsModal">
         Coin Selection <ion-icon name="chevron-forward-outline" />
-    </IonButton>
+    </button>
     <SelectCoinsModal @bind-Visible="@IsSelectCoinsModalVisible"
                       SelectCoinsViewModel="@ViewModel.CoinList" />
     @* Progress Bar *@

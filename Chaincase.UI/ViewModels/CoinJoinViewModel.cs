@@ -25,8 +25,6 @@ namespace Chaincase.UI.ViewModels
 	public class CoinJoinViewModel : ReactiveObject
 	{
 		protected Global Global { get; }
-        protected ToastViewModel Toast { get; }
-
         private CompositeDisposable Disposables { get; set; }
 
         private INotificationManager notificationManager;

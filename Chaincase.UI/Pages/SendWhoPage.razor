@@ -1,7 +1,11 @@
 ﻿@page "/send/who"
 @using Chaincase.UI.Services
+@using Microsoft.AspNetCore.Components
 @inject SendViewModel SendViewModel
 @inject UIStateService UiStateService
+@inject NavigationManager NavigationManager
+@inject StackService StackService
+@inject IJSRuntime JsRuntime
 
 @inherits ReactiveComponentBase<SendViewModel>
 
@@ -13,7 +17,7 @@
     <IonInput @bind-Value="AddressString" placeholder="Enter address..."/>
 
     @*qr code reader goes here*@
-    <IonButton href="/send/label" expand="block">NEXT</IonButton>
+    <IonButton OnClick="OnContinue" expand="block">NEXT</IonButton>
 </ion-content>
 
 @code {
@@ -25,5 +29,16 @@
     {
         ViewModel = SendViewModel;
         UiStateService.Title = "SEND";
+        StackService.ClearStack();
     }
+
+    public void OnContinue()
+    {
+        StackService.PushStackState(async () =>
+        {
+            await NavigationManager.NavigateBack(JsRuntime, $"send/who");
+        });
+        NavigationManager.NavigateTo("/send/label");
+    }
+
 }

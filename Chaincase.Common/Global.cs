@@ -114,7 +114,7 @@ namespace Chaincase.Common
 
         private CancellationTokenSource StoppingCts { get; set; }
 
-        public async Task InitializeNoWalletAsync()
+        public async Task InitializeNoWalletAsync(CancellationToken cancellationToken = default) 
         {
             AddressManager = null;
             Logger.LogDebug($"Global.InitializeNoWalletAsync(): Waiting for a lock");
@@ -281,7 +281,7 @@ namespace Chaincase.Common
             finally
             {
                 InitializationCompleted = true;
-                StoppingCts = new CancellationTokenSource();
+                StoppingCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
                 Logger.LogDebug($"Initialization Completed");
             }
         }

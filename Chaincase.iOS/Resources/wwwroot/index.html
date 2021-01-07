@@ -2,40 +2,17 @@
 <html>
 
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <base href="/" />
-    <script type="text/javascript">
-        var originalFetch = window.fetch;
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <base href="/"/>
 
-        window.fetch = function () {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            var url = args[0];
-            if (typeof url === 'string' && url.match(/\.svg/)) {
-                return new Promise(function (resolve, reject) {
-                    var req = new XMLHttpRequest();
-                    req.open('GET', url, true);
-                    req.addEventListener('load', function () {
-                        resolve({ ok: true, status: 200, text: function () { return Promise.resolve(req.responseText); } });
-                    });
-                    req.addEventListener('error', reject);
-                    req.send();
-                });
-            }
-            else {
-                return originalFetch.apply(void 0, args);
-            }
-        };
-    </script>
-    <script type="module" src="_content/Chaincase.UI/ionic/ionic.esm.js"></script>
-    <script nomodule src="_content/Chaincase.UI/ionic/ionic.js"></script>
-    <link rel="stylesheet" href="_content/Chaincase.UI/ionic/ionic.bundle.css" />
-    <link rel="stylesheet" href="_content/Chaincase.UI/style/global.css" />
-
-    <script src="_content/BlazorIonic/ionic-bridge.js"></script>
+  <script type="module" src="_content/Chaincase.UI/ionic/ionic.esm.js"></script>
+  <script nomodule src="_content/Chaincase.UI/ionic/ionic.js"></script>
+  <script src="_content/Chaincase.UI/fetchfix.js"></script>
+  <link rel="stylesheet" href="_content/Chaincase.UI/ionic/ionic.bundle.css"/>
+  <link rel="stylesheet" href="_content/Chaincase.UI/style/global.css"/>
+  <script src="_content/BlazorIonic/ionic-bridge.js"></script>
+>>>>>>> master
 </head>
 
 <body>

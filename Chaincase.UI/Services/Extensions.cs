@@ -1,6 +1,9 @@
+using System.Threading.Tasks;
 using Chaincase.Common;
 using Chaincase.UI.ViewModels;
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.JSInterop;
 using QRCoder;
 
 namespace Chaincase.UI.Services
@@ -12,7 +15,7 @@ namespace Chaincase.UI.Services
 			services.AddSingleton<UIStateService>();
 
 			services.AddSingleton<Global>();
-
+			services.AddSingleton<StackService>();
 			services.AddScoped<ThemeSwitcher>();
 			services.AddSingleton<QRCodeGenerator>();
 			services.AddSingleton<IndexViewModel>();
@@ -23,9 +26,14 @@ namespace Chaincase.UI.Services
 			services.AddTransient<WalletInfoViewModel>();
 			services.AddTransient<NewPasswordViewModel>();
 			services.AddTransient<CoinJoinViewModel>();
-			services.AddTransient<ToastViewModel>();
+			services.AddSingleton<SelectCoinsViewModel>();
 
 			return services;
+		}
+
+		public static async Task NavigateBack(this NavigationManager navigationManager, IJSRuntime runtime, string route)
+		{
+			navigationManager.NavigateTo(route);
 		}
 	}
 }
