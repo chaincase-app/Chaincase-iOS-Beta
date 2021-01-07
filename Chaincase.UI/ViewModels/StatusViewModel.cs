@@ -203,41 +203,38 @@ namespace Chaincase.UI.ViewModels
         {
             var nodes = Global.Nodes.ConnectedNodes;
             var synchronizer = Global.Synchronizer;
-			//Device.BeginInvokeOnMainThread(() =>
-   //         {
-                Nodes = nodes;
-                Synchronizer = synchronizer;
-                HashChain = synchronizer.BitcoinStore.SmartHeaderChain;
+            Nodes = nodes;
+            Synchronizer = synchronizer;
+            HashChain = synchronizer.BitcoinStore.SmartHeaderChain;
 
-                Observable
-                    .Merge(Observable.FromEventPattern<NodeEventArgs>(nodes, nameof(nodes.Added)).Select(x => true)
-                    .Merge(Observable.FromEventPattern<NodeEventArgs>(nodes, nameof(nodes.Removed)).Select(x => true)
-                    .Merge(Synchronizer.WhenAnyValue(x => x.TorStatus).Select(x => true))))
-                    .ObserveOn(RxApp.MainThreadScheduler)
-                    .Subscribe(_ => Peers = Synchronizer.TorStatus == TorStatus.NotRunning ? 0 : Nodes.Count) // Set peers to 0 if Tor is not running, because we get Tor status from backend answer so it seems to the user that peers are connected over clearnet, while they are not.
-                    .DisposeWith(Disposables);
+            Observable
+                .Merge(Observable.FromEventPattern<NodeEventArgs>(nodes, nameof(nodes.Added)).Select(x => true)
+                .Merge(Observable.FromEventPattern<NodeEventArgs>(nodes, nameof(nodes.Removed)).Select(x => true)
+                .Merge(Synchronizer.WhenAnyValue(x => x.TorStatus).Select(x => true))))
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(_ => Peers = Synchronizer.TorStatus == TorStatus.NotRunning ? 0 : Nodes.Count) // Set peers to 0 if Tor is not running, because we get Tor status from backend answer so it seems to the user that peers are connected over clearnet, while they are not.
+                .DisposeWith(Disposables);
 
-                Synchronizer.WhenAnyValue(x => x.TorStatus)
-                    .ObserveOn(RxApp.MainThreadScheduler)
-                    .Subscribe(status => Tor = UseTor ? status : TorStatus.TurnedOff)
-                    .DisposeWith(Disposables);
+            Synchronizer.WhenAnyValue(x => x.TorStatus)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(status => Tor = UseTor ? status : TorStatus.TurnedOff)
+                .DisposeWith(Disposables);
 
-                Synchronizer.WhenAnyValue(x => x.BackendStatus)
-                    .ObserveOn(RxApp.MainThreadScheduler)
-                    .Subscribe(_ => Backend = Synchronizer.BackendStatus)
-                    .DisposeWith(Disposables);
+            Synchronizer.WhenAnyValue(x => x.BackendStatus)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(_ => Backend = Synchronizer.BackendStatus)
+                .DisposeWith(Disposables);
 
-                _filtersLeft = HashChain.WhenAnyValue(x => x.HashesLeft)
-                    .Throttle(TimeSpan.FromMilliseconds(100))
-                    .ObserveOn(RxApp.MainThreadScheduler)
-                    .ToProperty(this, x => x.FiltersLeft)
-                    .DisposeWith(Disposables);
-
-                Synchronizer.WhenAnyValue(x => x.UsdExchangeRate)
-                    .ObserveOn(RxApp.MainThreadScheduler)
-                    .Subscribe(usd => BtcPrice = $"${(long)usd}")
-                    .DisposeWith(Disposables);
-            //});
+            _filtersLeft = HashChain.WhenAnyValue(x => x.HashesLeft)
+                .Throttle(TimeSpan.FromMilliseconds(100))
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .ToProperty(this, x => x.FiltersLeft)
+                .DisposeWith(Disposables);
+            // Not used right now
+            Synchronizer.WhenAnyValue(x => x.UsdExchangeRate)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(usd => BtcPrice = $"${(long)usd}")
+                .DisposeWith(Disposables);
         }
 
         public BackendStatus Backend

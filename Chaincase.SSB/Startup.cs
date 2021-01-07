@@ -33,7 +33,7 @@ namespace Chaincase.SSB
 			services.UseMicrosoftDependencyResolver();
 			services.AddUIServices();
 			services.AddScoped<IHsmStorage, JsInteropSecureConfigProvider>();
-			services.AddScoped<IFileShare, SSBFileShare>();
+			services.AddScoped<IShare, SSBFileShare>();
 			services.AddSingleton<IDataDirProvider, SSBDataDirProvider>();
 			services.AddSingleton<IMainThreadInvoker, SSBMainThreadInvoker>();
 			services.AddSingleton<ITorManager, MockTorManager>();

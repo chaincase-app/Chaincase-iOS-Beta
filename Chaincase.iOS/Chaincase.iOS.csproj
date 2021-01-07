@@ -147,7 +147,7 @@
       <Version>2.4.1</Version>
     </PackageReference>
     <PackageReference Include="LiveSharp">
-      <Version>1.6.33</Version>
+      <Version>1.6.45-beta</Version>
     </PackageReference>
   </ItemGroup>
 

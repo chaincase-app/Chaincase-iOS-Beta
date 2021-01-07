@@ -2,6 +2,8 @@
 @using Chaincase.UI.Services
 @using WalletWasabi.CoinJoin.Client.Rounds;
 @using Chaincase.Common
+@using Chaincase.UI.Components;
+
 @inject UIStateService UiStateService
 @inject NavigationManager NavigationManager
 @inject Global Global
@@ -11,7 +13,7 @@
 
 <ion-content class="ion-padding">
 
-    @if (ViewModel.IsSynced)
+    @if (!ViewModel.IsSynced)
     {
         <ion-text color="primary">
             <h2>Once your wallet has sync'd, you can pick coins to mix!</h2>
@@ -26,68 +28,35 @@
 
     @if (ViewModel.IsQueuedToCoinJoin)
     {
+        <p>
+            🎉 Inputs have been registered
+        </p>
         <p class="danger-text">
             Chaincase must be open to complete a CoinJoin.
             We'll notify you when registration ends to open.
         </p>
     }
 
+    <ion-text color="primary">
+        <h2>
+            Amount Selected:
+            ₿ @ViewModel.AmountQueued.ToString()
+        </h2>
+    </ion-text>
 
     @* Coin Selection*@
-
-    <ion-list style="font-size: 13px;">
-        <ion-item>
-            <ion-toggle color="primary" />
-            <ion-label>Btc label </ion-label>
-            <ion-label> ⚠️ </ion-label>
-            <ul style="        float: right;
-        list-style: none
-">
-                <li> ₿ 100 </li>
-                <li class="badge">
-                    <span class="primary">Queued</span>
-                </li>
-            </ul>
-
-        </ion-item>
-        <ion-item>
-            <ion-toggle color="primary" />
-            <ion-label>Btc label </ion-label>
-            <ion-label>
-                ✅
-            </ion-label>
-            <ul style="float: right; list-style: none">
-                <li> ₿ 100 </li>
-                <li class="badge">
-                    <span class="primary">Queued</span>
-                </li>
-            </ul>
-
-        </ion-item>
-        <ion-item>
-            <ion-toggle color="primary" />
-            <ion-label>Btc label </ion-label>
-            <ion-label> ⚠️ </ion-label>
-            <ul style="        float: right; list-style: none">
-                <li> ₿ 100 </li>
-                <li class="badge">
-                    <span class="primary">Queued</span>
-                </li>
-            </ul>
-        </ion-item>
-
-    </ion-list>
-    @*<SelectCoinsModal @bind-Visible="@IsQueuedToCoinJoin"
-                      SelectCoinsViewModel="@ViewModel.CoinList" />*@
-    Progress bar
+    <IonButton @OnClick="ToggleSelectCoinsModal" expand="block">
+        Coin Selection <ion-icon name="chevron-forward-outline" />
+    </IonButton>
+    <SelectCoinsModal @bind-Visible="@IsSelectCoinsModalVisible"
+                      SelectCoinsViewModel="@ViewModel.CoinList" />
+    @* Progress Bar *@
     <ion-text color="primary">
         <h5>Percentage of peers queued in most advanced round </h5>
     </ion-text>
-    <ion-progress-bar value="0.25" buffer="0.5"></ion-progress-bar>
-    @*<div class="progress-container">
-            <div class="progress-bar" style="width: @(ViewModel.QueuedPercentage)%;">@ViewModel.QueuedPercentage %</div>
-        </div>*@
+    <ion-progress-bar value="@ViewModel.QueuedPercentage" />
     @* List Coin Join round info**@
+
     <ul class="list-group">
         <li class="badge">
             ₿ Required to CoinJoin
@@ -114,7 +83,10 @@
             <span class="primary">@ViewModel.CoordinatorFeePercent % per anonymity set </span>
         </li>
     </ul>
-    @if (IsQueuedToCoinJoin)
+    <div>
+        <IonPasswordInput @bind-Value="password" placeholder="Password" />
+    </div>
+    @if (ViewModel.IsQueuedToCoinJoin)
     {
         <ion-button @onclick='ExitCoinJoin' @onclick:preventDefault="true" expand="block">Cancel </ion-button>
     }
@@ -123,11 +95,12 @@
         <ion-button @onclick='CoinJoin' @onclick:preventDefault="true" expand="block">COINJOIN</ion-button>
         <ion-button @onclick='ExitCoinJoin' @onclick:preventDefault="true" expand="block">Cancel </ion-button>
     }
+    @*<IonToast Visible="true" message="1234" showCloseButton="true" duration="true"></IonToast>*@
 </ion-content>
 
 @code {
-    bool IsQueuedToCoinJoin = true;
-
+    private bool IsSelectCoinsModalVisible = false;
+    private string password = "";
     public CoinJoinPage()
     {
     }
@@ -145,7 +118,12 @@
 
     void CoinJoin()
     {
-        return;
+        ViewModel.JoinRound(password);
+    }
+
+    private void ToggleSelectCoinsModal()
+    {
+        IsSelectCoinsModalVisible = !IsSelectCoinsModalVisible;
     }
 
 }

@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Security;
 using Chaincase;
 using Chaincase.Common;
 using Chaincase.Common.Contracts;
@@ -24,6 +25,8 @@ namespace Chaincase.UI.ViewModels
 	public class CoinJoinViewModel : ReactiveObject
 	{
 		protected Global Global { get; }
+        protected ToastViewModel Toast { get; }
+
         private CompositeDisposable Disposables { get; set; }
 
         private INotificationManager notificationManager;
@@ -41,10 +44,18 @@ namespace Chaincase.UI.ViewModels
 		private bool _isEnqueueBusy;
         private bool _isQueuedToCoinJoin = false;
 		private string _balance;
-        private SelectCoinsViewModel _coinList;
-		public CoinJoinViewModel(Global global) 
+        private string _toastErrorMessage;
+        private bool _shouldShowErrorToast;
+        private SelectCoinsViewModel _selectCoinsViewModel;
+        protected StatusViewModel _statusViewModel;
+
+        public CoinJoinViewModel(Global global) 
         {
             Global = global;
+            Global.NotificationManager.RequestAuthorization();
+            CoinList = new SelectCoinsViewModel(global);
+            _statusViewModel = new StatusViewModel(global); 
+
             if (Disposables != null)
             {
                 throw new Exception("Wallet opened before it was closed.");
@@ -67,6 +78,7 @@ namespace Chaincase.UI.ViewModels
                 RoundTimesout = mostAdvancedRound.State.Phase == RoundPhase.InputRegistration ? mostAdvancedRound.State.InputRegistrationTimesout : DateTimeOffset.UtcNow;
                 PeersRegistered = mostAdvancedRound.State.RegisteredPeerCount;
                 PeersNeeded = mostAdvancedRound.State.RequiredPeerCount;
+                RequiredBTC = mostAdvancedRound.State.CalculateRequiredAmount(Global.Wallet.ChaumianClient.State.GetAllQueuedCoinAmounts().ToArray());
             }
             else
             {
@@ -74,6 +86,7 @@ namespace Chaincase.UI.ViewModels
                 RoundTimesout = DateTimeOffset.UtcNow;
                 PeersRegistered = 0;
                 PeersNeeded = 100;
+                RequiredBTC = new Money((long).1);
             }
 
             // Set time left in round 
@@ -214,15 +227,90 @@ namespace Chaincase.UI.ViewModels
             }
         }
 
-		public SelectCoinsViewModel CoinList
+        private void SetUserErrorMessage(string err) {
+            _toastErrorMessage = err;
+            _shouldShowErrorToast = true;
+        }
+
+        private bool IsPasswordValid(string password)
+        {
+            string walletFilePath = Path.Combine(Global.WalletManager.WalletDirectories.WalletsDir, $"{Global.Network}.json");
+            ExtKey keyOnDisk;
+            try
+            {
+                keyOnDisk = KeyManager.FromFile(walletFilePath).GetMasterExtKey(password ?? "");
+            }
+            catch
+            {
+                // bad password
+                return false;
+            }
+            return true;
+        }
+
+        public async void JoinRound(string password) {
+            try
+            {
+                var coins = CoinList.CoinList.Where(c => c.IsSelected).Select(c => c.Model);
+                // Has the user picked any coins
+                if (!coins.Any())
+				{
+                    SetUserErrorMessage("Please pick some coins to participate in the Coin Join round");
+                    return;
+				}
+                try
+                {
+                    if (IsPasswordValid(password))
+                    {
+                        var x = await Global.Wallet.ChaumianClient.QueueCoinsToMixAsync(password, coins.ToArray());
+                        //ScheduleConfirmNotification(null, null);
+                    }
+                    Global.NotificationManager.RequestAuthorization();
+                    IsQueuedToCoinJoin = true;
+                    return;
+                }
+                catch (SecurityException ex)
+                {
+                    // pobably shaking in the view
+                    // NotificationHelpers.Error(ex.Message, "");
+                }
+            }
+            catch (Exception error) {
+                Logger.LogError($"CoinJoinViewModel.JoinRound() ${error} ");
+                _isQueuedToCoinJoin = false;
+            }
+        }
+
+
+
+        void ScheduleConfirmNotification(object sender, EventArgs e)
+        {
+            const int NOTIFY_TIMEOUT_DELTA = 90; // seconds
+
+            var timeoutSeconds = TimeLeftTillRoundTimeout.TotalSeconds;
+            if (timeoutSeconds < NOTIFY_TIMEOUT_DELTA)
+                // Just encourage users to keep the app open
+                // & prepare CoinJoin to background if possible.
+                return;
+
+            // Takes about 30 seconds to start Tor & connect
+            var confirmTime = DateTime.Now.AddSeconds(timeoutSeconds);
+            string title = $"Go Private";
+            string message = string.Format("Open Chaincase before {0:t}\n to complete the CoinJoin.", confirmTime);
+
+            var timeToNotify = timeoutSeconds - NOTIFY_TIMEOUT_DELTA;
+            notificationManager.ScheduleNotification(title, message, timeToNotify);
+        }
+
+        public SelectCoinsViewModel CoinList
 		{
-			get => _coinList;
-			set => this.RaiseAndSetIfChanged(ref _coinList, value);
+			get => _selectCoinsViewModel;
+			set => this.RaiseAndSetIfChanged(ref _selectCoinsViewModel, value);
 		}
 
 		public Money AmountQueued
         {
-            get => _amountQueued;
+            get => CoinList.CoinList.Where(c => c.IsSelected).Select(c => c.Model).Sum(c => c.Amount);
             set => this.RaiseAndSetIfChanged(ref _amountQueued, value);
         }
 
@@ -294,10 +382,24 @@ namespace Chaincase.UI.ViewModels
 
         public bool IsSynced
         {
-            get => true;
+            get => _statusViewModel.FiltersLeft == 0;
             set => this.RaiseAndSetIfChanged(ref _isDequeueBusy, value);
         }
 
-		public decimal QueuedPercentage => Math.Round((decimal) (PeersRegistered / PeersNeeded) * 100, 2, MidpointRounding.AwayFromZero);
-	}
+        public string ToastErrorMessage {
+            get => _toastErrorMessage;
+            set {
+                _shouldShowErrorToast = true;
+                this.RaiseAndSetIfChanged(ref _toastErrorMessage, value);
+            }
+        }
+
+        public bool ShouldShowErrorToast
+        {
+            get => _shouldShowErrorToast;
+            set => this.RaiseAndSetIfChanged(ref _shouldShowErrorToast, value);
+        }
+
+        public string QueuedPercentage => ((decimal)PeersRegistered / (decimal)PeersNeeded).ToString();
+    }
 }

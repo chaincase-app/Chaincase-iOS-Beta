@@ -52,6 +52,13 @@ li.badge span.success {
     color: white;
 
 ﻿/*
+﻿/* Hide stupid browsers password eye toggle*/
+input::-ms-reveal,
+input::-ms-clear {
+    display: none;
+}
+
+/*
  * Dark Colors
  * -------------------------------------------
  */
@@ -203,3 +210,4 @@ body.dark {
 
     --ion-card-background: #1e1e1e;
 }
+
