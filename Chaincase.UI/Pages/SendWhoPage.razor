@@ -1,6 +1,9 @@
 ﻿@page "/send/who"
-@using Chaincase.UI.Services
+@using NBitcoin
 @using Microsoft.AspNetCore.Components
+@using Chaincase.Common
+@using Chaincase.UI.Services
+@inject Global Global 
 @inject SendViewModel SendViewModel
 @inject UIStateService UiStateService
 @inject NavigationManager NavigationManager
@@ -17,13 +20,32 @@
     <IonInput @bind-Value="AddressString" placeholder="Enter address..."/>
 
     @*qr code reader goes here*@
-    <IonButton OnClick="OnContinue" expand="block">NEXT</IonButton>
+    <IonButton OnClick="OnContinue" expand="block" disabled="@(!IsAddressValid)">NEXT</IonButton>
 </ion-content>
 
 @code {
 
     private string Label { get; set; }
-    private string AddressString { get; set; }
+
+    private string _addressString;
+
+    private string AddressString
+    {
+        get => ViewModel.Address?.ToString() ?? _addressString ;
+        set
+        {
+            try
+            {
+                ViewModel.Address = BitcoinAddress.Create(value.Trim(), Global.Network);
+            }
+            catch
+            {
+            }
+            _addressString = value;
+        }
+    }
+
+    private bool IsAddressValid => ViewModel.Address is not null;
 
     protected override void OnInitialized()
     {

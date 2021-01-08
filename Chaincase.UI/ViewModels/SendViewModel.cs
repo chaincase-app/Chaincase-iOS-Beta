@@ -12,6 +12,7 @@ using Splat;
 using WalletWasabi.Blockchain.Analysis.FeesEstimation;
 using WalletWasabi.Blockchain.TransactionOutputs;
 using WalletWasabi.Helpers;
+using Chaincase.UI.Services;
 
 namespace Chaincase.UI.ViewModels
 {
@@ -29,8 +30,10 @@ namespace Chaincase.UI.ViewModels
         private int _minimumFeeTarget;
         private int _maximumFeeTarget;
         private ObservableAsPropertyHelper<bool> _minMaxFeeTargetsEqual;
+        private readonly ObservableAsPropertyHelper<bool> _isTransactionOkToSign;
 
-        private string _address;
+        private BitcoinAddress _address;
+        private string _addressString;
         private bool _isBusy;
         private string _label;
         private SelectCoinsViewModel _selectCoinsViewModel;
@@ -131,39 +134,54 @@ namespace Chaincase.UI.ViewModels
                     SetFees();
                 });
 
-            var canPromptPassword = this.WhenAnyValue(x => x.Label, x => x.Address, x => x.IsBusy,
-                (label, addr, isBusy) =>
-                {
-                    BitcoinAddress address;
-                    try
-                    {
-                        address = BitcoinAddress.Create(addr.Trim(), Global.Network);
-                    }
-                    catch (FormatException)
-                    {
-                        // SetWarningMessage("Invalid address.");
-                        return false;
-                    }
-                    return !isBusy && label.Length > 0 && address is BitcoinAddress;
-                });
+			//_isTransactionOkToSign = this.WhenAnyValue(x => x.AddressString,
+			//	(addr) =>
+			//	{
+			//		//BitcoinAddress address;
+			//		//try
+			//		//{
+			//		//	address = BitcoinAddress.Create(addr.Trim(), Global.Network);
+			//		//}
+			//		//catch (FormatException)
+			//		//{
+			//		//	// SetWarningMessage("Invalid address.");
+			//		//	return false;
+			//		//}
 
-            //_promptViewModel = new PasswordPromptViewModel("SEND");
-            //_promptViewModel.ValidatePasswordCommand.Subscribe(async validPassword =>
-            //{
-            //    if (validPassword != null)
-            //    {
-            //        await ViewStackService.PopModal();
-            //        await BuildTransaction(validPassword);
-            //        await ViewStackService.PushPage(new SentViewModel());
-            //    }
-            //});
-            //PromptCommand = ReactiveCommand.CreateFromObservable(() =>
-            //{
-            //    ViewStackService.PushModal(_promptViewModel).Subscribe();
-            //    return Observable.Return(Unit.Default);
-            //}, canPromptPassword);
+   //                 //Money amountToSend;
+   //                 //try
+   //                 //{
+   //                 //	Money.TryParse(amountToSendText, out amountToSend);
+   //                 //}
+   //                 //catch (Exception)
+   //                 //{
+   //                 //	return false;
+   //                 //}
 
-        }
+   //                 //return amountToSend > Money.Zero
+   //                 //		&& label.NotNullAndNotEmpty()
+   //                 //		&& address is BitcoinAddress
+   //                 //		&& amountToSend <= selectedAmount.SelectedAmount;
+   //                 return !addr.IsNullOrWhiteSpace();
+			//	}).ToProperty(this, x => x.IsTransactionOkToSign);
+
+			//_promptViewModel = new PasswordPromptViewModel("SEND");
+			//_promptViewModel.ValidatePasswordCommand.Subscribe(async validPassword =>
+			//{
+			//    if (validPassword != null)
+			//    {
+			//        await ViewStackService.PopModal();
+			//        await BuildTransaction(validPassword);
+			//        await ViewStackService.PushPage(new SentViewModel());
+			//    }
+			//});
+			//PromptCommand = ReactiveCommand.CreateFromObservable(() =>
+			//{
+			//    ViewStackService.PushModal(_promptViewModel).Subscribe();
+			//    return Observable.Return(Unit.Default);
+			//}, canPromptPassword);
+
+		}
 
         private void SetFees()
         {
@@ -269,6 +287,9 @@ namespace Chaincase.UI.ViewModels
             }
         }
 
+        public bool IsTransactionOkToSign => _isTransactionOkToSign.Value;
+
+
         public bool IsMax
         {
             get => _isMax;
@@ -329,10 +350,16 @@ namespace Chaincase.UI.ViewModels
 
         public string SendFromText => _sendFromText.Value;
 
-        public string Address
-        {
+        public BitcoinAddress Address
+		{
             get => _address;
             set => this.RaiseAndSetIfChanged(ref _address, value);
+		}
+
+        public string AddressString
+        {
+            get => _addressString;
+            set => this.RaiseAndSetIfChanged(ref _addressString, value);
         }
 
         public bool IsBusy
