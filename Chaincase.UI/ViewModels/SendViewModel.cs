@@ -13,6 +13,7 @@ using WalletWasabi.Blockchain.Analysis.FeesEstimation;
 using WalletWasabi.Blockchain.TransactionOutputs;
 using WalletWasabi.Helpers;
 using Chaincase.UI.Services;
+using NBitcoin.Payment;
 
 namespace Chaincase.UI.ViewModels
 {
@@ -31,9 +32,10 @@ namespace Chaincase.UI.ViewModels
         private int _maximumFeeTarget;
         private ObservableAsPropertyHelper<bool> _minMaxFeeTargetsEqual;
         private readonly ObservableAsPropertyHelper<bool> _isTransactionOkToSign;
+        private readonly ObservableAsPropertyHelper<bool> _isDestinationValid;
 
-        private BitcoinAddress _address;
-        private string _addressString;
+        private readonly ObservableAsPropertyHelper<BitcoinAddress> _address;
+        private string _destinationString;
         private bool _isBusy;
         private string _label;
         private SelectCoinsViewModel _selectCoinsViewModel;
@@ -134,6 +136,32 @@ namespace Chaincase.UI.ViewModels
                     SetFees();
                 });
 
+            _address = this.WhenAnyValue(x => x.DestinationString,
+                (string destinationString) =>
+                {
+                    if (destinationString == null) return null;
+                    BitcoinAddress address;
+                    try
+                    {
+                        address = BitcoinAddress.Create(destinationString.Trim(), Global.Network);
+                        return address;
+                    }
+                    catch (Exception) { /* not a straight address */ }
+
+                    try
+                    {
+                        address = new BitcoinUrlBuilder(destinationString, Global.Network).Address;
+                        return address;
+                    }
+                    catch (Exception) { /* not a bitcoin: uri */ }
+                    address = null;
+                    return address;
+                }).ToProperty(this, x => x.Address);
+
+            //_isDestinationValid = this.WhenAnyValue(x => x.Address, address => address!= null)
+            //.ToProperty(this, x => x.IsDestinationValid)
+                
+
 			//_isTransactionOkToSign = this.WhenAnyValue(x => x.AddressString,
 			//	(addr) =>
 			//	{
@@ -148,21 +176,21 @@ namespace Chaincase.UI.ViewModels
 			//		//	return false;
 			//		//}
 
-   //                 //Money amountToSend;
-   //                 //try
-   //                 //{
-   //                 //	Money.TryParse(amountToSendText, out amountToSend);
-   //                 //}
-   //                 //catch (Exception)
-   //                 //{
-   //                 //	return false;
-   //                 //}
+			//                 //Money amountToSend;
+			//                 //try
+			//                 //{
+			//                 //	Money.TryParse(amountToSendText, out amountToSend);
+			//                 //}
+			//                 //catch (Exception)
+			//                 //{
+			//                 //	return false;
+			//                 //}
 
-   //                 //return amountToSend > Money.Zero
-   //                 //		&& label.NotNullAndNotEmpty()
-   //                 //		&& address is BitcoinAddress
-   //                 //		&& amountToSend <= selectedAmount.SelectedAmount;
-   //                 return !addr.IsNullOrWhiteSpace();
+			//                 //return amountToSend > Money.Zero
+			//                 //		&& label.NotNullAndNotEmpty()
+			//                 //		&& address is BitcoinAddress
+			//                 //		&& amountToSend <= selectedAmount.SelectedAmount;
+			//                 return !addr.IsNullOrWhiteSpace();
 			//	}).ToProperty(this, x => x.IsTransactionOkToSign);
 
 			//_promptViewModel = new PasswordPromptViewModel("SEND");
@@ -289,6 +317,9 @@ namespace Chaincase.UI.ViewModels
 
         public bool IsTransactionOkToSign => _isTransactionOkToSign.Value;
 
+        public bool IsDestinationValid => _isDestinationValid.Value;
+
+        public BitcoinAddress Address => _address.Value;
 
         public bool IsMax
         {
@@ -350,16 +381,10 @@ namespace Chaincase.UI.ViewModels
 
         public string SendFromText => _sendFromText.Value;
 
-        public BitcoinAddress Address
-		{
-            get => _address;
-            set => this.RaiseAndSetIfChanged(ref _address, value);
-		}
-
-        public string AddressString
+        public string DestinationString
         {
-            get => _addressString;
-            set => this.RaiseAndSetIfChanged(ref _addressString, value);
+            get => _destinationString;
+            set => this.RaiseAndSetIfChanged(ref _destinationString, value);
         }
 
         public bool IsBusy

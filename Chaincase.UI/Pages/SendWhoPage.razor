@@ -1,5 +1,6 @@
 ﻿@page "/send/who"
 @using NBitcoin
+@using NBitcoin.Payment
 @using Microsoft.AspNetCore.Components
 @using Chaincase.Common
 @using Chaincase.UI.Services
@@ -15,9 +16,9 @@
 <ion-content class="ion-padding">
     <h1>Sending to who?</h1>
 
-    <ion-label>Address</ion-label>
+    <ion-label>Address or <code>bitcoin:</code> uri</ion-label>
     @* TODO put a paste button at the end of the input*@
-    <IonInput @bind-Value="AddressString" placeholder="Enter address..."/>
+    <IonInput @bind-Value="ViewModel.DestinationString" placeholder="Enter address..."/>
 
     @*qr code reader goes here*@
     <IonButton OnClick="OnContinue" expand="block" disabled="@(!IsAddressValid)">NEXT</IonButton>
@@ -28,22 +29,6 @@
     private string Label { get; set; }
 
     private string _addressString;
-
-    private string AddressString
-    {
-        get => ViewModel.Address?.ToString() ?? _addressString ;
-        set
-        {
-            try
-            {
-                ViewModel.Address = BitcoinAddress.Create(value.Trim(), Global.Network);
-            }
-            catch
-            {
-            }
-            _addressString = value;
-        }
-    }
 
     private bool IsAddressValid => ViewModel.Address is not null;
 
