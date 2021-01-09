@@ -246,7 +246,7 @@ namespace Chaincase.UI.ViewModels
             return true;
         }
 
-        public  void JoinRound(string password) {
+        public async void JoinRound(string password) {
             try
             {
                 var coins = CoinList.CoinList.Where(c => c.IsSelected).Select(c => c.Model);
@@ -255,10 +255,9 @@ namespace Chaincase.UI.ViewModels
                     throw new Exception("Please pick some coins to participate in the Coin Join round");
 
                 if (IsPasswordValid(password))
-                     Global.Wallet.ChaumianClient.QueueCoinsToMixAsync(password, coins.ToArray());
+                    await Global.Wallet.ChaumianClient.QueueCoinsToMixAsync(password, coins.ToArray());
                 else
                     throw new Exception("Please provide a valid password");
-
                 _isQueuedToCoinJoin = true;
             }
             catch (Exception error) {
