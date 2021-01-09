@@ -139,14 +139,6 @@ namespace Chaincase.UI.ViewModels
 
 		public string KeyPath => Model.HdPubKey.FullKeyPath.ToString();
 
-		public string AnonymitySetLabel
-		{
-			get
-			{
-				return "⚠️";
-			}
-		}
-
 		public SmartCoinStatus Status
 		{
 			get => _status;
