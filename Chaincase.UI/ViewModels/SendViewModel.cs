@@ -94,7 +94,6 @@ namespace Chaincase.UI.ViewModels
                     return outputAmount;
                 }).ToProperty(this, x => x.OutputAmount);
 
-
             this.WhenAnyValue(x => x.IsMax)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(isMax =>
@@ -135,8 +134,6 @@ namespace Chaincase.UI.ViewModels
                 })
                 .DisposeWith(Disposables);
 
-           
-
             this.WhenAnyValue(x => x.FeeTarget)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(_ =>
@@ -166,41 +163,18 @@ namespace Chaincase.UI.ViewModels
                     return address;
                 }).ToProperty(this, x => x.Address);
 
+            _isTransactionOkToSign = this.WhenAnyValue(
+                x => x.Label, x => x.Address, x => x.OutputAmount,
+                x => x.SelectCoinsViewModel.SelectedAmount,
+                x => x.EstimatedBtcFee,
+            (label, address, outputAmount, selectedAmount, feeAmount) =>
+            {
+                return Label.NotNullAndNotEmpty()
+                    && address is not null
+                    && outputAmount > Money.Zero
+                    && outputAmount + feeAmount <= selectedAmount;
 
-
-			_isTransactionOkToSign = this.WhenAnyValue(x => x.Label, x => x.Address, x => x.OutputAmount,
-				(label, address, ouputAmount) =>
-				{
-                    //BitcoinAddress address;
-                    //try
-                    //{
-                    //	address = BitcoinAddress.Create(addr.Trim(), Global.Network);
-                    //}
-                    //catch (FormatException)
-                    //{
-                    //	// SetWarningMessage("Invalid address.");
-                    //	return false;
-                    //}
-
-                    //Money amountToSend;
-                    //try
-                    //{
-                    //	Money.TryParse(amountToSendText, out amountToSend);
-                    //}
-                    //catch (Exception)
-                    //{
-                    //	return false;
-                    //}
-
-                    return Label.NotNullAndNotEmpty()
-                        && address is not null
-                        && ouputAmount > Money.Zero;
-					//return amountToSend > Money.Zero
-					//		&& label.NotNullAndNotEmpty()
-					//		&& address is BitcoinAddress
-					//		&& amountToSend <= selectedAmount.SelectedAmount;
-					//return !addr.IsNullOrWhiteSpace();
-				}).ToProperty(this, x => x.IsTransactionOkToSign);
+            }).ToProperty(this, x => x.IsTransactionOkToSign);
 
 			//_promptViewModel = new PasswordPromptViewModel("SEND");
 			//_promptViewModel.ValidatePasswordCommand.Subscribe(async validPassword =>
