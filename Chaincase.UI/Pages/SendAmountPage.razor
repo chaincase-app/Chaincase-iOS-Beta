@@ -28,7 +28,7 @@
 
     <p>Fee: <ion-badge @onclick="ToggleSelectFeeModal">~@ViewModel.FeeRate</ion-badge></p>
 
-    <IonButton href="/send/confirm" expand="block">CONFIRM</IonButton>
+    <IonButton href="/send/confirm" expand="block" disabled ="@(!ViewModel.IsTransactionOkToSign)">CONFIRM</IonButton>
 
     <SelectCoinsModal @bind-Visible="@IsSelectCoinsModalVisible"
                       SelectCoinsViewModel="@ViewModel.SelectCoinsViewModel" />
@@ -44,7 +44,7 @@
     private bool IsFeeModalVisible;
 
     private FeeViewModel FeeViewModel { get; set; }
-        
+
     private double amount { get; set; }
 
     protected override void OnInitialized()
@@ -61,5 +61,8 @@
 
     private void ToggleSelectFeeModal() =>
         IsFeeModalVisible = !IsFeeModalVisible;
+
+    //public bool IsTransactionOk => ViewModel.IsTransactionOkToSign;
+
 
 }

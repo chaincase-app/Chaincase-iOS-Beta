@@ -32,9 +32,9 @@ namespace Chaincase.UI.ViewModels
         private int _maximumFeeTarget;
         private ObservableAsPropertyHelper<bool> _minMaxFeeTargetsEqual;
         private readonly ObservableAsPropertyHelper<bool> _isTransactionOkToSign;
-        private readonly ObservableAsPropertyHelper<bool> _isDestinationValid;
 
         private readonly ObservableAsPropertyHelper<BitcoinAddress> _address;
+        private readonly ObservableAsPropertyHelper<Money> _outputAmount;
         private string _destinationString;
         private bool _isBusy;
         private string _label;
@@ -86,6 +86,14 @@ namespace Chaincase.UI.ViewModels
                         }
                     }
                 });
+
+            _outputAmount = this.WhenAnyValue(x => x.AmountText,
+                (amountText) =>
+                {
+                    Money.TryParse(amountText.TrimStart('~', ' '), out Money outputAmount);
+                    return outputAmount;
+                }).ToProperty(this, x => x.OutputAmount);
+
 
             this.WhenAnyValue(x => x.IsMax)
                 .ObserveOn(RxApp.MainThreadScheduler)
@@ -158,40 +166,41 @@ namespace Chaincase.UI.ViewModels
                     return address;
                 }).ToProperty(this, x => x.Address);
 
-            //_isDestinationValid = this.WhenAnyValue(x => x.Address, address => address!= null)
-            //.ToProperty(this, x => x.IsDestinationValid)
-                
 
-			//_isTransactionOkToSign = this.WhenAnyValue(x => x.AddressString,
-			//	(addr) =>
-			//	{
-			//		//BitcoinAddress address;
-			//		//try
-			//		//{
-			//		//	address = BitcoinAddress.Create(addr.Trim(), Global.Network);
-			//		//}
-			//		//catch (FormatException)
-			//		//{
-			//		//	// SetWarningMessage("Invalid address.");
-			//		//	return false;
-			//		//}
 
-			//                 //Money amountToSend;
-			//                 //try
-			//                 //{
-			//                 //	Money.TryParse(amountToSendText, out amountToSend);
-			//                 //}
-			//                 //catch (Exception)
-			//                 //{
-			//                 //	return false;
-			//                 //}
+			_isTransactionOkToSign = this.WhenAnyValue(x => x.Label, x => x.Address, x => x.OutputAmount,
+				(label, address, ouputAmount) =>
+				{
+                    //BitcoinAddress address;
+                    //try
+                    //{
+                    //	address = BitcoinAddress.Create(addr.Trim(), Global.Network);
+                    //}
+                    //catch (FormatException)
+                    //{
+                    //	// SetWarningMessage("Invalid address.");
+                    //	return false;
+                    //}
 
-			//                 //return amountToSend > Money.Zero
-			//                 //		&& label.NotNullAndNotEmpty()
-			//                 //		&& address is BitcoinAddress
-			//                 //		&& amountToSend <= selectedAmount.SelectedAmount;
-			//                 return !addr.IsNullOrWhiteSpace();
-			//	}).ToProperty(this, x => x.IsTransactionOkToSign);
+                    //Money amountToSend;
+                    //try
+                    //{
+                    //	Money.TryParse(amountToSendText, out amountToSend);
+                    //}
+                    //catch (Exception)
+                    //{
+                    //	return false;
+                    //}
+
+                    return Label.NotNullAndNotEmpty()
+                        && address is not null
+                        && ouputAmount > Money.Zero;
+					//return amountToSend > Money.Zero
+					//		&& label.NotNullAndNotEmpty()
+					//		&& address is BitcoinAddress
+					//		&& amountToSend <= selectedAmount.SelectedAmount;
+					//return !addr.IsNullOrWhiteSpace();
+				}).ToProperty(this, x => x.IsTransactionOkToSign);
 
 			//_promptViewModel = new PasswordPromptViewModel("SEND");
 			//_promptViewModel.ValidatePasswordCommand.Subscribe(async validPassword =>
@@ -315,11 +324,11 @@ namespace Chaincase.UI.ViewModels
             }
         }
 
-        public bool IsTransactionOkToSign => _isTransactionOkToSign.Value;
-
-        public bool IsDestinationValid => _isDestinationValid.Value;
-
         public BitcoinAddress Address => _address.Value;
+
+        public Money OutputAmount => _outputAmount.Value;
+
+        public bool IsTransactionOkToSign => _isTransactionOkToSign.Value;
 
         public bool IsMax
         {
