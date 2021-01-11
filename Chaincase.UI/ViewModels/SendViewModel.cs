@@ -14,6 +14,12 @@ using WalletWasabi.Blockchain.TransactionOutputs;
 using WalletWasabi.Helpers;
 using Chaincase.UI.Services;
 using NBitcoin.Payment;
+using WalletWasabi.Logging;
+using WalletWasabi.Blockchain.Transactions;
+using System.Threading.Tasks;
+using WalletWasabi.Blockchain.Analysis.Clustering;
+using WalletWasabi.Blockchain.TransactionBuilding;
+using WalletWasabi.Exceptions;
 
 namespace Chaincase.UI.ViewModels
 {
@@ -163,7 +169,7 @@ namespace Chaincase.UI.ViewModels
                     return address;
                 }).ToProperty(this, x => x.Address);
 
-            _isTransactionOkToSign = this.WhenAnyValue(
+            var isTransactionOkToSign = this.WhenAnyValue(
                 x => x.Label, x => x.Address, x => x.OutputAmount,
                 x => x.SelectCoinsViewModel.SelectedAmount,
                 x => x.EstimatedBtcFee,
@@ -174,8 +180,12 @@ namespace Chaincase.UI.ViewModels
                     && outputAmount > Money.Zero
                     && outputAmount + feeAmount <= selectedAmount;
 
-            }).ToProperty(this, x => x.IsTransactionOkToSign);
+            });
 
+            _isTransactionOkToSign = isTransactionOkToSign
+                .ToProperty(this, x => x.IsTransactionOkToSign);
+
+            SendTransactionCommand = ReactiveCommand.CreateFromTask<string, bool>(SendTransaction, isTransactionOkToSign);
 			//_promptViewModel = new PasswordPromptViewModel("SEND");
 			//_promptViewModel.ValidatePasswordCommand.Subscribe(async validPassword =>
 			//{
@@ -296,6 +306,91 @@ namespace Chaincase.UI.ViewModels
             {
                 return false;
             }
+        }
+
+        public ReactiveCommand<string, bool> SendTransactionCommand;
+
+        public async Task<bool> SendTransaction(string password)
+        {
+            try
+            {
+                IsBusy = true;
+                password = Guard.Correct(password);
+                Label = Label.Trim(',', ' ').Trim();
+
+                var selectedCoinViewModels = SelectCoinsViewModel.CoinList.Where(cvm => cvm.IsSelected);
+                var selectedCoinReferences = selectedCoinViewModels.Select(cvm => cvm.Model.OutPoint).ToList();
+
+                if (!selectedCoinReferences.Any())
+                {
+                    //SetWarningMessage("No coins are selected to spend.");
+                    return false;
+                }
+
+                var amount = Money.Zero;
+
+                var requests = new List<DestinationRequest>();
+
+                MoneyRequest moneyRequest;
+                if (IsMax)
+                {
+                    moneyRequest = MoneyRequest.CreateAllRemaining(subtractFee: true);
+                }
+                else
+                {
+                    if (!Money.TryParse(AmountText, out amount) || amount == Money.Zero)
+                    {
+                        // SetWarningMessage($"Invalid amount.");
+                        return false;
+                    }
+
+                    if (amount == selectedCoinViewModels.Sum(x => x.Amount))
+                    {
+                        // NotificationHelpers.Warning("Looks like you want to spend whole coins. Try Max button instead.", "");
+                        return false;
+                    }
+                    moneyRequest = MoneyRequest.Create(amount, subtractFee: false);
+                }
+
+                if (FeeRate is null || FeeRate.SatoshiPerByte < 1)
+                {
+                    return false;
+                }
+
+                var feeStrategy = FeeStrategy.CreateFromFeeRate(FeeRate);
+
+                var smartLabel = new SmartLabel(Label);
+                var activeDestinationRequest = new DestinationRequest(Address, moneyRequest, smartLabel);
+                requests.Add(activeDestinationRequest);
+                var intent = new PaymentIntent(requests);
+
+                var result = await Task.Run(() => Global.Wallet.BuildTransaction(
+                    password,
+                    intent,
+                    feeStrategy,
+                    allowUnconfirmed: true,
+                    allowedInputs: selectedCoinReferences));
+                SmartTransaction signedTransaction = result.Transaction;
+
+                await Global.TransactionBroadcaster.SendTransactionAsync(signedTransaction); // put this on non-ui theread?
+                return true;
+            }
+            catch (InsufficientBalanceException ex)
+            {
+                Money needed = ex.Minimum - ex.Actual;
+                Logger.LogDebug(ex);
+                //SetWarningMessage($"Not enough coins selected. You need an estimated {needed.ToString(false, true)} BTC more to make this transaction.");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogDebug(ex);
+                //SetWarningMessage(ex.ToTypeMessageString());
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+            return false;
         }
 
         public BitcoinAddress Address => _address.Value;

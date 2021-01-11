@@ -3,26 +3,31 @@
 @inject UIStateService UiStateService
 @inject StackService StackService
 @inject NavigationManager NavigationManager
+@inject SendViewModel SendViewModel
+@inherits ReactiveComponentBase<SendViewModel>
+
 
 <ion-content class="ion-padding">
-    <ion-icon name="paper-plane-outline"></ion-icon>
+    <ion-icon class="ion-text-center" name="paper-plane-outline"></ion-icon>
+    <ion-text>@ViewModel.AmountText</ion-text>
+    <ion-text>To @ViewModel.DestinationString</ion-text>
     <h1>Transaction sent</h1>
     <p>It usually takes about 30 minutes for a transaction to be finalized.</p>
-    
-    <IonButton OnClick="OnDone" expand="block">DONE</IonButton>
+
+    <IonButton OnClick="@ClickDone" expand="block">DONE</IonButton>
 </ion-content>
 
 @code {
 
     protected override void OnInitialized()
     {
+        ViewModel = SendViewModel;
         UiStateService.Title = "SEND";
         StackService.ClearStack();
     }
 
-    private void OnDone()
+    private void ClickDone()
     {
         NavigationManager.NavigateTo("/");
     }
-
 }
