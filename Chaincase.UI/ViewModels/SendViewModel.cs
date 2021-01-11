@@ -45,6 +45,7 @@ namespace Chaincase.UI.ViewModels
         private bool _isBusy;
         private string _label;
         private SelectCoinsViewModel _selectCoinsViewModel;
+        private SmartTransaction _signedTransaction;
 
         protected CompositeDisposable Disposables { get; } = new CompositeDisposable();
 
@@ -186,23 +187,7 @@ namespace Chaincase.UI.ViewModels
                 .ToProperty(this, x => x.IsTransactionOkToSign);
 
             SendTransactionCommand = ReactiveCommand.CreateFromTask<string, bool>(SendTransaction, isTransactionOkToSign);
-			//_promptViewModel = new PasswordPromptViewModel("SEND");
-			//_promptViewModel.ValidatePasswordCommand.Subscribe(async validPassword =>
-			//{
-			//    if (validPassword != null)
-			//    {
-			//        await ViewStackService.PopModal();
-			//        await BuildTransaction(validPassword);
-			//        await ViewStackService.PushPage(new SentViewModel());
-			//    }
-			//});
-			//PromptCommand = ReactiveCommand.CreateFromObservable(() =>
-			//{
-			//    ViewStackService.PushModal(_promptViewModel).Subscribe();
-			//    return Observable.Return(Unit.Default);
-			//}, canPromptPassword);
-
-		}
+        }
 
         private void SetFees()
         {
@@ -294,20 +279,6 @@ namespace Chaincase.UI.ViewModels
             }
         }
 
-        private bool AmountTextPositive(string amountText)
-        {
-            try
-            {
-                var amount = Money.Zero;
-                Money.TryParse(AmountText.TrimStart('~', ' '), out amount);
-                return amount > 0;
-            }
-            catch (Exception e)
-            {
-                return false;
-            }
-        }
-
         public ReactiveCommand<string, bool> SendTransactionCommand;
 
         public async Task<bool> SendTransaction(string password)
@@ -371,8 +342,10 @@ namespace Chaincase.UI.ViewModels
                     allowUnconfirmed: true,
                     allowedInputs: selectedCoinReferences));
                 SmartTransaction signedTransaction = result.Transaction;
+                SignedTransaction = signedTransaction;
 
                 await Global.TransactionBroadcaster.SendTransactionAsync(signedTransaction); // put this on non-ui theread?
+
                 return true;
             }
             catch (InsufficientBalanceException ex)
@@ -476,5 +449,11 @@ namespace Chaincase.UI.ViewModels
             get => _label;
             set => this.RaiseAndSetIfChanged(ref _label, value);
         }
+
+        public SmartTransaction SignedTransaction
+		{
+            get => _signedTransaction;
+            set => this.RaiseAndSetIfChanged(ref _signedTransaction, value);
+		}
     }
 }
