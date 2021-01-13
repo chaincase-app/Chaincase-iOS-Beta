@@ -15,16 +15,18 @@
     }
 
     <ion-text class="ion-text-center">@SuccessCount of @VERIFY_THIS_MANY verified.</ion-text>
+    <IonAlert @bind-Visible="@IsSuccessAlertVisible" message="Backup Verified" backdrop-dismiss="true"></IonAlert>
 </ion-content>
 
 @code {
     const int VERIFY_THIS_MANY = 2;
 
     bool IsVerified = true;
+    private bool _isSuccessAlertVisible;
     private string WordToVerify;
     private static Random rng = new Random();
     private string[] ShuffledWords;
-    private string[] ButtonWords = new string[5];
+    private string[] ButtonWords = new string[5]; // https://www.youtube.com/watch?v=JnbfuAcCqpY
     int FailedCount;
     int SuccessCount;
 
@@ -41,7 +43,7 @@
         if (word == WordToVerify) {
             if (++SuccessCount >= VERIFY_THIS_MANY)
             {
-                NavigationManager.NavigateTo("");
+                IsSuccessAlertVisible = true;
             }
             else
             {
@@ -88,6 +90,20 @@
             T value = list[k];
             list[k] = list[n];
             list[n] = value;
+        }
+    }
+
+    public bool IsSuccessAlertVisible
+    {
+        get => _isSuccessAlertVisible;
+        set
+        {
+            _isSuccessAlertVisible = value;
+            // on dismiss success alert
+            if (!_isSuccessAlertVisible)
+            {
+                NavigationManager.NavigateTo("");
+            }
         }
     }
 
