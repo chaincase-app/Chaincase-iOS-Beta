@@ -24,7 +24,7 @@
     private string WordToVerify;
     private static Random rng = new Random();
     private string[] ShuffledWords;
-    private string[] ButtonWords;
+    private string[] ButtonWords = new string[5];
     int FailedCount;
     int SuccessCount;
 
@@ -59,7 +59,6 @@
     private void SetUpVerification()
     {
         WordToVerify = PickAnotherListWord(WordToVerify, ViewModel.SeedWords);
-        ButtonWords = new string[5];
         ShuffledWords = new string[ViewModel.SeedWords.Count()];
         ViewModel.SeedWords.CopyTo(ShuffledWords);
         Shuffle(ShuffledWords);
