@@ -17,6 +17,7 @@ namespace Chaincase.UI.ViewModels
         protected IHsmStorage HSM { get; }
 
         private List<string> _seedWords;
+        private string _wordToVerify;
 
         public BackUpViewModel(Global global, IHsmStorage hsm)
         {
@@ -33,10 +34,26 @@ namespace Chaincase.UI.ViewModels
             return true;
         }
 
+        public void ChangeWordToVerify(string previousWord)
+		{
+            var word = WordToVerify;
+            while (word == previousWord)
+			{
+                word = SeedWords.RandomElement();
+			}
+            WordToVerify = word;
+		}
+
         public List<string> SeedWords
         {
             get => _seedWords;
             set => this.RaiseAndSetIfChanged(ref _seedWords, value);
+        }
+
+        public string WordToVerify
+        {
+            get => _wordToVerify;
+            set => this.RaiseAndSetIfChanged(ref _wordToVerify, value);
         }
     }
 }

@@ -1,0 +1,84 @@
+﻿@page "/backup/verify"
+@using Chaincase.UI.Services
+@inject UIStateService UiStateService
+@inject BackUpViewModel BackUpViewModel
+@inject NavigationManager NavigationManager
+@inherits ReactiveComponentBase<BackUpViewModel>
+
+<ion-content class="ion-padding">
+
+    <ion-text class="ion-text-center">Select word @(ViewModel.SeedWords.IndexOf(ViewModel.WordToVerify)+1)</ion-text>
+
+    @foreach (string word in ButtonWords)
+    {
+        <IonButton OnClick="@(() => ClickWordToVerify(@word))" expand="block">@word</IonButton>
+    }
+
+    <ion-text class="ion-text-center">@SuccessCount of @VERIFY_THIS_MANY verified.</ion-text>
+</ion-content>
+
+@code {
+    const int VERIFY_THIS_MANY = 2;
+
+    bool IsVerified = true;
+    private static Random rng = new Random();
+    private string[] ShuffledWords;
+    private string[] ButtonWords;
+    int FailedCount;
+    int SuccessCount;
+
+    protected override void OnInitialized()
+    {
+        // make sure to be on the first step of verification
+        ViewModel = BackUpViewModel;
+        UiStateService.Title = "VERIFY BACKUP";
+        SetUpVerification();
+    }
+
+    private async Task ClickWordToVerify(string word)
+    {
+        if (word == ViewModel.WordToVerify) {
+            if (++SuccessCount >= VERIFY_THIS_MANY)
+            {
+                NavigationManager.NavigateTo("");
+            }
+            else
+            {
+                SetUpVerification();
+            }
+        }
+        @*else
+        {
+            if (++FailedCount > CAN_FAIL_THIS_MANY;
+            // if fail < 3 show fail toast
+            // if fail > 3 go back
+        }*@
+    }
+
+    private void SetUpVerification()
+    {
+        ViewModel.ChangeWordToVerify(ViewModel.WordToVerify);
+        ButtonWords = new string[5];
+        ShuffledWords = new string[ViewModel.SeedWords.Count()];
+        ViewModel.SeedWords.CopyTo(ShuffledWords);
+        Shuffle(ShuffledWords);
+        Array.Copy(ShuffledWords, ButtonWords, ButtonWords.Length);
+        if (!ButtonWords.Contains(ViewModel.WordToVerify))
+            ButtonWords[0] = ViewModel.WordToVerify;
+        Shuffle(ButtonWords);
+    }
+
+    public static void Shuffle<T>(IList<T> list)
+    {
+        int n = list.Count;
+        while (n > 1)
+        {
+            n--;
+            int k = rng.Next(n + 1);
+            T value = list[k];
+            list[k] = list[n];
+            list[n] = value;
+        }
+    }
+
+}
