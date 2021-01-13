@@ -7,7 +7,7 @@
 
 <ion-content class="ion-padding">
 
-    <ion-text class="ion-text-center">Select word @(ViewModel.SeedWords.IndexOf(ViewModel.WordToVerify)+1)</ion-text>
+    <ion-text class="ion-text-center">Select word @(ViewModel.SeedWords.IndexOf(WordToVerify)+1)</ion-text>
 
     @foreach (string word in ButtonWords)
     {
@@ -21,6 +21,7 @@
     const int VERIFY_THIS_MANY = 2;
 
     bool IsVerified = true;
+    private string WordToVerify;
     private static Random rng = new Random();
     private string[] ShuffledWords;
     private string[] ButtonWords;
@@ -35,9 +36,9 @@
         SetUpVerification();
     }
 
-    private async Task ClickWordToVerify(string word)
+    private void ClickWordToVerify(string word)
     {
-        if (word == ViewModel.WordToVerify) {
+        if (word == WordToVerify) {
             if (++SuccessCount >= VERIFY_THIS_MANY)
             {
                 NavigationManager.NavigateTo("");
@@ -57,15 +58,25 @@
 
     private void SetUpVerification()
     {
-        ViewModel.ChangeWordToVerify(ViewModel.WordToVerify);
+        WordToVerify = PickAnotherWordFromList(WordToVerify, ViewModel.SeedWords);
         ButtonWords = new string[5];
         ShuffledWords = new string[ViewModel.SeedWords.Count()];
         ViewModel.SeedWords.CopyTo(ShuffledWords);
         Shuffle(ShuffledWords);
         Array.Copy(ShuffledWords, ButtonWords, ButtonWords.Length);
-        if (!ButtonWords.Contains(ViewModel.WordToVerify))
-            ButtonWords[0] = ViewModel.WordToVerify;
+        if (!ButtonWords.Contains(WordToVerify))
+            ButtonWords[0] = WordToVerify;
         Shuffle(ButtonWords);
+    }
+
+    public static string PickAnotherWordFromList(string word, IList<string> list)
+    {
+        string pick = word;
+        while (pick == word)
+        {
+            pick = list.RandomElement();
+        }
+        return pick;
     }
 
     public static void Shuffle<T>(IList<T> list)
