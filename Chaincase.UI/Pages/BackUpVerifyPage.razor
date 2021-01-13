@@ -58,7 +58,7 @@
 
     private void SetUpVerification()
     {
-        WordToVerify = PickAnotherWordFromList(WordToVerify, ViewModel.SeedWords);
+        WordToVerify = PickAnotherListWord(WordToVerify, ViewModel.SeedWords);
         ButtonWords = new string[5];
         ShuffledWords = new string[ViewModel.SeedWords.Count()];
         ViewModel.SeedWords.CopyTo(ShuffledWords);
@@ -69,7 +69,7 @@
         Shuffle(ButtonWords);
     }
 
-    public static string PickAnotherWordFromList(string word, IList<string> list)
+    public static string PickAnotherListWord(string word, IList<string> list)
     {
         string pick = word;
         while (pick == word)
