@@ -1,21 +1,5 @@
 ﻿/** Global **/
 
-
-/** CoinJoin Page **/
-
-.progress-container {
-    width: 100%;
-    color: grey;
-}
-
-.progress-bar {
-    height: 30px;
-    background-color: #4CAF50;
-    text-align: center;
-    line-height: 30px; /* To center it vertically */
-    color: white;
-
-﻿/*
 ﻿/* Hide stupid browsers password eye toggle*/
 input::-ms-reveal,
 input::-ms-clear {
