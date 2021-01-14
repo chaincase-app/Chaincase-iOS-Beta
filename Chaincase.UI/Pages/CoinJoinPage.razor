@@ -16,8 +16,8 @@
 
     @if (!ViewModel.IsSynced)
     {
-        <ion-text color="primary">
-            <h2>Once your wallet has sync'd, you can pick coins to mix!</h2>
+        <ion-text>
+            Once your wallet has sync'd, you can pick coins to mix!
         </ion-text>
     }
     else
@@ -34,11 +34,9 @@
         </ion-text>
     }
 
-    <ion-text color="primary">
-        <h2>
+    <ion-text>
             Amount Selected:
             ₿ @ViewModel.AmountQueued.ToString()
-        </h2>
     </ion-text>
 
     @* Coin Selection*@
@@ -47,9 +45,9 @@
     </IonButton>
 
     @* Progress Bar *@
-    <ion-text color="primary">
-        <h5>Percentage of peers queued in most advanced round </h5>
-    </ion-text>
+    <ion-label>
+        Percentage of peers queued in most advanced round
+    </ion-label>
     <ion-progress-bar value="@ViewModel.QueuedPercentage" />
     @* List Coin Join round info**@
 </div>
