@@ -108,16 +108,16 @@
     protected override void OnInitialized()
     {
         ViewModel = CoinJoinViewModel;
-        UiStateService.Title = "COIN JOIN";
+        UiStateService.Title = "COINJOIN";
     }
 
     private void NavigateToSelectCoins()
     {
         StackService.PushStackState(async () =>
         {
-            await NavigationManager.NavigateBack(null, "coinjoin");
+            await NavigationManager.NavigateBack(null, "/coinjoin");
         });
-        NavigationManager.NavigateTo("selectcoins");
+        NavigationManager.NavigateTo("/selectcoins");
     }
 
     void ExitCoinJoin()

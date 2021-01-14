@@ -61,9 +61,9 @@
     {
         StackService.PushStackState(async () =>
         {
-            await NavigationManager.NavigateBack(null, "");
+            await NavigationManager.NavigateBack(null, "/");
         });
-        NavigationManager.NavigateTo("coinjoin");
+        NavigationManager.NavigateTo("/coinjoin");
     }
 
 }
