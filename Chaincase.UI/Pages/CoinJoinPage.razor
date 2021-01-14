@@ -6,6 +6,7 @@
 
 @inject UIStateService UiStateService
 @inject NavigationManager NavigationManager
+@inject StackService StackService 
 @inject Global Global
 @inject CoinJoinViewModel CoinJoinViewModel
 
@@ -40,13 +41,10 @@
         </ion-text>
 
         @* Coin Selection*@
-        <IonButton  @onclick="ToggleSelectCoinsModal"  expand="block">
-            Coin Selection <ion-icon name="chevron-forward-outline" />
+        <IonButton  @onclick="NavigateToSelectCoins"  expand="block">
+            SELECT COINS <ion-icon name="chevron-forward-outline" />
         </IonButton>
-        <!--<a @onclick="ToggleSelectCoinsModal">Pick some coins to mix </a>-->
-        @*Coin Selection <ion-icon name="chevron-forward-outline" />*@
-        <SelectCoinsModal @bind-Visible="@IsSelectCoinsModalVisible"
-                          SelectCoinsViewModel="@ViewModel.CoinList" />
+
         @* Progress Bar *@
         <ion-text color="primary">
             <h5>Percentage of peers queued in most advanced round </h5>
@@ -97,7 +95,6 @@
 </ion-content>
 
 @code {
-    private bool IsSelectCoinsModalVisible = false;
     private bool IsToastVisible = false;
     private string ToastMessage = "";
     private const int ToastDuration = 2000; // ms
@@ -112,6 +109,15 @@
     {
         ViewModel = CoinJoinViewModel;
         UiStateService.Title = "COIN JOIN";
+    }
+
+    private void NavigateToSelectCoins()
+    {
+        StackService.PushStackState(async () =>
+        {
+            await NavigationManager.NavigateBack(null, "coinjoin");
+        });
+        NavigationManager.NavigateTo("selectcoins");
     }
 
     void ExitCoinJoin()
@@ -133,10 +139,4 @@
 
         }
     }
-
-    private void ToggleSelectCoinsModal()
-    {
-        IsSelectCoinsModalVisible = !IsSelectCoinsModalVisible;
-    }
-
 }

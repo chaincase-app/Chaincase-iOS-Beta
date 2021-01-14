@@ -3,6 +3,7 @@
 @using Chaincase.Common
 @inject IndexViewModel IndexViewModel
 @inject UIStateService UiStateService
+@inject StackService StackService 
 @inject NavigationManager NavigationManager
 @inject Global Global
 
@@ -38,7 +39,7 @@
     </IonButton>
 
     <IonButton expand="block"
-               href="coinjoin">
+               OnClick="NavigateToCoinJoin">
         COINJOIN
     </IonButton>
 </ion-content>
@@ -48,12 +49,21 @@
     protected override void OnInitialized()
     {
         ViewModel = IndexViewModel;
-        
+
         if (!Global.HasWalletFile())
             NavigationManager.NavigateTo("landing");
-        
+
         UiStateService.Title = "Chaincase";
         base.OnInitialized();
+    }
+
+    private void NavigateToCoinJoin()
+    {
+        StackService.PushStackState(async () =>
+        {
+            await NavigationManager.NavigateBack(null, "");
+        });
+        NavigationManager.NavigateTo("coinjoin");
     }
 
 }
