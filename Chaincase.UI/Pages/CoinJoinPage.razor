@@ -22,35 +22,35 @@
     }
     else
     {
-<div class="ion-padding">
-    @if (ViewModel.IsQueuedToCoinJoin)
-    {
-        <p>
-            🎉 Inputs have been registered
-        </p>
-        <ion-text color="warning">
-            Chaincase must be open to complete a CoinJoin.
-            We'll notify you when registration ends to open.
+        <div class="ion-padding">
+        @if (ViewModel.IsQueuedToCoinJoin)
+        {
+            <p>
+                🎉 Inputs have been registered
+            </p>
+            <ion-text color="warning">
+                Chaincase must be open to complete a CoinJoin.
+                We'll notify you when registration ends to open.
+            </ion-text>
+        }
+
+        <ion-text>
+                Amount Selected:
+                ₿ @ViewModel.AmountQueued.ToString()
         </ion-text>
-    }
 
-    <ion-text>
-            Amount Selected:
-            ₿ @ViewModel.AmountQueued.ToString()
-    </ion-text>
+        @* Coin Selection*@
+        <IonButton @onclick="NavigateToSelectCoins" expand="block">
+            SELECT COINS <ion-icon name="chevron-forward-outline" />
+        </IonButton>
 
-    @* Coin Selection*@
-    <IonButton @onclick="NavigateToSelectCoins" expand="block">
-        SELECT COINS <ion-icon name="chevron-forward-outline" />
-    </IonButton>
-
-    @* Progress Bar *@
-    <ion-label>
-        Percentage of peers queued in most advanced round
-    </ion-label>
-    <ion-progress-bar value="@ViewModel.QueuedPercentage" />
-    @* List Coin Join round info**@
-</div>
+        @* Progress Bar *@
+        <ion-label>
+            Percentage of peers queued in most advanced round
+        </ion-label>
+        <ion-progress-bar value="@ViewModel.QueuedPercentage" />
+        @* List Coin Join round info**@
+        </div>
         <ion-list>
             <ion-item>
                 <ion-label>₿ Required to Join</ion-label>
@@ -78,30 +78,47 @@
             </ion-item>
         </ion-list>
         <div class="ion-padding">
-            <div>
-                <IonPasswordInput @bind-Value="password" placeholder="Password" />
-            </div>
+            <IonModal @bind-Visible="IsPasswordModalVisible">
+                <ion-header>
+                    <ion-toolbar>
+                        <ion-title>Queue to Join</ion-title>
+                        <ion-buttons slot="start">
+                            <IonButton @onclick="@ToggleModal">Back</IonButton>
+                        </ion-buttons>
+                    </ion-toolbar>
+                </ion-header>
+                <ion-content>
+                    <ion-text class="ion-padding">
+                        <h1 class="ion-padding">Authorize Selected Coins to Join</h1>
+                    </ion-text>
+                    <IonItem>
+                        <ion-label floating>Password</ion-label>
+                        <IonPasswordInput @bind-Value="Password"/>
+                     </IonItem>
+                     <IonButton OnClick="@CoinJoin" class="ion-padding">JOIN NOW</IonButton>
+                </ion-content>
+                    
+            </IonModal>
             @if (ViewModel.IsQueuedToCoinJoin)
             {
-                <ion-button @onclick='ExitCoinJoin' @onclick:preventDefault="true" expand="block">Cancel </ion-button>
+                <IonButton OnClick='@ExitCoinJoin' expand="block">EXIT COINJOIN</IonButton>
             }
             else
             {
-                <ion-button @onclick='CoinJoin' @onclick:preventDefault="true" expand="block">COINJOIN</ion-button>
-                <ion-button @onclick='ExitCoinJoin' @onclick:preventDefault="true" expand="block">Cancel </ion-button>
+                <IonButton OnClick='@ToggleModal' expand="block">COINJOIN</IonButton>
             }
-            <IonToast @bind-Visible="IsToastVisible" @bind-message="ToastMessage" showCloseButton="true" duration="2000"></IonToast>
         </div>
-        }
+    }
 </ion-content>
 
 @code {
-    private bool IsToastVisible = false;
+    private bool IsPasswordModalVisible;
+    private bool IsToastVisible;
     private string ToastMessage = "";
     private const int ToastDuration = 2000; // ms
 
 
-    private string password = "";
+    private string Password = "";
     public CoinJoinPage()
     {
     }
@@ -121,7 +138,7 @@
         NavigationManager.NavigateTo("/selectcoins");
     }
 
-    void ExitCoinJoin()
+    private void ExitCoinJoin()
     {
         NavigationManager.NavigateTo("/");
     }
@@ -130,9 +147,10 @@
     {
         try
         {
-            ViewModel.JoinRound(password);
+            ViewModel.JoinRound(Password);
             IsToastVisible = true;
             ToastMessage = "Success! Joined Coin Join Round.";
+            ToggleModal();
         }
         catch (Exception err) {
             ToastMessage = err.Message;
@@ -140,4 +158,6 @@
 
         }
     }
+
+    private void ToggleModal() => IsPasswordModalVisible = !IsPasswordModalVisible;
 }
