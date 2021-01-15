@@ -109,13 +109,15 @@
             {
                 <IonButton OnClick='@ToggleModal' expand="block">COINJOIN</IonButton>
             }
+            <IonButton OnClick="@ShowToast" class="ion-padding">SHOW TOES[T]</IonButton>
 
         </div>
     }
-
+    <IonToast @bind-Visible="@IsToastVisible" duration="2000" message="i toast you so"/>
 </ion-content>
 
 @code {
+    private ElementReference loader;
     private bool IsPasswordModalVisible;
     private bool IsToastVisible;
     private string ToastMessage = "";
@@ -157,6 +159,11 @@
             ToastMessage = err.Message;
             IsToastVisible = true;
         }
+    }
+
+    private async Task ShowToast()
+    {
+        IsToastVisible = true;
     }
 
     private void ToggleModal() => IsPasswordModalVisible = !IsPasswordModalVisible;
