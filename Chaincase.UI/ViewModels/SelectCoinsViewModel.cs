@@ -168,7 +168,6 @@ namespace Chaincase.UI.ViewModels
 
         public IEnumerable<CoinViewModel> CoinList => _coinViewModels;
 
-        public event EventHandler<SmartCoin> DequeueCoinsPressed;
 
         public bool CanDequeueCoins { get; set; } = false;
 
@@ -179,11 +178,6 @@ namespace Chaincase.UI.ViewModels
             ClearRootList();
 
             Disposables?.Dispose();
-        }
-
-        public void PressDequeue(SmartCoin coin)
-        {
-            DequeueCoinsPressed?.Invoke(this, coin);
         }
 
         public Money SelectedAmount

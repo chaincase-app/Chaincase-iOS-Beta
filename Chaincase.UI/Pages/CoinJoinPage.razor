@@ -1,4 +1,5 @@
 ﻿@page "/coinjoin"
+@using NBitcoin
 @using Chaincase.UI.Services
 @using WalletWasabi.CoinJoin.Client.Rounds;
 @using Chaincase.Common
@@ -23,7 +24,7 @@
     else
     {
         <div class="ion-padding">
-        @if (ViewModel.IsQueuedToCoinJoin)
+        @if (IsQueuedToCoinJoin)
         {
             <p>
                 🎉 Inputs have been registered
@@ -36,7 +37,7 @@
 
         <ion-text>
                 Amount Selected:
-                ₿ @ViewModel.AmountQueued.ToString()
+                ₿ @ViewModel.CoinList.SelectedAmount
         </ion-text>
 
         @* Coin Selection*@
@@ -93,13 +94,14 @@
                     </ion-text>
                     <IonItem>
                         <ion-label floating>Password</ion-label>
-                        <IonPasswordInput @bind-Value="Password"/>
-                     </IonItem>
-                     <IonButton OnClick="@CoinJoin" class="ion-padding">JOIN NOW</IonButton>
+                        <IonPasswordInput @bind-Value="Password" />
+                    </IonItem>
+                    <IonButton OnClick="@CoinJoin" class="ion-padding">JOIN NOW</IonButton>
+                    <IonLoading @bind-Visible="@IsLoaderVisible"></IonLoading>
                 </ion-content>
-                    
+
             </IonModal>
-            @if (ViewModel.IsQueuedToCoinJoin)
+            @if (IsQueuedToCoinJoin)
             {
                 <IonButton OnClick='@ExitCoinJoin' expand="block">EXIT COINJOIN</IonButton>
             }
@@ -109,14 +111,15 @@
             }
         </div>
     }
+
 </ion-content>
 
 @code {
     private bool IsPasswordModalVisible;
+    private bool IsLoaderVisible;
     private bool IsToastVisible;
     private string ToastMessage = "";
     private const int ToastDuration = 2000; // ms
-
 
     private string Password = "";
     public CoinJoinPage()
@@ -138,16 +141,17 @@
         NavigationManager.NavigateTo("/selectcoins");
     }
 
-    private void ExitCoinJoin()
+    private async Task ExitCoinJoin()
     {
-        NavigationManager.NavigateTo("/");
+        await ViewModel.ExitCoinJoinAsync();
     }
 
-    void CoinJoin()
+    private async Task CoinJoin()
     {
+        IsLoaderVisible = true;
         try
         {
-            ViewModel.JoinRound(Password);
+            await ViewModel.DoEnqueueAsync(Password);
             IsToastVisible = true;
             ToastMessage = "Success! Joined Coin Join Round.";
             ToggleModal();
@@ -157,7 +161,11 @@
             IsToastVisible = true;
 
         }
+        IsLoaderVisible = false;
     }
 
     private void ToggleModal() => IsPasswordModalVisible = !IsPasswordModalVisible;
+
+    private bool IsQueuedToCoinJoin => ViewModel.AmountQueued.CompareTo(Money.Zero) != 0;
+
 }

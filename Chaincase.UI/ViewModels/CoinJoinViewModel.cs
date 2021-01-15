@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Security;
+using System.Text;
+using System.Threading.Tasks;
 using Chaincase;
 using Chaincase.Common;
 using Chaincase.Common.Contracts;
@@ -14,6 +17,7 @@ using NBitcoin;
 using ReactiveUI;
 using Splat;
 using WalletWasabi.Blockchain.Keys;
+using WalletWasabi.Blockchain.TransactionOutputs;
 using WalletWasabi.CoinJoin.Client.Clients.Queuing;
 using WalletWasabi.CoinJoin.Client.Rounds;
 using WalletWasabi.CoinJoin.Common.Models;
@@ -26,8 +30,6 @@ namespace Chaincase.UI.ViewModels
 	{
 		protected Global Global { get; }
         private CompositeDisposable Disposables { get; set; }
-
-        private INotificationManager notificationManager;
 
         private string _coordinatorFeePercent;
 		private int _peersRegistered;
@@ -95,10 +97,6 @@ namespace Chaincase.UI.ViewModels
                     TimeSpan left = RoundTimesout - DateTimeOffset.UtcNow;
                     TimeLeftTillRoundTimeout = left > TimeSpan.Zero ? left : TimeSpan.Zero; // Make sure cannot be less than zero.
                 });
-            // TODO
-            //Observable
-            //    .FromEventPattern<SmartCoin>(CoinList, nameof(CoinList.DequeueCoinsPressed))
-            //    .Subscribe(async x => await DoDequeueAsync(x.EventArgs));
 
 
             // Update view model state on chaumian client state updates
@@ -121,7 +119,7 @@ namespace Chaincase.UI.ViewModels
                                DequeueReason reason = success.Key;
                                if (reason == DequeueReason.UserRequested)
                                {
-                                   notificationManager.RemoveAllPendingNotifications();
+                                   Global.NotificationManager.RemoveAllPendingNotifications();
                                }
                            }
                        }
@@ -267,7 +265,86 @@ namespace Chaincase.UI.ViewModels
             }
         }
 
+        public async Task ExitCoinJoinAsync()
+            => await DoDequeueAsync(CoinList.RootList.Items.Where(c => c.CoinJoinInProgress).Select(c => c.Model));
 
+        private async Task DoDequeueAsync(IEnumerable<SmartCoin> coins)
+        {
+            IsDequeueBusy = true;
+            try
+            {
+                if (!coins.Any())
+                {
+                    return;
+                }
+
+                try
+                {
+                    await Global.Wallet.ChaumianClient.DequeueCoinsFromMixAsync(coins.ToArray(), DequeueReason.UserRequested);
+
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogWarning(ex);
+                }
+            }
+            finally
+            {
+                IsDequeueBusy = false;
+            }
+        }
+
+        public async Task<bool> DoEnqueueAsync(string password)
+        {
+            IsEnqueueBusy = true;
+            var coins = CoinList.CoinList.Where(c => c.IsSelected).Select(c => c.Model);
+            try
+            {
+                if (!coins.Any())
+                {
+                    // should never get to this page if there aren't sufficient coins
+                    return false;
+                }
+                try
+                {
+                    PasswordHelper.GetMasterExtKey(Global.Wallet.KeyManager, password, out string compatiblityPassword); // If the password is not correct we throw.
+
+                    if (compatiblityPassword != null)
+                    {
+                        password = compatiblityPassword;
+                    }
+
+                    await Global.Wallet.ChaumianClient.QueueCoinsToMixAsync(password, coins.ToArray());
+                    Global.NotificationManager.RequestAuthorization();
+                    ScheduleConfirmNotification(null, null);
+                    return true;
+                }
+                catch (SecurityException ex)
+                {
+                    // pobably shaking in the view
+                    // NotificationHelpers.Error(ex.Message, "");
+                }
+                catch (Exception ex)
+                {
+                    var builder = new StringBuilder(ex.ToTypeMessageString());
+                    if (ex is AggregateException aggex)
+                    {
+                        foreach (var iex in aggex.InnerExceptions)
+                        {
+                            builder.Append(Environment.NewLine + iex.ToTypeMessageString());
+                        }
+                    }
+                    // NotificationHelpers.Error(builder.ToString());
+                    Logger.LogError(ex);
+                }
+            }
+            finally
+            {
+                IsEnqueueBusy = false;
+            }
+            Global.NotificationManager.RequestAuthorization();
+            return false;
+        }
 
         void ScheduleConfirmNotification(object sender, EventArgs e)
         {
@@ -285,21 +362,20 @@ namespace Chaincase.UI.ViewModels
             string message = string.Format("Open Chaincase before {0:t}\n to complete the CoinJoin.", confirmTime);
 
             var timeToNotify = timeoutSeconds - NOTIFY_TIMEOUT_DELTA;
-            notificationManager.ScheduleNotification(title, message, timeToNotify);
+            Global.NotificationManager.ScheduleNotification(title, message, timeToNotify);
         }
 
         public SelectCoinsViewModel CoinList
-		{
-			get => _selectCoinsViewModel;
-			set => this.RaiseAndSetIfChanged(ref _selectCoinsViewModel, value);
-		}
-
-		public Money AmountQueued
         {
-            get => CoinList.CoinList.Where(c => c.IsSelected).Select(c => c.Model).Sum(c => c.Amount);
-            set => this.RaiseAndSetIfChanged(ref _amountQueued, value);
+            get => _selectCoinsViewModel;
+            set => this.RaiseAndSetIfChanged(ref _selectCoinsViewModel, value);
         }
 
+        public Money AmountQueued
+        {
+            get => _amountQueued;
+            set => this.RaiseAndSetIfChanged(ref _amountQueued, value);
+        }
         public Money RequiredBTC
         {
             get => _requiredBTC;
