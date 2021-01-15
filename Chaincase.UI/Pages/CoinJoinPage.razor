@@ -10,6 +10,7 @@
 @inject StackService StackService 
 @inject Global Global
 @inject CoinJoinViewModel CoinJoinViewModel
+@inject IJSRuntime JS
 
 @inherits ReactiveComponentBase<CoinJoinViewModel>
 
@@ -24,33 +25,33 @@
     else
     {
         <div class="ion-padding">
-        @if (IsQueuedToCoinJoin)
-        {
-            <p>
-                🎉 Inputs have been registered
-            </p>
-            <ion-text color="warning">
-                Chaincase must be open to complete a CoinJoin.
-                We'll notify you when registration ends to open.
-            </ion-text>
-        }
+            @if (IsQueuedToCoinJoin)
+            {
+                <p>
+                    🎉 Inputs have been registered
+                </p>
+                <ion-text color="warning">
+                    Chaincase must be open to complete a CoinJoin.
+                    We'll notify you when registration ends to open.
+                </ion-text>
+            }
 
-        <ion-text>
+            <ion-text>
                 Amount Selected:
                 ₿ @ViewModel.CoinList.SelectedAmount
-        </ion-text>
+            </ion-text>
 
-        @* Coin Selection*@
-        <IonButton @onclick="NavigateToSelectCoins" expand="block">
-            SELECT COINS <ion-icon name="chevron-forward-outline" />
-        </IonButton>
+            @* Coin Selection*@
+            <IonButton @onclick="NavigateToSelectCoins" expand="block">
+                SELECT COINS <ion-icon name="chevron-forward-outline" />
+            </IonButton>
 
-        @* Progress Bar *@
-        <ion-label>
-            Percentage of peers queued in most advanced round
-        </ion-label>
-        <ion-progress-bar value="@ViewModel.QueuedPercentage" />
-        @* List Coin Join round info**@
+            @* Progress Bar *@
+            <ion-label>
+                Percentage of peers queued in most advanced round
+            </ion-label>
+            <ion-progress-bar value="@ViewModel.QueuedPercentage" />
+            @* List Coin Join round info**@
         </div>
         <ion-list>
             <ion-item>
@@ -97,7 +98,6 @@
                         <IonPasswordInput @bind-Value="Password" />
                     </IonItem>
                     <IonButton OnClick="@CoinJoin" class="ion-padding">JOIN NOW</IonButton>
-                    <IonLoading @bind-Visible="@IsLoaderVisible"></IonLoading>
                 </ion-content>
 
             </IonModal>
@@ -109,6 +109,7 @@
             {
                 <IonButton OnClick='@ToggleModal' expand="block">COINJOIN</IonButton>
             }
+
         </div>
     }
 
@@ -116,15 +117,11 @@
 
 @code {
     private bool IsPasswordModalVisible;
-    private bool IsLoaderVisible;
     private bool IsToastVisible;
     private string ToastMessage = "";
     private const int ToastDuration = 2000; // ms
 
     private string Password = "";
-    public CoinJoinPage()
-    {
-    }
 
     protected override void OnInitialized()
     {
@@ -148,7 +145,6 @@
 
     private async Task CoinJoin()
     {
-        IsLoaderVisible = true;
         try
         {
             await ViewModel.DoEnqueueAsync(Password);
@@ -156,12 +152,11 @@
             ToastMessage = "Success! Joined Coin Join Round.";
             ToggleModal();
         }
-        catch (Exception err) {
+        catch (Exception err)
+        {
             ToastMessage = err.Message;
             IsToastVisible = true;
-
         }
-        IsLoaderVisible = false;
     }
 
     private void ToggleModal() => IsPasswordModalVisible = !IsPasswordModalVisible;
