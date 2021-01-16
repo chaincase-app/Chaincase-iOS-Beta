@@ -85,6 +85,7 @@
     <Compile Include="Backgrounding\iOSOnSleepingTask.cs" />
     <Compile Include="Backgrounding\iOSInitializeNoWalletContext.cs" />
     <Compile Include="LiveSharp.dashboard.cs" />
+    <Compile Include="ThemeManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />

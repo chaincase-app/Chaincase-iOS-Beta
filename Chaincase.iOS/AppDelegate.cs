@@ -57,6 +57,7 @@ namespace Chaincase.iOS
 
         private void ConfigureDi(IServiceCollection obj)
         {
+            obj.AddSingleton<IThemeManager, ThemeManager>();
 	        obj.AddSingleton<IHsmStorage, HsmStorage>();
 	        obj.AddSingleton<INotificationManager, iOSNotificationManager>();
 	        obj.AddSingleton<iOSNotificationReceiver>();
