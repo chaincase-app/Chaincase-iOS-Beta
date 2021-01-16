@@ -14,9 +14,7 @@
     <IonInput @bind-Value="@ViewModel.ProposedLabel" placeholder="a contact e.g. Mt. Fox exchange" />
 
 
-    <IonButton href="receive/password" expand="block">Continue</IonButton>
-
-    @*<IonButton OnClick="ToggleModal" expand="block">CONTINUE</IonButton>*@
+    <IonButton href="receive/password" disabled="@IsContinueDisabled" expand="block">Continue</IonButton>
 
 </ion-content>
 
@@ -27,4 +25,7 @@
         ViewModel = ReceiveViewModel;
         UiStateService.Title = "RECEIVE";
     }
+
+    private bool IsContinueDisabled => ViewModel.ProposedLabel.IsNullOrWhiteSpace();
+
 }

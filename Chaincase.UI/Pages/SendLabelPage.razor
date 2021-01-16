@@ -14,7 +14,7 @@
     <ion-label floating>Label</ion-label>
     <IonInput @bind-Value="@ViewModel.Label" placeholder="This transaction is for..." />
 
-    <IonButton OnClick="OnContinue" expand="block">CONTINUE</IonButton>
+    <IonButton OnClick="OnContinue" expand="block" disabled="@IsLabelEmpty">CONTINUE</IonButton>
 </ion-content>
 
 @code {
@@ -33,5 +33,7 @@
         });
         NavigationManager.NavigateTo("send/amount");
     }
+
+    public bool IsLabelEmpty => ViewModel.Label.IsNullOrWhiteSpace();
 
 }

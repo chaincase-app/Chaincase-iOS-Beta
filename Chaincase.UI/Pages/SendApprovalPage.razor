@@ -1,0 +1,38 @@
+﻿@page "/send/approve"
+@using Chaincase.UI.Services;
+@using System.Reactive.Threading.Tasks;
+
+@inject UIStateService UiStateService
+@inject NavigationManager NavigationManager
+@inject StackService StackService 
+@inject SendViewModel SendViewModel
+@inherits ReactiveComponentBase<SendViewModel>
+
+<ion-content class="ion-padding">
+    <ion-text>@ViewModel.AmountText</ion-text>
+    <ion-text>To @ViewModel.DestinationString</ion-text>
+    <PasswordInputItem @bind-Value="Password" />
+    <IonButton @onclick="ClickSendNow" expand="block">SEND NOW</IonButton>
+    <IonLoading Visible="@ViewModel.IsBusy"></IonLoading>
+
+</ion-content>
+
+@code {
+    private string Password { get; set; }
+
+    protected override void OnInitialized()
+    {
+        ViewModel = SendViewModel;
+        UiStateService.Title = "SEND";
+    }
+
+    private async Task ClickSendNow()
+    {
+        var isSent = await ViewModel.SendTransactionCommand.Execute(Password).ToTask();
+        if (isSent)
+        {
+            // TODO clear stack service
+            NavigationManager.NavigateTo("/send/sent");
+        } // else TODO shake da input binch like yo enemy's baby
+    }
+}

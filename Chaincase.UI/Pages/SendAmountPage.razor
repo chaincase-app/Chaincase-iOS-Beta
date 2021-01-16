@@ -1,4 +1,4 @@
-﻿@page "/send/amount"
+@page "/send/amount"
 @using Chaincase.UI.Services
 @inject SendViewModel SendViewModel
 @inject StackService StackService
@@ -10,7 +10,7 @@
 
     <IonItem>
         <ion-label>Amount</ion-label>
-        <IonInput @bind-Value="@ViewModel.AmountText" type="number" />
+        <IonInput @bind-Value="@ViewModel.AmountText" type="number"/>
     </IonItem>
     @* This belongs iniline with the BTC amount in Dollars
             <IonItem>
@@ -20,25 +20,21 @@
     <p>₿@ViewModel.SelectCoinsViewModel.SelectedAmount</p>
 
     @*<ion-label>Set Max</ion-label> TODO should be a BUTTON that just sets amount & coin selection*@
-    <IonToggle class="ion-float-right" name="grape" color="tertiary" Value="true" />
+    <IonToggle class="ion-float-right" name="grape" color="tertiary" Value="true"/>
     <br />
     <ion-label class="ion-text-center">Choose coins</ion-label>
     <IonButton OnClick="NavigateToSelectCoinsPage" expand="block">
-        Automatic coin selection <ion-icon name="chevron-forward-outline" />
+        Automatic coin selection <ion-icon name="chevron-forward-outline"/>
     </IonButton>
 
     <p>Fee: <ion-badge @onclick="ToggleSelectFeeModal">~@ViewModel.FeeRate</ion-badge></p>
 
-    <IonButton href="/send/confirm" expand="block">CONFIRM</IonButton>
-
-    @*<SelectCoinsModal @bind-Visible="@IsSelectCoinsModalVisible"
-        SelectCoinsViewModel="@ViewModel.SelectCoinsViewModel" />*@
-
+    <IonButton OnClick="NavigateToSendApprovalPage" expand="block" disabled ="@(!ViewModel.IsTransactionOkToSign)">CONFIRM</IonButton>
 
 </ion-content>
 
 <FeeModal @bind-Visible="@IsFeeModalVisible"
-            FeeViewModel="@FeeViewModel" />
+            FeeViewModel="@FeeViewModel"/>
 
 @code {
 
@@ -56,22 +52,23 @@
         UiStateService.Title = "SEND";
     }
 
-    private void ToggleSelectCoinsModal()
-    {
-        IsSelectCoinsModalVisible = !IsSelectCoinsModalVisible;
-        StateHasChanged();
-    }
-
     private void ToggleSelectFeeModal() =>
         IsFeeModalVisible = !IsFeeModalVisible;
-
 
     private void NavigateToSelectCoinsPage()
     {
         StackService.PushStackState(async () =>
         {
-            await NavigationManager.NavigateBack(null, "send/amount");
+            await NavigationManager.NavigateBack(null, "/send/amount");
         });
         NavigationManager.NavigateTo("/send/selectcoins");
     }
-}
+
+    private void NavigateToSendApprovalPage()
+    {
+        StackService.PushStackState(async () => {
+            await NavigationManager.NavigateBack(null, "/send/amount");
+        });
+        NavigationManager.NavigateTo("/send/approve");
+    }
+ }
