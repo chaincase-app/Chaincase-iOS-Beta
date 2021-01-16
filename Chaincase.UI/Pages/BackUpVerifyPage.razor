@@ -1,0 +1,116 @@
+﻿@page "/backup/verify"
+@using Chaincase.UI.Services
+@inject UIStateService UiStateService
+@inject BackUpViewModel BackUpViewModel
+@inject NavigationManager NavigationManager
+@inherits ReactiveComponentBase<BackUpViewModel>
+
+<ion-content class="ion-padding">
+
+    <ion-text class="ion-text-center">Select word @(ViewModel.SeedWords.IndexOf(WordToVerify) + 1)</ion-text>
+
+    @foreach (string word in ButtonWords)
+    {
+        <IonButton OnClick="@(() => ClickWordToVerify(@word))" expand="block">@word</IonButton>
+    }
+
+    <ion-text class="ion-text-center">@SuccessCount of @VERIFY_THIS_MANY verified.</ion-text>
+    <IonAlert @bind-Visible="@IsSuccessAlertVisible" Buttons="@AlertButtons" message="Backup Verified" backdrop-dismiss="true"></IonAlert>
+</ion-content>
+
+@code {
+    const int VERIFY_THIS_MANY = 2;
+
+    public IonAlert.IonAlertButton[] AlertButtons;
+    bool IsVerified = true;
+    private bool _isSuccessAlertVisible;
+    private string WordToVerify;
+    private static Random rng = new Random();
+    private string[] ShuffledWords;
+    private string[] ButtonWords = new string[5]; // https://www.youtube.com/watch?v=JnbfuAcCqpY
+    int FailedCount;
+    int SuccessCount;
+
+    protected override void OnInitialized()
+    {
+        // make sure to be on the first step of verification
+        ViewModel = BackUpViewModel;
+        UiStateService.Title = "VERIFY BACKUP";
+        SetUpVerification();
+
+        AlertButtons = new []
+        {
+            new IonAlert.IonAlertButton()
+            {
+                Options = new Dictionary <string, object>()
+                {
+                    {"text", "OK" }
+                }
+            }
+        };
+    }
+
+    private void ClickWordToVerify(string word)
+    {
+        if (word == WordToVerify) {
+            if (++SuccessCount >= VERIFY_THIS_MANY)
+            {
+                IsSuccessAlertVisible = true;
+            }
+            else
+            {
+                SetUpVerification();
+            }
+        }
+    }
+
+    private void SetUpVerification()
+    {
+        WordToVerify = PickAnotherListWord(WordToVerify, ViewModel.SeedWords);
+        ShuffledWords = new string[ViewModel.SeedWords.Count()];
+        ViewModel.SeedWords.CopyTo(ShuffledWords);
+        Shuffle(ShuffledWords);
+        Array.Copy(ShuffledWords, ButtonWords, ButtonWords.Length);
+        if (!ButtonWords.Contains(WordToVerify))
+            ButtonWords[0] = WordToVerify;
+        Shuffle(ButtonWords);
+    }
+
+    public static string PickAnotherListWord(string word, IList<string> list)
+    {
+        string pick = word;
+        while (pick == word)
+        {
+            pick = list.RandomElement();
+        }
+        return pick;
+    }
+
+    public static void Shuffle<T>(IList<T> list)
+    {
+        int n = list.Count;
+        while (n > 1)
+        {
+            n--;
+            int k = rng.Next(n + 1);
+            T value = list[k];
+            list[k] = list[n];
+            list[n] = value;
+        }
+    }
+
+    public bool IsSuccessAlertVisible
+    {
+        get => _isSuccessAlertVisible;
+        set
+        {
+            _isSuccessAlertVisible = value;
+            // on dismiss success alert
+            if (!_isSuccessAlertVisible)
+            {
+                NavigationManager.NavigateTo("");
+            }
+        }
+    }
+
+}

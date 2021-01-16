@@ -49,10 +49,10 @@ namespace Chaincase.UI.ViewModels
 
         protected CompositeDisposable Disposables { get; } = new CompositeDisposable();
 
-        public SendViewModel(Global global)
+        public SendViewModel(Global global, SelectCoinsViewModel selectCoinsViewModel)
         {
 	        Global = global;
-            SelectCoinsViewModel = new SelectCoinsViewModel(global);
+            SelectCoinsViewModel = selectCoinsViewModel;
             AmountText = "0.0";
             AllSelectedAmount = Money.Zero;
             EstimatedBtcFee = Money.Zero;

@@ -1,6 +1,10 @@
 ﻿@page "/backup/start"
 @using Chaincase.UI.Services
 @inject UIStateService UiStateService
+@inject NavigationManager NavigationManager
+@inject StackService StackService
+@inject BackUpViewModel BackUpViewModel
+@inherits ReactiveComponentBase<BackUpViewModel>
 
 <ion-content class="ion-padding">
     <h1>BACK UP</h1>
@@ -9,7 +13,7 @@
     <p>The seed words together in order with your password are the only way to restore your wallet if your device is lost, broken, stolen, or upgraded.</p>
     <p>This should take 3 minutes</p>
 
-    <IonButton href="/backup/words" expand="block">WRITE WORDS & BACK UP</IonButton>
+    <IonButton OnClick="@TryStartBackUp" expand="block">WRITE WORDS & BACK UP</IonButton>
 
 </ion-content>
 
@@ -17,7 +21,16 @@
 
     protected override void OnInitialized()
     {
+        ViewModel = BackUpViewModel;
         UiStateService.Title = "BACK UP";
     }
 
+    private async Task TryStartBackUp()
+    {
+        if (await ViewModel.HasGotSeedWords())
+        {
+            await StackService.ClearStack();
+            NavigationManager.NavigateTo("/backup/words");
+        }
+    }
 }

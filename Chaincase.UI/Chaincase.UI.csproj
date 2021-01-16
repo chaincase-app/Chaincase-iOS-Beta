@@ -10,11 +10,11 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Components" Version="3.1.9" />
         <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="3.1.8" />
-        <PackageReference Include="BlazorIonic" Version="1.0.10" />
         <PackageReference Include="QRCoder" Version="1.4.1" />
         <PackageReference Include="ReactiveUI" Version="12.1.5" />
         <PackageReference Include="ReactiveUI.Blazor" Version="12.1.5" />
         <PackageReference Include="LiveSharp" Version="1.6.45-beta" />
+        <PackageReference Include="BlazorIonic" Version="1.0.10" />
     </ItemGroup>
 
     <PropertyGroup Condition="'$(Configuration)' == 'Release' ">
@@ -57,10 +57,10 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-      <LangVersion>latestmajor</LangVersion>
+      <LangVersion>9.0</LangVersion>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-      <LangVersion>latestmajor</LangVersion>
+      <LangVersion>9.0</LangVersion>
     </PropertyGroup>
     <Target Name="NpmInstall" BeforeTargets="BeforeBuild" Inputs="package.json" Outputs="$(NpmInstallStampFile)">
         <Exec Command="npm install" />
