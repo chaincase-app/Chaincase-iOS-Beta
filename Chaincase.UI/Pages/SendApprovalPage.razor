@@ -6,7 +6,6 @@
 @inject NavigationManager NavigationManager
 @inject StackService StackService 
 @inject SendViewModel SendViewModel
-@inject JSRuntime JsRuntime
 @inherits ReactiveComponentBase<SendViewModel>
 
 <ion-content class="ion-padding">
@@ -32,7 +31,8 @@
         var isSent = await ViewModel.SendTransactionCommand.Execute(Password).ToTask();
         if (isSent)
         {
+            // TODO clear stack service
             NavigationManager.NavigateTo("/send/sent");
-        } // else shake da input binch like yo enemy's baby
+        } // else TODO shake da input binch like yo enemy's baby
     }
 }
