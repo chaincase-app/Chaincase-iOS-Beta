@@ -411,18 +411,6 @@ namespace Chaincase.UI.ViewModels
             set => this.RaiseAndSetIfChanged(ref _isDequeueBusy, value);
         }
 
-        public bool IsQueuedToCoinJoin
-        {
-            get => _isQueuedToCoinJoin;
-            set => this.RaiseAndSetIfChanged(ref _isDequeueBusy, value);
-        }
-
-        public bool IsSynced
-        {
-            get => _statusViewModel.FiltersLeft == 0;
-            set => this.RaiseAndSetIfChanged(ref _isDequeueBusy, value);
-        }
-
         public string QueuedPercentage => ((decimal)PeersRegistered / (decimal)PeersNeeded).ToString();
     }
 }
