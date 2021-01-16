@@ -25,17 +25,6 @@
     else
     {
         <div class="ion-padding">
-            @if (IsQueuedToCoinJoin)
-            {
-                <p>
-                    🎉 Inputs have been registered
-                </p>
-                <ion-text color="warning">
-                    Chaincase must be open to complete a CoinJoin.
-                    We'll notify you when registration ends to open.
-                </ion-text>
-            }
-
             <ion-text>
                 Amount Selected:
                 ₿ @ViewModel.CoinList.SelectedAmount
@@ -98,6 +87,7 @@
                         <IonPasswordInput @bind-Value="Password" />
                     </IonItem>
                     <IonButton OnClick="@CoinJoin" class="ion-padding">JOIN NOW</IonButton>
+
                 </ion-content>
 
             </IonModal>
@@ -109,17 +99,20 @@
             {
                 <IonButton OnClick='@ToggleModal' expand="block">COINJOIN</IonButton>
             }
-            <IonButton OnClick="@ShowToast" class="ion-padding">SHOW TOES[T]</IonButton>
-
         </div>
     }
-    <IonToast @bind-Visible="@IsToastVisible" duration="2000" message="i toast you so"/>
+    <IonToast Visible="@IsQueuedToCoinJoin" color="warning"  message="Chaincase must be open to complete a CoinJoin. We'll notify you  when to open back up." />
+    <IonToast @bind-Visible="@IsToastVisible" color="success" message="@ToastMessage" duration="@ToastDuration"/>
+
+    <IonLoading @bind-Visible="@ViewModel.IsEnqueueBusy" message="Coinjoin magic..." />
 </ion-content>
 
 @code {
     private ElementReference loader;
     private bool IsPasswordModalVisible;
     private bool IsToastVisible;
+    private bool IsWarningToastVisible;
+    private bool IsLoading() => ViewModel.IsEnqueueBusy;
     private string ToastMessage = "";
     private const int ToastDuration = 2000; // ms
 
@@ -147,11 +140,12 @@
 
     private async Task CoinJoin()
     {
+        // if we just await an async task the UI thread freezes
         try
         {
             await ViewModel.DoEnqueueAsync(Password);
+            ToastMessage = "Success! Coins Queued.";
             IsToastVisible = true;
-            ToastMessage = "Success! Joined Coin Join Round.";
             ToggleModal();
         }
         catch (Exception err)
@@ -159,11 +153,6 @@
             ToastMessage = err.Message;
             IsToastVisible = true;
         }
-    }
-
-    private async Task ShowToast()
-    {
-        IsToastVisible = true;
     }
 
     private void ToggleModal() => IsPasswordModalVisible = !IsPasswordModalVisible;
