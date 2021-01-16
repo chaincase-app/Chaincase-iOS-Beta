@@ -49,12 +49,12 @@ namespace Chaincase.UI.ViewModels
         private SelectCoinsViewModel _selectCoinsViewModel;
         protected StatusViewModel _statusViewModel;
 
-        public CoinJoinViewModel(Global global, SelectCoinsViewModel selectCoinsViewModel) 
+        public CoinJoinViewModel(Global global, SelectCoinsViewModel selectCoinsViewModel, StatusViewModel statusViewModel) 
         {
             Global = global;
             Global.NotificationManager.RequestAuthorization();
             CoinList = selectCoinsViewModel;
-            _statusViewModel = new StatusViewModel(global); 
+            _statusViewModel = statusViewModel; 
 
             if (Disposables != null)
             {

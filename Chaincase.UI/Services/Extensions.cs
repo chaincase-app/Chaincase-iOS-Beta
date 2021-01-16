@@ -27,6 +27,7 @@ namespace Chaincase.UI.Services
 			services.AddTransient<NewPasswordViewModel>();
 			services.AddTransient<CoinJoinViewModel>();
 			services.AddSingleton<SelectCoinsViewModel>();
+			services.AddSingleton<StatusViewModel>();
 
 			return services;
 		}
