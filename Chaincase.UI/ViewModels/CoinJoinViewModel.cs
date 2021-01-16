@@ -203,27 +203,6 @@ namespace Chaincase.UI.ViewModels
             }
         }
 
-        private void SetBalance()
-        {
-            try
-            {
-				Balance = (
-					Enumerable.Where(Global.Wallet.Coins,
-						c => c.Unspent && !c.SpentAccordingToBackend
-					).Sum(c => (long?)c.Amount) ?? 0
-					).ToString();
-			}
-            catch (Exception error) {
-                Logger.LogError($"CoinJoinViewModel.SetBalance(): Failed to retrieve balance {error} ");
-                Balance = "0";
-            }
-        }
-
-        private void SetUserErrorMessage(string err) {
-            _toastErrorMessage = err;
-            _shouldShowErrorToast = true;
-        }
-
         private bool IsPasswordValid(string password)
         {
             string walletFilePath = Path.Combine(Global.WalletManager.WalletDirectories.WalletsDir, $"{Global.Network}.json");
@@ -442,20 +421,6 @@ namespace Chaincase.UI.ViewModels
         {
             get => _statusViewModel.FiltersLeft == 0;
             set => this.RaiseAndSetIfChanged(ref _isDequeueBusy, value);
-        }
-
-        public string ToastErrorMessage {
-            get => _toastErrorMessage;
-            set {
-                _shouldShowErrorToast = true;
-                this.RaiseAndSetIfChanged(ref _toastErrorMessage, value);
-            }
-        }
-
-        public bool ShouldShowErrorToast
-        {
-            get => _shouldShowErrorToast;
-            set => this.RaiseAndSetIfChanged(ref _shouldShowErrorToast, value);
         }
 
         public string QueuedPercentage => ((decimal)PeersRegistered / (decimal)PeersNeeded).ToString();
