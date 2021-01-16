@@ -52,7 +52,6 @@ namespace Chaincase.UI.ViewModels
         public CoinJoinViewModel(Global global, SelectCoinsViewModel selectCoinsViewModel, StatusViewModel statusViewModel) 
         {
             Global = global;
-            Global.NotificationManager.RequestAuthorization();
             CoinList = selectCoinsViewModel;
             _statusViewModel = statusViewModel; 
 
