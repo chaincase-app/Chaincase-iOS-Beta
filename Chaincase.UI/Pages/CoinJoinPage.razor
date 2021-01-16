@@ -101,8 +101,8 @@
             }
         </div>
     }
-    <IonToast Visible="@IsQueuedToCoinJoin" color="warning"  message="Chaincase must be open to complete a CoinJoin. We'll notify you  when to open back up." />
-    <IonToast @bind-Visible="@IsToastVisible" color="success" message="@ToastMessage" duration="@ToastDuration"/>
+    <IonToast Visible="@IsQueuedToCoinJoin" position="middle" color="warning"  message="Chaincase must be open to complete a CoinJoin. We'll notify you when to open back up." />
+    <IonToast @bind-Visible="@IsToastVisible" color="@ToastColor" message="@ToastMessage" duration="@ToastDuration"/>
 
     <IonLoading @bind-Visible="@ViewModel.IsEnqueueBusy" message="Coinjoin magic..." />
 </ion-content>
@@ -115,6 +115,7 @@
     private bool IsLoading() => ViewModel.IsEnqueueBusy;
     private string ToastMessage = "";
     private const int ToastDuration = 2000; // ms
+    private string ToastColor;
 
     private string Password = "";
 
@@ -143,10 +144,18 @@
         // if we just await an async task the UI thread freezes
         try
         {
-            await ViewModel.DoEnqueueAsync(Password);
-            ToastMessage = "Success! Coins Queued.";
+            bool succ = await ViewModel.DoEnqueueAsync(Password);
+            if (succ)
+            {
+                ToastMessage = "Success! Coins Queued.";
+                ToastColor = "success";
+                ToggleModal();
+            } else
+            {
+                ToastMessage = "Something went wrong.";
+                ToastColor = "danger";
+            }
             IsToastVisible = true;
-            ToggleModal();
         }
         catch (Exception err)
         {
