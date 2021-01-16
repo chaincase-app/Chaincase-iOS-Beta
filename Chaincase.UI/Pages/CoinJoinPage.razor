@@ -10,13 +10,14 @@
 @inject StackService StackService 
 @inject Global Global
 @inject CoinJoinViewModel CoinJoinViewModel
+@inject StatusViewModel StatusViewModel 
 @inject IJSRuntime JS
 
 @inherits ReactiveComponentBase<CoinJoinViewModel>
 
 <ion-content>
 
-    @if (!ViewModel.IsSynced)
+    @if (!IsSynced)
     {
         <ion-text>
             Once your wallet has sync'd, you can pick coins to mix!
@@ -166,6 +167,8 @@
 
     private void ToggleModal() => IsPasswordModalVisible = !IsPasswordModalVisible;
 
-    private bool IsQueuedToCoinJoin => ViewModel.AmountQueued.CompareTo(Money.Zero) != 0;
+    private bool IsQueuedToCoinJoin => ViewModel.AmountQueued is not null && ViewModel.AmountQueued.CompareTo(Money.Zero) != 0;
+
+    private bool IsSynced => StatusViewModel.FiltersLeft == 0;
 
 }

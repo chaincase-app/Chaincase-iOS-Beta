@@ -47,13 +47,11 @@ namespace Chaincase.UI.ViewModels
         private string _toastErrorMessage;
         private bool _shouldShowErrorToast;
         private SelectCoinsViewModel _selectCoinsViewModel;
-        protected StatusViewModel _statusViewModel;
 
-        public CoinJoinViewModel(Global global, SelectCoinsViewModel selectCoinsViewModel, StatusViewModel statusViewModel) 
+        public CoinJoinViewModel(Global global, SelectCoinsViewModel selectCoinsViewModel) 
         {
             Global = global;
             CoinList = selectCoinsViewModel;
-            _statusViewModel = statusViewModel; 
 
             if (Disposables != null)
             {
@@ -62,8 +60,6 @@ namespace Chaincase.UI.ViewModels
 
             Disposables = new CompositeDisposable();
 
-			// Start with 0 btc until user chooses some UTXOs
-			AmountQueued = Money.Zero;
             // Infer coordinator fee
             var registrableRound = Global.Wallet.ChaumianClient.State.GetRegistrableRoundOrDefault();
             CoordinatorFeePercent = registrableRound?.State?.CoordinatorFeePercent.ToString() ?? "0.003";
