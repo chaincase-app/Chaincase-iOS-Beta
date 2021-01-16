@@ -61,8 +61,7 @@ namespace Chaincase.UI.ViewModels
             }
 
             Disposables = new CompositeDisposable();
-			// Sum UTXOs
-			//SetBalance();
+
 			// Start with 0 btc until user chooses some UTXOs
 			AmountQueued = Money.Zero;
             // Infer coordinator fee
@@ -77,7 +76,6 @@ namespace Chaincase.UI.ViewModels
                 RoundTimesout = mostAdvancedRound.State.Phase == RoundPhase.InputRegistration ? mostAdvancedRound.State.InputRegistrationTimesout : DateTimeOffset.UtcNow;
                 PeersRegistered = mostAdvancedRound.State.RegisteredPeerCount;
                 PeersNeeded = mostAdvancedRound.State.RequiredPeerCount;
-                RequiredBTC = mostAdvancedRound.State.CalculateRequiredAmount(Global.Wallet.ChaumianClient.State.GetAllQueuedCoinAmounts().ToArray());
             }
             else
             {
@@ -85,7 +83,6 @@ namespace Chaincase.UI.ViewModels
                 RoundTimesout = DateTimeOffset.UtcNow;
                 PeersRegistered = 0;
                 PeersNeeded = 100;
-                RequiredBTC = new Money((long).1);
             }
 
             // Set time left in round 
