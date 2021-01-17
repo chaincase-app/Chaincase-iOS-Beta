@@ -4,6 +4,23 @@ input::-ms-clear {
     display: none;
 }
 
+:root {
+  --ion-color-primary: #5344f4;
+  --ion-color-primary-rgb: 83,68,244;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255,255,255;
+  --ion-color-primary-shade: #493cd7;
+  --ion-color-primary-tint: #6457f5;
+
+  --ion-color-secondary: #f08c34;
+  --ion-color-secondary-rgb: 240,140,52;
+  --ion-color-secondary-contrast: #000000;
+  --ion-color-secondary-contrast-rgb: 0,0,0;
+  --ion-color-secondary-shade: #d37b2e;
+  --ion-color-secondary-tint: #f29848;
+
+}
+
 /*
  * Dark Colors
  * -------------------------------------------
