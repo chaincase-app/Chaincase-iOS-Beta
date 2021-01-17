@@ -1,10 +1,14 @@
 ﻿@using Chaincase.Common
-@inject Global Global  
+@inject Global Global
 @inherits ReactiveComponentBase<CoinViewModel>
 
-<ion-label>@(PrivacyLabel(ViewModel.AnonymitySet)) @ViewModel.Amount </ion-label>
-<IonCheckbox slot="start"
-                @bind-Value="ViewModel.IsSelected" />
+<IonItem>
+    <IonCheckbox slot="start"
+                 @bind-Value="ViewModel.IsSelected" />
+    <p class="ion-float-left">@ViewModel.Label</p>
+    <p class="ion-float-right">@ViewModel.Amount</p>
+    <p class="ion-float-right">@PrivacyLabel(ViewModel.AnonymitySet)</p>
+</IonItem>
 
 @code {
 

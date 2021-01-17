@@ -15,7 +15,7 @@ using WalletWasabi.TorSocks5;
 
 namespace Chaincase.Common
 {
-	[JsonObject(MemberSerialization.OptIn)]
+    [JsonObject(MemberSerialization.OptIn)]
     public class Config : ConfigBase
     {
         public const int DefaultPrivacyLevelSome = 2;
@@ -34,7 +34,7 @@ namespace Chaincase.Common
         [JsonConverter(typeof(NetworkJsonConverter))]
         public NBitcoin.Network Network { get; internal set; } = NBitcoin.Network.Main;
 
-        [DefaultValue("http://cmekpfcgcdmaegqdsj4x4j6qkdem2jhndnboegwhf3jwr2mubafjl3id.onion")]
+        [DefaultValue("http://cmekpfcgcdmaegqdsj4x4j6qkdem2jhndnboegwhf3jwr2mubafjl3id.onion/")]
         [JsonProperty(PropertyName = "MainNetBackendUriV3", DefaultValueHandling = DefaultValueHandling.Populate)]
         public string MainNetBackendUriV3 { get; private set; }
 

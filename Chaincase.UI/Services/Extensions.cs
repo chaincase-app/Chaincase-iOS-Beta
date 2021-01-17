@@ -22,10 +22,13 @@ namespace Chaincase.UI.Services
 			services.AddSingleton<BackUpViewModel>();
 			services.AddSingleton<ReceiveViewModel>();
 			services.AddSingleton<SendViewModel>();
+			services.AddSingleton<StatusViewModel>();
 			services.AddTransient<LoadWalletViewModel>();
 			services.AddTransient<WalletInfoViewModel>();
 			services.AddTransient<NewPasswordViewModel>();
+			services.AddTransient<CoinJoinViewModel>();
 			services.AddSingleton<SelectCoinsViewModel>();
+			services.AddSingleton<StatusViewModel>();
 
 			return services;
 		}

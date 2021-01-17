@@ -3,19 +3,21 @@
 @using Chaincase.Common
 @inject IndexViewModel IndexViewModel
 @inject UIStateService UiStateService
+@inject StackService StackService 
 @inject NavigationManager NavigationManager
 @inject Global Global
 
 @inherits ReactiveComponentBase<IndexViewModel>
 
 <ion-content class="ion-padding">
-    <h1>@ViewModel.Balance</h1>
-    <p>Tor running x peers Ready</p>
-    <ion-progress-bar color="primary"/>
+    <h1>Balance: @ViewModel.Balance</h1>
+
+    <Status />
 
     @foreach (var t in ViewModel.Transactions)
     {
-        <TransactionListItem TransactionViewModel="@t"/>    }
+        <TransactionListItem TransactionViewModel="@t"/>
+    }
 
     @if (!ViewModel.Transactions.Any())
     {
@@ -37,7 +39,7 @@
     </IonButton>
 
     <IonButton expand="block"
-               href="coinjoin">
+               OnClick="NavigateToCoinJoin">
         COINJOIN
     </IonButton>
 </ion-content>
@@ -47,12 +49,21 @@
     protected override void OnInitialized()
     {
         ViewModel = IndexViewModel;
-        
+
         if (!Global.HasWalletFile())
             NavigationManager.NavigateTo("landing");
-        
+
         UiStateService.Title = "Chaincase";
         base.OnInitialized();
+    }
+
+    private void NavigateToCoinJoin()
+    {
+        StackService.PushStackState(async () =>
+        {
+            await NavigationManager.NavigateBack(null, "/");
+        });
+        NavigationManager.NavigateTo("/coinjoin");
     }
 
 }
