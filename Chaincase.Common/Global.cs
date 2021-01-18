@@ -525,6 +525,7 @@ namespace Chaincase.Common
             Logger.LogInfo($"Transaction Notification ({notificationType}): {title} - {message} - {e.Transaction.GetHash()}");
         }
 
+        public event EventHandler Resumed;
         private protected CancellationTokenSource ResumeCts { get; set; } = new CancellationTokenSource();
         private protected bool IsResuming { get; set; } = false;
 
@@ -539,6 +540,7 @@ namespace Chaincase.Common
 
             try
             {
+                Resumed?.Invoke(this, null);
                 Logger.LogDebug($"Global.OnResuming(): Waiting for a lock");
                 ResumeCts.Dispose();
                 ResumeCts = new CancellationTokenSource();

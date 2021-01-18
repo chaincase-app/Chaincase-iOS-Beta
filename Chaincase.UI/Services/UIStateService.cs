@@ -1,4 +1,6 @@
 using System;
+using Chaincase.Common;
+using Chaincase.Common.Contracts;
 
 namespace Chaincase.UI.Services
 {
@@ -6,6 +8,15 @@ namespace Chaincase.UI.Services
 	{
 		private string _title;
 		private bool _darkMode;
+		protected IThemeManager _themeManager;
+
+		public UIStateService(IThemeManager themeManager, Global global)
+		{
+			global.Resumed += (s, e) => SetSystemTheme();
+
+			_themeManager = themeManager;
+			themeManager.SubscribeToThemeChanged(() => SetSystemTheme());
+		}
 
 		public string Title
 		{
@@ -15,6 +26,11 @@ namespace Chaincase.UI.Services
 				_title = value;
 				StateChanged?.Invoke();
 			}
+		}
+
+		public void SetSystemTheme()
+		{
+			DarkMode = _themeManager.IsDarkTheme();
 		}
 
 		public bool DarkMode
