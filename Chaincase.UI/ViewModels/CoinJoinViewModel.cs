@@ -278,12 +278,14 @@ namespace Chaincase.UI.ViewModels
                 }
                 try
                 {
-                    PasswordHelper.GetMasterExtKey(Global.Wallet.KeyManager, password, out string compatiblityPassword); // If the password is not correct we throw.
-
-                    if (compatiblityPassword != null)
-                    {
-                        password = compatiblityPassword;
-                    }
+                    await Task.Run(() => {
+                        // If the password is incorrect this throws.
+                        PasswordHelper.GetMasterExtKey(Global.Wallet.KeyManager, password, out string compatiblityPassword);
+                        if (compatiblityPassword != null)
+                        {
+                            password = compatiblityPassword;
+                        }
+                    }); 
 
                     await Global.Wallet.ChaumianClient.QueueCoinsToMixAsync(password, coins.ToArray());
                     Global.NotificationManager.RequestAuthorization();
@@ -313,7 +315,6 @@ namespace Chaincase.UI.ViewModels
             {
                 IsEnqueueBusy = false;
             }
-            Global.NotificationManager.RequestAuthorization();
             return false;
         }
 
