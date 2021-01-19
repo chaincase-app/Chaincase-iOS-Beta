@@ -9,9 +9,6 @@
 @inject Global Global
 
 <ion-split-pane when="sm" content-id="main-content" disabled="@StackService.AnyStackState">
-    <ion-menu content-id="main-content">
-        <NavMenu/>
-    </ion-menu>
     <ion-page class="ion-page" id="main-content">
         <ion-header>
             <ion-toolbar>
@@ -20,16 +17,15 @@
                     {
                         <ion-back-button @onclick="() => StackService.InvokeStackState()" @onclick:preventDefault="true" default-href="lol"></ion-back-button>
                     }
-                    else
-                    {
-                        <ion-menu-button></ion-menu-button>
+                </ion-buttons>
+                    @if (NavigationManager.Uri == NavigationManager.ToAbsoluteUri("/").ToString()) {
+                    <ion-buttons slot="end">
+                        <IonButton OnClick='@(() => StackNavigateTo("/walletinfo"))'>
+                            <ion-icon slot="icon-only" name="information-circle-outline"></ion-icon>
+                        </IonButton>
+                    </ion-buttons>
+
                     }
-                </ion-buttons>
-                <ion-buttons slot="end">
-                    <IonButton href="walletinfo">
-                        <ion-icon slot="icon-only" name="information-circle-outline"></ion-icon>
-                    </IonButton>
-                </ion-buttons>
                 <ion-title>@StateService.Title</ion-title>
             </ion-toolbar>
         </ion-header>
@@ -57,6 +53,15 @@
     private void OnStateServiceOnStateChanged()
     {
         InvokeAsync(StateHasChanged);
+    }
+
+    private void StackNavigateTo(string uri)
+    {
+        StackService.PushStackState(async () =>
+        {
+            await NavigationManager.NavigateBack(null, "/");
+        });
+        NavigationManager.NavigateTo(uri);
     }
 
     public void Dispose()

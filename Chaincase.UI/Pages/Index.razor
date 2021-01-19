@@ -25,21 +25,21 @@
     }
 
     <IonButton expand="block"
-               href="backup/start">
+               OnClick='() => StackPush("/backup/start")'>
         DON'T FORGET TO MAKE A BACKUP
     </IonButton>
     <IonButton expand="block"
-               href="receive">
+               OnClick='() => StackPush("/receive")'>
         GET RECEIVE ADDRESS
     </IonButton>
 
     <IonButton expand="block"
-               href="send/who">
+               OnClick='() => StackPush("/send/who")'>
         SEND
     </IonButton>
 
     <IonButton expand="block"
-               OnClick="NavigateToCoinJoin">
+               OnClick='() => StackPush("/coinjoin")'>
         COINJOIN
     </IonButton>
 </ion-content>
@@ -57,13 +57,12 @@
         base.OnInitialized();
     }
 
-    private void NavigateToCoinJoin()
+    private void StackPush(string uri)
     {
         StackService.PushStackState(async () =>
         {
             await NavigationManager.NavigateBack(null, "/");
         });
-        NavigationManager.NavigateTo("/coinjoin");
+        NavigationManager.NavigateTo(uri);
     }
-
 }

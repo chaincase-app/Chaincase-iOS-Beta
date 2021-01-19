@@ -29,8 +29,16 @@
     {
         if (await ViewModel.HasGotSeedWords())
         {
-            await StackService.ClearStack();
-            NavigationManager.NavigateTo("/backup/words");
+            StackPush("/backup/words");
         }
+    }
+
+    private void StackPush(string uri)
+    {
+        StackService.PushStackState(async () =>
+        {
+            await NavigationManager.NavigateBack(null, "/backup/start");
+        });
+        NavigationManager.NavigateTo(uri);
     }
 }

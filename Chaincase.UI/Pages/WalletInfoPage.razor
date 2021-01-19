@@ -1,6 +1,8 @@
 ﻿@page "/walletinfo"
 @inject WalletInfoViewModel vm
 @inject UIStateService UiStateService
+@inject StackService StackService 
+@inject NavigationManager NavigationManager
 @using Chaincase.UI.Services
 @inherits ReactiveComponentBase<WalletInfoViewModel>
 
@@ -19,7 +21,7 @@
         <ion-label>KEYS</ion-label>
     </ion-list-header>
     <ion-list>
-        <IonItem button>
+        <IonItem button OnClick="@NavigateToBackUp">
             Back Up Seed Words
         </IonItem>
         <IonItem button OnClick="ViewModel.ExportWallet">
@@ -36,13 +38,18 @@
 
 @code {
 
-    public WalletInfoPage()
-    {
-    }
-
     protected override void OnInitialized()
     {
         ViewModel = vm;
         UiStateService.Title = "WALLET INFO";
+    }
+
+    private void NavigateToBackUp()
+    {
+        StackService.PushStackState(async () =>
+        {
+            await NavigationManager.NavigateBack(null, "/walletinfo");
+        });
+        NavigationManager.NavigateTo("/backup/start");
     }
 }
