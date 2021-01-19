@@ -25,11 +25,14 @@
                         <ion-menu-button></ion-menu-button>
                     }
                 </ion-buttons>
+                @if (NavigationManager.Uri == NavigationManager.ToAbsoluteUri("/").ToString()) {
                 <ion-buttons slot="end">
-                    <IonButton href="walletinfo">
+                    <IonButton OnClick='@(() => StackNavigateTo("/backup/start"))'>
                         <ion-icon slot="icon-only" name="information-circle-outline"></ion-icon>
                     </IonButton>
                 </ion-buttons>
+
+                }
                 <ion-title>@StateService.Title</ion-title>
             </ion-toolbar>
         </ion-header>
@@ -57,6 +60,15 @@
     private void OnStateServiceOnStateChanged()
     {
         InvokeAsync(StateHasChanged);
+    }
+
+    private void StackNavigateTo(string uri)
+    {
+        StackService.PushStackState(async () =>
+        {
+            await NavigationManager.NavigateBack(null, "/");
+        });
+        NavigationManager.NavigateTo(uri);
     }
 
     public void Dispose()

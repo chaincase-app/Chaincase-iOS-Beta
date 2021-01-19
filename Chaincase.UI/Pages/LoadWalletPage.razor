@@ -3,6 +3,7 @@
 @inject LoadWalletViewModel vm
 @inject UIStateService UiStateService
 @inject NavigationManager NavigationManager
+@inject StackService StackService 
 
 @inherits ReactiveComponentBase<LoadWalletViewModel>
 
@@ -49,8 +50,10 @@
     {
         // TODO if password is empty, alert the user
 
-        if (ViewModel.LoadWallet())
-            NavigationManager.NavigateTo("");
+        if (ViewModel.LoadWallet()) {
+            StackService.ClearStack();
+            NavigationManager.NavigateTo("/");
+        }
     }
 
     private void HideShowPassword()

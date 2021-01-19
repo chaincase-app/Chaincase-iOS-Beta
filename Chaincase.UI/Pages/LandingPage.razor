@@ -1,12 +1,14 @@
 ﻿@page "/landing"
 @using Chaincase.UI.Services
 @inject UIStateService UiStateService
+@inject NavigationManager NavigationManager
+@inject StackService StackService
 
 <ion-content class="ion-padding">
     <h1>BITCOIN FOR HUMANS</h1>
 
-    <IonButton href="new" expand="block">NEW WALLET</IonButton>
-    <IonButton href="load" expand="block">LOAD WALLET</IonButton>
+    <IonButton OnClick='@(() => StackPush("/new"))' expand="block">NEW WALLET</IonButton>
+    <IonButton OnClick='@(() => StackPush("/load"))' expand="block">LOAD WALLET</IonButton>
 </ion-content>
 
 @code {
@@ -14,6 +16,15 @@
     protected override void OnInitialized()
     {
         UiStateService.Title = "CREATE WALLET";
+    }
+
+    private void StackPush(string uri)
+    {
+        StackService.PushStackState(async () =>
+        {
+            await NavigationManager.NavigateBack(null, "/landing");
+        });
+        NavigationManager.NavigateTo(uri);
     }
 
 }

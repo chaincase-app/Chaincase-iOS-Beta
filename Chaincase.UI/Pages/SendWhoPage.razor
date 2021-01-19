@@ -36,14 +36,13 @@
     {
         ViewModel = SendViewModel;
         UiStateService.Title = "SEND";
-        StackService.ClearStack();
     }
 
     public void OnContinue()
     {
         StackService.PushStackState(async () =>
         {
-            await NavigationManager.NavigateBack(JsRuntime, $"send/who");
+            await NavigationManager.NavigateBack(JsRuntime, "/send/who");
         });
         NavigationManager.NavigateTo("/send/label");
     }
