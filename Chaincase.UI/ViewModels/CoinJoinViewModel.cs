@@ -265,7 +265,7 @@ namespace Chaincase.UI.ViewModels
             }
         }
 
-        public async Task<bool> DoEnqueueAsync(string password)
+        public async Task DoEnqueueAsync(string password)
         {
             IsEnqueueBusy = true;
             var coins = CoinList.CoinList.Where(c => c.IsSelected).Select(c => c.Model);
@@ -274,7 +274,7 @@ namespace Chaincase.UI.ViewModels
                 if (!coins.Any())
                 {
                     // should never get to this page if there aren't sufficient coins
-                    return false;
+                    throw new Exception("No coin selected. Select some coin to join.");
                 }
                 try
                 {
@@ -290,12 +290,10 @@ namespace Chaincase.UI.ViewModels
                     await Global.Wallet.ChaumianClient.QueueCoinsToMixAsync(password, coins.ToArray());
                     Global.NotificationManager.RequestAuthorization();
                     ScheduleConfirmNotification(null, null);
-                    return true;
                 }
                 catch (SecurityException ex)
                 {
-                    // pobably shaking in the view
-                    // NotificationHelpers.Error(ex.Message, "");
+                    throw ex;
                 }
                 catch (Exception ex)
                 {
@@ -307,15 +305,14 @@ namespace Chaincase.UI.ViewModels
                             builder.Append(Environment.NewLine + iex.ToTypeMessageString());
                         }
                     }
-                    // NotificationHelpers.Error(builder.ToString());
                     Logger.LogError(ex);
+                    throw ex; // pass it up to the ui
                 }
             }
             finally
             {
                 IsEnqueueBusy = false;
             }
-            return false;
         }
 
         void ScheduleConfirmNotification(object sender, EventArgs e)

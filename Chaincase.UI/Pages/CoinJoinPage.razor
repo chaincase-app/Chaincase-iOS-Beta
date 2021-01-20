@@ -142,26 +142,16 @@
     {
         try
         {
-            bool succ = await ViewModel.DoEnqueueAsync(Password);
-
-            if (succ)
-            {
-                ViewModel.IsEnqueueBusy = false;
-                ToastMessage = "Success! Coins Queued.";
-                ToastColor = "success";
-                ToggleModal();
-            } else
-            {
-                ViewModel.IsEnqueueBusy = false;
-
-                ToastMessage = "Something went wrong.";
-                ToastColor = "danger";
-            }
+            await ViewModel.DoEnqueueAsync(Password);
+            ToastMessage = "Success! Queued to join.";
+            ToastColor = "success";
             IsToastVisible = true;
+            ToggleModal();
         }
-        catch (Exception err)
+        catch (Exception ex)
         {
-            ToastMessage = err.Message;
+            ToastMessage = ex.Message;
+            ToastColor = "danger";
             IsToastVisible = true;
         }
     }
