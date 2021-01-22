@@ -142,13 +142,13 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.MobileBlazorBindings.WebView.iOS" Version="0.5.50-preview" />
     <PackageReference Include="System.Memory" Version="4.5.4" IncludeAssets="None" />
-    <PackageReference Include="Xamarin.Forms" Version="4.8.0.1687" />
-    <PackageReference Include="Xamarin.Essentials" Version="1.5.3.2" />
+    <PackageReference Include="Xamarin.Forms" Version="5.0.0.1905" />
+    <PackageReference Include="Xamarin.Essentials" Version="1.6.0" />
     <PackageReference Include="ZXing.Net.Mobile.Forms">
       <Version>2.4.1</Version>
     </PackageReference>
     <PackageReference Include="LiveSharp">
-      <Version>1.6.45-beta</Version>
+      <Version>1.6.52</Version>
     </PackageReference>
   </ItemGroup>
 
@@ -157,7 +157,7 @@
   </PropertyGroup>
 
   <ItemGroup Condition="'$(Configuration)' != 'Release' ">
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.1.8" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="5.0.2" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <ItemGroup>
