@@ -173,6 +173,8 @@ namespace Chaincase.UI.ViewModels
 
         private void ClearRootList() => RootList.Clear();
 
+        public void SelectPrivateCoins() => SelectCoins(x => x.AnonymitySet >= Global.Config.PrivacyLevelSome);
+
         public void AfterDismissed()
         {
             ClearRootList();

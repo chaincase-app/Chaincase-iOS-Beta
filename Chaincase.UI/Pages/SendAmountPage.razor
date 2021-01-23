@@ -12,37 +12,26 @@
         <ion-label>Amount</ion-label>
         <IonInput @bind-Value="ViewModel.AmountText" min="0"/>
     </IonItem>
-    @* This belongs iniline with the BTC amount in Dollars
-            <IonItem>
-            @ViewModel.AmountDollars
-        </IonItem>*@
-    <ion-grid class="ion-no-padding">
-        <ion-row>
-            <ion-col>
-                <IonItem lines="none">
-                    <ion-label color="" position="stacked">Amount Selected</ion-label>
-                    <h6>₿@ViewModel.SelectCoinsViewModel.SelectedAmount</h6>
-                </IonItem>
-            </ion-col>
-            <ion-col>
-                <IonItem lines="none">
-                    <ion-label position="stacked">Send Max</ion-label>
-                    <IonToggle color="secondary" @bind-Value="ViewModel.IsMax"/>
-                </IonItem>
-            </ion-col>
-        </ion-row>
-    </ion-grid>
-
-    <div class="ion-padding">
-        <ion-label class="ion-text-center">Choose coins</ion-label>
-        <IonButton OnClick="NavigateToSelectCoinsPage" expand="block">
-            Automatic coin selection <ion-icon name="chevron-forward-outline" />
+    <IonItem>
+        <ion-label>Automatic Coin Selection</ion-label>
+        <IonToggle  color="secondary" @bind-Value="IsCoinSelectionAutomatic"/>
+    </IonItem>
+    <IonItem>
+        <ion-label>Amount Selected</ion-label>
+        <IonButton OnClick="NavigateToSelectCoinsPage" disabled="@(IsCoinSelectionAutomatic)">
+            ₿@ViewModel.SelectCoinsViewModel.SelectedAmount
         </IonButton>
+    </IonItem>
+    <IonItem>
+        <ion-label>Send Max</ion-label>
+        <IonToggle color="secondary" @bind-Value="ViewModel.IsMax" />
+    </IonItem>
+    <IonItem>
+        <ion-label>Fee</ion-label>
+        <ion-badge @onclick="ToggleSelectFeeModal">@ViewModel.FeeRate</ion-badge>
+    </IonItem>
 
-        <p>Fee: <ion-badge @onclick="ToggleSelectFeeModal">~@ViewModel.FeeRate</ion-badge></p>
-
-        <IonButton OnClick="NavigateToSendApprovalPage" expand="block" disabled="@(!ViewModel.IsTransactionOkToSign)">CONFIRM</IonButton>
-    </div>
+    <IonButton class="ion-padding" OnClick="NavigateToSendApprovalPage" expand="block" disabled="@(!ViewModel.IsTransactionOkToSign)">CONTINUE</IonButton>
 </ion-content>
 
 <FeeModal @bind-Visible="@IsFeeModalVisible"
@@ -52,6 +41,19 @@
 
     private bool IsSelectCoinsModalVisible;
     private bool IsFeeModalVisible;
+    private bool _isCoinSelectionAutomatic;
+    public bool IsCoinSelectionAutomatic
+    {
+        get => _isCoinSelectionAutomatic;
+        set
+        {
+            if (value)
+            {
+                ViewModel.SelectCoinsViewModel.SelectPrivateCoins();
+            }
+            _isCoinSelectionAutomatic = value;
+        }
+    }
 
     private FeeViewModel FeeViewModel { get; set; }
 
