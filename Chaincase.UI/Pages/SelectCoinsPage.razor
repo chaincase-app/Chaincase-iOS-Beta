@@ -6,28 +6,21 @@
 @inherits ReactiveComponentBase<SelectCoinsViewModel>
 
 
-<ion-content class="ion-padding">
+<ion-content>
 
     @if (!ViewModel.CoinList.Any())
     {
-        <p>Your coins will appear here</p>
+        <ion-text>
+            <p>Your coins will appear here</p>
+        </ion-text>
     }
     else
     {
-        <IonRadioGroup @bind-Value="CoinSelectionRadios">
-            <IonItem class="ion-no-padding">
-                <ion-label>Select Private</ion-label>
-                <ion-radio mode="md" slot="start" value="private" @onclick="SelectPrivateCoins" />
-            </IonItem>
-        </IonRadioGroup>
-
-        <IonList @onclick="CoinClickHandler">
+        <IonList>
             @foreach (var coin in ViewModel.CoinList)
             {
                 <ion-item-sliding>
-                    <IonItem>
-                        <SelectableCoin CoinViewModel="@coin" />
-                    </IonItem>
+                    <SelectableCoin CoinViewModel="@coin" />
 
                     <ion-item-options side="end">
                         <IonItemOption OnClick="@(() => OpenCoinDetail(coin))" color="secondary">Details</IonItemOption>
@@ -62,16 +55,5 @@
     {
         CurrentCoinViewModel = coin;
         IsDetailModalVisible = true;
-    }
-
-    void CoinClickHandler()
-    {
-        CoinSelectionRadios = "no-sentinel";
-    }
-
-    private void SelectPrivateCoins()
-    {
-        ViewModel.SelectCoins(x => x.AnonymitySet >= Global.Config.PrivacyLevelSome);
-        StateHasChanged();
     }
 }
