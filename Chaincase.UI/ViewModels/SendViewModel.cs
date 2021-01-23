@@ -176,7 +176,7 @@ namespace Chaincase.UI.ViewModels
                 x => x.EstimatedBtcFee,
             (label, address, outputAmount, selectedAmount, feeAmount) =>
             {
-                return Label.NotNullAndNotEmpty()
+                return label.NotNullAndNotEmpty()
                     && address is not null
                     && outputAmount > Money.Zero
                     && outputAmount + feeAmount <= selectedAmount;
