@@ -26,7 +26,8 @@
         </p>
         <IonRange min="@(-1 * ViewModel.SendViewModel.MaximumFeeTarget)"
                   max="@(-1 * ViewModel.SendViewModel.MinimumFeeTarget)"
-                  @bind-Value="@InverseFeeTarget" />
+                  @bind-Value="@InverseFeeTarget"
+                  debounce="16"/>
 
     </ion-content>
 </IonModal>
