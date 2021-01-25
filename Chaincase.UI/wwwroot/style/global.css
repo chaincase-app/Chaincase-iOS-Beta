@@ -18,23 +18,33 @@ input::-ms-clear {
 }
 
 ion-button:not(.in-toolbar) {
-    font-weight: bold;
-    --background: linear-gradient(180deg, var(--ion-background-color) 0%, var(--ion-color-step-25) 100%);
+    --background: linear-gradient(180deg, rgba(0, 0, 0, 0.008) 0%, var(--ion-background-color) 100%);
     /* light shadow on top dark shadow below  ... these r gonna need to be swapped for light should be alpha based */
-    --box-shadow: 0 .1rem .1rem var(--ion-color-step--50), 0px -.07rem .12rem var(--ion-color-step-50);
+    --box-shadow: 0 .5rem .4rem rgba(0,0,0,0.08), 0 -.4rem .5rem rgba(255, 255, 255,1);
     text-transform: uppercase;
     --color: var(--ion-color-primary);
     --border-radius: 1.6rem;
     margin-top: 1rem;
     display: block;
-    --background-activated: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.08) 22.4%);
+    --background-activated: linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0, rgba(0, 0, 0, 0.08) 26%);
 }
 
 ion-button.ion-activated {
-    --box-shadow: 0 -.4rem 1rem rgba(255, 255, 255, 0.01);
+    --box-shadow: 0 .4rem 1rem rgba(255, 255, 255, 1);
 }
 
-ion-button:not(.in-toolbar).button-disabled {
+body.dark ion-button:not(.in-toolbar) {
+    --background: linear-gradient(180deg, rgba(0, 0, 0, 0.16) 0%, var(--ion-color-step-25) 100%);
+    --box-shadow: 0 .5rem .4rem rgba(0,0,0,1), 0 -.4rem .5rem rgba(255, 255, 255, 0.08);
+    --background-activated: linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.08) 26%);
+}
+
+body.dark ion-button.ion-activated {
+    --box-shadow: 0 .4rem 1rem rgba(255, 255, 255, 0.1);
+}
+
+ion-button:not(.in-toolbar).button-disabled,
+body.dark ion-button:not(.in-toolbar).button-disabled {
     --background: var(--ion-background-color);
     --padding-start: 0;
     --box-shadow: none;
@@ -67,7 +77,7 @@ ion-button:not(.in-toolbar).button-disabled {
   --ion-text-color: #222222;
   --ion-text-color-rgb: 34,34,34;
 
-  --ion-color-step--50: #fcfcfd;
+  --ion-color-step--50: #ffffff;
   --ion-color-step-25: #ededee;
 
 
