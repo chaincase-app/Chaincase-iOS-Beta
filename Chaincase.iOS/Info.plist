@@ -24,7 +24,7 @@
 	<key>CFBundleDisplayName</key>
 	<string>Chaincase</string>
 	<key>CFBundleIdentifier</key>
-	<string>cash.chaincase.chaincase</string>
+	<string>cash.chaincase.dev</string>
 	<key>CFBundleVersion</key>
 	<string>0.4.11</string>
 	<key>UILaunchStoryboardName</key>
