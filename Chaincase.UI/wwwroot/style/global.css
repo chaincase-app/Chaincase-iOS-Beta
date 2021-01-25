@@ -2,10 +2,10 @@
 
 ﻿ /* Hide stupid browsers password eye toggle*/
 
-ion-input {
+.neu-input {
+    --padding-start: 1rem;
     filter: drop-shadow(1px 1px 3px rgba(0, 0, 0, 0.9));
     box-shadow: .1rem .2rem .5rem rgba(255, 255, 255, 0.09);
-    --padding-start: 1rem !important;
 }
 
 input {
@@ -45,6 +45,7 @@ ion-button:not(.in-toolbar).button-disabled {
 }
 
 :root {
+
   --ion-color-primary: #5344f4;
   --ion-color-primary-rgb: 83,68,244;
   --ion-color-primary-contrast: #ffffff;
@@ -58,6 +59,37 @@ ion-button:not(.in-toolbar).button-disabled {
   --ion-color-secondary-contrast-rgb: 0,0,0;
   --ion-color-secondary-shade: #e08700;
   --ion-color-secondary-tint: #ffa31a;
+
+
+  --ion-background-color: #F2F2F3;
+  --ion-background-color-rgb: 242,242,243;
+
+  --ion-text-color: #222222;
+  --ion-text-color-rgb: 34,34,34;
+
+  --ion-color-step--50: #fcfcfd;
+  --ion-color-step-25: #ededee;
+
+
+  --ion-color-step-50: #e8e8e9;
+  --ion-color-step-100: #ddddde;
+  --ion-color-step-150: #d3d3d4;
+  --ion-color-step-200: #c8c8c9;
+  --ion-color-step-250: #bebebf;
+  --ion-color-step-300: #b4b4b4;
+  --ion-color-step-350: #a9a9aa;
+  --ion-color-step-400: #9f9f9f;
+  --ion-color-step-450: #949495;
+  --ion-color-step-500: #8a8a8b;
+  --ion-color-step-550: #808080;
+  --ion-color-step-600: #757576;
+  --ion-color-step-650: #6b6b6b;
+  --ion-color-step-700: #606061;
+  --ion-color-step-750: #565656;
+  --ion-color-step-800: #4c4c4c;
+  --ion-color-step-850: #414141;
+  --ion-color-step-900: #373737;
+  --ion-color-step-950: #2c2c2c;
 
 }
 
@@ -172,13 +204,12 @@ body.dark {
 
 
 /*
- * Material Design Dark Theme
+ * Dark Theme
  * -------------------------------------------
  */
 
 .md body.dark,
 .ios body.dark {
-    --ion-color-step--50: #0f0f0f;
 
 
     --ion-background-color: #121212;
@@ -189,6 +220,7 @@ body.dark {
 
     --ion-border-color: #222222;
 
+    --ion-color-step--50: #0f0f0f;
 
     --ion-color-step-25: #181818;
     --ion-color-step-50: #1e1e1e;
