@@ -110,6 +110,7 @@
     private bool IsPasswordModalVisible;
     private bool IsToastVisible;
     private bool IsWarningToastVisible;
+    private bool IsEnqueueBusy;
     private bool IsLoading() => ViewModel.IsEnqueueBusy;
     private string ToastMessage = "";
     private const int ToastDuration = 2000; // ms
@@ -139,25 +140,18 @@
 
     private async Task CoinJoin()
     {
-        // if we just await an async task the UI thread freezes
         try
         {
-            bool succ = await ViewModel.DoEnqueueAsync(Password);
-            if (succ)
-            {
-                ToastMessage = "Success! Coins Queued.";
-                ToastColor = "success";
-                ToggleModal();
-            } else
-            {
-                ToastMessage = "Something went wrong.";
-                ToastColor = "danger";
-            }
+            await ViewModel.DoEnqueueAsync(Password);
+            ToastMessage = "Success! Queued to join.";
+            ToastColor = "success";
             IsToastVisible = true;
+            ToggleModal();
         }
-        catch (Exception err)
+        catch (Exception ex)
         {
-            ToastMessage = err.Message;
+            ToastMessage = ex.Message;
+            ToastColor = "danger";
             IsToastVisible = true;
         }
     }
