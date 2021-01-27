@@ -16,7 +16,7 @@
         <p>
             Bitcoin miners prioritize transactions that pay them the highest fee.
             Only a limited number can be mined every 10 minute block.
-            These network fees are typically the least expensive on weekends and holidays and most costly when there new public interest or price changes.
+            These network fees are typically the least expensive on weekends and holidays and most costly when there is new public interest or price changes.
             The arrival estimate is based on current network status and is not a guarantee.
         </p>
         <p>
@@ -26,7 +26,8 @@
         </p>
         <IonRange min="@(-1 * ViewModel.SendViewModel.MaximumFeeTarget)"
                   max="@(-1 * ViewModel.SendViewModel.MinimumFeeTarget)"
-                  @bind-Value="@InverseFeeTarget" />
+                  @bind-Value="@InverseFeeTarget"
+                  debounce="16"/>
 
     </ion-content>
 </IonModal>
