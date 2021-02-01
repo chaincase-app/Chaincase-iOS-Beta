@@ -1,10 +1,49 @@
 ﻿/** Global **/
 
-﻿/* Hide stupid browsers password eye toggle*/
+﻿ /* Hide stupid browsers password eye toggle*/
+
+ion-input {
+    filter: drop-shadow(1px 1px 3px rgba(0, 0, 0, 0.9));
+    box-shadow: .1rem .2rem .5rem rgba(255, 255, 255, 0.09);
+    --padding-start: 1rem !important;
+}
+
+input {
+    caret-color: var(--ion-color-primary);
+}
+
 input::-ms-reveal,
 input::-ms-clear {
     display: none;
 }
+
+ion-button:not(.in-toolbar) {
+    font-weight: bold;
+    --background: linear-gradient(180deg, var(--ion-background-color) 0%, var(--ion-color-step-25) 100%);
+    /* light shadow on top dark shadow below  ... these r gonna need to be swapped for light should be alpha based */
+    --box-shadow: 0 .1rem .1rem var(--ion-color-step--50), 0px -.07rem .12rem var(--ion-color-step-50);
+    text-transform: uppercase;
+    --color: var(--ion-color-primary);
+    --border-radius: 1.6rem;
+    margin-top: 1rem;
+    display: block;
+    --background-activated: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.08) 22.4%);
+}
+
+ion-button.ion-activated {
+    --box-shadow: 0 -.4rem 1rem rgba(255, 255, 255, 0.01);
+}
+
+ion-button:not(.in-toolbar).button-disabled {
+    --background: var(--ion-background-color);
+    --padding-start: 0;
+    --box-shadow: none;
+    --color: var(--ion-color-step-900);
+    --border-style: solid;
+    --border-width: .1rem;
+    --border-color: var(--ion-color-step-200);
+}
+
 
 :root {
   --ion-color-primary: #5344f4;
