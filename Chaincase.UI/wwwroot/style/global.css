@@ -56,6 +56,9 @@ ion-button:not(.in-toolbar).button-disabled {
     --border-color: var(--ion-color-step-200);
 }
 
+.color-buffer-background {
+    color: var(--ion-color-tint);
+}
 
 :root {
   --ion-color-primary: #5344f4;

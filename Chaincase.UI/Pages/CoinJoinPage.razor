@@ -32,40 +32,49 @@
             <IonButton @onclick="NavigateToSelectCoins" expand="block">
                 SELECT COINS <ion-icon name="chevron-forward-outline" />
             </IonButton>
-
-            @* Progress Bar *@
-            <ion-label>
-                Percentage of peers queued in most advanced round
-            </ion-label>
-            <ion-progress-bar value="@ViewModel.QueuedPercentage" />
-            @* List Coin Join round info**@
         </div>
-        <ion-list>
-            <ion-item>
-                <ion-label>₿ Required to Join</ion-label>
-                <ion-badge slot="end">@ViewModel.RequiredBTC</ion-badge>
-            </ion-item>
-            <ion-item>
-                <ion-label>Phase</ion-label>
-                <ion-badge slot="end">@ViewModel.RoundPhaseState.Phase</ion-badge>
-            </ion-item>
-            <ion-item>
-                <ion-label>Phase ends</ion-label>
-                <ion-badge slot="end">@ViewModel.TimeLeftTillRoundTimeout</ion-badge>
-            </ion-item>
-            <ion-item>
-                <ion-label>Auto-join at</ion-label>
-                <ion-badge slot="end">@ViewModel.PeersNeeded</ion-badge>
-            </ion-item>
-            <ion-item>
-                <ion-label>Registered peers</ion-label>
-                <ion-badge slot="end">@ViewModel.PeersRegistered</ion-badge>
-            </ion-item>
-            <ion-item>
-                <ion-label>Coinjoin Fee</ion-label>
-                <ion-badge slot="end">@(ViewModel.CoordinatorFeePercent)% per peer</ion-badge>
-            </ion-item>
-        </ion-list>
+
+
+
+            @* List Coin Join round info**@
+<ion-list>
+
+    <ion-list-header>
+        <ion-label>
+            Peers to CoinJoin
+        </ion-label>
+    </ion-list-header>
+    <ion-progress-bar value="@ViewModel.RegisteredPercentage" buffer="@ViewModel.QueuedPercentage" />
+
+    <ion-item>
+        <ion-label>Online</ion-label>
+        <ion-badge>@ViewModel.PeersRegistered</ion-badge>
+        <ion-label slot="end">Queued</ion-label>
+        <ion-badge slot="end" color="dark">@ViewModel.PeersRegistered</ion-badge>
+    </ion-item>
+    <ion-item>
+        <ion-label>Minimum required</ion-label>
+        <ion-badge color="secondary" slot="end">₿ @ViewModel.RequiredBTC</ion-badge>
+    </ion-item>
+
+    <ion-item>
+        <ion-label>Auto-join at</ion-label>
+        <ion-badge slot="end">@ViewModel.PeersNeeded peers</ion-badge>
+    </ion-item>
+
+    <ion-item>
+        <ion-label>Current phase</ion-label>
+        <ion-badge color="light" slot="end">@ViewModel.RoundPhaseState.Phase</ion-badge>
+    </ion-item>
+    <ion-item>
+        <ion-label>Phase ends in</ion-label>
+        <ion-badge color="light" slot="end">@($"{ViewModel.TimeLeftTillRoundTimeout:hh\\:mm\\:ss}")</ion-badge>
+    </ion-item>
+    <ion-item>
+        <ion-label>CoinJoin fee</ion-label>
+        <ion-badge color="light" slot="end">@(ViewModel.CoordinatorFeePercent)% per peer</ion-badge>
+    </ion-item>
+</ion-list>
         <div class="ion-padding">
             <IonModal @bind-Visible="IsPasswordModalVisible">
                 <ion-header>
