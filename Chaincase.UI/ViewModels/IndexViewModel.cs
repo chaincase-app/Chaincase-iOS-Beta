@@ -18,8 +18,8 @@ namespace Chaincase.UI.ViewModels
 {
     public class IndexViewModel : ReactiveObject
     {
-	    private readonly IMainThreadInvoker _mainThreadInvoker;
-	    private readonly Global _global;
+        private readonly IMainThreadInvoker _mainThreadInvoker;
+        private readonly Global _global;
 
         private CompositeDisposable Disposables { get; set; }
         private ObservableCollection<TransactionViewModel> _transactions;
@@ -29,16 +29,17 @@ namespace Chaincase.UI.ViewModels
         private ObservableAsPropertyHelper<bool> _isBackedUp;
         private ObservableAsPropertyHelper<bool> _canBackUp;
         private bool _hasPrivateCoins;
+        private bool _isWalletInitialized;
         readonly ObservableAsPropertyHelper<bool> _isJoining;
 
         public IndexViewModel(Global global, IMainThreadInvoker mainThreadInvoker)
         {
-	        _global = global;
-	        _mainThreadInvoker = mainThreadInvoker;
+            _global = global;
+            _mainThreadInvoker = mainThreadInvoker;
             Transactions = new ObservableCollection<TransactionViewModel>();
 
             if (_global.HasWalletFile() && _global.Wallet == null)
-			{
+            {
                 _global.SetDefaultWallet();
                 Task.Run(async () => await LoadWalletAsync());
 
@@ -62,7 +63,8 @@ namespace Chaincase.UI.ViewModels
             {
                 await Task.Delay(200);
             }
-			_mainThreadInvoker.Invoke(() =>
+            IsWalletInitialized = true;
+            _mainThreadInvoker.Invoke(() =>
             {
                 //CoinList = new CoinListViewModel();
                 Observable.FromEventPattern(_global.Wallet.TransactionProcessor, nameof(_global.Wallet.TransactionProcessor.WalletRelevantTransactionProcessed))
@@ -87,7 +89,7 @@ namespace Chaincase.UI.ViewModels
         {
             try
             {
-                var trs = _global.UiConfig.Transactions?.Select(ti => new TransactionViewModel(ti))?? new TransactionViewModel[0];
+                var trs = _global.UiConfig.Transactions?.Select(ti => new TransactionViewModel(ti)) ?? new TransactionViewModel[0];
                 Transactions = new ObservableCollection<TransactionViewModel>(trs.OrderByDescending(t => t.DateTime));
             }
             catch (Exception ex)
@@ -138,7 +140,7 @@ namespace Chaincase.UI.ViewModels
 
             try
             {
-	            _global.Wallet = await _global.WalletManager.StartWalletAsync(keyManager);
+                _global.Wallet = await _global.WalletManager.StartWalletAsync(keyManager);
                 // Successfully initialized.
             }
             catch (OperationCanceledException ex)
@@ -149,6 +151,12 @@ namespace Chaincase.UI.ViewModels
             {
                 Logger.LogError(ex);
             }
+        }
+
+        public bool IsWalletInitialized
+        {
+            get => _isWalletInitialized;
+            set => this.RaiseAndSetIfChanged(ref _isWalletInitialized, value);
         }
 
         public string Balance
