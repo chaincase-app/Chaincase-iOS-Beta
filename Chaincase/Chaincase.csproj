@@ -29,7 +29,6 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="ReactiveUI.XamForms" Version="13.1.1" />
     <PackageReference Include="Splat.Microsoft.Extensions.DependencyInjection" Version="10.0.1" />
-    <PackageReference Include="LiveSharp" Version="1.6.52" />
   </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release' ">
     <DefineConstants>LIVESHARP_DISABLE</DefineConstants>
