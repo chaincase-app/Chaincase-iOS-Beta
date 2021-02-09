@@ -34,18 +34,19 @@
     </IonButton>
 
     <IonButton expand="block"
+               disabled="@(!ViewModel.IsWalletInitialized)"
                OnClick='() => StackPush("/send/who")'>
         SEND
     </IonButton>
 
     <IonButton expand="block"
+               disabled="@(!ViewModel.IsWalletInitialized)"
                OnClick='() => StackPush("/coinjoin")'>
         COINJOIN
     </IonButton>
 </ion-content>
 
 @code{
-
     protected override void OnInitialized()
     {
         ViewModel = IndexViewModel;

@@ -34,6 +34,7 @@ namespace Chaincase.UI.ViewModels
         private string _coordinatorFeePercent;
 		private int _peersRegistered;
 		private int _peersNeeded;
+        private int _peersQueued;
 
 		private RoundPhaseState _roundPhaseState;
 		private DateTimeOffset _roundTimesout;
@@ -71,6 +72,7 @@ namespace Chaincase.UI.ViewModels
                 RoundPhaseState = new RoundPhaseState(mostAdvancedRound.State.Phase, Global.Wallet.ChaumianClient?.State.IsInErrorState ?? false);
                 RoundTimesout = mostAdvancedRound.State.Phase == RoundPhase.InputRegistration ? mostAdvancedRound.State.InputRegistrationTimesout : DateTimeOffset.UtcNow;
                 PeersRegistered = mostAdvancedRound.State.RegisteredPeerCount;
+                PeersQueued = mostAdvancedRound.State.QueuedPeerCount;
                 PeersNeeded = mostAdvancedRound.State.RequiredPeerCount;
             }
             else
@@ -78,6 +80,7 @@ namespace Chaincase.UI.ViewModels
                 RoundPhaseState = new RoundPhaseState(RoundPhase.InputRegistration, false);
                 RoundTimesout = DateTimeOffset.UtcNow;
                 PeersRegistered = 0;
+                PeersQueued = 0;
                 PeersNeeded = 100;
             }
 
@@ -163,6 +166,7 @@ namespace Chaincase.UI.ViewModels
                 this.RaisePropertyChanged(nameof(RoundPhaseState));
                 this.RaisePropertyChanged(nameof(RoundTimesout));
                 PeersRegistered = mostAdvancedRound.State.RegisteredPeerCount;
+                PeersQueued = mostAdvancedRound.State.QueuedPeerCount;
                 PeersNeeded = mostAdvancedRound.State.RequiredPeerCount;
             }
         }
@@ -375,6 +379,12 @@ namespace Chaincase.UI.ViewModels
             set => this.RaiseAndSetIfChanged(ref _peersRegistered, value);
         }
 
+        public int PeersQueued
+        {
+            get => _peersQueued;
+            set => this.RaiseAndSetIfChanged(ref _peersQueued, value);
+        }
+
         public RoundPhaseState RoundPhaseState
         {
             get => _roundPhaseState;
@@ -405,6 +415,8 @@ namespace Chaincase.UI.ViewModels
             set => this.RaiseAndSetIfChanged(ref _isDequeueBusy, value);
         }
 
-        public string QueuedPercentage => ((decimal)PeersRegistered / (decimal)PeersNeeded).ToString();
+        public string RegisteredPercentage => ((decimal)PeersRegistered / (decimal)PeersNeeded).ToString();
+
+        public string QueuedPercentage => ((decimal)PeersQueued / (decimal)PeersNeeded).ToString();
     }
 }
