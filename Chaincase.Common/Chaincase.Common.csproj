@@ -8,9 +8,9 @@
       <ProjectReference Include="..\WalletWasabi\WalletWasabi.Standard\WalletWasabi.Standard.csproj" />
     </ItemGroup>
     <ItemGroup>
-      <PackageReference Include="NBitcoin" Version="5.0.71" />
-      <PackageReference Include="ReactiveUI" Version="13.0.38" />
-      <PackageReference Include="ReactiveUI.Blazor" Version="13.0.38" />
+      <PackageReference Include="NBitcoin" Version="5.0.73" />
+      <PackageReference Include="ReactiveUI" Version="13.1.1" />
+      <PackageReference Include="ReactiveUI.Blazor" Version="13.1.1" />
     </ItemGroup>
     <ItemGroup>
       <Folder Include="Models\" />
