@@ -2,7 +2,7 @@
 using Chaincase.Common.Contracts;
 using Xamarin.Essentials;
 
-namespace Chaincase.Common.Xamarin
+namespace Chaincase.Services
 {
 	public class XamarinHsmStorage : IHsmStorage
     {

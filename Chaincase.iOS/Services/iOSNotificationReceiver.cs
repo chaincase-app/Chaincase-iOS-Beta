@@ -2,7 +2,7 @@
 using Chaincase.Common.Contracts;
 using UserNotifications;
 
-namespace Chaincase
+namespace Chaincase.iOS.Services
 {
 	public class iOSNotificationReceiver : UNUserNotificationCenterDelegate
     {

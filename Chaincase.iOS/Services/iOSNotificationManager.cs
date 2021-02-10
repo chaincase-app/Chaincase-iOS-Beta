@@ -1,9 +1,9 @@
 ﻿using System;
 using Chaincase.Common.Contracts;
 using UserNotifications;
-using NotificationEventArgs = Chaincase.Notifications.NotificationEventArgs;
+using NotificationEventArgs = Chaincase.Common.Contracts.NotificationEventArgs;
 
-namespace Chaincase.iOS
+namespace Chaincase.iOS.Services
 {
     public class iOSNotificationManager : INotificationManager
     {

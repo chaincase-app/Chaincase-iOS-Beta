@@ -14,7 +14,7 @@ using WalletWasabi.Helpers;
 using WalletWasabi.Logging;
 using WalletWasabi.TorSocks5;
 
-namespace Chaincase.iOS.Tor
+namespace Chaincase.iOS.Services
 {
 	public interface OnionManagerDelegate
     {
@@ -25,14 +25,14 @@ namespace Chaincase.iOS.Tor
         void TorConnDifficulties();
     }
 
-    public class OnionManager : ITorManager
+    public class iOSTorManager : ITorManager
     {
 
         private NSData Cookie => NSData.FromUrl(torBaseConf.DataDirectory.Append("control_auth_cookie", false));
         public TorState State { get; set; }
         private DispatchBlock initRetry;
 
-        public OnionManager()
+        public iOSTorManager()
         {
             TorSocks5EndPoint = new IPEndPoint(IPAddress.Loopback, 9050);
             TorController = null;

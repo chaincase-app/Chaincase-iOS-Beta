@@ -6,12 +6,12 @@ using Foundation;
 using LocalAuthentication;
 using Security;
 
-namespace Chaincase.iOS
+namespace Chaincase.iOS.Services
 {
 	// based on Xamarin.Essentials SecureStorage
 	// Simulator requires Keychain and a keychain access group for the application's bundle identifier.
 	// When deploying to an iOS device this entitlement is not required and should be removed.
-	public class HsmStorage : IHsmStorage
+	public class iOSHsmStorage : IHsmStorage
     {
         // has fallback: a device without a passcode is considered "unlocked"
         public static SecAccessible DefaultAccessible { get; set; } =

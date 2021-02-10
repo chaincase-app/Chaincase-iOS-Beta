@@ -1,4 +1,5 @@
 ﻿using System;
+
 namespace Chaincase.Background
 {
 	public class OnSleepingTaskMessage { }

@@ -1,12 +1,10 @@
 ﻿using System;
 using Chaincase.Common.Contracts;
-
-using UIKit;
 using Xamarin.Forms;
 
-namespace Chaincase.iOS
+namespace Chaincase.Services
 {
-    public class ThemeManager : IThemeManager
+	public class XamarinThemeManager : IThemeManager
     {
         public bool IsDarkTheme() => Xamarin.Forms.Application.Current.RequestedTheme == OSAppTheme.Dark;
 

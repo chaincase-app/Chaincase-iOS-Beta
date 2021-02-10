@@ -81,14 +81,13 @@
     <None Include="Entitlements.plist" />
     <None Include="Info.plist" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="HsmStorage.cs" />
-    <Compile Include="iOSNotificationManager.cs" />
-    <Compile Include="iOSNotificationReceiver.cs" />
-    <Compile Include="Tor\TorProcessManager.cs" />
-    <Compile Include="Backgrounding\iOSOnSleepingTask.cs" />
-    <Compile Include="Backgrounding\iOSInitializeNoWalletContext.cs" />
-    <Compile Include="ThemeManager.cs" />
+    <Compile Include="Background\iOSOnSleepingTask.cs" />
+    <Compile Include="Background\iOSInitializeNoWalletContext.cs" />
     <Compile Include="LiveSharp.dashboard.cs" />
+    <Compile Include="Services\iOSNotificationManager.cs" />
+    <Compile Include="Services\iOSNotificationReceiver.cs" />
+    <Compile Include="Services\iOSHsmStorage.cs" />
+    <Compile Include="Services\iOSTorManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />
@@ -186,7 +185,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Backgrounding\" />
+    <Folder Include="Background\" />
+    <Folder Include="Services\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\wwwroot\index.html" />
