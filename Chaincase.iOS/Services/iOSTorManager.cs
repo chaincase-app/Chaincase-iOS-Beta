@@ -16,7 +16,7 @@ using WalletWasabi.TorSocks5;
 
 namespace Chaincase.iOS.Services
 {
-	public interface OnionManagerDelegate
+    public interface OnionManagerDelegate
     {
         void TorConnProgress(int progress);
 
@@ -25,6 +25,7 @@ namespace Chaincase.iOS.Services
         void TorConnDifficulties();
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "iOS is iOS")]
     public class iOSTorManager : ITorManager
     {
 
@@ -116,91 +117,91 @@ namespace Chaincase.iOS.Services
                 Logger.LogInfo("Starting Tor");
             }
 
-			await Task.Delay(1000);
-			// Wait long enough for Tor itself to have started. It's OK to wait for this
-			// because Tor is already trying to connect; this is just the part that polls for
-			// progress.
+            await Task.Delay(1000);
+            // Wait long enough for Tor itself to have started. It's OK to wait for this
+            // because Tor is already trying to connect; this is just the part that polls for
+            // progress.
 
-			if (!(TorController?.Connected ?? false))
+            if (!(TorController?.Connected ?? false))
+            {
+                // do
+                NSError e = null;
+                TorController?.Connect(out e);
+                if (e != null) // faux catch accomodates bound obj-c)
                 {
-                    // do
-                    NSError e = null;
-                    TorController?.Connect(out e);
-                    if (e != null) // faux catch accomodates bound obj-c)
-                    {
-                        Logger.LogError(e.LocalizedDescription);
-                    }
+                    Logger.LogError(e.LocalizedDescription);
                 }
+            }
 
-                var cookie = Guard.NotNull(nameof(Cookie), Cookie);
-                TorController?.AuthenticateWithData(cookie, async(success, error) =>
-                {
-                    using (await mutex.LockAsync())
-                    {
-                        if (success)
-                        {
-                            NSObject completeObs = null;
-                            completeObs = TorController?.AddObserverForCircuitEstablished((established) =>
-                            {
-                                if (established)
-                                {
-                                    State = TorState.Connected;
-
-                                    TorController?.RemoveObserver(completeObs);
-                                    CancelInitRetry();
-                                    Logger.LogDebug("Connection established!");
-
-                                    weakDelegate?.TorConnFinished();
-                                }
-                            }); // TorController.addObserver
-
-                            NSObject progressObs = null;
-                            progressObs = TorController?.AddObserverForStatusEvents(
-                                (NSString type, NSString severity, NSString action, NSDictionary<NSString, NSString> arguments) =>
-                                {
-                                    if (type == "STATUS_CLIENT" && action == "BOOTSTRAP")
-                                    {
-                                        var progress = Int32.Parse(arguments![(NSString)"PROGRESS"]!)!;
-                                        Logger.LogDebug(progress.ToString());
-
-                                        weakDelegate?.TorConnProgress(progress);
-
-                                        if (progress >= 100)
-                                        {
-                                            TorController?.RemoveObserver(progressObs);
-                                        }
-
-                                        return true;
-                                    }
-
-                                    return false;
-                                }); // TorController.addObserver
-                        } // if success (authenticate)
-                        else
-                        {
-                            Logger.LogInfo("Didn't connect to control port.");
-                        }
-                    }
-                });
-
-			initRetry = new DispatchBlock( async() =>
-			{
+            var cookie = Guard.NotNull(nameof(Cookie), Cookie);
+            TorController?.AuthenticateWithData(cookie, async (success, error) =>
+            {
                 using (await mutex.LockAsync())
                 {
-                    Logger.LogDebug("Triggering Tor connection retry.");
+                    if (success)
+                    {
+                        NSObject completeObs = null;
+                        completeObs = TorController?.AddObserverForCircuitEstablished((established) =>
+                        {
+                            if (established)
+                            {
+                                State = TorState.Connected;
 
-                    TorController?.SetConfForKey("DisableNetwork", "1", null);
-                    TorController?.SetConfForKey("DisableNetwork", "0", null);
+                                TorController?.RemoveObserver(completeObs);
+                                CancelInitRetry();
+                                Logger.LogDebug("Connection established!");
+
+                                weakDelegate?.TorConnFinished();
+                            }
+                        }); // TorController.addObserver
+
+                            NSObject progressObs = null;
+                        progressObs = TorController?.AddObserverForStatusEvents(
+                            (NSString type, NSString severity, NSString action, NSDictionary<NSString, NSString> arguments) =>
+                            {
+                                if (type == "STATUS_CLIENT" && action == "BOOTSTRAP")
+                                {
+                                    var progress = Int32.Parse(arguments![(NSString)"PROGRESS"]!)!;
+                                    Logger.LogDebug(progress.ToString());
+
+                                    weakDelegate?.TorConnProgress(progress);
+
+                                    if (progress >= 100)
+                                    {
+                                        TorController?.RemoveObserver(progressObs);
+                                    }
+
+                                    return true;
+                                }
+
+                                return false;
+                            }); // TorController.addObserver
+                        } // if success (authenticate)
+                        else
+                    {
+                        Logger.LogInfo("Didn't connect to control port.");
+                    }
+                }
+            });
+
+            initRetry = new DispatchBlock(async () =>
+           {
+               using (await mutex.LockAsync())
+               {
+                   Logger.LogDebug("Triggering Tor connection retry.");
+
+                   TorController?.SetConfForKey("DisableNetwork", "1", null);
+                   TorController?.SetConfForKey("DisableNetwork", "0", null);
 
                     // Hint user that they might need to use a bridge.
                     managerDelegate?.TorConnDifficulties();
-                }
-			});
+               }
+           });
 
-			// On first load: If Tor hasn't finished bootstrap in 30 seconds,
-			// HUP tor once in case we have partially bootstrapped but got stuck.
-			DispatchQueue.MainQueue.DispatchAfter(new DispatchTime(DispatchTime.Now, TimeSpan.FromSeconds(15)), initRetry!);
-		}
+            // On first load: If Tor hasn't finished bootstrap in 30 seconds,
+            // HUP tor once in case we have partially bootstrapped but got stuck.
+            DispatchQueue.MainQueue.DispatchAfter(new DispatchTime(DispatchTime.Now, TimeSpan.FromSeconds(15)), initRetry!);
+        }
 
         private TORConfiguration torBaseConf
         {
@@ -256,10 +257,10 @@ namespace Chaincase.iOS.Services
 
         public async Task StopAsync()
         {
-			Logger.LogDebug($"TorProcessManager.StopAsync(): start stopAsync");
-			using (await mutex.LockAsync())
-			{
-				try
+            Logger.LogDebug($"TorProcessManager.StopAsync(): start stopAsync");
+            using (await mutex.LockAsync())
+            {
+                try
                 {
                     // Under the hood, TORController will SIGNAL SHUTDOWN and set it's channel to null, so
                     // we actually rely on that to stop Tor and reset the state of torController. (we can
@@ -274,11 +275,12 @@ namespace Chaincase.iOS.Services
 
                     State = TorState.Stopped;
                 }
-                catch (Exception error) {
+                catch (Exception error)
+                {
                     Logger.LogError($"TorProcessManager.StopAsync(): Failed to stop tor thread {error}");
                 }
-			}
-		}
+            }
+        }
 
         private static string NSHomeDirectory() => Directory.GetParent(NSFileManager.DefaultManager.GetUrls(NSSearchPathDirectory.LibraryDirectory, NSSearchPathDomain.User).First().Path).FullName;
 

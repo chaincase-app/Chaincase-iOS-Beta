@@ -5,6 +5,7 @@ using UIKit;
 
 namespace Chaincase.iOS.Background
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "iOS is iOS")]
     public class iOSOnSleepingContext
     {
         nint _taskId;

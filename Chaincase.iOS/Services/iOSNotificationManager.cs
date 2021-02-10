@@ -5,6 +5,7 @@ using NotificationEventArgs = Chaincase.Common.Contracts.NotificationEventArgs;
 
 namespace Chaincase.iOS.Services
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "iOS is iOS")]
     public class iOSNotificationManager : INotificationManager
     {
         int messageId = -1;
@@ -24,13 +25,13 @@ namespace Chaincase.iOS.Services
 
         public int ScheduleNotification(string title, string message, double timeInterval)
         {
-			// EARLY OUT: app doesn't have permissions
-			//if (!hasNotificationsPermission)
-			//{
-			//	return -1;
-			//}
+            // EARLY OUT: app doesn't have permissions
+            //if (!hasNotificationsPermission)
+            //{
+            //	return -1;
+            //}
 
-			messageId++;
+            messageId++;
 
             var content = new UNMutableNotificationContent()
             {
@@ -66,7 +67,7 @@ namespace Chaincase.iOS.Services
         }
 
         public void RemoveAllPendingNotifications()
-		{
+        {
             UNUserNotificationCenter.Current.RemoveAllPendingNotificationRequests();
         }
     }

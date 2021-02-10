@@ -8,10 +8,11 @@ using Security;
 
 namespace Chaincase.iOS.Services
 {
-	// based on Xamarin.Essentials SecureStorage
-	// Simulator requires Keychain and a keychain access group for the application's bundle identifier.
-	// When deploying to an iOS device this entitlement is not required and should be removed.
-	public class iOSHsmStorage : IHsmStorage
+    // based on Xamarin.Essentials SecureStorage
+    // Simulator requires Keychain and a keychain access group for the application's bundle identifier.
+    // When deploying to an iOS device this entitlement is not required and should be removed.
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "iOS is iOS")]
+    public class iOSHsmStorage : IHsmStorage
     {
         // has fallback: a device without a passcode is considered "unlocked"
         public static SecAccessible DefaultAccessible { get; set; } =
@@ -54,11 +55,12 @@ namespace Chaincase.iOS.Services
             if (context.CanEvaluatePolicy(LAPolicy.DeviceOwnerAuthenticationWithBiometrics, out var _))
             {
                 kc = new KeyChain(BiometricAccessControl);
-            } else
-			{
+            }
+            else
+            {
                 // all devices should have passcodes set
                 kc = new KeyChain(PasscodeAccessControl);
-			}
+            }
 
             kc.SetValueForKey(value, key);
 
@@ -66,11 +68,11 @@ namespace Chaincase.iOS.Services
         }
 
         public bool Remove(string key)
-		{
+        {
             var kc = new KeyChain(DefaultAccessible);
             return kc.Remove(key);
-		}
-	}
+        }
+    }
 
 
     class KeyChain
@@ -79,15 +81,15 @@ namespace Chaincase.iOS.Services
         SecAccessControl control;
 
         internal KeyChain(SecAccessible accessible)
-		{
+        {
             this.accessible = accessible;
-		}
+        }
 
         internal KeyChain(SecAccessControl control)
-		{
+        {
             this.accessible = control.Accessible;
             this.control = control;
-		}
+        }
 
         SecRecord ExistingRecordForKey(string key)
         {
