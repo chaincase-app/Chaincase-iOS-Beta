@@ -9,8 +9,12 @@
 
 @inherits ReactiveComponentBase<IndexViewModel>
 
-<ion-content class="ion-padding">
-    <h1>Balance: @ViewModel.Balance</h1>
+<ion-content>
+    <div class="ion-padding">
+        <ion-text>
+            <h1>Balance: @ViewModel.Balance</h1>
+        </ion-text>
+    </div>
 
     <Status />
 
@@ -33,26 +37,28 @@
         <p>Your transactions will appear here</p>
     }
 
-    <IonButton expand="block"
-               OnClick='() => StackPush("/backup/start")'>
-        DON'T FORGET TO MAKE A BACKUP
-    </IonButton>
-    <IonButton expand="block"
-               OnClick='() => StackPush("/receive")'>
-        GET RECEIVE ADDRESS
-    </IonButton>
+    <div class="ion-padding">
+        <IonButton expand="block"
+                   OnClick='() => StackPush("/backup/start")'>
+            DON'T FORGET TO MAKE A BACKUP
+        </IonButton>
+        <IonButton expand="block"
+                   OnClick='() => StackPush("/receive")'>
+            GET RECEIVE ADDRESS
+        </IonButton>
 
-    <IonButton expand="block"
-               disabled="@(!ViewModel.IsWalletInitialized)"
-               OnClick='() => StackPush("/send/who")'>
-        SEND
-    </IonButton>
+        <IonButton expand="block"
+                   disabled="@(!ViewModel.IsWalletInitialized)"
+                   OnClick='() => StackPush("/send/who")'>
+            SEND
+        </IonButton>
 
-    <IonButton expand="block"
-               disabled="@(!ViewModel.IsWalletInitialized)"
-               OnClick='() => StackPush("/coinjoin")'>
-        COINJOIN
-    </IonButton>
+        <IonButton expand="block"
+                   disabled="@(!ViewModel.IsWalletInitialized)"
+                   OnClick='() => StackPush("/coinjoin")'>
+            COINJOIN
+        </IonButton>
+    </div>
 </ion-content>
 
 @code{
