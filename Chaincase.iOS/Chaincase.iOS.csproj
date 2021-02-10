@@ -69,7 +69,7 @@
     <CodesignKey>iPhone Distribution: Chaincase LLC (9Z72DXKVXK)</CodesignKey>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <LangVersion>9.0</LangVersion>
-    <CodesignProvision>Chaincase Ad Hoc (Release@chaincase.chaincase.dev)</CodesignProvision>
+    <CodesignProvision>Chaincase App Store</CodesignProvision>
     <MtouchLink>SdkOnly</MtouchLink>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <MtouchExtraArgs>-v -v -v -v</MtouchExtraArgs>
@@ -89,6 +89,7 @@
     <Compile Include="Backgrounding\iOSOnSleepingTask.cs" />
     <Compile Include="Backgrounding\iOSInitializeNoWalletContext.cs" />
     <Compile Include="ThemeManager.cs" />
+    <Compile Include="LiveSharp.dashboard.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />
