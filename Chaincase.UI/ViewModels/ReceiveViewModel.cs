@@ -13,103 +13,74 @@ using WalletWasabi.Blockchain.Keys;
 
 namespace Chaincase.UI.ViewModels
 {
-	public class ReceiveViewModel : ReactiveObject
-	{
-		protected Global Global { get; }
+    public class ReceiveViewModel : ReactiveObject
+    {
+        protected Global Global { get; }
 
-		private string _proposedLabel;
-		private string _appliedLabel;
-		private bool[,] _qrCode;
-		private string _requestAmount;
-		private ObservableAsPropertyHelper<string> _bitcoinUri;
+        private string _proposedLabel;
+        private bool[,] _qrCode;
+        private string _requestAmount;
 
-		public ReceiveViewModel(Global global)
-		{
-			Global = global;
-			Global.NotificationManager.RequestAuthorization();
+        public ReceiveViewModel(Global global)
+        {
+            Global = global;
+        }
 
+        private bool IsPasswordValid(string password)
+        {
+            string walletFilePath = Path.Combine(Global.WalletManager.WalletDirectories.WalletsDir, $"{Global.Network}.json");
+            ExtKey keyOnDisk;
+            try
+            {
+                keyOnDisk = KeyManager.FromFile(walletFilePath).GetMasterExtKey(password ?? "");
+            }
+            catch
+            {
+                // bad password
+                return false;
+            }
+            return true;
+        }
 
-			//_bitcoinUri = this
-			//	.WhenAnyValue(x => x.RequestAmount)
-			//	.Select(amount =>
-			//	{
-			//		return $"bitcoin:{Address}";
-			//	})
-			//	.ToProperty(this, nameof(BitcoinUri));
+        public bool DidGetNextReceiveKey(string password)
+        {
+            if (IsPasswordValid(password))
+            {
+                ReceivePubKey = Global.Wallet.KeyManager.GetNextReceiveKey(ProposedLabel, out bool minGapLimitIncreased);
+                ProposedLabel = "";
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
 
-			//this.WhenAnyValue(x => x.BitcoinUri)
-			//	.Subscribe((uri) => EncodeQRCode());
+        public string AppliedLabel => ReceivePubKey.Label ?? "";
+        public string Address => ReceivePubKey.GetP2wpkhAddress(Global.Network).ToString();
+        public string Pubkey => ReceivePubKey.PubKey.ToString();
+        public string KeyPath => ReceivePubKey.FullKeyPath.ToString();
 
-		}
+        public HdPubKey ReceivePubKey { get; set; }
 
-		private void EncodeQRCode()
-		{
-			Task.Run(() =>
-			{
-				var encoder = new QrEncoder(ErrorCorrectionLevel.M);
-				encoder.TryEncode(Address, out var qrCode);
+        public string BitcoinUri => $"bitcoin:{Address}";
 
-				return qrCode.Matrix.InternalArray;
-			}).ContinueWith(x =>
-			{
-				QrCode = x.Result;
-			});
-		}
+        public string ProposedLabel
+        {
+            get => _proposedLabel;
+            set => this.RaiseAndSetIfChanged(ref _proposedLabel, value);
+        }
 
-		private bool IsPasswordValid(string password)
-		{
-			string walletFilePath = Path.Combine(Global.WalletManager.WalletDirectories.WalletsDir, $"{Global.Network}.json");
-			ExtKey keyOnDisk;
-			try
-			{
-				keyOnDisk = KeyManager.FromFile(walletFilePath).GetMasterExtKey(password ?? "");
-			}
-			catch
-			{
-				// bad password
-				return false;
-			}
-			return true;
-		}
+        public bool[,] QrCode
+        {
+            get => _qrCode;
+            set => this.RaiseAndSetIfChanged(ref _qrCode, value);
+        }
 
-		public bool DidGetNextReceiveKey(string password)
-		{
-			if (IsPasswordValid(password))
-			{
-				ReceivePubKey = Global.Wallet.KeyManager.GetNextReceiveKey(ProposedLabel, out bool minGapLimitIncreased);
-				ProposedLabel = "";
-				return true;
-			} else
-			{
-				return false;
-			}
-		}
-
-		public string AppliedLabel => ReceivePubKey.Label ?? "";
-		public string Address => ReceivePubKey.GetP2wpkhAddress(Global.Network).ToString();
-		public string Pubkey => ReceivePubKey.PubKey.ToString();
-		public string KeyPath => ReceivePubKey.FullKeyPath.ToString();
-
-		public HdPubKey ReceivePubKey { get; set; }
-
-		public string BitcoinUri => $"bitcoin:{Address}";
-
-		public string ProposedLabel
-		{
-			get => _proposedLabel;
-			set => this.RaiseAndSetIfChanged(ref _proposedLabel, value);
-		}
-
-		public bool[,] QrCode
-		{
-			get => _qrCode;
-			set => this.RaiseAndSetIfChanged(ref _qrCode, value);
-		}
-
-		public string RequestAmount
-		{
-			get => _requestAmount;
-			set => this.RaiseAndSetIfChanged(ref _requestAmount, value);
-		}
-	}
+        public string RequestAmount
+        {
+            get => _requestAmount;
+            set => this.RaiseAndSetIfChanged(ref _requestAmount, value);
+        }
+    }
 }
