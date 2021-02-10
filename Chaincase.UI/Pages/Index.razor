@@ -14,10 +14,19 @@
 
     <Status />
 
-    @foreach (var t in ViewModel.Transactions)
+    <IonList>
+    @foreach (var transaction in ViewModel.Transactions)
     {
-        <TransactionListItem TransactionViewModel="@t"/>
+        <ion-item-sliding>
+            <TransactionListItem TransactionViewModel="@transaction" />
+            <ion-item-options side="end">
+                <IonItemOption OnClick="@(() => OpenTransactionDetail(transaction))" color="secondary">Details</IonItemOption>
+            </ion-item-options>
+        </ion-item-sliding>
     }
+    </IonList>
+
+    <TransactionDetailModal @bind-Visible="IsDetailModalVisible" TransactionViewModel="@CurrentTransactionViewModel"/>
 
     @if (!ViewModel.Transactions.Any())
     {
@@ -47,6 +56,9 @@
 </ion-content>
 
 @code{
+    private bool IsDetailModalVisible { get; set; }
+    private TransactionViewModel CurrentTransactionViewModel { get; set; }
+
     protected override void OnInitialized()
     {
         ViewModel = IndexViewModel;
@@ -65,5 +77,11 @@
             await NavigationManager.NavigateBack(null, "/");
         });
         NavigationManager.NavigateTo(uri);
+    }
+
+    private void OpenTransactionDetail(TransactionViewModel transaction)
+    {
+        CurrentTransactionViewModel = transaction;
+        IsDetailModalVisible = true;
     }
 }
