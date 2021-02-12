@@ -9,44 +9,62 @@
 
 @inherits ReactiveComponentBase<IndexViewModel>
 
-<ion-content class="ion-padding">
-    <h1>Balance: @ViewModel.Balance</h1>
+<ion-content>
+    <div class="ion-padding">
+        <ion-text>
+            <h1>Balance: @ViewModel.Balance</h1>
+        </ion-text>
+    </div>
 
     <Status />
 
-    @foreach (var t in ViewModel.Transactions)
+    <IonList>
+    @foreach (var transaction in ViewModel.Transactions)
     {
-        <TransactionListItem TransactionViewModel="@t"/>
+        <ion-item-sliding>
+            <TransactionListItem TransactionViewModel="@transaction" />
+            <ion-item-options side="end">
+                <IonItemOption OnClick="@(() => OpenTransactionDetail(transaction))" color="secondary">Details</IonItemOption>
+            </ion-item-options>
+        </ion-item-sliding>
     }
+    </IonList>
+
+    <TransactionDetailModal @bind-Visible="IsDetailModalVisible" TransactionViewModel="@CurrentTransactionViewModel"/>
 
     @if (!ViewModel.Transactions.Any())
     {
         <p>Your transactions will appear here</p>
     }
 
-    <IonButton expand="block"
-               OnClick='() => StackPush("/backup/start")'>
-        DON'T FORGET TO MAKE A BACKUP
-    </IonButton>
-    <IonButton expand="block"
-               OnClick='() => StackPush("/receive")'>
-        GET RECEIVE ADDRESS
-    </IonButton>
+    <div class="ion-padding">
+        <IonButton expand="block"
+                   OnClick='() => StackPush("/backup/start")'>
+            DON'T FORGET TO MAKE A BACKUP
+        </IonButton>
+        <IonButton expand="block"
+                   OnClick='() => StackPush("/receive")'>
+            GET RECEIVE ADDRESS
+        </IonButton>
 
-    <IonButton expand="block"
-               disabled="@(!ViewModel.IsWalletInitialized)"
-               OnClick='() => StackPush("/send/who")'>
-        SEND
-    </IonButton>
+        <IonButton expand="block"
+                   disabled="@(!ViewModel.IsWalletInitialized)"
+                   OnClick='() => StackPush("/send/who")'>
+            SEND
+        </IonButton>
 
-    <IonButton expand="block"
-               disabled="@(!ViewModel.IsWalletInitialized)"
-               OnClick='() => StackPush("/coinjoin")'>
-        COINJOIN
-    </IonButton>
+        <IonButton expand="block"
+                   disabled="@(!ViewModel.IsWalletInitialized)"
+                   OnClick='() => StackPush("/coinjoin")'>
+            COINJOIN
+        </IonButton>
+    </div>
 </ion-content>
 
 @code{
+    private bool IsDetailModalVisible { get; set; }
+    private TransactionViewModel CurrentTransactionViewModel { get; set; }
+
     protected override void OnInitialized()
     {
         ViewModel = IndexViewModel;
@@ -65,5 +83,11 @@
             await NavigationManager.NavigateBack(null, "/");
         });
         NavigationManager.NavigateTo(uri);
+    }
+
+    private void OpenTransactionDetail(TransactionViewModel transaction)
+    {
+        CurrentTransactionViewModel = transaction;
+        IsDetailModalVisible = true;
     }
 }

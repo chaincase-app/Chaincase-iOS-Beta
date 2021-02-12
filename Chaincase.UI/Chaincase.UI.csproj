@@ -35,12 +35,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Remove="ViewModels\SendAmountPage.xaml.cs" />
-    </ItemGroup>
-    <ItemGroup>
-      <Content Remove="wwwroot\style\EmptyCSSFile.css" />
-    </ItemGroup>
-    <ItemGroup>
       <EmbeddedResource Include="wwwroot\style\global.css">
         <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
         <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

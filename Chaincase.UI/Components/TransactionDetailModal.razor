@@ -1,0 +1,65 @@
+﻿
+@inherits ReactiveComponentBase<TransactionViewModel>
+
+<IonModal @bind-Visible="Visible">
+    <ion-header>
+        <ion-toolbar>
+            <ion-title>Transaction Details</ion-title>
+            <ion-buttons slot="start">
+                <IonButton @onclick="CloseModal">Back</IonButton>
+            </ion-buttons>
+        </ion-toolbar>
+    </ion-header>
+
+    <ion-content>
+        @if (ViewModel is not null)
+        {
+            <ion-list>
+                <IonItem>
+                    <ion-label>@ViewModel.AmountBtc BTC</ion-label>
+                </IonItem>
+                <IonItem>
+                    <ion-label>Transaction ID: @ViewModel.TransactionId</ion-label>
+                </IonItem>
+                <IonItem>
+                    <ion-label>Date: @ViewModel.DateTime</ion-label>
+                </IonItem>
+                <IonItem>
+                    <ion-label>Block Height: @ViewModel.BlockHeight</ion-label>
+                </IonItem>
+                <IonItem>
+                    <ion-label>Confirmed: @ViewModel.Confirmed</ion-label>
+                </IonItem>
+                <IonItem>
+                    <ion-label>Confirmations: @ViewModel.Confirmations</ion-label>
+                </IonItem>
+            </ion-list>
+        }
+
+    </ion-content>
+</IonModal>
+
+
+@code {
+    [Parameter]
+    public bool Visible { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> VisibleChanged { get; set; }
+
+    [Parameter]
+    public TransactionViewModel TransactionViewModel {
+        get { return ViewModel; }
+        set { ViewModel = value; }
+    }
+
+    [Parameter]
+    public EventCallback<CoinViewModel> CoinViewModelChanged { get; set; }
+
+    private async Task CloseModal()
+    {
+        bool visible = false;
+        await VisibleChanged.InvokeAsync(visible);
+    }
+
+}
