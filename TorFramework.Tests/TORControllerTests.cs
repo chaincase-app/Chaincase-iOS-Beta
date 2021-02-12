@@ -10,37 +10,30 @@ using System.Linq;
 
 namespace TorFramework.Tests
 {
+    /* This is as close to a direct port as possible to the Tor.framework
+     * tests written in objective-c. The goal of these tests is to ensure the
+     * bindings have the same behavior as the original framework.
+     * 
+     * Minor changes in TORConfiguration reflect usage in Chaincase.iOS
+     * e.g. --ControlPort
+     * 
+     */
+
     public class TORControllerFixture
     {
         public TORConfiguration Configuration
         {
             get
             {
-                string homeDirectory = null;
-
-                if (Runtime.Arch == Arch.SIMULATOR)
-                {
-                    foreach (string var in new string[] { "IPHONE_SIMULATOR_HOST_HOME", "SIMULATOR_HOST_HOME" })
-                    {
-                        string val = Environment.GetEnvironmentVariable(var);
-                        if (val != null)
-                        {
-                            homeDirectory = val;
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    homeDirectory = NSHomeDirectory();
-                }
-
-
                 TORConfiguration configuration = new TORConfiguration();
-                configuration.CookieAuthentication = new NSNumber(true); //@YES
+                configuration.CookieAuthentication = true; //@YES
                 configuration.DataDirectory = new NSUrl(Path.GetTempPath());
-                configuration.ControlSocket = NSUrl.CreateFileUrl(new string[] { homeDirectory, ".tor/control_port" });
-                configuration.Arguments = new string[] { "--ignore-missing-torrc" };
+                configuration.Arguments = new string[] {
+                    "--allow-missing-torrc",
+                    "--ignore-missing-torrc",
+                    "--SocksPort", "127.0.0.1:9050",
+                    "--ControlPort", "127.0.0.1:39060",
+                };
                 return configuration;
             }
         }
@@ -58,8 +51,6 @@ namespace TorFramework.Tests
 
             NSRunLoop.Main.RunUntil(NSDate.FromTimeIntervalSinceNow(0.5f));
         }
-
-        static string NSHomeDirectory() => Directory.GetParent(NSFileManager.DefaultManager.GetUrls(NSSearchPathDirectory.LibraryDirectory, NSSearchPathDomain.User).First().Path).FullName;
     }
 
     [CollectionDefinition("TORControllerCollection", DisableParallelization = true)]
@@ -79,7 +70,7 @@ namespace TorFramework.Tests
         public ControllerTests(TORControllerFixture fixture)
         {
             this.fixture = fixture;
-            this.Controller = new TORController(fixture.Configuration.ControlSocket);
+            this.Controller = new TORController("127.0.0.1", 39060);
             this.Cookie = NSData.FromUrl(fixture.Configuration.DataDirectory.Append("control_auth_cookie", false));
         }
 
