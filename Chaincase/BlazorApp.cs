@@ -6,15 +6,12 @@ using Chaincase.Common;
 using Chaincase.Common.Contracts;
 using Chaincase.Services;
 using Chaincase.UI.Services;
-using Chaincase.UI.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.MobileBlazorBindings;
-using ReactiveUI;
 
 using Splat;
-using Splat.Microsoft.Extensions.DependencyInjection;
 using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Logging;
 using Xamarin.Forms;
@@ -38,6 +35,8 @@ namespace Chaincase
 					services.AddSingleton<IDataDirProvider, XamarinDataDirProvider>();
 					services.AddSingleton<IMainThreadInvoker, XamarinMainThreadInvoker>();
 					services.AddSingleton<IShare, XamarinShare>();
+					services.AddSingleton<IThemeManager, XamarinThemeManager>();
+
 
 					configureDI?.Invoke(services);
 

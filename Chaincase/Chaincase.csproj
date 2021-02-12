@@ -43,4 +43,7 @@
     <ProjectReference Include="..\Chaincase.Common\Chaincase.Common.csproj" />
     <ProjectReference Include="..\Chaincase.UI\Chaincase.UI.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Background\" />
+  </ItemGroup>
 </Project>

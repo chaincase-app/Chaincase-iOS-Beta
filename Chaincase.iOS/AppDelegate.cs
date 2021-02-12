@@ -1,8 +1,8 @@
 using Chaincase.Background;
 using Chaincase.Common;
 using Chaincase.Common.Contracts;
-using Chaincase.iOS.Backgrounding;
-using Chaincase.iOS.Tor;
+using Chaincase.iOS.Services;
+using Chaincase.iOS.Background;
 using Foundation;
 using Microsoft.Extensions.DependencyInjection;
 using UIKit;
@@ -27,7 +27,6 @@ namespace Chaincase.iOS
         //
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {
-            Xamarin.Forms.Forms.SetFlags("Brush_Experimental");
             global::Xamarin.Forms.Forms.Init();
 
             ZXing.Net.Mobile.Forms.iOS.Platform.Init();
@@ -57,11 +56,10 @@ namespace Chaincase.iOS
 
         private void ConfigureDi(IServiceCollection obj)
         {
-            obj.AddSingleton<IThemeManager, ThemeManager>();
-	        obj.AddSingleton<IHsmStorage, HsmStorage>();
+	        obj.AddSingleton<IHsmStorage, iOSHsmStorage>();
 	        obj.AddSingleton<INotificationManager, iOSNotificationManager>();
 	        obj.AddSingleton<iOSNotificationReceiver>();
-	        obj.AddSingleton<ITorManager, OnionManager>();
+	        obj.AddSingleton<ITorManager, iOSTorManager>();
         }
     }
 }
