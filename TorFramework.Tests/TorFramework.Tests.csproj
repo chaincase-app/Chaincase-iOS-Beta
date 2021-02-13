@@ -70,7 +70,7 @@
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CodesignKey>iPhone Developer</CodesignKey>
+    <CodesignKey>Apple Development: Daniel Gould (BDA534V858)</CodesignKey>
     <DeviceSpecificBuild>true</DeviceSpecificBuild>
     <MtouchDebug>true</MtouchDebug>
     <MtouchNoSymbolStrip>true</MtouchNoSymbolStrip>
@@ -82,6 +82,7 @@
     <MtouchArch>ARM64</MtouchArch>
     <MtouchHttpClientHandler>NSUrlSessionHandler</MtouchHttpClientHandler>
     <MtouchVerbosity></MtouchVerbosity>
+    <CodesignProvision>Dan Gould Wildcard</CodesignProvision>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -133,6 +134,7 @@
     <Compile Include="Main.cs" />
     <Compile Include="TORControllerTests.cs" />
     <Compile Include="XunitAppDelegate.cs" />
+    <Compile Include="RunStopConnectTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TorFramework\TorFramework.csproj">
