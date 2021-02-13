@@ -1,93 +1,42 @@
-@page "/"
+﻿@page "/"
 @using Chaincase.UI.Services
 @using Chaincase.Common
-@inject IndexViewModel IndexViewModel
-@inject UIStateService UiStateService
-@inject StackService StackService 
-@inject NavigationManager NavigationManager
+
 @inject Global Global
+@inject UIStateService UiStateService
+@inject NavigationManager NavigationManager
+@inject PINViewModel PINViewModel
+@inherits ReactiveComponentBase<PINViewModel>
 
-@inherits ReactiveComponentBase<IndexViewModel>
+<ion-content class="ion-padding">
+    <p>yolo</p>
+    <PasswordInputItem @bind-Value="Password" />
+    <IonButton @onclick="ClickSubmitPassword" expand="block">Log in</IonButton>
 
-<ion-content>
-    <div class="ion-padding">
-        <ion-text>
-            <h1>Balance: @ViewModel.Balance</h1>
-        </ion-text>
-    </div>
-
-    <Status />
-
-    <IonList>
-    @foreach (var transaction in ViewModel.Transactions)
-    {
-        <ion-item-sliding>
-            <TransactionListItem TransactionViewModel="@transaction" />
-            <ion-item-options side="end">
-                <IonItemOption OnClick="@(() => OpenTransactionDetail(transaction))" color="secondary">Details</IonItemOption>
-            </ion-item-options>
-        </ion-item-sliding>
-    }
-    </IonList>
-
-    <TransactionDetailModal @bind-Visible="IsDetailModalVisible" TransactionViewModel="@CurrentTransactionViewModel"/>
-
-    @if (!ViewModel.Transactions.Any())
-    {
-        <p>Your transactions will appear here</p>
-    }
-
-    <div class="ion-padding">
-        <IonButton expand="block"
-                   OnClick='() => StackPush("/backup/start")'>
-            DON'T FORGET TO MAKE A BACKUP
-        </IonButton>
-        <IonButton expand="block"
-                   OnClick='() => StackPush("/receive")'>
-            GET RECEIVE ADDRESS
-        </IonButton>
-
-        <IonButton expand="block"
-                   disabled="@(!ViewModel.IsWalletInitialized)"
-                   OnClick='() => StackPush("/send/who")'>
-            SEND
-        </IonButton>
-
-        <IonButton expand="block"
-                   disabled="@(!ViewModel.IsWalletInitialized)"
-                   OnClick='() => StackPush("/coinjoin")'>
-            COINJOIN
-        </IonButton>
-    </div>
 </ion-content>
 
-@code{
-    private bool IsDetailModalVisible { get; set; }
-    private TransactionViewModel CurrentTransactionViewModel { get; set; }
+@code {
+    private string Password { get; set; }
 
     protected override void OnInitialized()
     {
-        ViewModel = IndexViewModel;
+        ViewModel = PINViewModel;
 
         if (!Global.HasWalletFile())
-            NavigationManager.NavigateTo("landing");
+            NavigationManager.NavigateTo("/landing");
 
         UiStateService.Title = "Chaincase";
         base.OnInitialized();
     }
 
-    private void StackPush(string uri)
+    private void ClickSubmitPassword(MouseEventArgs _)
     {
-        StackService.PushStackState(async () =>
-        {
-            await NavigationManager.NavigateBack(null, "/");
-        });
-        NavigationManager.NavigateTo(uri);
+        SubmitPassword(Password);
     }
 
-    private void OpenTransactionDetail(TransactionViewModel transaction)
+    private void SubmitPassword(string password)
     {
-        CurrentTransactionViewModel = transaction;
-        IsDetailModalVisible = true;
+        if (ViewModel.IsPasswordValid(password ?? ""))
+            NavigationManager.NavigateTo("/overview");
     }
 }

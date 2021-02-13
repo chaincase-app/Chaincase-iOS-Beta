@@ -1,5 +1,6 @@
-﻿using System;
+﻿ using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 using Chaincase.Common;
 using Chaincase.Common.Contracts;
 using Chaincase.Common.Models;
+using NBitcoin;
 using ReactiveUI;
 using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Blockchain.Transactions;
@@ -151,6 +153,22 @@ namespace Chaincase.UI.ViewModels
             {
                 Logger.LogError(ex);
             }
+        }
+
+        public bool IsPasswordValid(string password)
+        {
+            string walletFilePath = Path.Combine(_global.WalletManager.WalletDirectories.WalletsDir, $"{_global.Network}.json");
+            ExtKey keyOnDisk;
+            try
+            {
+                keyOnDisk = KeyManager.FromFile(walletFilePath).GetMasterExtKey(password ?? "");
+            }
+            catch
+            {
+                // bad password
+                return false;
+            }
+            return true;
         }
 
         public bool IsWalletInitialized
