@@ -1,0 +1,41 @@
+﻿@inherits LayoutComponentBase 
+@using Chaincase.UI.Services
+@using Chaincase.Common
+@implements IDisposable
+@inject UIStateService StateService
+@inject NavigationManager NavigationManager
+@inject ThemeSwitcher ThemeSwitcher
+@inject Global Global
+
+<ion-split-pane when="sm" content-id="main-content">
+    <ion-page class="ion-page" id="main-content">
+        @Body
+    </ion-page>
+</ion-split-pane>
+
+@code{
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        StateService.StateChanged += OnStateServiceOnStateChanged;
+        OnStateServiceOnStateChanged();
+        StateService.ThemeChanged += StateServiceOnThemeChanged;
+        StateService.SetSystemTheme();
+    }
+
+    private void StateServiceOnThemeChanged()
+    {
+        _ = ThemeSwitcher.ToggleDark(StateService.DarkMode);
+    }
+
+    private void OnStateServiceOnStateChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        StateService.ThemeChanged -= StateServiceOnThemeChanged;
+    }
+}
