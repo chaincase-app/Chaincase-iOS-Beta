@@ -56,6 +56,36 @@ ion-button:not(.in-toolbar).button-disabled {
     --border-color: var(--ion-color-step-200);
 }
 
+.shake {
+    animation: shake 0.5s infinite;
+}
+
+@keyframes shake {
+    0% {
+        transform: translate(0);
+    }
+
+    20% {
+        transform: translate(3em);
+    }
+
+    40% {
+        transform: translate(-3em);
+    }
+
+    60% {
+        transform: translate(3em);
+    }
+
+    80% {
+        transform: translate(-3em);
+    }
+
+    100% {
+        transform: translate(0);
+    }
+}
+
 .color-buffer-background {
     color: var(--ion-color-tint);
 }

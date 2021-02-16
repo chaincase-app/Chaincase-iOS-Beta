@@ -11,13 +11,16 @@
 
 <ion-content class="ion-padding">
     <p>yolo</p>
-    <PasswordInputItem @bind-Value="Password" />
+    <div class="@(IsShaking ? "shake" : "")">
+        <PasswordInputItem @bind-Value="Password"/>
+    </div>
     <IonButton @onclick="ClickSubmitPassword" expand="block">Log in</IonButton>
 
 </ion-content>
 
 @code {
     private string Password { get; set; }
+    private bool IsShaking { get; set; }
 
     protected override void OnInitialized()
     {
@@ -30,14 +33,21 @@
         base.OnInitialized();
     }
 
-    private void ClickSubmitPassword(MouseEventArgs _)
+    private async Task ClickSubmitPassword(MouseEventArgs _)
     {
-        SubmitPassword(Password);
+        await SubmitPassword(Password);
     }
 
-    private void SubmitPassword(string password)
+    private async Task SubmitPassword(string password)
     {
         if (ViewModel.IsPasswordValid(password ?? ""))
+        {
             NavigationManager.NavigateTo("/overview");
+        } else
+        {
+            IsShaking = true;
+            await Task.Delay(500);
+            IsShaking = false;
+        }
     }
 }
