@@ -12,10 +12,11 @@
 <ion-content class="ion-padding">
     <p>yolo</p>
     <div class="@(IsShaking ? "shake" : "")">
-        <PasswordInputItem @bind-Value="Password"/>
+        <PasswordInputItem @bind-Value="Password" />
     </div>
     <IonButton @onclick="ClickSubmitPassword" expand="block">Log in</IonButton>
 
+    <IonLoading @bind-Visible="@ViewModel.IsBusy" />
 </ion-content>
 
 @code {
@@ -40,14 +41,13 @@
 
     private async Task SubmitPassword(string password)
     {
-        if (ViewModel.IsPasswordValid(password ?? ""))
+        try
         {
-            NavigationManager.NavigateTo("/overview");
-        } else
-        {
-            IsShaking = true;
-            await Task.Delay(500);
             IsShaking = false;
+            await ViewModel.IsPasswordValidAsync(password ?? "");
+            NavigationManager.NavigateTo("/overview");
+        } catch {
+            IsShaking = true;
         }
     }
 }

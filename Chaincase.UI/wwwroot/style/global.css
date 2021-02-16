@@ -57,7 +57,7 @@ ion-button:not(.in-toolbar).button-disabled {
 }
 
 .shake {
-    animation: shake 0.5s infinite;
+    animation: shake 0.5s;
 }
 
 @keyframes shake {

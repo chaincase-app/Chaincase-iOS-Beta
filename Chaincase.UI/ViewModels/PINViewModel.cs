@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Threading.Tasks;
 using Chaincase.Common;
 using NBitcoin;
 using ReactiveUI;
@@ -6,29 +7,28 @@ using WalletWasabi.Blockchain.Keys;
 
 namespace Chaincase.UI.ViewModels
 {
-	public class PINViewModel : ReactiveObject
+    public class PINViewModel : ReactiveObject
     {
         protected Global Global { get; }
+        public bool IsBusy { get; set; }
 
         public PINViewModel(Global global)
         {
             Global = global;
         }
 
-        public bool IsPasswordValid(string password)
+        public async Task IsPasswordValidAsync(string password)
         {
+            IsBusy = true;
             string walletFilePath = Path.Combine(Global.WalletManager.WalletDirectories.WalletsDir, $"{Global.Network}.json");
-            ExtKey keyOnDisk;
             try
             {
-                keyOnDisk = KeyManager.FromFile(walletFilePath).GetMasterExtKey(password ?? "");
+                await Task.Run(() => KeyManager.FromFile(walletFilePath).GetMasterExtKey(password ?? ""));
             }
-            catch
+            finally
             {
-                // bad password
-                return false;
+                IsBusy = false;
             }
-            return true;
         }
     }
 }
