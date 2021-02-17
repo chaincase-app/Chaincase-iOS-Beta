@@ -18,14 +18,6 @@
                         <ion-back-button @onclick="() => StackService.InvokeStackState()" @onclick:preventDefault="true" default-href="lol"></ion-back-button>
                     }
                 </ion-buttons>
-                    @if (NavigationManager.Uri == NavigationManager.ToAbsoluteUri("/overview").ToString()) {
-                    <ion-buttons slot="end">
-                        <IonButton OnClick='@(() => StackNavigateTo("/walletinfo"))'>
-                            <ion-icon slot="icon-only" name="information-circle-outline"></ion-icon>
-                        </IonButton>
-                    </ion-buttons>
-
-                    }
                 <ion-title>@StateService.Title</ion-title>
             </ion-toolbar>
         </ion-header>

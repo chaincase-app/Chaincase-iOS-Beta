@@ -1,9 +1,10 @@
+@layout TabLayout
 @page "/overview"
 @using Chaincase.UI.Services
 @using Chaincase.Common
 @inject IndexViewModel IndexViewModel
 @inject UIStateService UiStateService
-@inject StackService StackService 
+@inject StackService StackService
 @inject NavigationManager NavigationManager
 @inject Global Global
 
@@ -19,46 +20,60 @@
     <Status />
 
     <IonList>
-    @foreach (var transaction in ViewModel.Transactions)
-    {
-        <ion-item-sliding>
-            <TransactionListItem TransactionViewModel="@transaction" />
-            <ion-item-options side="end">
-                <IonItemOption OnClick="@(() => OpenTransactionDetail(transaction))" color="secondary">Details</IonItemOption>
-            </ion-item-options>
-        </ion-item-sliding>
-    }
+        @foreach (var transaction in ViewModel.Transactions)
+        {
+            <ion-item-sliding>
+                <TransactionListItem TransactionViewModel="@transaction" />
+                <ion-item-options side="end">
+                    <IonItemOption OnClick="@(() => OpenTransactionDetail(transaction))" color="secondary">Details</IonItemOption>
+                </ion-item-options>
+            </ion-item-sliding>
+        }
     </IonList>
-
-    <TransactionDetailModal @bind-Visible="IsDetailModalVisible" TransactionViewModel="@CurrentTransactionViewModel"/>
+    <div class="ion-padding">
+        <IonButton expand="block"
+                    OnClick='() => StackPush("/backup/start")'>
+            DON'T FORGET TO MAKE A BACKUP
+        </IonButton>
+    </div>
+    <p> poop</p>
+    <p> poop</p>
+    <p> poop</p>
+    <p> poop</p>
+    <p> poop</p>
+    <p> poop</p>
+    <p> poop</p>
+    <p> poop</p>
+    <p> poop</p>
+    <p> poop</p>
+    <p> poop</p>
+    <p> poop</p>
+    <p> poop</p>
+    <p> poop</p>
+    <p> poop</p>
+    <p> poop</p>
+    <p> poop</p>
+    <p> poop</p>
+    <p> poop</p>
+    <p> poop</p>
+    <p> poop</p>
+    <p> poop</p>
+    <p> poop</p>
+    <p> poop</p>
+    <p> poop</p>
+    <p> poop</p>
+    <p> poop</p>
+    <p> poop</p>
+    <p> poop</p>
+    <p> poop</p>
+    <p> poop</p>
+    <p> poop</p>
+    <TransactionDetailModal @bind-Visible="IsDetailModalVisible" TransactionViewModel="@CurrentTransactionViewModel" />
 
     @if (!ViewModel.Transactions.Any())
     {
         <p>Your transactions will appear here</p>
     }
-
-    <div class="ion-padding">
-        <IonButton expand="block"
-                   OnClick='() => StackPush("/backup/start")'>
-            DON'T FORGET TO MAKE A BACKUP
-        </IonButton>
-        <IonButton expand="block"
-                   OnClick='() => StackPush("/receive")'>
-            GET RECEIVE ADDRESS
-        </IonButton>
-
-        <IonButton expand="block"
-                   disabled="@(!ViewModel.IsWalletInitialized)"
-                   OnClick='() => StackPush("/send/who")'>
-            SEND
-        </IonButton>
-
-        <IonButton expand="block"
-                   disabled="@(!ViewModel.IsWalletInitialized)"
-                   OnClick='() => StackPush("/coinjoin")'>
-            COINJOIN
-        </IonButton>
-    </div>
 </ion-content>
 
 @code{
