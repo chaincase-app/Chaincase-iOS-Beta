@@ -7,15 +7,10 @@ using System.Reactive.Linq;
 using System.Security;
 using System.Text;
 using System.Threading.Tasks;
-using Chaincase;
 using Chaincase.Common;
-using Chaincase.Common.Contracts;
 using Chaincase.Common.Models;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using NBitcoin;
 using ReactiveUI;
-using Splat;
 using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Blockchain.TransactionOutputs;
 using WalletWasabi.CoinJoin.Client.Clients.Queuing;
@@ -74,6 +69,7 @@ namespace Chaincase.UI.ViewModels
                 PeersRegistered = mostAdvancedRound.State.RegisteredPeerCount;
                 PeersQueued = mostAdvancedRound.State.QueuedPeerCount;
                 PeersNeeded = mostAdvancedRound.State.RequiredPeerCount;
+                RequiredBTC = mostAdvancedRound.State.CalculateRequiredAmount();
             }
             else
             {
@@ -82,6 +78,7 @@ namespace Chaincase.UI.ViewModels
                 PeersRegistered = 0;
                 PeersQueued = 0;
                 PeersNeeded = 100;
+                RequiredBTC = Money.Parse("0.01");
             }
 
             // Set time left in round 
