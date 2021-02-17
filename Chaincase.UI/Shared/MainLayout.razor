@@ -4,7 +4,6 @@
 @implements IDisposable
 @inject UIStateService StateService
 @inject StackService StackService
-@inject NavigationManager NavigationManager
 @inject ThemeSwitcher ThemeSwitcher
 @inject Global Global
 
@@ -45,15 +44,6 @@
     private void OnStateServiceOnStateChanged()
     {
         InvokeAsync(StateHasChanged);
-    }
-
-    private void StackNavigateTo(string uri)
-    {
-        StackService.PushStackState(async () =>
-        {
-            await NavigationManager.NavigateBack(null, "/overview");
-        });
-        NavigationManager.NavigateTo(uri);
     }
 
     public void Dispose()
