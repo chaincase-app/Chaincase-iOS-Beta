@@ -18,7 +18,7 @@ using WalletWasabi.Wallets;
 
 namespace Chaincase.UI.ViewModels
 {
-    public class IndexViewModel : ReactiveObject
+    public class OverviewViewModel : ReactiveObject
     {
         private readonly IMainThreadInvoker _mainThreadInvoker;
         private readonly Global _global;
@@ -34,7 +34,7 @@ namespace Chaincase.UI.ViewModels
         private bool _isWalletInitialized;
         readonly ObservableAsPropertyHelper<bool> _isJoining;
 
-        public IndexViewModel(Global global, IMainThreadInvoker mainThreadInvoker)
+        public OverviewViewModel(Global global, IMainThreadInvoker mainThreadInvoker)
         {
             _global = global;
             _mainThreadInvoker = mainThreadInvoker;
