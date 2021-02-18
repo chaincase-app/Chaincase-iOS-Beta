@@ -11,7 +11,7 @@
 @inherits ReactiveComponentBase<OverviewViewModel>
 
 <ion-content>
-    <IonToast @bind-Visible="@IsToastVisible" Buttons="toastButtons" color="danger" message="Don't forget!" />
+    <IonToast Visible="@(!ViewModel.IsBackedUp)" Buttons="toastButtons" color="danger" message="Don't forget!" />
 
     <div class="ion-padding">
         <ion-text>
