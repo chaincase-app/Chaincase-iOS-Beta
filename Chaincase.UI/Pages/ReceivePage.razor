@@ -9,17 +9,17 @@
 
 <ion-content class="ion-padding">
     <p>Who are you receiving from?</p>
-    <p>This information is never shared with anyone. It will help keep your future activity private.</p>
-    <ion-label>Address Label</ion-label>
+    <p>This information is never shared with anyone. Contact labels help keep your future activity private.</p>
+    <ion-label>Contact Label</ion-label>
     <IonInput @bind-Value="@ViewModel.ProposedLabel" placeholder="a contact e.g. Mt. Fox exchange" />
 
 
-    <IonButton href="receive/password" disabled="@IsContinueDisabled" expand="block">Continue</IonButton>
+    <IonButton @onclick="ApplyLabel" disabled="@IsContinueDisabled" expand="block">Continue</IonButton>
 
 </ion-content>
 
 @code {
-  
+
     protected override void OnInitialized()
     {
         ViewModel = ReceiveViewModel;
@@ -27,5 +27,11 @@
     }
 
     private bool IsContinueDisabled => ViewModel.ProposedLabel.IsNullOrWhiteSpace();
+
+    private void ApplyLabel()
+    {
+        ViewModel.InitNextReceiveKey();
+        NavigationManager.NavigateTo("receive/address");
+    }
 
 }

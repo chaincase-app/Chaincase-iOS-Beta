@@ -1,19 +1,10 @@
-﻿using System;
-using System.IO;
-using System.Reactive;
-using System.Reactive.Linq;
-using System.Threading.Tasks;
-using Chaincase.Common;
-using Chaincase.Common.Contracts;
-using Gma.QrCodeNet.Encoding;
-using NBitcoin;
+﻿using Chaincase.Common;
 using ReactiveUI;
-using Splat;
 using WalletWasabi.Blockchain.Keys;
 
 namespace Chaincase.UI.ViewModels
 {
-    public class ReceiveViewModel : ReactiveObject
+	public class ReceiveViewModel : ReactiveObject
     {
         protected Global Global { get; }
 
@@ -26,34 +17,10 @@ namespace Chaincase.UI.ViewModels
             Global = global;
         }
 
-        private bool IsPasswordValid(string password)
-        {
-            string walletFilePath = Path.Combine(Global.WalletManager.WalletDirectories.WalletsDir, $"{Global.Network}.json");
-            ExtKey keyOnDisk;
-            try
-            {
-                keyOnDisk = KeyManager.FromFile(walletFilePath).GetMasterExtKey(password ?? "");
-            }
-            catch
-            {
-                // bad password
-                return false;
-            }
-            return true;
-        }
-
-        public bool DidGetNextReceiveKey(string password)
-        {
-            if (IsPasswordValid(password))
-            {
-                ReceivePubKey = Global.Wallet.KeyManager.GetNextReceiveKey(ProposedLabel, out bool minGapLimitIncreased);
-                ProposedLabel = "";
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+        public void InitNextReceiveKey()
+		{
+            ReceivePubKey = Global.Wallet.KeyManager.GetNextReceiveKey(ProposedLabel, out bool minGapLimitIncreased);
+            ProposedLabel = "";
         }
 
         public string AppliedLabel => ReceivePubKey.Label ?? "";
