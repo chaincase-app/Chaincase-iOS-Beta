@@ -69,7 +69,6 @@
     <CodesignKey>iPhone Distribution: Chaincase LLC (9Z72DXKVXK)</CodesignKey>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <LangVersion>9.0</LangVersion>
-    <CodesignProvision>Chaincase App Store</CodesignProvision>
     <MtouchLink>SdkOnly</MtouchLink>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <MtouchExtraArgs>-v -v -v -v</MtouchExtraArgs>
