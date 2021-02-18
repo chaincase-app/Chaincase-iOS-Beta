@@ -163,22 +163,6 @@ namespace Chaincase.UI.ViewModels
             }
         }
 
-        public bool IsPasswordValid(string password)
-        {
-            string walletFilePath = Path.Combine(_global.WalletManager.WalletDirectories.WalletsDir, $"{_global.Network}.json");
-            ExtKey keyOnDisk;
-            try
-            {
-                keyOnDisk = KeyManager.FromFile(walletFilePath).GetMasterExtKey(password ?? "");
-            }
-            catch
-            {
-                // bad password
-                return false;
-            }
-            return true;
-        }
-
         public bool IsBackedUp => _isBackedUp.Value;
 
         public bool HasSeed => _hasSeed.Value;
