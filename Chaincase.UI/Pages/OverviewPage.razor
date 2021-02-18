@@ -2,15 +2,17 @@
 @page "/overview"
 @using Chaincase.UI.Services
 @using Chaincase.Common
-@inject IndexViewModel IndexViewModel
+@inject OverviewViewModel IndexViewModel
 @inject UIStateService UiStateService
 @inject StackService StackService
 @inject NavigationManager NavigationManager
 @inject Global Global
 
-@inherits ReactiveComponentBase<IndexViewModel>
+@inherits ReactiveComponentBase<OverviewViewModel>
 
 <ion-content>
+    <IonToast Visible="@(!ViewModel.IsBackedUp)" Buttons="toastButtons" color="danger" message="Don't forget!" />
+
     <div class="ion-padding">
         <ion-text>
             <h1>Balance: @ViewModel.Balance</h1>
@@ -30,12 +32,6 @@
             </ion-item-sliding>
         }
     </IonList>
-    <div class="ion-padding">
-        <IonButton expand="block"
-                    OnClick='() => StackPush("/backup/start")'>
-            DON'T FORGET TO MAKE A BACKUP
-        </IonButton>
-    </div>
 
     <TransactionDetailModal @bind-Visible="IsDetailModalVisible" TransactionViewModel="@CurrentTransactionViewModel" />
 
@@ -46,6 +42,8 @@
 </ion-content>
 
 @code{
+    public IonToast.IonToastButton[] toastButtons;
+    private bool IsToastVisible { get; set; }
     private bool IsDetailModalVisible { get; set; }
     private TransactionViewModel CurrentTransactionViewModel { get; set; }
 
@@ -57,6 +55,31 @@
             NavigationManager.NavigateTo("landing");
 
         UiStateService.Title = "Chaincase";
+
+        IsToastVisible = true;
+        toastButtons = new[]
+        {
+            new IonToast.IonToastButton()
+            {
+                Options = new Dictionary<string, object>()
+                {
+                    {"text", "BACK UP"},
+                },
+                Handler = _ =>
+                {
+                    StackPush("/backup/start");
+                    return Task.CompletedTask;
+                }
+            },
+            new IonToast.IonToastButton()
+            {
+                Options = new Dictionary<string, object>()
+                {
+                    {"icon", "close"},
+                    {"role", "cancel"}
+                }
+            }
+        };
         base.OnInitialized();
     }
 

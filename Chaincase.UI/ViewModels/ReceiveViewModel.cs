@@ -4,7 +4,7 @@ using WalletWasabi.Blockchain.Keys;
 
 namespace Chaincase.UI.ViewModels
 {
-	public class ReceiveViewModel : ReactiveObject
+    public class ReceiveViewModel : ReactiveObject
     {
         protected Global Global { get; }
 
@@ -18,7 +18,7 @@ namespace Chaincase.UI.ViewModels
         }
 
         public void InitNextReceiveKey()
-		{
+        {
             ReceivePubKey = Global.Wallet.KeyManager.GetNextReceiveKey(ProposedLabel, out bool minGapLimitIncreased);
             ProposedLabel = "";
         }
