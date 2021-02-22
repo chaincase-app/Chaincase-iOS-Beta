@@ -1,35 +1,9 @@
-﻿using System;
-using ObjCRuntime;
+using System;
 using Foundation;
+using ObjCRuntime;
 
 namespace Xamarin.iOS.Tor
 {
-	//	Binding Analysis:
-	//  Automated binding is complete, but there are a few APIs which have been flagged with[Verify] attributes.While the entire binding
-	//  should be audited for best API design practices, look more closely at APIs with the following Verify attribute hints:
-
-	//  ConstantsInterfaceAssociation (1 instance):
-
-	//	There's no foolproof way to determine with which Objective-C interface an extern variable declaration may be associated. Instances
-	//    of these are bound as [Field] properties in a partial interface into a nearby concrete interface to produce a more intuitive API,
-	//    possibly eliminating the 'Constants' interface altogether.
-
-	//  PlatformInvoke(4 instances) :
-
-	//	In general P/Invoke bindings are not as correct or complete as Objective-C bindings(at least currently). You may need to fix up the
-	//   library name(it defaults to '__Internal') and return/parameter types manually to conform to C calling conventionsfor the target
-	//  platform.You may find you don't even want to expose the C API in your binding, but if you do, you'll probably also want to relocate
-
-	//  the definition to a more appropriate class and expose a stronger type-safe wrapper.For P/Invoke guidance, see http://www.mono-
-
-	//  project.com/docs/advanced/pinvoke/.
-
-
-	//Once you have verified a Verify attribute, you should remove it from the binding source code.The presence of Verify attributes
-	//intentionally cause build failures.
-
-	//For more information about the Verify attribute hints above, consult the Objective Sharpie documentation by running 'sharpie docs' or
-	//visiting the following URL:
 
 	// @interface TORNode : NSObject <NSSecureCoding>
 	[BaseType(typeof(NSObject))]
@@ -369,12 +343,10 @@ namespace Xamarin.iOS.Tor
 		IntPtr Constructor(string circuitString);
 	}
 
-	// This is our trampoline boy
 	// typedef BOOL (^TORObserverBlock)(NSArray<NSNumber *> * _Nonnull, NSArray<NSData *> * _Nonnull, BOOL * _Nonnull);
 	unsafe delegate bool TORObserverBlock(NSNumber[] arg0, NSData[] arg1, bool* arg2);
 
 	[Static]
-	//[Verify(ConstantsInterfaceAssociation)]
 	partial interface Constants
 	{
 		// extern const NSErrorDomain _Nonnull TORControllerErrorDomain __attribute__((visibility("default")));
@@ -449,40 +421,40 @@ namespace Xamarin.iOS.Tor
 		void GetSessionConfiguration(Action<NSUrlSessionConfiguration> completion);
 
 		// TODO Fix: /Users/dan/Desktop/root/chaincase/app/TorFramework/BTOUCH: Error BI1001: bgen: Do not know how to make a trampoline for System.Boolean* (BI1001) (TorFramework)
+		// -(void)sendCommand:(NSString * _Nonnull)command arguments:(NSArray<NSString *> * _Nullable)arguments data:(NSData * _Nullable)data observer:(TORObserverBlock _Nonnull)observer;
 		//[Export("sendCommand:arguments:data:observer:")]
 		//void SendCommand(string command, [NullAllowed] string[] arguments, [NullAllowed] NSData data, TORObserverBlock observer);
 
 		// -(void)getCircuits:(void (^ _Nonnull)(NSArray<TORCircuit *> * _Nonnull))completion;
 		[Export("getCircuits:")]
 		[Async]
-        void GetCircuits(Action<NSArray<TORCircuit>> completion);
+		void GetCircuits(Action<NSArray<TORCircuit>> completion);
 
-        // -(void)resetConnection:(void (^ _Nullable)(BOOL))completion;
-        [Export("resetConnection:")]
-        void ResetConnection([NullAllowed] Action<bool> completion);
+		// -(void)resetConnection:(void (^ _Nullable)(BOOL))completion;
+		[Export("resetConnection:")]
+		void ResetConnection([NullAllowed] Action<bool> completion);
 
-        // -(void)closeCircuitsByIds:(NSArray<NSString *> * _Nonnull)circuitIds completion:(void (^ _Nullable)(BOOL))completion;
-        [Export("closeCircuitsByIds:completion:")]
-        void CloseCircuitsByIds(string[] circuitIds, [NullAllowed] Action<bool> completion);
+		// -(void)closeCircuitsByIds:(NSArray<NSString *> * _Nonnull)circuitIds completion:(void (^ _Nullable)(BOOL))completion;
+		[Export("closeCircuitsByIds:completion:")]
+		void CloseCircuitsByIds(string[] circuitIds, [NullAllowed] Action<bool> completion);
 
-        // -(void)closeCircuits:(NSArray<TORCircuit *> * _Nonnull)circuits completion:(void (^ _Nullable)(BOOL))completion;
-        [Export("closeCircuits:completion:")]
-        void CloseCircuits(TORCircuit[] circuits, [NullAllowed] Action<bool> completion);
+		// -(void)closeCircuits:(NSArray<TORCircuit *> * _Nonnull)circuits completion:(void (^ _Nullable)(BOOL))completion;
+		[Export("closeCircuits:completion:")]
+		void CloseCircuits(TORCircuit[] circuits, [NullAllowed] Action<bool> completion);
 
+		// -(id _Nonnull)addObserverForCircuitEstablished:(void (^ _Nonnull)(BOOL))block;
+		[Export("addObserverForCircuitEstablished:")]
+		NSObject AddObserverForCircuitEstablished(Action<bool> block);
 
-        // -(id _Nonnull)addObserverForCircuitEstablished:(void (^ _Nonnull)(BOOL))block;
-        [Export("addObserverForCircuitEstablished:")]
-        NSObject AddObserverForCircuitEstablished(Action<bool> block);
+		// -(id _Nonnull)addObserverForStatusEvents:(BOOL (^ _Nonnull)(NSString * _Nonnull, NSString * _Nonnull, NSString * _Nonnull, NSDictionary<NSString *,NSString *> * _Nullable))block;
+		[Export("addObserverForStatusEvents:")]
+		NSObject AddObserverForStatusEvents(Func<NSString, NSString, NSString, NSDictionary<NSString, NSString>, bool> block);
 
-        // -(id _Nonnull)addObserverForStatusEvents:(BOOL (^ _Nonnull)(NSString * _Nonnull, NSString * _Nonnull, NSString * _Nonnull, NSDictionary<NSString *,NSString *> * _Nullable))block;
-        [Export("addObserverForStatusEvents:")]
-        NSObject AddObserverForStatusEvents(Func<NSString, NSString, NSString, NSDictionary<NSString, NSString>, bool> block);
+		// -(void)removeObserver:(id _Nullable)observer;
+		[Export("removeObserver:")]
+		void RemoveObserver([NullAllowed] NSObject observer);
+	}
 
-        // -(void)removeObserver:(id _Nullable)observer;
-        [Export("removeObserver:")]
-        void RemoveObserver([NullAllowed] NSObject observer);
-    }
-	
 	// @interface TORConfiguration : NSObject
 	[BaseType(typeof(NSObject))]
 	interface TORConfiguration
@@ -531,4 +503,3 @@ namespace Xamarin.iOS.Tor
 		IntPtr Constructor([NullAllowed] string[] arguments);
 	}
 }
-
