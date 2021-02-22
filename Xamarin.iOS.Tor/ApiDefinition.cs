@@ -2,7 +2,7 @@
 using ObjCRuntime;
 using Foundation;
 
-namespace TorFramework
+namespace Xamarin.iOS.Tor
 {
 	//	Binding Analysis:
 	//  Automated binding is complete, but there are a few APIs which have been flagged with[Verify] attributes.While the entire binding

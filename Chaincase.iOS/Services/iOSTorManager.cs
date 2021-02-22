@@ -8,7 +8,7 @@ using CoreFoundation;
 using Foundation;
 using Nito.AsyncEx;
 using ObjCRuntime;
-using TorFramework;
+using Xamarin.iOS.Tor;
 using WalletWasabi.Exceptions;
 using WalletWasabi.Helpers;
 using WalletWasabi.Logging;

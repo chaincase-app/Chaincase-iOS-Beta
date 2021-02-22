@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace TorFramework
+namespace Xamarin.iOS.Tor
 {
 
 	//	Binding Analysis:

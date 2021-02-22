@@ -137,9 +137,9 @@
     <Compile Include="RunStopConnectTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TorFramework\TorFramework.csproj">
+    <ProjectReference Include="..\Xamarin.iOS.Tor\Xamarin.iOS.Tor.csproj">
       <Project>{4B9C81E8-049C-425D-BD7A-BFBF586A7F64}</Project>
-      <Name>TorFramework</Name>
+      <Name>Xamarin.iOS.Tor</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />

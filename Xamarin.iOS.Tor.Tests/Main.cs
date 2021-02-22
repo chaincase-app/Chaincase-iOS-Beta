@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Foundation;
 using UIKit;
 
-namespace TorFramework.Tests
+namespace Xamarin.iOS.Tor.Tests
 {
 	public class Application
 	{

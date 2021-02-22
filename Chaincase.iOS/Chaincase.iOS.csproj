@@ -167,10 +167,6 @@
       <Project>{0D4DDFEC-7BFA-47D4-8244-6CD3879DCDA4}</Project>
       <Name>WalletWasabi.Standard</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TorFramework\TorFramework.csproj">
-      <Project>{4B9C81E8-049C-425D-BD7A-BFBF586A7F64}</Project>
-      <Name>TorFramework</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Chaincase\Chaincase.csproj">
       <Project>{BAC5541F-A9DA-4195-AF14-78D5EDC7F0CF}</Project>
       <Name>Chaincase</Name>
@@ -182,6 +178,10 @@
     <ProjectReference Include="..\Chaincase.UI\Chaincase.UI.csproj">
       <Project>{15DF9C65-C954-4264-8B87-EF1D07B26D3B}</Project>
       <Name>Chaincase.UI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Xamarin.iOS.Tor\Xamarin.iOS.Tor.csproj">
+      <Project>{4B9C81E8-049C-425D-BD7A-BFBF586A7F64}</Project>
+      <Name>Xamarin.iOS.Tor</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

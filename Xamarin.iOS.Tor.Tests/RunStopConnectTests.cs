@@ -2,13 +2,13 @@ using Foundation;
 using System;
 using System.Threading;
 using Xunit;
-using TorFramework;
+using Xamarin.iOS.Tor;
 using System.Threading.Tasks;
 using ObjCRuntime;
 using System.IO;
 using System.Linq;
 
-namespace TorFramework.Tests
+namespace Xamarin.iOS.Tor.Tests
 {
     public class RunStopConnectFixture
     {
