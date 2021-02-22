@@ -33,6 +33,12 @@ namespace Chaincase.UI.ViewModels
             return true;
         }
 
+        public void SetIsBackedUp()
+        {
+            Global.UiConfig.IsBackedUp = true;
+            Global.UiConfig.ToFile(); // successfully backed up!
+        }
+
         public List<string> SeedWords
         {
             get => _seedWords;

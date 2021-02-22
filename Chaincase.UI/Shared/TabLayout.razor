@@ -1,0 +1,93 @@
+﻿@inherits LayoutComponentBase 
+@using Chaincase.UI.Services
+@using Chaincase.Common
+@implements IDisposable
+@inject UIStateService StateService
+@inject StackService StackService
+@inject NavigationManager NavigationManager
+@inject ThemeSwitcher ThemeSwitcher
+@inject Global Global
+
+<ion-split-pane when="sm" content-id="main-content" disabled="@StackService.AnyStackState">
+    <ion-page class="ion-page" id="main-content">
+        <IonTabs>
+            <ion-tab>
+                <ion-header>
+                    <ion-toolbar>
+                        <ion-buttons slot="start">
+                            @if (StackService.AnyStackState)
+                            {
+                                <ion-back-button @onclick="() => StackService.InvokeStackState()" @onclick:preventDefault="true" default-href="lol"></ion-back-button>
+                            }
+                        </ion-buttons>
+                        @if (NavigationManager.Uri == NavigationManager.ToAbsoluteUri("/overview").ToString())
+                        {
+                            <ion-buttons slot="end">
+                                <IonButton OnClick='@(() => StackPush("/walletinfo"))'>
+                                    <ion-icon slot="icon-only" name="information-circle-outline"></ion-icon>
+                                </IonButton>
+                            </ion-buttons>
+
+                        }
+                        <ion-title>@StateService.Title</ion-title>
+                    </ion-toolbar>
+                </ion-header>
+                @Body
+            </ion-tab>
+
+            <ion-tab-bar slot="bottom">
+                <IonTabButton @onclick='() => StackPush("/receive")'>
+                    <ion-icon name="qr-code"></ion-icon>
+                    <ion-label>RECEIVE</ion-label>
+                </IonTabButton>
+                <IonTabButton @onclick='() => StackPush("/coinjoin")'>
+                    <ion-icon name="logo-bitcoin"></ion-icon>
+                    <ion-label>COINJOIN</ion-label>
+                </IonTabButton>
+                <IonTabButton @onclick='() => StackPush("/send/who")'>
+                    <ion-icon name="send"></ion-icon>
+                    <ion-label>SEND</ion-label>
+                </IonTabButton>
+            </ion-tab-bar>
+        </IonTabs>
+    </ion-page>
+</ion-split-pane>
+
+@code{
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        StateService.StateChanged += OnStateServiceOnStateChanged;
+        StackService.StackStateChanged += OnStateServiceOnStateChanged;
+        OnStateServiceOnStateChanged();
+        StateService.ThemeChanged += StateServiceOnThemeChanged;
+        StateService.SetSystemTheme();
+    }
+
+    private void StateServiceOnThemeChanged()
+    {
+        _ = ThemeSwitcher.ToggleDark(StateService.DarkMode);
+    }
+
+    private void OnStateServiceOnStateChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void StackPush(string uri)
+    {
+        StackService.PushStackState(async () =>
+        {
+            await NavigationManager.NavigateBack(null, "/overview");
+        });
+        NavigationManager.NavigateTo(uri);
+    }
+
+    public void Dispose()
+    {
+        StateService.StateChanged -= OnStateServiceOnStateChanged;
+        StateService.ThemeChanged -= StateServiceOnThemeChanged;
+        StackService.StackStateChanged -= OnStateServiceOnStateChanged;
+    }
+}

@@ -18,7 +18,8 @@ namespace Chaincase.UI.Services
 			services.AddSingleton<StackService>();
 			services.AddScoped<ThemeSwitcher>();
 			services.AddSingleton<QRCodeGenerator>();
-			services.AddSingleton<IndexViewModel>();
+			services.AddSingleton<PINViewModel>();
+			services.AddSingleton<OverviewViewModel>();
 			services.AddScoped<BackUpViewModel>();
 			services.AddSingleton<ReceiveViewModel>();
 			services.AddSingleton<SendViewModel>();

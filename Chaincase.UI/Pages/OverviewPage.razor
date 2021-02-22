@@ -1,0 +1,100 @@
+@layout TabLayout
+@page "/overview"
+@using Chaincase.UI.Services
+@using Chaincase.Common
+@inject OverviewViewModel IndexViewModel
+@inject UIStateService UiStateService
+@inject StackService StackService
+@inject NavigationManager NavigationManager
+@inject Global Global
+
+@inherits ReactiveComponentBase<OverviewViewModel>
+
+<ion-content>
+    <IonToast Visible="@(!ViewModel.IsBackedUp)" Buttons="toastButtons" color="danger" message="Don't forget!" />
+
+    <div class="ion-padding">
+        <ion-text>
+            <h1>Balance: @ViewModel.Balance</h1>
+        </ion-text>
+    </div>
+
+    <Status />
+
+    <IonList>
+        @foreach (var transaction in ViewModel.Transactions)
+        {
+            <ion-item-sliding>
+                <TransactionListItem TransactionViewModel="@transaction" />
+                <ion-item-options side="end">
+                    <IonItemOption OnClick="@(() => OpenTransactionDetail(transaction))" color="secondary">Details</IonItemOption>
+                </ion-item-options>
+            </ion-item-sliding>
+        }
+    </IonList>
+
+    <TransactionDetailModal @bind-Visible="IsDetailModalVisible" TransactionViewModel="@CurrentTransactionViewModel" />
+
+    @if (!ViewModel.Transactions.Any())
+    {
+        <p>Your transactions will appear here</p>
+    }
+</ion-content>
+
+@code{
+    public IonToast.IonToastButton[] toastButtons;
+    private bool IsToastVisible { get; set; }
+    private bool IsDetailModalVisible { get; set; }
+    private TransactionViewModel CurrentTransactionViewModel { get; set; }
+
+    protected override void OnInitialized()
+    {
+        ViewModel = IndexViewModel;
+
+        if (!Global.HasWalletFile())
+            NavigationManager.NavigateTo("landing");
+
+        UiStateService.Title = "Chaincase";
+
+        IsToastVisible = true;
+        toastButtons = new[]
+        {
+            new IonToast.IonToastButton()
+            {
+                Options = new Dictionary<string, object>()
+                {
+                    {"text", "BACK UP"},
+                },
+                Handler = _ =>
+                {
+                    StackPush("/backup/start");
+                    return Task.CompletedTask;
+                }
+            },
+            new IonToast.IonToastButton()
+            {
+                Options = new Dictionary<string, object>()
+                {
+                    {"icon", "close"},
+                    {"role", "cancel"}
+                }
+            }
+        };
+        base.OnInitialized();
+    }
+
+    private void StackPush(string uri)
+    {
+        StackService.PushStackState(async () =>
+        {
+            await NavigationManager.NavigateBack(null, "/overview");
+        });
+        NavigationManager.NavigateTo(uri);
+    }
+
+    private void OpenTransactionDetail(TransactionViewModel transaction)
+    {
+        CurrentTransactionViewModel = transaction;
+        IsDetailModalVisible = true;
+    }
+}

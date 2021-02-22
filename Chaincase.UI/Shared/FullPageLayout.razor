@@ -3,23 +3,12 @@
 @using Chaincase.Common
 @implements IDisposable
 @inject UIStateService StateService
-@inject StackService StackService
+@inject NavigationManager NavigationManager
 @inject ThemeSwitcher ThemeSwitcher
 @inject Global Global
 
-<ion-split-pane when="sm" content-id="main-content" disabled="@StackService.AnyStackState">
+<ion-split-pane when="sm" content-id="main-content">
     <ion-page class="ion-page" id="main-content">
-        <ion-header>
-            <ion-toolbar>
-                <ion-buttons slot="start">
-                    @if (StackService.AnyStackState)
-                    {
-                        <ion-back-button @onclick="() => StackService.InvokeStackState()" @onclick:preventDefault="true" default-href="lol"></ion-back-button>
-                    }
-                </ion-buttons>
-                <ion-title>@StateService.Title</ion-title>
-            </ion-toolbar>
-        </ion-header>
         @Body
     </ion-page>
 </ion-split-pane>
@@ -30,7 +19,6 @@
     {
         base.OnInitialized();
         StateService.StateChanged += OnStateServiceOnStateChanged;
-        StackService.StackStateChanged += OnStateServiceOnStateChanged;
         OnStateServiceOnStateChanged();
         StateService.ThemeChanged += StateServiceOnThemeChanged;
         StateService.SetSystemTheme();
@@ -48,8 +36,6 @@
 
     public void Dispose()
     {
-        StateService.StateChanged -= OnStateServiceOnStateChanged;
         StateService.ThemeChanged -= StateServiceOnThemeChanged;
-        StackService.StackStateChanged -= OnStateServiceOnStateChanged;
     }
 }

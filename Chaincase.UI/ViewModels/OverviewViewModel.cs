@@ -1,5 +1,6 @@
-﻿using System;
+﻿ using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 using Chaincase.Common;
 using Chaincase.Common.Contracts;
 using Chaincase.Common.Models;
+using NBitcoin;
 using ReactiveUI;
 using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Blockchain.Transactions;
@@ -16,23 +18,20 @@ using WalletWasabi.Wallets;
 
 namespace Chaincase.UI.ViewModels
 {
-    public class IndexViewModel : ReactiveObject
+    public class OverviewViewModel : ReactiveObject
     {
         private readonly IMainThreadInvoker _mainThreadInvoker;
         private readonly Global _global;
 
-        private CompositeDisposable Disposables { get; set; }
         private ObservableCollection<TransactionViewModel> _transactions;
         public string _balance;
         private ObservableAsPropertyHelper<bool> _hasCoins;
         private ObservableAsPropertyHelper<bool> _hasSeed;
         private ObservableAsPropertyHelper<bool> _isBackedUp;
         private ObservableAsPropertyHelper<bool> _canBackUp;
-        private bool _hasPrivateCoins;
         private bool _isWalletInitialized;
-        readonly ObservableAsPropertyHelper<bool> _isJoining;
 
-        public IndexViewModel(Global global, IMainThreadInvoker mainThreadInvoker)
+        public OverviewViewModel(Global global, IMainThreadInvoker mainThreadInvoker)
         {
             _global = global;
             _mainThreadInvoker = mainThreadInvoker;
@@ -45,6 +44,17 @@ namespace Chaincase.UI.ViewModels
 
                 TryWriteTableFromCache();
             }
+
+            _hasSeed = this.WhenAnyValue(x => x._global.UiConfig.HasSeed)
+                .ToProperty(this, nameof(HasSeed));
+
+            _isBackedUp = this.WhenAnyValue(x => x._global.UiConfig.IsBackedUp)
+                .ToProperty(this, nameof(IsBackedUp));
+
+            var canBackUp = this.WhenAnyValue(x => x.HasSeed, x => x.IsBackedUp,
+               (hasSeed, isBackedUp) => hasSeed && !isBackedUp);
+
+            canBackUp.ToProperty(this, x => x.CanBackUp, out _canBackUp);
 
             Balance = _global.UiConfig.Balance;
 
@@ -152,6 +162,14 @@ namespace Chaincase.UI.ViewModels
                 Logger.LogError(ex);
             }
         }
+
+        public bool IsBackedUp => _isBackedUp.Value;
+
+        public bool HasSeed => _hasSeed.Value;
+
+        public bool CanBackUp => _canBackUp.Value;
+
+        public bool HasCoins => _hasCoins.Value;
 
         public bool IsWalletInitialized
         {
