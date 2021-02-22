@@ -344,7 +344,8 @@ namespace Xamarin.iOS.Tor
 	}
 
 	// typedef BOOL (^TORObserverBlock)(NSArray<NSNumber *> * _Nonnull, NSArray<NSData *> * _Nonnull, BOOL * _Nonnull);
-	unsafe delegate bool TORObserverBlock(NSNumber[] arg0, NSData[] arg1, bool* arg2);
+	//     use uint instead of bool* cause bgen can't create a trampoline for bool* https://stackoverflow.com/a/3222695
+	unsafe delegate bool TORObserverBlock(NSNumber[] arg0, NSData[] arg1, uint boolPointer);
 
 	[Static]
 	partial interface Constants
@@ -420,10 +421,9 @@ namespace Xamarin.iOS.Tor
 		[Async]
 		void GetSessionConfiguration(Action<NSUrlSessionConfiguration> completion);
 
-		// TODO Fix: /Users/dan/Desktop/root/chaincase/app/TorFramework/BTOUCH: Error BI1001: bgen: Do not know how to make a trampoline for System.Boolean* (BI1001) (TorFramework)
 		// -(void)sendCommand:(NSString * _Nonnull)command arguments:(NSArray<NSString *> * _Nullable)arguments data:(NSData * _Nullable)data observer:(TORObserverBlock _Nonnull)observer;
-		//[Export("sendCommand:arguments:data:observer:")]
-		//void SendCommand(string command, [NullAllowed] string[] arguments, [NullAllowed] NSData data, TORObserverBlock observer);
+		[Export("sendCommand:arguments:data:observer:")]
+		void SendCommand(string command, [NullAllowed] string[] arguments, [NullAllowed] NSData data, [BlockCallback] TORObserverBlock observer);
 
 		// -(void)getCircuits:(void (^ _Nonnull)(NSArray<TORCircuit *> * _Nonnull))completion;
 		[Export("getCircuits:")]
