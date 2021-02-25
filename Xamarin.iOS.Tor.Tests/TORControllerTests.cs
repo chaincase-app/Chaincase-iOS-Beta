@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 using ObjCRuntime;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
+using CoreFoundation;
+using System.Diagnostics;
 
 namespace Xamarin.iOS.Tor.Tests
 {
@@ -19,6 +22,25 @@ namespace Xamarin.iOS.Tor.Tests
      * 
      */
 
+    public class TORLogging
+    {
+        // extern void TORInstallEventLogging ();
+        [DllImport("__Internal")]
+        public static extern void TORInstallEventLogging();
+
+        // extern void TORInstallEventLoggingCallback (tor_log_cb _Nonnull cb);
+        [DllImport("__Internal")]
+        public static extern void TORInstallEventLoggingCallback(TorLogCB cb);
+
+        // extern void TORInstallTorLogging ();
+        [DllImport("__Internal")]
+        public static extern void TORInstallTorLogging();
+
+        // extern void TORInstallTorLoggingCallback (tor_log_cb _Nonnull cb);
+        [DllImport("__Internal")]
+        public static extern void TORInstallTorLoggingCallback(TorLogCB cb);
+    }
+
     public class TORControllerFixture
     {
         public TORConfiguration Configuration
@@ -30,6 +52,7 @@ namespace Xamarin.iOS.Tor.Tests
                 configuration.DataDirectory = new NSUrl(Path.GetTempPath());
                 configuration.Arguments = new string[] {
                     "--allow-missing-torrc",
+                    "--log", "notice stdout",
                     "--ignore-missing-torrc",
                     "--SocksPort", "127.0.0.1:9050",
                     "--ControlPort", "127.0.0.1:39060",
@@ -49,7 +72,6 @@ namespace Xamarin.iOS.Tor.Tests
                 thread.Start();
             }
 
-            NSRunLoop.Main.RunUntil(NSDate.FromTimeIntervalSinceNow(0.5f));
         }
     }
 
@@ -72,6 +94,18 @@ namespace Xamarin.iOS.Tor.Tests
             this.fixture = fixture;
             this.Controller = new TORController("127.0.0.1", 39060);
             this.Cookie = NSData.FromUrl(fixture.Configuration.DataDirectory.Append("control_auth_cookie", false));
+        }
+
+        [Fact]
+        public void CanCreateLogs()
+        {
+            TorLogCB cb = (severity, msg) => { Debug.WriteLine("YOLO"); };
+
+            DispatchQueue.MainQueue.DispatchAfter(new DispatchTime(DispatchTime.Now, TimeSpan.FromSeconds(1)), () =>
+            {
+                TORLogging.TORInstallTorLoggingCallback(cb);
+                TORLogging.TORInstallEventLoggingCallback(cb);
+            });
         }
 
         [Fact]
@@ -187,4 +221,6 @@ namespace Xamarin.iOS.Tor.Tests
             });
         }
     }
+
+    
 }

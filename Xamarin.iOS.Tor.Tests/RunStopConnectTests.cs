@@ -65,21 +65,21 @@ namespace Xamarin.iOS.Tor.Tests
             this.Cookie = NSData.FromUrl(fixture.Configuration.DataDirectory.Append("control_auth_cookie", false));
         }
 
-        [Fact]
-        public void TestRunStopConnectShouldCrash()
-        {
-            Controller.Connect(out NSError e);
+        //[Fact]
+        //public void TestRunStopConnectShouldCrash()
+        //{
+        //    Controller.Connect(out NSError e);
 
-            Controller.Disconnect();
-            Controller.Dispose();
-            Controller = null;
+        //    Controller.Disconnect();
+        //    Controller.Dispose();
+        //    Controller = null;
 
-            fixture.thread?.Cancel();
-            fixture.thread?.Dispose();
-            fixture.thread = null;
+        //    fixture.thread?.Cancel();
+        //    fixture.thread?.Dispose();
+        //    fixture.thread = null;
 
-            Controller.Connect(out e);
-            Assert.True(e != null);
-        }
+        //    Controller.Connect(out e);
+        //    Assert.True(e != null);
+        //}
     }
 }
