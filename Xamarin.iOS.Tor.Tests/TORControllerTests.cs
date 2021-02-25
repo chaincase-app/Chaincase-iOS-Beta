@@ -97,14 +97,60 @@ namespace Xamarin.iOS.Tor.Tests
         }
 
         [Fact]
-        public void CanCreateLogs()
+        public void CanLog()
         {
             TorLogCB cb = (severity, msg) => { Debug.WriteLine("YOLO"); };
 
             DispatchQueue.MainQueue.DispatchAfter(new DispatchTime(DispatchTime.Now, TimeSpan.FromSeconds(1)), () =>
             {
-                TORLogging.TORInstallTorLoggingCallback(cb);
-                TORLogging.TORInstallEventLoggingCallback(cb);
+                TORLogging.TORInstallTorLoggingCallback((severity, msg) =>
+                {
+                    string s;
+                    switch (severity)
+					{
+                        case OSLogLevel.Debug:
+                            s = "debug";
+                            break;
+                        case OSLogLevel.Error:
+                            s = "error";
+                            break;
+                        case OSLogLevel.Fault:
+                            s = "fault";
+                            break;
+                        case OSLogLevel.Info:
+                            s = "info";
+                            break;
+						default:
+                            s = "default";
+                            break;
+					}
+
+                    Debug.WriteLine($"[Tor {s}] {msg.Trim()}");
+                });
+                TORLogging.TORInstallEventLoggingCallback((severity, msg) =>
+                {
+                    string s;
+                    switch (severity)
+                    {
+                        case OSLogLevel.Debug:
+                            // Ignore libevent debug messages. Just too many of typically no importance.
+                            return;
+                        case OSLogLevel.Error:
+                            s = "error";
+                            break;
+                        case OSLogLevel.Fault:
+                            s = "fault";
+                            break;
+                        case OSLogLevel.Info:
+                            s = "info";
+                            break;
+                        default:
+                            s = "default";
+                            break;
+                    }
+
+                    Debug.WriteLine($"[libevent {s}] {msg}");
+                });
             });
         }
 
