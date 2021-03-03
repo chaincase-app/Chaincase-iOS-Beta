@@ -22,6 +22,8 @@ namespace Xamarin.iOS.Tor.Tests
      * 
      */
 
+    public delegate void TorLogCB(OSLogLevel severity, string msg);
+
     public class TORLogging
     {
         // extern void TORInstallEventLogging ();
