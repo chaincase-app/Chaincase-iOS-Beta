@@ -16,12 +16,15 @@
 <ion-content class="ion-padding">
     <h1>Sending to who?</h1>
 
-    <ion-label>Address or <code>bitcoin:</code> uri</ion-label>
-    @* TODO put a paste button at the end of the input*@
-    <IonInput @bind-Value="ViewModel.DestinationString" placeholder="Enter address..."/>
-
-    @*qr code reader goes here*@
+    <IonItem>
+        <ion-label position="stacked">Address or <code>bitcoin:</code> uri</ion-label>
+        <IonInput @bind-Value="ViewModel.DestinationString" placeholder="Enter address..." />
+        <IonButton slot="end">
+            <ion-icon name="scan-outline"></ion-icon>
+         </IonButton>
+    </IonItem>
     <IonButton OnClick="OnContinue" expand="block" disabled="@(!IsAddressValid)">NEXT</IonButton>
+
 </ion-content>
 
 @code {
