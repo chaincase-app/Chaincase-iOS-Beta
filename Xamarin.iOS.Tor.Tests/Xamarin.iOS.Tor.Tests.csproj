@@ -8,8 +8,8 @@
     <ProjectGuid>{AB0BE8BB-12F5-438B-A850-F5409B78654F}</ProjectGuid>
     <ProjectTypeGuids>{FEACFBD2-3405-455C-9665-78FE426C6842};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Exe</OutputType>
-    <RootNamespace>TorFramework.Tests</RootNamespace>
-    <AssemblyName>TorFramework.Tests</AssemblyName>
+    <RootNamespace>Xamarin.iOS.Tor.Tests</RootNamespace>
+    <AssemblyName>Xamarin.iOS.Tor.Tests</AssemblyName>
     <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhoneSimulator' ">
@@ -47,6 +47,7 @@
     <MtouchHttpClientHandler>NSUrlSessionHandler</MtouchHttpClientHandler>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <MtouchVerbosity></MtouchVerbosity>
+<RunCodeAnalysis>true</RunCodeAnalysis><AssemblyName>Xamarin.iOS.Tor.Tests</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
     <DebugType>pdbonly</DebugType>
@@ -83,6 +84,7 @@
     <MtouchHttpClientHandler>NSUrlSessionHandler</MtouchHttpClientHandler>
     <MtouchVerbosity></MtouchVerbosity>
     <CodesignProvision>Dan Gould Wildcard</CodesignProvision>
+<AssemblyName>Xamarin.iOS.Tor.Tests</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
