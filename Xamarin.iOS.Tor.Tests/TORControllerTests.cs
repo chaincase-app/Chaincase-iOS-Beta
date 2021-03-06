@@ -196,6 +196,8 @@ namespace Xamarin.iOS.Tor.Tests
             ewh.WaitOne();
         }
 
+        // This will crash if it runs before the other tests
+        // Could this be related to the main issue? Could closed or null circuits be referenced?
         [Fact(Timeout = 120 * 1000)]
         public void TestGetAndCloseCircuits()
         {
