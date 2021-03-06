@@ -11,13 +11,10 @@
         <DefineConstants>LIVESHARP_DISABLE</DefineConstants>
     </PropertyGroup>
 
-    <ItemGroup Condition="'$(Configuration)' != 'Release' ">
-        <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.1.8" />
-    </ItemGroup>
-
     <ItemGroup>
-      <PackageReference Include="BlazorDownloadFile" Version="2.1.2" />
-      <PackageReference Include="Splat.Microsoft.Extensions.DependencyInjection" Version="9.7.1" />
+      <PackageReference Include="BlazorDownloadFile" Version="2.1.6" />
+      <PackageReference Include="Splat.Microsoft.Extensions.DependencyInjection" Version="10.0.1" />
+      <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.1.12" />
     </ItemGroup>
 
 </Project>

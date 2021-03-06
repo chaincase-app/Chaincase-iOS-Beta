@@ -55,6 +55,8 @@
     <MtouchInterpreter>-all</MtouchInterpreter>
     <LangVersion>9.0</LangVersion>
     <CodesignProvision>Dan Gould Wildcard</CodesignProvision>
+    <MtouchExtraArgs>-v -v -v -v</MtouchExtraArgs>
+    <MtouchFloat32>true</MtouchFloat32>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
     <BlazorLinkOnBuild>false</BlazorLinkOnBuild>
@@ -143,23 +145,22 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.MobileBlazorBindings.WebView.iOS" Version="0.5.50-preview" />
     <PackageReference Include="System.Memory" Version="4.5.4" IncludeAssets="None" />
-    <PackageReference Include="Xamarin.Forms" Version="5.0.0.1931" />
+    <PackageReference Include="Xamarin.Forms" Version="5.0.0.2012" />
     <PackageReference Include="Xamarin.Essentials" Version="1.6.1" />
     <PackageReference Include="ZXing.Net.Mobile.Forms">
       <Version>2.4.1</Version>
     </PackageReference>
     <PackageReference Include="LiveSharp">
-      <Version>1.6.52</Version>
+      <Version>1.6.54</Version>
     </PackageReference>
   </ItemGroup>
-
+  <ItemGroup Condition="'$(Configuration)' != 'Release'">
+      <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.1.12" />
+  </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release' ">
     <DefineConstants>LIVESHARP_DISABLE</DefineConstants>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(Configuration)' != 'Release' ">
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="5.0.2" />
-  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <ItemGroup>
     <ProjectReference Include="..\WalletWasabi\WalletWasabi.Standard\WalletWasabi.Standard.csproj">

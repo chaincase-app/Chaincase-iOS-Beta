@@ -14,7 +14,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chaincase.Android", "Chainc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chaincase.UI", "Chaincase.UI\Chaincase.UI.csproj", "{15DF9C65-C954-4264-8B87-EF1D07B26D3B}"
 EndProject
-Project("{9344BDBB-3E7F-41FC-A0DD-8665D75EE146}") = "Chaincase.SSB", "Chaincase.SSB\Chaincase.SSB.csproj", "{396B25F5-ACC6-4718-A5F8-DADC52FCFC2E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chaincase.SSB", "Chaincase.SSB\Chaincase.SSB.csproj", "{396B25F5-ACC6-4718-A5F8-DADC52FCFC2E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.iOS.Tor", "Xamarin.iOS.Tor\Xamarin.iOS.Tor.csproj", "{4B9C81E8-049C-425D-BD7A-BFBF586A7F64}"
 EndProject
