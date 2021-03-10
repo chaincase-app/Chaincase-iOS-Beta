@@ -189,6 +189,31 @@ namespace Chaincase.UI.ViewModels
             SendTransactionCommand = ReactiveCommand.CreateFromTask<string, bool>(SendTransaction, isTransactionOkToSign);
         }
 
+        internal bool HandleScan(string scannedIn)
+        {
+            BitcoinAddress address = null;
+            try
+            {
+                address = BitcoinAddress.Create(scannedIn, Global.Network);
+            }
+            catch (Exception)
+            {
+                try
+                {
+                    address = new BitcoinUrlBuilder(scannedIn, Global.Network).Address;
+
+                }
+                catch (Exception) { }
+            }
+
+            if (address != null)
+            {
+                DestinationString = address.ToString();
+                return true;
+            }
+            return false;
+        }
+
         private void SetFees()
         {
             AllFeeEstimate allFeeEstimate = Global.FeeProviders?.AllFeeEstimate;

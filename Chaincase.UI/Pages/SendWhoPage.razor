@@ -4,7 +4,7 @@
 @using Microsoft.AspNetCore.Components
 @using Chaincase.Common
 @using Chaincase.UI.Services
-@inject Global Global 
+@inject Global Global
 @inject SendViewModel SendViewModel
 @inject UIStateService UiStateService
 @inject NavigationManager NavigationManager
@@ -19,9 +19,9 @@
     <IonItem>
         <ion-label position="stacked">Address or <code>bitcoin:</code> uri</ion-label>
         <IonInput @bind-Value="ViewModel.DestinationString" placeholder="Enter address..." />
-        <IonButton slot="end">
+        <IonButton slot="end" OnClick="OnClickScan">
             <ion-icon name="scan-outline"></ion-icon>
-         </IonButton>
+        </IonButton>
     </IonItem>
     <IonButton OnClick="OnContinue" expand="block" disabled="@(!IsAddressValid)">NEXT</IonButton>
 
@@ -39,6 +39,15 @@
     {
         ViewModel = SendViewModel;
         UiStateService.Title = "SEND";
+    }
+
+    private async Task OnClickScan()
+    {
+        var scanner = new ZXing.Mobile.MobileBarcodeScanner();
+        var result = await scanner.Scan();
+
+        if (result != null)
+        { ViewModel.HandleScan(result.Text); }
     }
 
     public void OnContinue()
