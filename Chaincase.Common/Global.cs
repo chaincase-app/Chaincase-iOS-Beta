@@ -35,7 +35,6 @@ namespace Chaincase.Common
     public class Global
     {
         public string DataDir { get; }
-        public string TorLogsFile { get; }
 
         public BitcoinStore BitcoinStore { get; private set; }
         public Config Config { get; private set; }
@@ -79,7 +78,6 @@ namespace Chaincase.Common
                 Directory.CreateDirectory(DataDir);
                 Config = new Config(Path.Combine(DataDir, "Config.json"));
                 UiConfig = new UiConfig(Path.Combine(DataDir, "UiConfig.json"));
-                TorLogsFile = Path.Combine(DataDir, "TorLogs.txt");
 
                 Logger.InitializeDefaults(Path.Combine(DataDir, "Logs.txt"));
 
