@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Chaincase.Common.Contracts;
 using Foundation;
 using LocalAuthentication;
 using Security;
+using WalletWasabi.Logging;
 
 namespace Chaincase.iOS.Services
 {
@@ -136,7 +136,7 @@ namespace Chaincase.iOS.Services
                 {
                     case SecStatusCode.DuplicateItem:
                         {
-                            Debug.WriteLine("Duplicate item found. Attempting to remove and add again.");
+                            Logger.LogDebug("Duplicate item found.Attempting to remove and add again.");
 
                             // try to remove and add again
                             if (Remove(key))
@@ -147,7 +147,7 @@ namespace Chaincase.iOS.Services
                             }
                             else
                             {
-                                Debug.WriteLine("Unable to remove key.");
+                                Logger.LogDebug("Unable to remove key.");
                             }
                         }
                         break;

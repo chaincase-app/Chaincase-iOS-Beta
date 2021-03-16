@@ -9,7 +9,7 @@ using Xunit.Runner;
 using Xunit.Sdk;
 
 
-namespace TorFramework.Tests
+namespace Xamarin.iOS.Tor.Tests
 {
     // The UIApplicationDelegate for the application. This class is responsible for launching the 
     // User Interface of the application, as well as listening (and optionally responding) to 

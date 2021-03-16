@@ -2,45 +2,63 @@ using Foundation;
 using System;
 using System.Threading;
 using Xunit;
-using TorFramework;
+using Xamarin.iOS.Tor;
 using System.Threading.Tasks;
 using ObjCRuntime;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
+using CoreFoundation;
+using System.Diagnostics;
 
-namespace TorFramework.Tests
+namespace Xamarin.iOS.Tor.Tests
 {
+    /* This is as close to a direct port as possible to the Tor.framework
+     * tests written in objective-c. The goal of these tests is to ensure the
+     * bindings have the same behavior as the original framework.
+     * 
+     * Minor changes in TORConfiguration reflect usage in Chaincase.iOS
+     * e.g. --ControlPort
+     * 
+     */
+
+    public delegate void TorLogCB(OSLogLevel severity, string msg);
+
+    public class TORLogging
+    {
+        // extern void TORInstallEventLogging ();
+        [DllImport("__Internal")]
+        public static extern void TORInstallEventLogging();
+
+        // extern void TORInstallEventLoggingCallback (tor_log_cb _Nonnull cb);
+        [DllImport("__Internal")]
+        public static extern void TORInstallEventLoggingCallback(TorLogCB cb);
+
+        // extern void TORInstallTorLogging ();
+        [DllImport("__Internal")]
+        public static extern void TORInstallTorLogging();
+
+        // extern void TORInstallTorLoggingCallback (tor_log_cb _Nonnull cb);
+        [DllImport("__Internal")]
+        public static extern void TORInstallTorLoggingCallback(TorLogCB cb);
+    }
+
     public class TORControllerFixture
     {
         public TORConfiguration Configuration
         {
             get
             {
-                string homeDirectory = null;
-
-                if (Runtime.Arch == Arch.SIMULATOR)
-                {
-                    foreach (string var in new string[] { "IPHONE_SIMULATOR_HOST_HOME", "SIMULATOR_HOST_HOME" })
-                    {
-                        string val = Environment.GetEnvironmentVariable(var);
-                        if (val != null)
-                        {
-                            homeDirectory = val;
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    homeDirectory = NSHomeDirectory();
-                }
-
-
                 TORConfiguration configuration = new TORConfiguration();
-                configuration.CookieAuthentication = new NSNumber(true); //@YES
+                configuration.CookieAuthentication = true; //@YES
                 configuration.DataDirectory = new NSUrl(Path.GetTempPath());
-                configuration.ControlSocket = NSUrl.CreateFileUrl(new string[] { homeDirectory, ".tor/control_port" });
-                configuration.Arguments = new string[] { "--ignore-missing-torrc" };
+                configuration.Arguments = new string[] {
+                    "--allow-missing-torrc",
+                    "--log", "notice stdout",
+                    "--ignore-missing-torrc",
+                    "--SocksPort", "127.0.0.1:9050",
+                    "--ControlPort", "127.0.0.1:39060",
+                };
                 return configuration;
             }
         }
@@ -56,10 +74,7 @@ namespace TorFramework.Tests
                 thread.Start();
             }
 
-            NSRunLoop.Main.RunUntil(NSDate.FromTimeIntervalSinceNow(0.5f));
         }
-
-        static string NSHomeDirectory() => Directory.GetParent(NSFileManager.DefaultManager.GetUrls(NSSearchPathDirectory.LibraryDirectory, NSSearchPathDomain.User).First().Path).FullName;
     }
 
     [CollectionDefinition("TORControllerCollection", DisableParallelization = true)]
@@ -79,8 +94,66 @@ namespace TorFramework.Tests
         public ControllerTests(TORControllerFixture fixture)
         {
             this.fixture = fixture;
-            this.Controller = new TORController(fixture.Configuration.ControlSocket);
+            this.Controller = new TORController("127.0.0.1", 39060);
             this.Cookie = NSData.FromUrl(fixture.Configuration.DataDirectory.Append("control_auth_cookie", false));
+        }
+
+        [Fact]
+        public void CanLog()
+        {
+            TorLogCB cb = (severity, msg) => { Debug.WriteLine("YOLO"); };
+
+            DispatchQueue.MainQueue.DispatchAfter(new DispatchTime(DispatchTime.Now, TimeSpan.FromSeconds(1)), () =>
+            {
+                TORLogging.TORInstallTorLoggingCallback((severity, msg) =>
+                {
+                    string s;
+                    switch (severity)
+					{
+                        case OSLogLevel.Debug:
+                            s = "debug";
+                            break;
+                        case OSLogLevel.Error:
+                            s = "error";
+                            break;
+                        case OSLogLevel.Fault:
+                            s = "fault";
+                            break;
+                        case OSLogLevel.Info:
+                            s = "info";
+                            break;
+						default:
+                            s = "default";
+                            break;
+					}
+
+                    Debug.WriteLine($"[Tor {s}] {msg.Trim()}");
+                });
+                TORLogging.TORInstallEventLoggingCallback((severity, msg) =>
+                {
+                    string s;
+                    switch (severity)
+                    {
+                        case OSLogLevel.Debug:
+                            // Ignore libevent debug messages. Just too many of typically no importance.
+                            return;
+                        case OSLogLevel.Error:
+                            s = "error";
+                            break;
+                        case OSLogLevel.Fault:
+                            s = "fault";
+                            break;
+                        case OSLogLevel.Info:
+                            s = "info";
+                            break;
+                        default:
+                            s = "default";
+                            break;
+                    }
+
+                    Debug.WriteLine($"[libevent {s}] {msg}");
+                });
+            });
         }
 
         [Fact]
@@ -123,6 +196,8 @@ namespace TorFramework.Tests
             ewh.WaitOne();
         }
 
+        // This will crash if it runs before the other tests
+        // Could this be related to the main issue? Could closed or null circuits be referenced?
         [Fact(Timeout = 120 * 1000)]
         public void TestGetAndCloseCircuits()
         {
@@ -196,4 +271,6 @@ namespace TorFramework.Tests
             });
         }
     }
+
+    
 }
