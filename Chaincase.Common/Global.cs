@@ -571,11 +571,6 @@ namespace Chaincase.Common
                     Synchronizer.Resume(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
                     Logger.LogInfo("Global.OnResuming():Start synchronizing filters...");
 
-                    if (Wallet?.ChaumianClient is { })
-                    {
-                        Synchronizer.ResponseArrived += Wallet.ChaumianClient.Synchronizer_ResponseArrivedAsync;
-                    }
-
                     if (SleepingCoins is { })
                     {
                         await Wallet.ChaumianClient.QueueCoinsToMixAsync(SleepingCoins);
