@@ -32,7 +32,7 @@ namespace Chaincase.Common.Services
 			Cancel?.Cancel();
 			while (Interlocked.CompareExchange(ref _running, 3, 0) == 2)
 			{
-				await Task.Delay(50);
+				await Task.Delay(50); // wait for Start() loop to Cancel
 			}
 			Cancel?.Dispose();
 			Cancel = null;
@@ -40,7 +40,7 @@ namespace Chaincase.Common.Services
 
 		public void Resume(TimeSpan requestInterval, TimeSpan feeQueryRequestInterval, int maxFiltersToSyncAtInitialization)
 		{
-			Interlocked.CompareExchange(ref _running, 3, 1); // if stopped, make it running
+			Interlocked.CompareExchange(ref _running, 0, 3); // If stopped, make it not started
 			Cancel = new CancellationTokenSource();
 			Start(requestInterval, feeQueryRequestInterval, maxFiltersToSyncAtInitialization);
 		}
