@@ -28,13 +28,13 @@ using WalletWasabi.Stores;
 using WalletWasabi.Wallets;
 using Nito.AsyncEx;
 using Chaincase.Common.Contracts;
+using Chaincase.Common.Services;
 
 namespace Chaincase.Common
 {
     public class Global
     {
         public string DataDir { get; }
-        public string TorLogsFile { get; }
 
         public BitcoinStore BitcoinStore { get; private set; }
         public Config Config { get; private set; }
@@ -44,7 +44,7 @@ namespace Chaincase.Common
         public AddressManager AddressManager { get; private set; }
 
         public NodesGroup Nodes { get; private set; }
-        public WasabiSynchronizer Synchronizer { get; private set; }
+        public ChaincaseSynchronizer Synchronizer { get; private set; }
         public FeeProviders FeeProviders { get; private set; }
         public WalletManager WalletManager { get; private set; }
         public TransactionBroadcaster TransactionBroadcaster { get; set; }
@@ -78,7 +78,6 @@ namespace Chaincase.Common
                 Directory.CreateDirectory(DataDir);
                 Config = new Config(Path.Combine(DataDir, "Config.json"));
                 UiConfig = new UiConfig(Path.Combine(DataDir, "UiConfig.json"));
-                TorLogsFile = Path.Combine(DataDir, "TorLogs.txt");
 
                 Logger.InitializeDefaults(Path.Combine(DataDir, "Logs.txt"));
 
@@ -141,11 +140,11 @@ namespace Chaincase.Common
 
                 if (Config.UseTor)
                 {
-                    Synchronizer = new WasabiSynchronizer(Network, BitcoinStore, () => Config.GetCurrentBackendUri(), Config.TorSocks5EndPoint);
+                    Synchronizer = new ChaincaseSynchronizer(Network, BitcoinStore, () => Config.GetCurrentBackendUri(), Config.TorSocks5EndPoint);
                 }
                 else
                 {
-                    Synchronizer = new WasabiSynchronizer(Network, BitcoinStore, Config.GetFallbackBackendUri(), null);
+                    Synchronizer = new ChaincaseSynchronizer(Network, BitcoinStore, Config.GetFallbackBackendUri(), null);
                 }
 
                 #region TorProcessInitialization
@@ -569,14 +568,8 @@ namespace Chaincase.Common
 
                     var requestInterval = (Network == Network.RegTest) ? TimeSpan.FromSeconds(5) : TimeSpan.FromSeconds(30);
                     int maxFiltSyncCount = Network == Network.Main ? 1000 : 10000; // On testnet, filters are empty, so it's faster to query them together
-                    Synchronizer = new WasabiSynchronizer(Network, BitcoinStore, () => Config.GetCurrentBackendUri(), Config.TorSocks5EndPoint);
-                    Synchronizer.Start(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
+                    Synchronizer.Resume(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
                     Logger.LogInfo("Global.OnResuming():Start synchronizing filters...");
-
-                    if (Wallet?.ChaumianClient is { })
-                    {
-                        Synchronizer.ResponseArrived += Wallet.ChaumianClient.Synchronizer_ResponseArrivedAsync;
-                    }
 
                     if (SleepingCoins is { })
                     {
@@ -646,8 +639,8 @@ namespace Chaincase.Common
                     if (synchronizer is { })
 
                     {
-                        await synchronizer.StopAsync();
-                        Logger.LogInfo($"Global.OnSleeping():{nameof(Synchronizer)} is stopped.");
+                        await synchronizer.SleepAsync();
+                        Logger.LogInfo($"Global.OnSleeping():{nameof(Synchronizer)} is sleeping.");
                     }
 
                     var addressManagerFilePath = AddressManagerFilePath;
