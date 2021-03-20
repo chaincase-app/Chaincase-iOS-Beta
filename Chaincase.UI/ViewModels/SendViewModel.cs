@@ -192,6 +192,7 @@ namespace Chaincase.UI.ViewModels
         internal bool HandleScan(string scannedIn)
         {
             BitcoinAddress address = null;
+            BitcoinUrlBuilder url = null ;
             try
             {
                 address = BitcoinAddress.Create(scannedIn, Global.Network);
@@ -200,7 +201,8 @@ namespace Chaincase.UI.ViewModels
             {
                 try
                 {
-                    address = new BitcoinUrlBuilder(scannedIn, Global.Network).Address;
+                    url = new BitcoinUrlBuilder(scannedIn, Global.Network);
+                    address = url.Address;
 
                 }
                 catch (Exception) { }
@@ -209,9 +211,19 @@ namespace Chaincase.UI.ViewModels
             if (address != null)
             {
                 DestinationString = address.ToString();
-                return true;
             }
-            return false;
+
+            if (url.Amount != null)
+            {
+                // OutPutAmount listens to AmountText
+                AmountText = url.Amount.ToString();
+            }
+
+            // we could check url.Label or url.Message for contact, but there is
+            // no convention on their use yet so it's hard to say whether they
+            // identify the sender or receiver. We care about the recipient only here.
+
+            return address != null;
         }
 
         private void SetFees()
