@@ -189,6 +189,43 @@ namespace Chaincase.UI.ViewModels
             SendTransactionCommand = ReactiveCommand.CreateFromTask<string, bool>(SendTransaction, isTransactionOkToSign);
         }
 
+        internal bool HandleScan(string scannedIn)
+        {
+            BitcoinAddress address = null;
+            BitcoinUrlBuilder url = null ;
+            try
+            {
+                address = BitcoinAddress.Create(scannedIn, Global.Network);
+            }
+            catch (Exception)
+            {
+                try
+                {
+                    url = new BitcoinUrlBuilder(scannedIn, Global.Network);
+                    address = url.Address;
+
+                }
+                catch (Exception) { }
+            }
+
+            if (address != null)
+            {
+                DestinationString = address.ToString();
+            }
+
+            if (url.Amount != null)
+            {
+                // OutPutAmount listens to AmountText
+                AmountText = url.Amount.ToString();
+            }
+
+            // we could check url.Label or url.Message for contact, but there is
+            // no convention on their use yet so it's hard to say whether they
+            // identify the sender or receiver. We care about the recipient only here.
+
+            return address != null;
+        }
+
         private void SetFees()
         {
             AllFeeEstimate allFeeEstimate = Global.FeeProviders?.AllFeeEstimate;
