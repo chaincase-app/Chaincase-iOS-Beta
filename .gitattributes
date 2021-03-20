@@ -50,4 +50,4 @@
 #        *.7z binary
 #        *.ttf binary
 #        *.pyc binary
-TorFramework/Tor.framework/Tor filter=lfs diff=lfs merge=lfs -text
+Xamarin.iOS.Tor/Tor.framework/Tor filter=lfs diff=lfs merge=lfs -text

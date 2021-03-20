@@ -8,7 +8,7 @@ using CoreFoundation;
 using Foundation;
 using Nito.AsyncEx;
 using ObjCRuntime;
-using TorFramework;
+using Xamarin.iOS.Tor;
 using WalletWasabi.Exceptions;
 using WalletWasabi.Helpers;
 using WalletWasabi.Logging;
@@ -262,7 +262,7 @@ namespace Chaincase.iOS.Services
             {
                 try
                 {
-                    // Under the hood, TORController will SIGNAL SHUTDOWN and set it's channel to null, so
+                    // Under the hood, TORController.Disconnect() will SIGNAL SHUTDOWN and set it's channel to null, so
                     // we actually rely on that to stop Tor and reset the state of torController. (we can
                     // SIGNAL SHUTDOWN here, but we can't reset the torController "isConnected" state.)
                     TorController?.Disconnect();

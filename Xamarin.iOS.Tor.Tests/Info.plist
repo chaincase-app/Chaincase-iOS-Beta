@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleName</key>
-	<string>TorFramework.Tests</string>
+	<string>Tor Tests</string>
 	<key>CFBundleIdentifier</key>
 	<string>dev.dangould.TorFramework-Tests</string>
 	<key>CFBundleShortVersionString</key>
