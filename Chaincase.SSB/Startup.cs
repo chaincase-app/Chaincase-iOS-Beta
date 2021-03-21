@@ -29,6 +29,7 @@ namespace Chaincase.SSB
 			services.AddServerSideBlazor();
 			services.UseMicrosoftDependencyResolver();
 			services.AddUIServices();
+			services.AddScoped<IClipboard, JSClipboard>();
 			services.AddTransient<IThemeManager, MockThemeManager>();
 			services.AddScoped<IHsmStorage, JsInteropSecureConfigProvider>();
 			services.AddScoped<IShare, SSBShare>();

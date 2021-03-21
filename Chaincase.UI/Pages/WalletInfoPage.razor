@@ -1,9 +1,11 @@
 ﻿@page "/walletinfo"
-@inject WalletInfoViewModel vm
-@inject UIStateService UiStateService
-@inject StackService StackService 
-@inject NavigationManager NavigationManager
+@using Chaincase.Common.Contracts
 @using Chaincase.UI.Services
+@inject WalletInfoViewModel vm
+@inject IClipboard Clipboard
+@inject UIStateService UiStateService
+@inject StackService StackService
+@inject NavigationManager NavigationManager
 @inherits ReactiveComponentBase<WalletInfoViewModel>
 
 <ion-content class="ion-padding">
@@ -13,7 +15,7 @@
     </IonItem>
 
     <ion-label>EXTENDED PUBLIC KEY</ion-label>
-    <IonItem>
+    <IonItem OnClick="() => CopyToClipboardAsync(ViewModel.ExtendedAccountPublicKey.ToString())">
         <ion-label>@ViewModel.ExtendedAccountPublicKey</ion-label>
     </IonItem>
 
@@ -42,6 +44,11 @@
     {
         ViewModel = vm;
         UiStateService.Title = "WALLET INFO";
+    }
+
+    private async Task CopyToClipboardAsync(string toCopy)
+    {
+        await Clipboard.Copy(toCopy);
     }
 
     private void NavigateToBackUp()

@@ -32,6 +32,7 @@ namespace Chaincase
 					// Adds web-specific services such as NavigationManager
 					services.AddBlazorHybrid();
 
+					services.AddScoped<IClipboard, XamarinClipboard>();
 					services.AddSingleton<IDataDirProvider, XamarinDataDirProvider>();
 					services.AddSingleton<IMainThreadInvoker, XamarinMainThreadInvoker>();
 					services.AddSingleton<IShare, XamarinShare>();
