@@ -2,41 +2,41 @@
 @inherits ReactiveComponentBase<TransactionViewModel>
 
 <IonModal @bind-Visible="Visible">
-    <ion-header>
-        <ion-toolbar>
-            <ion-title>Transaction Details</ion-title>
-            <ion-buttons slot="start">
+    <IonHeader>
+        <IonToolbar>
+            <IonTitle>Transaction Details</IonTitle>
+            <IonButtons slot="start">
                 <IonButton @onclick="CloseModal">Back</IonButton>
-            </ion-buttons>
-        </ion-toolbar>
-    </ion-header>
+            </IonButtons>
+        </IonToolbar>
+    </IonHeader>
 
-    <ion-content>
+    <IonContent>
         @if (ViewModel is not null)
         {
-            <ion-list>
+            <IonList>
                 <IonItem>
-                    <ion-label>@ViewModel.AmountBtc BTC</ion-label>
+                    <IonLabel>@ViewModel.AmountBtc BTC</IonLabel>
                 </IonItem>
                 <IonItem>
-                    <ion-label>Transaction ID: @ViewModel.TransactionId</ion-label>
+                    <IonLabel>Transaction ID: @ViewModel.TransactionId</IonLabel>
                 </IonItem>
                 <IonItem>
-                    <ion-label>Date: @ViewModel.DateTime</ion-label>
+                    <IonLabel>Date: @ViewModel.DateTime</IonLabel>
                 </IonItem>
                 <IonItem>
-                    <ion-label>Block Height: @ViewModel.BlockHeight</ion-label>
+                    <IonLabel>Block Height: @ViewModel.BlockHeight</IonLabel>
                 </IonItem>
                 <IonItem>
-                    <ion-label>Confirmed: @ViewModel.Confirmed</ion-label>
+                    <IonLabel>Confirmed: @ViewModel.Confirmed</IonLabel>
                 </IonItem>
                 <IonItem>
-                    <ion-label>Confirmations: @ViewModel.Confirmations</ion-label>
+                    <IonLabel>Confirmations: @ViewModel.Confirmations</IonLabel>
                 </IonItem>
-            </ion-list>
+            </IonList>
         }
 
-    </ion-content>
+    </IonContent>
 </IonModal>
 
 

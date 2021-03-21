@@ -8,14 +8,14 @@
 @inject SendViewModel SendViewModel
 @inherits ReactiveComponentBase<SendViewModel>
 
-<ion-content class="ion-padding">
-    <ion-text>@ViewModel.AmountText</ion-text>
-    <ion-text>To @ViewModel.DestinationString</ion-text>
+<IonContent class="ion-padding">
+    <IonText>@ViewModel.AmountText</IonText>
+    <IonText>To @ViewModel.DestinationString</IonText>
     <PasswordInputItem @bind-Value="Password" />
     <IonButton @onclick="ClickSendNow" expand="block">SEND NOW</IonButton>
     <IonLoading Visible="@ViewModel.IsBusy"></IonLoading>
 
-</ion-content>
+</IonContent>
 
 @code {
     private string Password { get; set; }

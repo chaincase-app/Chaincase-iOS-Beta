@@ -1,4 +1,4 @@
-@layout TabLayout
+﻿@layout TabLayout
 @page "/overview"
 @using Chaincase.UI.Services
 @using Chaincase.Common
@@ -10,13 +10,13 @@
 
 @inherits ReactiveComponentBase<OverviewViewModel>
 
-<ion-content>
+<IonContent>
     <IonToast Visible="@(!ViewModel.IsBackedUp)" Buttons="toastButtons" color="danger" message="Don't forget!" />
 
     <div class="ion-padding">
-        <ion-text>
+        <IonText>
             <h1>Balance: @ViewModel.Balance</h1>
-        </ion-text>
+        </IonText>
     </div>
 
     <Status />
@@ -24,12 +24,12 @@
     <IonList>
         @foreach (var transaction in ViewModel.Transactions)
         {
-            <ion-item-sliding>
+            <IonItemSliding>
                 <TransactionListItem TransactionViewModel="@transaction" />
-                <ion-item-options side="end">
+                <IonItemOptions side="end">
                     <IonItemOption OnClick="@(() => OpenTransactionDetail(transaction))" color="secondary">Details</IonItemOption>
-                </ion-item-options>
-            </ion-item-sliding>
+                </IonItemOptions>
+            </IonItemSliding>
         }
     </IonList>
 
@@ -39,7 +39,7 @@
     {
         <p>Your transactions will appear here</p>
     }
-</ion-content>
+</IonContent>
 
 @code{
     public IonToast.IonToastButton[] toastButtons;

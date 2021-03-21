@@ -5,18 +5,18 @@
 @inject NavigationManager NavigationManager
 @inherits ReactiveComponentBase<BackUpViewModel>
 
-<ion-content class="ion-padding">
+<IonContent class="ion-padding">
 
-    <ion-text class="ion-text-center">Select word @(ViewModel.SeedWords.IndexOf(WordToVerify) + 1)</ion-text>
+    <IonText class="IonText-center">Select word @(ViewModel.SeedWords.IndexOf(WordToVerify) + 1)</IonText>
 
     @foreach (string word in ButtonWords)
     {
         <IonButton OnClick="@(() => ClickWordToVerify(@word))" expand="block">@word</IonButton>
     }
 
-    <ion-text class="ion-text-center">@SuccessCount of @VERIFY_THIS_MANY verified.</ion-text>
+    <IonText class="IonText-center">@SuccessCount of @VERIFY_THIS_MANY verified.</IonText>
     <IonAlert @bind-Visible="@IsSuccessAlertVisible" Buttons="@AlertButtons" message="Backup Verified" backdrop-dismiss="true"></IonAlert>
-</ion-content>
+</IonContent>
 
 @code {
     const int VERIFY_THIS_MANY = 2;

@@ -109,8 +109,8 @@ ion-button:not(.in-toolbar).button-disabled {
     --ion-background-color: #F2F2F3;
   --ion-background-color-rgb: 242,242,243;
 
-  --ion-text-color: #222222;
-  --ion-text-color-rgb: 34,34,34;
+  --IonText-color: #222222;
+  --IonText-color-rgb: 34,34,34;
 
   --ion-color-step-25: #ededee;
 
@@ -208,8 +208,8 @@ body.dark {
     --ion-background-color: #121212;
     --ion-background-color-rgb: 18,18,18;
 
-    --ion-text-color: #ffffff;
-    --ion-text-color-rgb: 255,255,255;
+    --IonText-color: #ffffff;
+    --IonText-color-rgb: 255,255,255;
 
     --ion-border-color: #222222;
 
@@ -234,9 +234,9 @@ body.dark {
     --ion-color-step-900: #e7e7e7;
     --ion-color-step-950: #f3f3f3;
 
-    --ion-item-background: #1e1e1e;
+    --IonItem-background: #1e1e1e;
 
-    --ion-toolbar-background: #1f1f1f;
+    --IonToolbar-background: #1f1f1f;
 
     --ion-tab-bar-background: #1f1f1f;
 

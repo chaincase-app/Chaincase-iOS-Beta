@@ -5,12 +5,12 @@
 @inject NavigationManager NavigationManager
 @inject StackService StackService
 
-<ion-content class="ion-padding">
+<IonContent class="ion-padding">
     <h1>BITCOIN FOR HUMANS</h1>
 
     <IonButton OnClick='@(() => StackPush("/new"))' expand="block">NEW WALLET</IonButton>
     <IonButton OnClick='@(() => StackPush("/load"))' expand="block">LOAD WALLET</IonButton>
-</ion-content>
+</IonContent>
 
 @code {
 

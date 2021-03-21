@@ -7,15 +7,15 @@
 @inherits ReactiveComponentBase<SendViewModel>
 
 
-<ion-content class="ion-padding">
-    <ion-icon class="ion-text-center" name="paper-plane-outline"></ion-icon>
-    <ion-text>@ViewModel.AmountText</ion-text>
-    <ion-text>To @ViewModel.DestinationString</ion-text>
-    <ion-text>@ViewModel.SignedTransaction.GetHash().ToString()</ion-text>
-    <ion-text>It usually takes about 30 minutes for a transaction to be finalized.</ion-text>
+<IonContent class="ion-padding">
+    <IonIcon class="IonText-center" name="paper-plane-outline"></IonIcon>
+    <IonText>@ViewModel.AmountText</IonText>
+    <IonText>To @ViewModel.DestinationString</IonText>
+    <IonText>@ViewModel.SignedTransaction.GetHash().ToString()</IonText>
+    <IonText>It usually takes about 30 minutes for a transaction to be finalized.</IonText>
 
     <IonButton OnClick="@ClickDone" expand="block">DONE</IonButton>
-</ion-content>
+</IonContent>
 
 @code {
 

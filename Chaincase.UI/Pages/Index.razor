@@ -9,15 +9,15 @@
 @inject PINViewModel PINViewModel
 @inherits ReactiveComponentBase<PINViewModel>
 
-<ion-content class="ion-padding">
-    <ion-img style="margin: 0 auto; padding: 2rem; width: 16rem; height: 16rem;" src="_content/Chaincase.UI/img/logo_vertical.png"/>
+<IonContent class="ion-padding">
+    <IonImg style="margin: 0 auto; padding: 2rem; width: 16rem; height: 16rem;" src="_content/Chaincase.UI/img/logo_vertical.png"/>
     <div class="@(IsShaking ? "shake" : "")">
         <PasswordInputItem @bind-Value="Password" />
     </div>
     <IonButton @onclick="ClickSubmitPassword" expand="block">Log in</IonButton>
 
     <IonLoading @bind-Visible="@ViewModel.IsBusy" />
-</ion-content>
+</IonContent>
 
 @code {
     private string Password { get; set; }
