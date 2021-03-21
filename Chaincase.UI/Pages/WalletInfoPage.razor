@@ -36,7 +36,7 @@
             Share Debug Log
         </IonItem>
     </ion-list>
-    <IonToast style="text-align: center;" @bind-Visible="@IsToastVisible" message="Copied to clipboard" duration="@ToastDuration" position="top" color="light"/>
+    <ClipboardToast @bind-Visible="@IsToastVisible"/>
 </ion-content>
 
 @code {
