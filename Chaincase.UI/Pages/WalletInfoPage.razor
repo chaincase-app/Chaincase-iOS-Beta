@@ -36,9 +36,13 @@
             Share Debug Log
         </IonItem>
     </ion-list>
+    <IonToast style="text-align: center;" @bind-Visible="@IsToastVisible" message="Copied to clipboard" duration="@ToastDuration" position="top" color="light"/>
 </ion-content>
 
 @code {
+
+    private const int ToastDuration = 2000; // ms
+    private bool IsToastVisible = false;
 
     protected override void OnInitialized()
     {
@@ -49,6 +53,7 @@
     private async Task CopyToClipboardAsync(string toCopy)
     {
         await Clipboard.Copy(toCopy);
+        IsToastVisible = true;
     }
 
     private void NavigateToBackUp()
