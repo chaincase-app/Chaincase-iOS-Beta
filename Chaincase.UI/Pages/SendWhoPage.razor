@@ -22,10 +22,12 @@
     </IonItem>
     <IonItem>
         <IonButton OnClick="OnClickPaste">
-            <ion-icon name="clipboard-outline"></ion-icon>
+            <ion-icon slot="start" name="clipboard-outline"/>
+            Paste
         </IonButton>
         <IonButton OnClick="OnClickScan">
-            <ion-icon name="scan-outline"></ion-icon>
+            <ion-icon slot="start" name="scan-outline"/>
+            Scan QR Code
         </IonButton>
     </IonItem>
     <IonButton OnClick="OnContinue" expand="block" disabled="@(!IsAddressValid)">NEXT</IonButton>
