@@ -177,6 +177,15 @@ namespace Chaincase.UI.ViewModels
             try
             {
                 url = new BitcoinUrlBuilder(destinationString, Global.Network);
+                if (url.Amount != null)
+                {
+                    // since AmountText can be altered by hand, we set it instead
+                    // of binding to a calculated ObservableAsPropertyHelper
+                    AmountText = url.Amount.ToString();
+                }
+                // we could check url.Label or url.Message for contact, but there is
+                // no convention on their use yet so it's hard to say whether they
+                // identify the sender or receiver. We care about the recipient only here.
                 return url;
             }
             catch (Exception){ /* invalid bitcoin uri */ }
@@ -187,18 +196,6 @@ namespace Chaincase.UI.ViewModels
                 url = new BitcoinUrlBuilder();
                 url.Address = address;
             } catch (Exception) { /* invalid bitcoin address */ }
-
-
-            if (url.Amount != null)
-            {
-                // since AmountText can be altered by hand, we set it instead
-                // of binding to a calculated ObservableAsPropertyHelper
-                AmountText = url.Amount.ToString();
-            }
-
-            // we could check url.Label or url.Message for contact, but there is
-            // no convention on their use yet so it's hard to say whether they
-            // identify the sender or receiver. We care about the recipient only here.
 
             return url;
         }
