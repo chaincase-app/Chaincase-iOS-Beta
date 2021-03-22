@@ -17,7 +17,7 @@
     <p>@ViewModel.AppliedLabel</p>
     <ion-label>Address</ion-label>
 
-    <IonText @onclick="() => CopyToClipboardAsync(ViewModel.Address)">
+    <IonText @onclick="@(async () => await CopyToClipboardAsync(ViewModel.Address))">
         <p>@ViewModel.Address</p>
     </IonText>
 
