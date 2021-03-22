@@ -1,8 +1,7 @@
 ﻿@page "/send/who"
-@using NBitcoin
-@using NBitcoin.Payment
 @using Microsoft.AspNetCore.Components
 @using Chaincase.Common
+@using Chaincase.Common.Contracts
 @using Chaincase.UI.Services
 @inject Global Global
 @inject SendViewModel SendViewModel
@@ -10,7 +9,7 @@
 @inject NavigationManager NavigationManager
 @inject StackService StackService
 @inject IJSRuntime JsRuntime
-
+@inject IClipboard Clipboard
 @inherits ReactiveComponentBase<SendViewModel>
 
 <ion-content class="ion-padding">
@@ -19,7 +18,13 @@
     <IonItem>
         <ion-label position="stacked">Address or <code>bitcoin:</code> uri</ion-label>
         <IonInput @bind-Value="ViewModel.DestinationString" placeholder="Enter address..." />
-        <IonButton slot="end" OnClick="OnClickScan">
+        
+    </IonItem>
+    <IonItem>
+        <IonButton OnClick="OnClickPaste">
+            <ion-icon name="clipboard-outline"></ion-icon>
+        </IonButton>
+        <IonButton OnClick="OnClickScan">
             <ion-icon name="scan-outline"></ion-icon>
         </IonButton>
     </IonItem>
@@ -48,6 +53,11 @@
 
         if (result != null)
         { ViewModel.HandleScan(result.Text); }
+    }
+
+    private async Task OnClickPaste()
+    {
+        ViewModel.DestinationString = await Clipboard.Paste();
     }
 
     public void OnContinue()
