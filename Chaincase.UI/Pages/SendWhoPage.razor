@@ -52,7 +52,7 @@
         var result = await scanner.Scan();
 
         if (result != null)
-        { ViewModel.HandleScan(result.Text); }
+        { ViewModel.DestinationString = result.Text; }
     }
 
     private async Task OnClickPaste()
