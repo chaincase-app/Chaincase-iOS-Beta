@@ -39,7 +39,7 @@ namespace Chaincase.UI.ViewModels
         private ObservableAsPropertyHelper<bool> _minMaxFeeTargetsEqual;
         private readonly ObservableAsPropertyHelper<bool> _isTransactionOkToSign;
 
-        private readonly ObservableAsPropertyHelper<BitcoinAddress> _address;
+        private readonly ObservableAsPropertyHelper<BitcoinUrlBuilder> _destinationUrl;
         private readonly ObservableAsPropertyHelper<Money> _outputAmount;
         private string _destinationString;
         private bool _isBusy;
@@ -148,27 +148,8 @@ namespace Chaincase.UI.ViewModels
                     SetFees();
                 });
 
-            _address = this.WhenAnyValue(x => x.DestinationString,
-                (string destinationString) =>
-                {
-                    if (destinationString == null) return null;
-                    BitcoinAddress address;
-                    try
-                    {
-                        address = BitcoinAddress.Create(destinationString.Trim(), Global.Network);
-                        return address;
-                    }
-                    catch (Exception) { /* not a straight address */ }
-
-                    try
-                    {
-                        address = new BitcoinUrlBuilder(destinationString, Global.Network).Address;
-                        return address;
-                    }
-                    catch (Exception) { /* not a bitcoin: uri */ }
-                    address = null;
-                    return address;
-                }).ToProperty(this, x => x.Address);
+            _destinationUrl = this.WhenAnyValue(x => x.DestinationString, ParseDestinationString)
+                .ToProperty(this, nameof(Url));
 
             var isTransactionOkToSign = this.WhenAnyValue(
                 x => x.Label, x => x.Address, x => x.OutputAmount,
@@ -189,41 +170,34 @@ namespace Chaincase.UI.ViewModels
             SendTransactionCommand = ReactiveCommand.CreateFromTask<string, bool>(SendTransaction, isTransactionOkToSign);
         }
 
-        internal bool HandleScan(string scannedIn)
-        {
-            BitcoinAddress address = null;
-            BitcoinUrlBuilder url = null ;
+        internal BitcoinUrlBuilder ParseDestinationString(string destinationString)
+		{
+            if (destinationString == null) return null;
+            BitcoinUrlBuilder url = null;
             try
             {
-                address = BitcoinAddress.Create(scannedIn, Global.Network);
-            }
-            catch (Exception)
-            {
-                try
+                url = new BitcoinUrlBuilder(destinationString, Global.Network);
+                if (url.Amount != null)
                 {
-                    url = new BitcoinUrlBuilder(scannedIn, Global.Network);
-                    address = url.Address;
-
+                    // since AmountText can be altered by hand, we set it instead
+                    // of binding to a calculated ObservableAsPropertyHelper
+                    AmountText = url.Amount.ToString();
                 }
-                catch (Exception) { }
+                // we could check url.Label or url.Message for contact, but there is
+                // no convention on their use yet so it's hard to say whether they
+                // identify the sender or receiver. We care about the recipient only here.
+                return url;
             }
+            catch (Exception){ /* invalid bitcoin uri */ }
 
-            if (address != null)
+            try
             {
-                DestinationString = address.ToString();
-            }
+                BitcoinAddress address = BitcoinAddress.Create(destinationString.Trim(), Global.Network);
+                url = new BitcoinUrlBuilder();
+                url.Address = address;
+            } catch (Exception) { /* invalid bitcoin address */ }
 
-            if (url.Amount != null)
-            {
-                // OutPutAmount listens to AmountText
-                AmountText = url.Amount.ToString();
-            }
-
-            // we could check url.Label or url.Message for contact, but there is
-            // no convention on their use yet so it's hard to say whether they
-            // identify the sender or receiver. We care about the recipient only here.
-
-            return address != null;
+            return url;
         }
 
         private void SetFees()
@@ -403,7 +377,9 @@ namespace Chaincase.UI.ViewModels
             return false;
         }
 
-        public BitcoinAddress Address => _address.Value;
+        public BitcoinUrlBuilder Url => _destinationUrl.Value;
+
+        public BitcoinAddress Address => _destinationUrl.Value?.Address;
 
         public Money OutputAmount => _outputAmount.Value;
 

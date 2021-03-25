@@ -1,0 +1,18 @@
+﻿@inherits IonToast
+
+
+@code {
+
+    protected override void OnParametersSet()
+    {
+        InputAttributes = new Dictionary<string, object>()
+        {
+            { "style", "text-align: center;" },
+            { "message", "Copied to clipboard" },
+            { "color", "light" },
+            { "position", "top" },
+            { "duration", 1000 }
+        };
+        base.OnParametersSet();
+    }
+}
