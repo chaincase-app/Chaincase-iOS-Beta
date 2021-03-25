@@ -75,6 +75,7 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <MtouchExtraArgs>-v -v -v -v</MtouchExtraArgs>
 <MtouchUseLlvm>false</MtouchUseLlvm>
+<MtouchInterpreter>-all</MtouchInterpreter>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
