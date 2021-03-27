@@ -16,14 +16,20 @@ namespace Chaincase.Common
             services.AddSingleton<Global>();
             services.AddSingleton<Config>();
             services.AddSingleton<UiConfig>();
-            services.AddSingleton<WalletManager>();
+            // WalletManager = new WalletManager(Network, new WalletDirectories(DataDir));
+
+            services.AddSingleton(x => {
+                var network = x.GetRequiredService<Config>().Network;
+                var dataDir = x.GetRequiredService<IDataDirProvider>().Get();
+                return new WalletManager(network, new WalletDirectories(dataDir));
+            });
             services.AddSingleton(x =>
             {
-                var config = x.GetRequiredService<Config>();
+                var network = x.GetRequiredService<Config>().Network;
                 var dataDir = x.GetRequiredService<IDataDirProvider>().Get();
-                var indexStore = new IndexStore(config.Network, new SmartHeaderChain());
+                var indexStore = new IndexStore(network, new SmartHeaderChain());
 
-                return new BitcoinStore(Path.Combine(dataDir, "BitcoinStore"), config.Network,
+                return new BitcoinStore(Path.Combine(dataDir, "BitcoinStore"), network,
                     indexStore, new AllTransactionStore(), new MempoolService()
                 );
             });

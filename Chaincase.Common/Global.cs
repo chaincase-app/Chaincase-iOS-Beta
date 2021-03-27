@@ -34,7 +34,7 @@ namespace Chaincase.Common
 {
     public class Global
     {
-        public string DataDir { get; }
+        public string DataDir => DataDirProvider.Get();
 
         public BitcoinStore BitcoinStore { get; private set; }
         public Config Config { get; private set; }
@@ -52,6 +52,7 @@ namespace Chaincase.Common
         public Node RegTestMempoolServingNode { get; private set; }
         public ITorManager TorManager { get; private set; }
         public INotificationManager NotificationManager { get; private set; }
+        public IDataDirProvider DataDirProvider { get; private set; }
 
         public HostedServices HostedServices { get; }
 
@@ -67,34 +68,27 @@ namespace Chaincase.Common
         // Chaincase Specific
         public Wallet Wallet { get; set; }
 
-        public Global(INotificationManager notificationManager, ITorManager torManager, IDataDirProvider dataDirProvider)
+        public Global(INotificationManager notificationManager, ITorManager torManager, IDataDirProvider dataDirProvider, Config config, UiConfig uiConfig, WalletManager walletManager, BitcoinStore bitcoinStore)
         {
 	        TorManager = torManager;
 	        NotificationManager = notificationManager;
+            DataDirProvider = dataDirProvider;
+            Config = config;
+            UiConfig = uiConfig;
+            WalletManager = walletManager;
+            BitcoinStore = bitcoinStore;
 	        using (BenchmarkLogger.Measure())
             {
                 StoppingCts = new CancellationTokenSource();
-                DataDir = dataDirProvider.Get();
                 Directory.CreateDirectory(DataDir);
-                Config = new Config(Path.Combine(DataDir, "Config.json"));
-                UiConfig = new UiConfig(Path.Combine(DataDir, "UiConfig.json"));
 
                 Logger.InitializeDefaults(Path.Combine(DataDir, "Logs.txt"));
 
                 UiConfig.LoadOrCreateDefaultFile();
                 Config.LoadOrCreateDefaultFile();
 
-
-                WalletManager = new WalletManager(Network, new WalletDirectories(DataDir));
                 WalletManager.OnDequeue += WalletManager_OnDequeue;
                 WalletManager.WalletRelevantTransactionProcessed += WalletManager_WalletRelevantTransactionProcessed;
-
-                var indexStore = new IndexStore(Network, new SmartHeaderChain());
-
-                BitcoinStore = new BitcoinStore(
-                    Path.Combine(DataDir, "BitcoinStore"), Network,
-                    indexStore, new AllTransactionStore(), new MempoolService()
-                );
             }
         }
 
