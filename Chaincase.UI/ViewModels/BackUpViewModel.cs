@@ -14,13 +14,15 @@ namespace Chaincase.UI.ViewModels
     public class BackUpViewModel : ReactiveObject
     {
         protected Global Global { get; }
+        private UiConfig UiConfig { get; }
         protected IHsmStorage HSM { get; }
 
         private List<string> _seedWords;
 
-        public BackUpViewModel(Global global, IHsmStorage hsm)
+        public BackUpViewModel(Global global, UiConfig uiConfig, IHsmStorage hsm)
         {
             Global = global;
+            UiConfig = uiConfig;
             HSM = hsm;
         }
 
@@ -35,8 +37,8 @@ namespace Chaincase.UI.ViewModels
 
         public void SetIsBackedUp()
         {
-            Global.UiConfig.IsBackedUp = true;
-            Global.UiConfig.ToFile(); // successfully backed up!
+            UiConfig.IsBackedUp = true;
+            UiConfig.ToFile(); // successfully backed up!
         }
 
         public List<string> SeedWords

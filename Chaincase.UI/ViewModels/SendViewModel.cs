@@ -26,6 +26,7 @@ namespace Chaincase.UI.ViewModels
     public class SendViewModel : ReactiveObject
     {
         protected Global Global { get; }
+        private UiConfig UiConfig { get; }
 
         private bool _isMax;
         private string _amountText;
@@ -49,9 +50,10 @@ namespace Chaincase.UI.ViewModels
 
         protected CompositeDisposable Disposables { get; } = new CompositeDisposable();
 
-        public SendViewModel(Global global, SelectCoinsViewModel selectCoinsViewModel)
+        public SendViewModel(Global global, UiConfig uiConfig, SelectCoinsViewModel selectCoinsViewModel)
         {
 	        Global = global;
+            UiConfig = uiConfig;
             SelectCoinsViewModel = selectCoinsViewModel;
             AmountText = "0.0";
             AllSelectedAmount = Money.Zero;
@@ -117,7 +119,7 @@ namespace Chaincase.UI.ViewModels
                 .ToProperty(this, x => x.MinMaxFeeTargetsEqual, scheduler: RxApp.MainThreadScheduler);
 
             SetFeeTargetLimits();
-            FeeTarget = Global.UiConfig.FeeTarget;
+            FeeTarget = UiConfig.FeeTarget;
             FeeRate = new FeeRate((decimal)50); //50 sat/vByte placeholder til loads
             SetFees();
 

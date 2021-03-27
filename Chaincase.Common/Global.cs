@@ -36,9 +36,9 @@ namespace Chaincase.Common
     {
         private string DataDir => DataDirProvider.Get();
         private Config Config { get; set; }
+        private UiConfig UiConfig { get; set; }
 
         public BitcoinStore BitcoinStore { get; private set; }
-        public UiConfig UiConfig { get; private set; }
 
         public string AddressManagerFilePath { get; private set; }
         public AddressManager AddressManager { get; private set; }

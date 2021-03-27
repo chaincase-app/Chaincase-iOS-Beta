@@ -22,6 +22,7 @@ namespace Chaincase.UI.ViewModels
     {
         private readonly IMainThreadInvoker _mainThreadInvoker;
         private readonly Global _global;
+        private readonly UiConfig _uiConfig;
 
         private ObservableCollection<TransactionViewModel> _transactions;
         public string _balance;
@@ -31,9 +32,10 @@ namespace Chaincase.UI.ViewModels
         private ObservableAsPropertyHelper<bool> _canBackUp;
         private bool _isWalletInitialized;
 
-        public OverviewViewModel(Global global, IMainThreadInvoker mainThreadInvoker)
+        public OverviewViewModel(Global global, UiConfig uiConfig, IMainThreadInvoker mainThreadInvoker)
         {
             _global = global;
+            _uiConfig = uiConfig;
             _mainThreadInvoker = mainThreadInvoker;
             Transactions = new ObservableCollection<TransactionViewModel>();
 
@@ -45,10 +47,10 @@ namespace Chaincase.UI.ViewModels
                 TryWriteTableFromCache();
             }
 
-            _hasSeed = this.WhenAnyValue(x => x._global.UiConfig.HasSeed)
+            _hasSeed = this.WhenAnyValue(x => x._uiConfig.HasSeed)
                 .ToProperty(this, nameof(HasSeed));
 
-            _isBackedUp = this.WhenAnyValue(x => x._global.UiConfig.IsBackedUp)
+            _isBackedUp = this.WhenAnyValue(x => x._uiConfig.IsBackedUp)
                 .ToProperty(this, nameof(IsBackedUp));
 
             var canBackUp = this.WhenAnyValue(x => x.HasSeed, x => x.IsBackedUp,
@@ -56,7 +58,7 @@ namespace Chaincase.UI.ViewModels
 
             canBackUp.ToProperty(this, x => x.CanBackUp, out _canBackUp);
 
-            Balance = _global.UiConfig.Balance;
+            Balance = _uiConfig.Balance;
 
             Initializing += OnInit;
             Initializing(this, EventArgs.Empty);
@@ -99,7 +101,7 @@ namespace Chaincase.UI.ViewModels
         {
             try
             {
-                var trs = _global.UiConfig.Transactions?.Select(ti => new TransactionViewModel(ti)) ?? new TransactionViewModel[0];
+                var trs = _uiConfig.Transactions?.Select(ti => new TransactionViewModel(ti)) ?? new TransactionViewModel[0];
                 Transactions = new ObservableCollection<TransactionViewModel>(trs.OrderByDescending(t => t.DateTime));
             }
             catch (Exception ex)
@@ -130,8 +132,8 @@ namespace Chaincase.UI.ViewModels
 
                 Transactions = new ObservableCollection<TransactionViewModel>(trs.OrderByDescending(t => t.DateTime));
 
-                _global.UiConfig.Transactions = tis.ToArray();
-                _global.UiConfig.ToFile(); // write to file once height is the highest
+                _uiConfig.Transactions = tis.ToArray();
+                _uiConfig.ToFile(); // write to file once height is the highest
             }
             catch (Exception ex)
             {

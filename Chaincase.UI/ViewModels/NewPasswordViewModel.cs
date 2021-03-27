@@ -11,10 +11,12 @@ namespace Chaincase.UI.ViewModels
 	public class NewPasswordViewModel : ReactiveObject
 	{
 		protected Global Global { get; }
+		private UiConfig UiConfig { get; }
 		protected IHsmStorage Hsm { get; }
-		public NewPasswordViewModel(Global global, IHsmStorage hsmStorage)
+		public NewPasswordViewModel(Global global, UiConfig uiConfig, IHsmStorage hsmStorage)
 		{
 			Global = global;
+			UiConfig = uiConfig;
 			Hsm = hsmStorage;
 		}
 
@@ -30,8 +32,8 @@ namespace Chaincase.UI.ViewModels
 			// MUST prompt permissions
 			Hsm.SetAsync($"{Global.Network}-seedWords", seedWords.ToString());
 
-			Global.UiConfig.HasSeed = true;
-			Global.UiConfig.ToFile();
+			UiConfig.HasSeed = true;
+			UiConfig.ToFile();
 		}
 	}
 }

@@ -18,6 +18,7 @@ namespace Chaincase.UI.ViewModels
 	{
 		protected Global Global { get; }
 		protected IHsmStorage Hsm { get; }
+		private UiConfig UiConfig { get; }
 
 		private string _password;
 		private string _seedWords;
@@ -25,9 +26,10 @@ namespace Chaincase.UI.ViewModels
 		private readonly string ACCOUNT_KEY_PATH = $"m/{KeyManager.DefaultAccountKeyPath}";
 		private const int MIN_GAP_LIMIT = KeyManager.AbsoluteMinGapLimit * 4;
 
-		public LoadWalletViewModel(Global global, IHsmStorage hsmStorage)
+		public LoadWalletViewModel(Global global, UiConfig uiConfig, IHsmStorage hsmStorage)
 		{
 			Global = global;
+			UiConfig = uiConfig;
 			Hsm = hsmStorage;
 		}
 
@@ -49,8 +51,8 @@ namespace Chaincase.UI.ViewModels
 				km.SetFilePath(walletFilePath);
 				Global.WalletManager.AddWallet(km);
 				Hsm.SetAsync($"{Global.Network}-seedWords", SeedWords.ToString()); // PROMPT
-				Global.UiConfig.HasSeed = true;
-				Global.UiConfig.ToFile();
+				UiConfig.HasSeed = true;
+				UiConfig.ToFile();
 				isLoadSuccessful = true;
 			}
 			catch (Exception ex)

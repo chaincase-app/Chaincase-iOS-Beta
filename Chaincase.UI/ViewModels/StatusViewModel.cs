@@ -18,6 +18,7 @@ namespace Chaincase.UI.ViewModels
     {
         protected Global Global { get; }
         private Config Config { get; }
+        private UiConfig UiConfig { get; }
         private CompositeDisposable Disposables { get; } = new CompositeDisposable();
         private NodesCollection Nodes { get; set; }
         private WasabiSynchronizer Synchronizer { get; set; }
@@ -40,10 +41,11 @@ namespace Chaincase.UI.ViewModels
         private bool _downloadingBlock;
         private StatusSet ActiveStatuses { get; }
 
-        public StatusViewModel(Global global, Config config)
+        public StatusViewModel(Global global, Config config, UiConfig uiConfig)
         {
             Global = global;
             Config = config;
+            UiConfig = uiConfig;
             Backend = BackendStatus.NotConnected;
             Tor = TorStatus.NotRunning;
             Peers = 0;
@@ -149,8 +151,8 @@ namespace Chaincase.UI.ViewModels
                     {
                         walletCheckingInterval?.Dispose();
                         walletCheckingInterval = null;
-                        Global.UiConfig.Balance = Global.Wallet.Coins.TotalAmount().ToString();
-                        Global.UiConfig.ToFile();
+                        UiConfig.Balance = Global.Wallet.Coins.TotalAmount().ToString();
+                        UiConfig.ToFile();
                         TryRemoveStatus(StatusType.WalletLoading, StatusType.WalletProcessingFilters, StatusType.WalletProcessingTransactions);
                     }
                 })
