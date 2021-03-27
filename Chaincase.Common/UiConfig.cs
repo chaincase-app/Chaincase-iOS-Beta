@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.IO;
 using Chaincase.Common.Contracts;
 using Chaincase.Common.Models;
 using Newtonsoft.Json;
@@ -6,7 +7,7 @@ using WalletWasabi.Bases;
 
 namespace Chaincase.Common
 {
-    [JsonObject(MemberSerialization.OptIn)]
+	[JsonObject(MemberSerialization.OptIn)]
     public class UiConfig : ConfigBase
     {
         private string _balance;
@@ -50,7 +51,7 @@ namespace Chaincase.Common
         const string FILENAME = "Config.json";
 
         public UiConfig(IDataDirProvider dataDirProvider)
-            : base($"{dataDirProvider.Get()}/{FILENAME}")
+            : base(Path.Combine(dataDirProvider.Get(), FILENAME))
         {
         }
 

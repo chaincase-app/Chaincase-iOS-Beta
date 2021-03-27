@@ -1,11 +1,12 @@
-﻿using Chaincase.Common.Contracts;
+﻿using System;
+using System.ComponentModel;
+using System.IO;
+using System.Net;
+using System.Threading.Tasks;
+using Chaincase.Common.Contracts;
 using NBitcoin;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
-using System.ComponentModel;
-using System.Net;
-using System.Threading.Tasks;
 using WalletWasabi.Bases;
 using WalletWasabi.Exceptions;
 using WalletWasabi.Helpers;
@@ -16,7 +17,7 @@ using WalletWasabi.TorSocks5;
 
 namespace Chaincase.Common
 {
-    [JsonObject(MemberSerialization.OptIn)]
+	[JsonObject(MemberSerialization.OptIn)]
     public class Config : ConfigBase
     {
         public const int DefaultPrivacyLevelSome = 2;
@@ -248,7 +249,7 @@ namespace Chaincase.Common
         const string FILENAME = "Config.json";
 
         public Config(IDataDirProvider dataDirProvider)
-            : base($"{dataDirProvider.Get()}/{FILENAME}")
+            : base(Path.Combine(dataDirProvider.Get(), FILENAME))
         {
             ServiceConfiguration = new ServiceConfiguration(MixUntilAnonymitySet.ToString(), PrivacyLevelSome, PrivacyLevelFine, PrivacyLevelStrong, GetBitcoinP2pEndPoint(), DustThreshold);
         }
