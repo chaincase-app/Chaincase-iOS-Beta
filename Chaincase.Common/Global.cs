@@ -34,7 +34,7 @@ namespace Chaincase.Common
 {
     public class Global
     {
-        public string DataDir => DataDirProvider.Get();
+        private string DataDir => DataDirProvider.Get();
 
         public BitcoinStore BitcoinStore { get; private set; }
         public Config Config { get; private set; }

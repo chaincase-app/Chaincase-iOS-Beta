@@ -9,12 +9,14 @@ namespace Chaincase.UI.ViewModels
 	public class WalletInfoViewModel : ReactiveObject
     {
 	    private readonly IShare _share;
+        private readonly IDataDirProvider _dataDirProvider;
 	    protected Global Global { get; }
 
-        public WalletInfoViewModel(Global global, IShare share)
+        public WalletInfoViewModel(Global global, IShare share, IDataDirProvider dataDirProvider)
         {
 	        _share = share;
-	        Global = global;
+            _dataDirProvider = dataDirProvider;
+            Global = global;
 
 	        // var canBackUp = this.WhenAnyValue(x => x.Global.UiConfig.HasSeed, hs => hs == true);
 
@@ -30,14 +32,14 @@ namespace Chaincase.UI.ViewModels
 
         public async Task ShareDebugLog()
         {
-            var file = Path.Combine(Global.DataDir, "Logs.txt");
+            var file = Path.Combine(_dataDirProvider.Get(), "Logs.txt");
 
             await _share.ShareFile(file, "Share Debug Logs");
         }
 
         public async Task ExportWallet()
         {
-            var file = Path.Combine(Global.DataDir, $"Wallets/{Global.Network}.json");
+            var file = Path.Combine(_dataDirProvider.Get(), $"Wallets/{Global.Network}.json");
 
             await _share.ShareFile(file, "Export Wallet");
         }
