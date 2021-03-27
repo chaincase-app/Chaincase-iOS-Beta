@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using Chaincase.Common.Contracts;
 using Chaincase.Common.Models;
 using Newtonsoft.Json;
 using WalletWasabi.Bases;
@@ -45,8 +46,11 @@ namespace Chaincase.Common
 			get => _isBackedUp;
 			set => RaiseAndSetIfChanged(ref _isBackedUp, value);
         }
-    
-		public UiConfig() : base()
+
+		const string FILENAME = "Config.json";
+
+		public UiConfig(IDataDirProvider dataDirProvider)
+			: base($"{dataDirProvider.Get()}/{FILENAME}")
 		{
 		}
 
