@@ -12,6 +12,7 @@ using ReactiveUI;
 using WalletWasabi.Blockchain.TransactionOutputs;
 using WalletWasabi.Blockchain.TransactionProcessing;
 using WalletWasabi.Logging;
+using WalletWasabi.Stores;
 
 namespace Chaincase.UI.ViewModels
 {
@@ -19,6 +20,7 @@ namespace Chaincase.UI.ViewModels
     {
         protected Global Global { get; }
         private Config Config { get; }
+        private readonly BitcoinStore _bitcoinStore;
 
         private CompositeDisposable Disposables { get; set; }
 
@@ -34,10 +36,11 @@ namespace Chaincase.UI.ViewModels
 
         // public ReactiveCommand<CoinViewModel, Unit> OpenCoinDetail;
 
-        public SelectCoinsViewModel(Global global, Config config, bool isPrivate = false)
+        public SelectCoinsViewModel(Global global, Config config, BitcoinStore bitcoinStore, bool isPrivate = false)
         {
             Global = global;
             Config = config;
+            _bitcoinStore = bitcoinStore;
             RootList = new SourceList<CoinViewModel>();
             RootList
                 .Connect()
@@ -89,7 +92,7 @@ namespace Chaincase.UI.ViewModels
 
                 RootList.RemoveMany(coinToRemove.Select(kp => kp.Value));
 
-                var newCoinViewModels = coinToAdd.Select(c => new CoinViewModel(Global, c)).ToArray();
+                var newCoinViewModels = coinToAdd.Select(c => new CoinViewModel(Global, _bitcoinStore, c)).ToArray();
                 foreach (var cvm in newCoinViewModels)
                 {
                     SubscribeToCoinEvents(cvm);

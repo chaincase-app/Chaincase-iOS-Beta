@@ -14,6 +14,7 @@ using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Blockchain.Transactions;
 using WalletWasabi.Logging;
 using WalletWasabi.Models;
+using WalletWasabi.Stores;
 using WalletWasabi.Wallets;
 
 namespace Chaincase.UI.ViewModels
@@ -23,6 +24,7 @@ namespace Chaincase.UI.ViewModels
         private readonly IMainThreadInvoker _mainThreadInvoker;
         private readonly Global _global;
         private readonly UiConfig _uiConfig;
+        private readonly BitcoinStore _bitcoinStore;
 
         private ObservableCollection<TransactionViewModel> _transactions;
         public string _balance;
@@ -32,10 +34,11 @@ namespace Chaincase.UI.ViewModels
         private ObservableAsPropertyHelper<bool> _canBackUp;
         private bool _isWalletInitialized;
 
-        public OverviewViewModel(Global global, UiConfig uiConfig, IMainThreadInvoker mainThreadInvoker)
+        public OverviewViewModel(Global global, UiConfig uiConfig, BitcoinStore bitcoinStore, IMainThreadInvoker mainThreadInvoker)
         {
             _global = global;
             _uiConfig = uiConfig;
+            _bitcoinStore = bitcoinStore;
             _mainThreadInvoker = mainThreadInvoker;
             Transactions = new ObservableCollection<TransactionViewModel>();
 
@@ -120,7 +123,7 @@ namespace Chaincase.UI.ViewModels
                 {
                     DateTime = txr.DateTime.ToLocalTime(),
                     Confirmed = txr.Height.Type == HeightType.Chain,
-                    Confirmations = txr.Height.Type == HeightType.Chain ? (int)_global.BitcoinStore.SmartHeaderChain.TipHeight - txr.Height.Value + 1 : 0,
+                    Confirmations = txr.Height.Type == HeightType.Chain ? (int)_bitcoinStore.SmartHeaderChain.TipHeight - txr.Height.Value + 1 : 0,
                     AmountBtc = $"{txr.Amount.ToString(fplus: true, trimExcessZero: true)}",
                     Label = txr.Label,
                     BlockHeight = txr.Height.Type == HeightType.Chain ? txr.Height.Value : 0,

@@ -10,6 +10,7 @@ using WalletWasabi.Blockchain.Blocks;
 using WalletWasabi.Logging;
 using WalletWasabi.Models;
 using WalletWasabi.Services;
+using WalletWasabi.Stores;
 using WalletWasabi.Wallets;
 
 namespace Chaincase.UI.ViewModels
@@ -19,6 +20,7 @@ namespace Chaincase.UI.ViewModels
         protected Global Global { get; }
         private Config Config { get; }
         private UiConfig UiConfig { get; }
+        private readonly BitcoinStore _bitcoinStore;
         private CompositeDisposable Disposables { get; } = new CompositeDisposable();
         private NodesCollection Nodes { get; set; }
         private WasabiSynchronizer Synchronizer { get; set; }
@@ -124,7 +126,7 @@ namespace Chaincase.UI.ViewModels
                                        var startingHeight = SmartHeader.GetStartingHeader(wallet.Network).Height;
                                        if (wallet.LastProcessedFilter?.Header?.Height is uint lastProcessedFilterHeight
                                             && lastProcessedFilterHeight > startingHeight
-                                            && Global.BitcoinStore?.SmartHeaderChain?.TipHeight is uint tipHeight
+                                            && _bitcoinStore?.SmartHeaderChain?.TipHeight is uint tipHeight
                                             && tipHeight > startingHeight)
                                        {
                                            var allFilters = tipHeight - startingHeight;

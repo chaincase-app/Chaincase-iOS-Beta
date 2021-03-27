@@ -13,12 +13,14 @@ using WalletWasabi.Blockchain.TransactionOutputs;
 using WalletWasabi.CoinJoin.Client.Rounds;
 using WalletWasabi.CoinJoin.Common.Models;
 using WalletWasabi.Models;
+using WalletWasabi.Stores;
 
 namespace Chaincase.UI.ViewModels
 {
 	public class CoinViewModel : ReactiveObject
 	{
 		protected Global Global { get; }
+		private readonly BitcoinStore _bitcoinStore;
 
 		public CompositeDisposable Disposables { get; set; }
 
@@ -32,9 +34,10 @@ namespace Chaincase.UI.ViewModels
 
 		public ReactiveCommand<Unit, Unit> NavBackCommand;
 
-		public CoinViewModel(Global global, SmartCoin model)
+		public CoinViewModel(Global global, BitcoinStore bitcoinStore, SmartCoin model)
 		{
 			Global = global;
+			_bitcoinStore = bitcoinStore;
 			Model = model;
 
 			Disposables = new CompositeDisposable();
@@ -70,7 +73,7 @@ namespace Chaincase.UI.ViewModels
 				.Subscribe(_ => RefreshSmartCoinStatus())
 				.DisposeWith(Disposables);
 
-			Global.BitcoinStore.SmartHeaderChain
+			_bitcoinStore.SmartHeaderChain
 				.WhenAnyValue(x => x.TipHeight).Select(_ => Unit.Default)
 				.Merge(Model.WhenAnyValue(x => x.Height).Select(_ => Unit.Default))
 				.Throttle(TimeSpan.FromSeconds(0.1)) // DO NOT TAKE THIS THROTTLE OUT, OTHERWISE SYNCING WITH COINS IN THE WALLET WILL STACKOVERFLOW!
@@ -93,7 +96,7 @@ namespace Chaincase.UI.ViewModels
 		public string Address => Model.ScriptPubKey.GetDestinationAddress(Global.Network).ToString();
 
 		public int Confirmations => Model.Height.Type == HeightType.Chain
-			? (int)Global.BitcoinStore.SmartHeaderChain.TipHeight - Model.Height.Value + 1
+			? (int)_bitcoinStore.SmartHeaderChain.TipHeight - Model.Height.Value + 1
 			: 0;
 
 		public string ToolTip

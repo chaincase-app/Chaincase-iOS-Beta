@@ -37,8 +37,10 @@ namespace Chaincase.Common
         private string DataDir => DataDirProvider.Get();
         private Config Config { get; set; }
         private UiConfig UiConfig { get; set; }
+        private BitcoinStore BitcoinStore { get; set; }
 
-        public BitcoinStore BitcoinStore { get; private set; }
+        public Network Network => Config.Network;
+        public WalletManager WalletManager { get; private set; }
 
         public string AddressManagerFilePath { get; private set; }
         public AddressManager AddressManager { get; private set; }
@@ -46,7 +48,6 @@ namespace Chaincase.Common
         public NodesGroup Nodes { get; private set; }
         public ChaincaseSynchronizer Synchronizer { get; private set; }
         public FeeProviders FeeProviders { get; private set; }
-        public WalletManager WalletManager { get; private set; }
         public TransactionBroadcaster TransactionBroadcaster { get; set; }
         public CoinJoinProcessor CoinJoinProcessor { get; set; }
         public Node RegTestMempoolServingNode { get; private set; }
@@ -56,7 +57,6 @@ namespace Chaincase.Common
 
         public HostedServices HostedServices { get; }
 
-        public Network Network => Config.Network;
 
         public MemoryCache Cache { get; private set; }
         /// <summary>
