@@ -14,9 +14,10 @@ using WalletWasabi.Wallets;
 
 namespace Chaincase.UI.ViewModels
 {
-	public class StatusViewModel : ReactiveObject
+    public class StatusViewModel : ReactiveObject
     {
         protected Global Global { get; }
+        private Config Config { get; }
         private CompositeDisposable Disposables { get; } = new CompositeDisposable();
         private NodesCollection Nodes { get; set; }
         private WasabiSynchronizer Synchronizer { get; set; }
@@ -39,15 +40,16 @@ namespace Chaincase.UI.ViewModels
         private bool _downloadingBlock;
         private StatusSet ActiveStatuses { get; }
 
-        public StatusViewModel(Global global)
+        public StatusViewModel(Global global, Config config)
         {
             Global = global;
+            Config = config;
             Backend = BackendStatus.NotConnected;
             Tor = TorStatus.NotRunning;
             Peers = 0;
             BtcPrice = "$0";
             ActiveStatuses = new StatusSet();
-            UseTor = Global.Config.UseTor; // Do not make it dynamic, because if you change this config settings only next time will it activate.
+            UseTor = Config.UseTor; // Do not make it dynamic, because if you change this config settings only next time will it activate.
 
             _status = ActiveStatuses.WhenAnyValue(x => x.CurrentStatus)
                 .Select(x => x.ToString())

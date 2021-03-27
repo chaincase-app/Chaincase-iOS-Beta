@@ -21,9 +21,11 @@ using WalletWasabi.Logging;
 
 namespace Chaincase.UI.ViewModels
 {
-	public class CoinJoinViewModel : ReactiveObject
-	{
-		protected Global Global { get; }
+    public class CoinJoinViewModel : ReactiveObject
+    {
+        protected Global Global { get; }
+        private Config Config {get; }
+
         private CompositeDisposable Disposables { get; set; }
 
         private string _coordinatorFeePercent;
@@ -44,9 +46,10 @@ namespace Chaincase.UI.ViewModels
         private bool _shouldShowErrorToast;
         private SelectCoinsViewModel _selectCoinsViewModel;
 
-        public CoinJoinViewModel(Global global, SelectCoinsViewModel selectCoinsViewModel) 
+        public CoinJoinViewModel(Global global, Config config, SelectCoinsViewModel selectCoinsViewModel) 
         {
             Global = global;
+            Config = config;
             CoinList = selectCoinsViewModel;
 
             if (Disposables != null)
@@ -194,7 +197,7 @@ namespace Chaincase.UI.ViewModels
                 {
                     var available = coins.Confirmed().Available();
                     RequiredBTC = available.Any()
-                        ? registrableRound.State.CalculateRequiredAmount(available.Where(x => x.AnonymitySet < Global.Config.PrivacyLevelStrong).Select(x => x.Amount).ToArray())
+                        ? registrableRound.State.CalculateRequiredAmount(available.Where(x => x.AnonymitySet < Config.PrivacyLevelStrong).Select(x => x.Amount).ToArray())
                         : registrableRound.State.CalculateRequiredAmount();
                 }
             }
@@ -202,7 +205,7 @@ namespace Chaincase.UI.ViewModels
 
         private bool IsPasswordValid(string password)
         {
-            string walletFilePath = Path.Combine(Global.WalletManager.WalletDirectories.WalletsDir, $"{Global.Network}.json");
+            string walletFilePath = Path.Combine(Global.WalletManager.WalletDirectories.WalletsDir, $"{Config.Network}.json");
             ExtKey keyOnDisk;
             try
             {

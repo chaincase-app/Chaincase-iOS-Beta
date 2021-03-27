@@ -18,6 +18,7 @@ namespace Chaincase.UI.ViewModels
     public class SelectCoinsViewModel : ReactiveObject
     {
         protected Global Global { get; }
+        private Config Config { get; }
 
         private CompositeDisposable Disposables { get; set; }
 
@@ -33,9 +34,10 @@ namespace Chaincase.UI.ViewModels
 
         // public ReactiveCommand<CoinViewModel, Unit> OpenCoinDetail;
 
-        public SelectCoinsViewModel(Global global, bool isPrivate = false)
+        public SelectCoinsViewModel(Global global, Config config, bool isPrivate = false)
         {
             Global = global;
+            Config = config;
             RootList = new SourceList<CoinViewModel>();
             RootList
                 .Connect()
@@ -173,7 +175,7 @@ namespace Chaincase.UI.ViewModels
 
         private void ClearRootList() => RootList.Clear();
 
-        public void SelectPrivateCoins() => SelectCoins(x => x.AnonymitySet >= Global.Config.PrivacyLevelSome);
+        public void SelectPrivateCoins() => SelectCoins(x => x.AnonymitySet >= Config.PrivacyLevelSome);
 
         public void AfterDismissed()
         {
