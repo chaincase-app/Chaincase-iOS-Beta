@@ -14,6 +14,7 @@ using Microsoft.MobileBlazorBindings;
 using Splat;
 using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Logging;
+using WalletWasabi.Wallets;
 using Xamarin.Forms;
 
 namespace Chaincase
@@ -110,9 +111,10 @@ namespace Chaincase
 		public static async Task LoadWalletAsync()
 		{
 			var global = Locator.Current.GetService<Global>();
+			var walletManager = Locator.Current.GetService<WalletManager>();
 			var config = Locator.Current.GetService<Config>();
 			string walletName = config.Network.ToString();
-			KeyManager keyManager = global.WalletManager.GetWalletByName(walletName).KeyManager;
+			KeyManager keyManager = walletManager.GetWalletByName(walletName).KeyManager;
 			if (keyManager is null)
 			{
 				return;
@@ -120,7 +122,7 @@ namespace Chaincase
 
 			try
 			{
-				global.Wallet = await global.WalletManager.StartWalletAsync(keyManager);
+				global.Wallet = await walletManager.StartWalletAsync(keyManager);
 				// Successfully initialized.
 			}
 			catch (OperationCanceledException ex)

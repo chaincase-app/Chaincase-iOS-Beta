@@ -23,6 +23,7 @@ namespace Chaincase.UI.ViewModels
     {
         private readonly IMainThreadInvoker _mainThreadInvoker;
         private readonly Global _global;
+        private readonly WalletManager _walletManager;
         private readonly Config _config;
         private readonly UiConfig _uiConfig;
         private readonly BitcoinStore _bitcoinStore;
@@ -35,9 +36,10 @@ namespace Chaincase.UI.ViewModels
         private ObservableAsPropertyHelper<bool> _canBackUp;
         private bool _isWalletInitialized;
 
-        public OverviewViewModel(Global global, Config config, UiConfig uiConfig, BitcoinStore bitcoinStore, IMainThreadInvoker mainThreadInvoker)
+        public OverviewViewModel(Global global, WalletManager walletManager, Config config, UiConfig uiConfig, BitcoinStore bitcoinStore, IMainThreadInvoker mainThreadInvoker)
         {
             _global = global;
+            _walletManager = walletManager;
             _config = config;
             _uiConfig = uiConfig;
             _bitcoinStore = bitcoinStore;
@@ -149,7 +151,7 @@ namespace Chaincase.UI.ViewModels
         private async Task LoadWalletAsync()
         {
             string walletName = _config.Network.ToString();
-            KeyManager keyManager = _global.WalletManager.GetWalletByName(walletName).KeyManager;
+            KeyManager keyManager = _walletManager.GetWalletByName(walletName).KeyManager;
             if (keyManager is null)
             {
                 return;
@@ -157,7 +159,7 @@ namespace Chaincase.UI.ViewModels
 
             try
             {
-                _global.Wallet = await _global.WalletManager.StartWalletAsync(keyManager);
+                _global.Wallet = await _walletManager.StartWalletAsync(keyManager);
                 // Successfully initialized.
             }
             catch (OperationCanceledException ex)

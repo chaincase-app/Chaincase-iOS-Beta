@@ -18,13 +18,15 @@ using WalletWasabi.CoinJoin.Client.Rounds;
 using WalletWasabi.CoinJoin.Common.Models;
 using WalletWasabi.Helpers;
 using WalletWasabi.Logging;
+using WalletWasabi.Wallets;
 
 namespace Chaincase.UI.ViewModels
 {
     public class CoinJoinViewModel : ReactiveObject
     {
         protected Global Global { get; }
-        private Config Config {get; }
+        private readonly WalletManager _walletManager;
+        private readonly Config _config;
 
         private CompositeDisposable Disposables { get; set; }
 
@@ -46,10 +48,11 @@ namespace Chaincase.UI.ViewModels
         private bool _shouldShowErrorToast;
         private SelectCoinsViewModel _selectCoinsViewModel;
 
-        public CoinJoinViewModel(Global global, Config config, SelectCoinsViewModel selectCoinsViewModel) 
+        public CoinJoinViewModel(Global global, WalletManager walletManager, Config config, SelectCoinsViewModel selectCoinsViewModel) 
         {
             Global = global;
-            Config = config;
+            _walletManager = walletManager;
+            _config = config;
             CoinList = selectCoinsViewModel;
 
             if (Disposables != null)
@@ -173,7 +176,7 @@ namespace Chaincase.UI.ViewModels
 
         private void UpdateRequiredBtcLabel(ClientRound registrableRound)
         {
-            if (Global.WalletManager is null)
+            if (_walletManager is null)
             {
                 return; // Otherwise NullReferenceException at shutdown.
             }
@@ -197,7 +200,7 @@ namespace Chaincase.UI.ViewModels
                 {
                     var available = coins.Confirmed().Available();
                     RequiredBTC = available.Any()
-                        ? registrableRound.State.CalculateRequiredAmount(available.Where(x => x.AnonymitySet < Config.PrivacyLevelStrong).Select(x => x.Amount).ToArray())
+                        ? registrableRound.State.CalculateRequiredAmount(available.Where(x => x.AnonymitySet < _config.PrivacyLevelStrong).Select(x => x.Amount).ToArray())
                         : registrableRound.State.CalculateRequiredAmount();
                 }
             }
@@ -205,7 +208,7 @@ namespace Chaincase.UI.ViewModels
 
         private bool IsPasswordValid(string password)
         {
-            string walletFilePath = Path.Combine(Global.WalletManager.WalletDirectories.WalletsDir, $"{Config.Network}.json");
+            string walletFilePath = Path.Combine(_walletManager.WalletDirectories.WalletsDir, $"{_config.Network}.json");
             ExtKey keyOnDisk;
             try
             {

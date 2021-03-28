@@ -39,8 +39,7 @@ namespace Chaincase.Common
         private UiConfig UiConfig { get; set; }
         private BitcoinStore BitcoinStore { get; set; }
         private Network Network => Config.Network;
-
-        public WalletManager WalletManager { get; private set; }
+        private WalletManager WalletManager { get; set; }
 
         public string AddressManagerFilePath { get; private set; }
         public AddressManager AddressManager { get; private set; }
