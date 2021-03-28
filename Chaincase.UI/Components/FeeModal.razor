@@ -1,6 +1,6 @@
 ﻿@using WalletWasabi.Exceptions
 @using WalletWasabi.Helpers
-@inherits ReactiveComponentBase<FeeViewModel>
+@inherits ReactiveComponentBase<SendViewModel>
 
 <IonModal @bind-Visible="@Visible">
     <ion-header>
@@ -21,11 +21,11 @@
         </p>
         <p>
             Fee:
-            <ion-badge class="ion-text-center">~@ViewModel.SendViewModel.FeeRate</ion-badge>
+            <ion-badge class="ion-text-center">~@ViewModel.FeeRate</ion-badge>
             @FeeTargetTimeString
         </p>
-        <IonRange min="@(-1 * ViewModel.SendViewModel.MaximumFeeTarget)"
-                  max="@(-1 * ViewModel.SendViewModel.MinimumFeeTarget)"
+        <IonRange min="@(-1 * ViewModel.MaximumFeeTarget)"
+                  max="@(-1 * ViewModel.MinimumFeeTarget)"
                   @bind-Value="@InverseFeeTarget"
                   debounce="16"/>
 
@@ -41,20 +41,20 @@
     public EventCallback<bool> VisibleChanged { get; set; }
 
     [Parameter]
-    public FeeViewModel FeeViewModel { get; set; }
+    public SendViewModel SendViewModel { get; set; }
 
     string FeeTargetTimeString =>
-        ConvertFeeTargetToString(ViewModel.SendViewModel.FeeTarget);
+        ConvertFeeTargetToString(ViewModel.FeeTarget);
 
     public int InverseFeeTarget
     {
-        get => -1 * ViewModel.SendViewModel.FeeTarget;
-        set => ViewModel.SendViewModel.FeeTarget = -1 * value;
+        get => -1 * ViewModel.FeeTarget;
+        set => ViewModel.FeeTarget = -1 * value;
     }
 
     protected override void OnParametersSet()
     {
-        ViewModel = FeeViewModel;
+        ViewModel = SendViewModel;
         base.OnParametersSet();
     }
 

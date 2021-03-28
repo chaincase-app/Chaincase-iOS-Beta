@@ -35,7 +35,7 @@
 </ion-content>
 
 <FeeModal @bind-Visible="@IsFeeModalVisible"
-            FeeViewModel="@FeeViewModel"/>
+            SendViewModel="@ViewModel"/>
 
 @code {
 
@@ -55,14 +55,11 @@
         }
     }
 
-    private FeeViewModel FeeViewModel { get; set; }
-
     private double amount { get; set; }
 
     protected override void OnInitialized()
     {
         ViewModel = SendViewModel;
-        FeeViewModel = new FeeViewModel(SendViewModel);
         UiStateService.Title = "SEND";
     }
 
