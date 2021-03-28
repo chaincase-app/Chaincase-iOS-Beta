@@ -41,6 +41,8 @@ namespace Chaincase.Common
         private Network Network => Config.Network;
         private WalletManager WalletManager { get; set; }
         private readonly INotificationManager NotificationManager;
+        private readonly ITorManager TorManager;
+        private readonly IDataDirProvider DataDirProvider;
 
         public string AddressManagerFilePath { get; private set; }
         public AddressManager AddressManager { get; private set; }
@@ -51,8 +53,6 @@ namespace Chaincase.Common
         public TransactionBroadcaster TransactionBroadcaster { get; set; }
         public CoinJoinProcessor CoinJoinProcessor { get; set; }
         public Node RegTestMempoolServingNode { get; private set; }
-        public ITorManager TorManager { get; private set; }
-        public IDataDirProvider DataDirProvider { get; private set; }
 
         public HostedServices HostedServices { get; }
 
