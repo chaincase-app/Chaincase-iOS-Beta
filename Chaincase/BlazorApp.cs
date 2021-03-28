@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Threading.Tasks;
 using Chaincase.Background;
 using Chaincase.Common;
@@ -10,11 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.MobileBlazorBindings;
-
-using Splat;
-using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Logging;
-using WalletWasabi.Wallets;
 using Xamarin.Forms;
 
 namespace Chaincase
@@ -95,7 +90,7 @@ namespace Chaincase
 			Resuming -= OnResuming;
 
 			//perform non-blocking actions
-			await _host.Services.GetRequiredService<Global>().OnResuming();
+			await ServiceProvider.GetRequiredService<Global>().OnResuming();
 		}
 
 		private static void TaskScheduler_UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
@@ -108,31 +103,5 @@ namespace Chaincase
 			Logger.LogWarning(e?.ExceptionObject as Exception, "UnhandledException");
 		}
 
-		public static async Task LoadWalletAsync()
-		{
-			var global = Locator.Current.GetService<Global>();
-			var walletManager = Locator.Current.GetService<WalletManager>();
-			var config = Locator.Current.GetService<Config>();
-			string walletName = config.Network.ToString();
-			KeyManager keyManager = walletManager.GetWalletByName(walletName).KeyManager;
-			if (keyManager is null)
-			{
-				return;
-			}
-
-			try
-			{
-				global.Wallet = await walletManager.StartWalletAsync(keyManager);
-				// Successfully initialized.
-			}
-			catch (OperationCanceledException ex)
-			{
-				Logger.LogTrace(ex);
-			}
-			catch (Exception ex)
-			{
-				Logger.LogError(ex);
-			}
-		}
 	}
 }
