@@ -111,7 +111,7 @@ namespace Chaincase.UI.ViewModels
 
             Observable.FromEventPattern(SelectCoinsViewModel, nameof(SelectCoinsViewModel.SelectionChanged))
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(_ => SetFees());
+                .Subscribe(_ => ApplyFees());
 
             _minMaxFeeTargetsEqual = this.WhenAnyValue(x => x.MinimumFeeTarget, x => x.MaximumFeeTarget, (x, y) => x == y)
                 .ToProperty(this, x => x.MinMaxFeeTargetsEqual, scheduler: RxApp.MainThreadScheduler);
@@ -119,7 +119,7 @@ namespace Chaincase.UI.ViewModels
             SetFeeTargetLimits();
             FeeTarget = Global.UiConfig.FeeTarget;
             FeeRate = new FeeRate((decimal)50); //50 sat/vByte placeholder til loads
-            SetFees();
+            ApplyFees();
 
             Observable
                 .FromEventPattern<AllFeeEstimate>(Global.FeeProviders, nameof(Global.FeeProviders.AllFeeEstimateChanged))
@@ -137,7 +137,7 @@ namespace Chaincase.UI.ViewModels
                         FeeTarget = MaximumFeeTarget;
                     }
 
-                    SetFees();
+                    ApplyFees();
                 })
                 .DisposeWith(Disposables);
 
@@ -145,7 +145,7 @@ namespace Chaincase.UI.ViewModels
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(_ =>
                 {
-                    SetFees();
+                    ApplyFees();
                 });
 
             _destinationUrl = this.WhenAnyValue(x => x.DestinationString, ParseDestinationString)
@@ -200,7 +200,7 @@ namespace Chaincase.UI.ViewModels
             return url;
         }
 
-        private void SetFees()
+        private void ApplyFees()
         {
             AllFeeEstimate allFeeEstimate = Global.FeeProviders?.AllFeeEstimate;
 
@@ -259,6 +259,7 @@ namespace Chaincase.UI.ViewModels
                 }
                 long all = selectedCoins.Sum(x => x.Amount);
                 AllSelectedAmount = Math.Max(Money.Zero, all - EstimatedBtcFee);
+                SetAmountIfMax();
             }
         }
 
