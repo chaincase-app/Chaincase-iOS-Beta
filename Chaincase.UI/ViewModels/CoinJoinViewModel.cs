@@ -8,6 +8,7 @@ using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 using Chaincase.Common;
+using Chaincase.Common.Contracts;
 using Chaincase.Common.Models;
 using NBitcoin;
 using ReactiveUI;
@@ -27,6 +28,7 @@ namespace Chaincase.UI.ViewModels
         protected Global Global { get; }
         private readonly WalletManager _walletManager;
         private readonly Config _config;
+        private readonly INotificationManager _notificationManager;
 
         private CompositeDisposable Disposables { get; set; }
 
@@ -48,11 +50,12 @@ namespace Chaincase.UI.ViewModels
         private bool _shouldShowErrorToast;
         private SelectCoinsViewModel _selectCoinsViewModel;
 
-        public CoinJoinViewModel(Global global, WalletManager walletManager, Config config, SelectCoinsViewModel selectCoinsViewModel) 
+        public CoinJoinViewModel(Global global, WalletManager walletManager, Config config, INotificationManager notificationManager, SelectCoinsViewModel selectCoinsViewModel) 
         {
             Global = global;
             _walletManager = walletManager;
             _config = config;
+            _notificationManager = notificationManager;
             CoinList = selectCoinsViewModel;
 
             if (Disposables != null)
@@ -117,7 +120,7 @@ namespace Chaincase.UI.ViewModels
                                DequeueReason reason = success.Key;
                                if (reason == DequeueReason.UserRequested)
                                {
-                                   Global.NotificationManager.RemoveAllPendingNotifications();
+                                   _notificationManager.RemoveAllPendingNotifications();
                                }
                            }
                        }
@@ -295,7 +298,7 @@ namespace Chaincase.UI.ViewModels
                     }); 
 
                     await Global.Wallet.ChaumianClient.QueueCoinsToMixAsync(password, coins.ToArray());
-                    Global.NotificationManager.RequestAuthorization();
+                    _notificationManager.RequestAuthorization();
                     ScheduleConfirmNotification(null, null);
                 }
                 catch (SecurityException ex)
@@ -338,7 +341,7 @@ namespace Chaincase.UI.ViewModels
             string message = string.Format("Open Chaincase before {0:t}\n to complete the CoinJoin.", confirmTime);
 
             var timeToNotify = timeoutSeconds - NOTIFY_TIMEOUT_DELTA;
-            Global.NotificationManager.ScheduleNotification(title, message, timeToNotify);
+            _notificationManager.ScheduleNotification(title, message, timeToNotify);
         }
 
         public SelectCoinsViewModel CoinList

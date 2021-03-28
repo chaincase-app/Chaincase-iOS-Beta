@@ -40,6 +40,7 @@ namespace Chaincase.Common
         private BitcoinStore BitcoinStore { get; set; }
         private Network Network => Config.Network;
         private WalletManager WalletManager { get; set; }
+        private readonly INotificationManager NotificationManager;
 
         public string AddressManagerFilePath { get; private set; }
         public AddressManager AddressManager { get; private set; }
@@ -51,7 +52,6 @@ namespace Chaincase.Common
         public CoinJoinProcessor CoinJoinProcessor { get; set; }
         public Node RegTestMempoolServingNode { get; private set; }
         public ITorManager TorManager { get; private set; }
-        public INotificationManager NotificationManager { get; private set; }
         public IDataDirProvider DataDirProvider { get; private set; }
 
         public HostedServices HostedServices { get; }
