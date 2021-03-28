@@ -26,6 +26,7 @@ namespace Chaincase.UI.ViewModels
     public class SendViewModel : ReactiveObject
     {
         protected Global Global { get; }
+        private readonly Config _config;
         private UiConfig UiConfig { get; }
 
         private bool _isMax;
@@ -50,9 +51,10 @@ namespace Chaincase.UI.ViewModels
 
         protected CompositeDisposable Disposables { get; } = new CompositeDisposable();
 
-        public SendViewModel(Global global, UiConfig uiConfig, SelectCoinsViewModel selectCoinsViewModel)
+        public SendViewModel(Global global, Config config, UiConfig uiConfig, SelectCoinsViewModel selectCoinsViewModel)
         {
 	        Global = global;
+            _config = config;
             UiConfig = uiConfig;
             SelectCoinsViewModel = selectCoinsViewModel;
             AmountText = "0.0";
@@ -178,7 +180,7 @@ namespace Chaincase.UI.ViewModels
             BitcoinUrlBuilder url = null;
             try
             {
-                url = new BitcoinUrlBuilder(destinationString, Global.Network);
+                url = new BitcoinUrlBuilder(destinationString, _config.Network);
                 if (url.Amount != null)
                 {
                     // since AmountText can be altered by hand, we set it instead
@@ -194,7 +196,7 @@ namespace Chaincase.UI.ViewModels
 
             try
             {
-                BitcoinAddress address = BitcoinAddress.Create(destinationString.Trim(), Global.Network);
+                BitcoinAddress address = BitcoinAddress.Create(destinationString.Trim(), _config.Network);
                 url = new BitcoinUrlBuilder();
                 url.Address = address;
             } catch (Exception) { /* invalid bitcoin address */ }

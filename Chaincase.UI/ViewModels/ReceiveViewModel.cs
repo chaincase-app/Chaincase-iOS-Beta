@@ -7,14 +7,16 @@ namespace Chaincase.UI.ViewModels
     public class ReceiveViewModel : ReactiveObject
     {
         protected Global Global { get; }
+        private readonly Config _config;
 
         private string _proposedLabel;
         private bool[,] _qrCode;
         private string _requestAmount;
 
-        public ReceiveViewModel(Global global)
+        public ReceiveViewModel(Global global, Config config)
         {
             Global = global;
+            _config = config;
         }
 
         public void InitNextReceiveKey()
@@ -24,7 +26,7 @@ namespace Chaincase.UI.ViewModels
         }
 
         public string AppliedLabel => ReceivePubKey.Label ?? "";
-        public string Address => ReceivePubKey.GetP2wpkhAddress(Global.Network).ToString();
+        public string Address => ReceivePubKey.GetP2wpkhAddress(_config.Network).ToString();
         public string Pubkey => ReceivePubKey.PubKey.ToString();
         public string KeyPath => ReceivePubKey.FullKeyPath.ToString();
 

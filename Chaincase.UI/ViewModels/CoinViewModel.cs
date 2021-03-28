@@ -20,6 +20,7 @@ namespace Chaincase.UI.ViewModels
 	public class CoinViewModel : ReactiveObject
 	{
 		protected Global Global { get; }
+		private readonly Config _config;
 		private readonly BitcoinStore _bitcoinStore;
 
 		public CompositeDisposable Disposables { get; set; }
@@ -34,9 +35,10 @@ namespace Chaincase.UI.ViewModels
 
 		public ReactiveCommand<Unit, Unit> NavBackCommand;
 
-		public CoinViewModel(Global global, BitcoinStore bitcoinStore, SmartCoin model)
+		public CoinViewModel(Global global, Config config, BitcoinStore bitcoinStore, SmartCoin model)
 		{
 			Global = global;
+			_config = config;
 			_bitcoinStore = bitcoinStore;
 			Model = model;
 
@@ -93,7 +95,7 @@ namespace Chaincase.UI.ViewModels
 
 		public bool Unspent => _unspent?.Value ?? false;
 
-		public string Address => Model.ScriptPubKey.GetDestinationAddress(Global.Network).ToString();
+		public string Address => Model.ScriptPubKey.GetDestinationAddress(_config.Network).ToString();
 
 		public int Confirmations => Model.Height.Type == HeightType.Chain
 			? (int)_bitcoinStore.SmartHeaderChain.TipHeight - Model.Height.Value + 1

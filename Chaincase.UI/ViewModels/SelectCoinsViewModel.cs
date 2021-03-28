@@ -9,17 +9,16 @@ using Chaincase.Common;
 using DynamicData;
 using NBitcoin;
 using ReactiveUI;
-using WalletWasabi.Blockchain.TransactionOutputs;
 using WalletWasabi.Blockchain.TransactionProcessing;
 using WalletWasabi.Logging;
 using WalletWasabi.Stores;
 
 namespace Chaincase.UI.ViewModels
 {
-    public class SelectCoinsViewModel : ReactiveObject
+	public class SelectCoinsViewModel : ReactiveObject
     {
         protected Global Global { get; }
-        private Config Config { get; }
+        private readonly Config _config;
         private readonly BitcoinStore _bitcoinStore;
 
         private CompositeDisposable Disposables { get; set; }
@@ -39,7 +38,7 @@ namespace Chaincase.UI.ViewModels
         public SelectCoinsViewModel(Global global, Config config, BitcoinStore bitcoinStore, bool isPrivate = false)
         {
             Global = global;
-            Config = config;
+            _config = config;
             _bitcoinStore = bitcoinStore;
             RootList = new SourceList<CoinViewModel>();
             RootList
@@ -92,7 +91,7 @@ namespace Chaincase.UI.ViewModels
 
                 RootList.RemoveMany(coinToRemove.Select(kp => kp.Value));
 
-                var newCoinViewModels = coinToAdd.Select(c => new CoinViewModel(Global, _bitcoinStore, c)).ToArray();
+                var newCoinViewModels = coinToAdd.Select(c => new CoinViewModel(Global, _config, _bitcoinStore, c)).ToArray();
                 foreach (var cvm in newCoinViewModels)
                 {
                     SubscribeToCoinEvents(cvm);
@@ -178,7 +177,7 @@ namespace Chaincase.UI.ViewModels
 
         private void ClearRootList() => RootList.Clear();
 
-        public void SelectPrivateCoins() => SelectCoins(x => x.AnonymitySet >= Config.PrivacyLevelSome);
+        public void SelectPrivateCoins() => SelectCoins(x => x.AnonymitySet >= _config.PrivacyLevelSome);
 
         public void AfterDismissed()
         {

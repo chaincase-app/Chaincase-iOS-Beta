@@ -17,8 +17,9 @@ namespace Chaincase.UI.ViewModels
 	public class LoadWalletViewModel : ReactiveObject
 	{
 		protected Global Global { get; }
-		protected IHsmStorage Hsm { get; }
+		private Config Config { get; }
 		private UiConfig UiConfig { get; }
+		protected IHsmStorage Hsm { get; }
 
 		private string _password;
 		private string _seedWords;
@@ -26,9 +27,10 @@ namespace Chaincase.UI.ViewModels
 		private readonly string ACCOUNT_KEY_PATH = $"m/{KeyManager.DefaultAccountKeyPath}";
 		private const int MIN_GAP_LIMIT = KeyManager.AbsoluteMinGapLimit * 4;
 
-		public LoadWalletViewModel(Global global, UiConfig uiConfig, IHsmStorage hsmStorage)
+		public LoadWalletViewModel(Global global, Config config, UiConfig uiConfig, IHsmStorage hsmStorage)
 		{
 			Global = global;
+			Config = config;
 			UiConfig = uiConfig;
 			Hsm = hsmStorage;
 		}
@@ -38,7 +40,7 @@ namespace Chaincase.UI.ViewModels
 			SeedWords = Guard.Correct(SeedWords);
 			Password = Guard.Correct(Password); // Do not let whitespaces to the beginning and to the end.
 
-			string walletFilePath = Path.Combine(Global.WalletManager.WalletDirectories.WalletsDir, $"{Global.Network}.json");
+			string walletFilePath = Path.Combine(Global.WalletManager.WalletDirectories.WalletsDir, $"{Config.Network}.json");
 			bool isLoadSuccessful;
 
 			try
@@ -47,10 +49,10 @@ namespace Chaincase.UI.ViewModels
 
 				var mnemonic = new Mnemonic(SeedWords);
 				var km = KeyManager.Recover(mnemonic, Password, filePath: null, keyPath, MIN_GAP_LIMIT);
-				km.SetNetwork(Global.Network);
+				km.SetNetwork(Config.Network);
 				km.SetFilePath(walletFilePath);
 				Global.WalletManager.AddWallet(km);
-				Hsm.SetAsync($"{Global.Network}-seedWords", SeedWords.ToString()); // PROMPT
+				Hsm.SetAsync($"{Config.Network}-seedWords", SeedWords.ToString()); // PROMPT
 				UiConfig.HasSeed = true;
 				UiConfig.ToFile();
 				isLoadSuccessful = true;

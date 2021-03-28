@@ -110,7 +110,8 @@ namespace Chaincase
 		public static async Task LoadWalletAsync()
 		{
 			var global = Locator.Current.GetService<Global>();
-			string walletName = global.Network.ToString();
+			var config = Locator.Current.GetService<Config>();
+			string walletName = config.Network.ToString();
 			KeyManager keyManager = global.WalletManager.GetWalletByName(walletName).KeyManager;
 			if (keyManager is null)
 			{

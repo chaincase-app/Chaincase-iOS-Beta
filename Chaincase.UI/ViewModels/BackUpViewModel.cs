@@ -1,34 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Chaincase.Common;
 using Chaincase.Common.Contracts;
 using ReactiveUI;
-using Splat;
 
 namespace Chaincase.UI.ViewModels
 {
-    public class BackUpViewModel : ReactiveObject
+	public class BackUpViewModel : ReactiveObject
     {
-        protected Global Global { get; }
+        private Config Config { get; }
         private UiConfig UiConfig { get; }
         protected IHsmStorage HSM { get; }
 
         private List<string> _seedWords;
 
-        public BackUpViewModel(Global global, UiConfig uiConfig, IHsmStorage hsm)
+        public BackUpViewModel(Config config, UiConfig uiConfig, IHsmStorage hsm)
         {
-            Global = global;
+            Config = config;
             UiConfig = uiConfig;
             HSM = hsm;
         }
 
         public async Task<bool> HasGotSeedWords()
         {
-            var seedWords = await HSM.GetAsync($"{Global.Network}-seedWords");
+            var seedWords = await HSM.GetAsync($"{Config.Network}-seedWords");
             if (seedWords is null) return false;
 
             SeedWords = seedWords.Split(' ').ToList();
