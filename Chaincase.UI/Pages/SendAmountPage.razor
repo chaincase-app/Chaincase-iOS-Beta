@@ -10,7 +10,7 @@
 
     <IonItem>
         <ion-label>Amount</ion-label>
-        <IonInput @bind-Value="ViewModel.AmountText" min="0"/>
+        <IonInput @onkeyup='ViewModel.SetAmountText' @bind-Value="ViewModel.AmountText" min="0"/>
     </IonItem>
     <IonItem>
         <ion-label>Automatic Coin Selection</ion-label>

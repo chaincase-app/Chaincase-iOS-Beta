@@ -57,43 +57,6 @@ namespace Chaincase.UI.ViewModels
             AllSelectedAmount = Money.Zero;
             EstimatedBtcFee = Money.Zero;
 
-            this.WhenAnyValue(x => x.AmountText)
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(amount =>
-                {
-                    // Correct amount
-                    if (IsMax)
-                    {
-                        SetAmountIfMax();
-                    }
-                    else
-                    {
-                        Regex digitsOnly = new Regex(@"[^\d,.]");
-                        string betterAmount = digitsOnly.Replace(amount, ""); // Make it digits , and . only.
-
-                        betterAmount = betterAmount.Replace(',', '.');
-                        int countBetterAmount = betterAmount.Count(x => x == '.');
-                        if (countBetterAmount > 1) // Do not enable typing two dots.
-                        {
-                            var index = betterAmount.IndexOf('.', betterAmount.IndexOf('.') + 1);
-                            if (index > 0)
-                            {
-                                betterAmount = betterAmount.Substring(0, index);
-                            }
-                        }
-                        var dotIndex = betterAmount.IndexOf('.');
-                        if (dotIndex != -1 && betterAmount.Length - dotIndex > 8) // Enable max 8 decimals.
-                        {
-                            betterAmount = betterAmount.Substring(0, dotIndex + 1 + 8);
-                        }
-
-                        if (betterAmount != amount)
-                        {
-                            AmountText = betterAmount;
-                        }
-                    }
-                });
-
             _outputAmount = this.WhenAnyValue(x => x.AmountText,
                 (amountText) =>
                 {
@@ -119,7 +82,6 @@ namespace Chaincase.UI.ViewModels
             SetFeeTargetLimits();
             FeeTarget = Global.UiConfig.FeeTarget;
             FeeRate = new FeeRate((decimal)50); //50 sat/vByte placeholder til loads
-            ApplyFees();
 
             Observable
                 .FromEventPattern<AllFeeEstimate>(Global.FeeProviders, nameof(Global.FeeProviders.AllFeeEstimateChanged))
@@ -136,8 +98,6 @@ namespace Chaincase.UI.ViewModels
                     {
                         FeeTarget = MaximumFeeTarget;
                     }
-
-                    ApplyFees();
                 })
                 .DisposeWith(Disposables);
 
@@ -198,6 +158,40 @@ namespace Chaincase.UI.ViewModels
             } catch (Exception) { /* invalid bitcoin address */ }
 
             return url;
+        }
+
+        public void SetAmountText()
+        {
+            if (IsMax)
+            {
+                SetAmountIfMax();
+            }
+            else
+            {
+                Regex digitsOnly = new Regex(@"[^\d,.]");
+                string betterAmount = digitsOnly.Replace(AmountText, ""); // Make it digits , and . only.
+
+                betterAmount = betterAmount.Replace(',', '.');
+                int countBetterAmount = betterAmount.Count(x => x == '.');
+                if (countBetterAmount > 1) // Do not enable typing two dots.
+                {
+                    var index = betterAmount.IndexOf('.', betterAmount.IndexOf('.') + 1);
+                    if (index > 0)
+                    {
+                        betterAmount = betterAmount.Substring(0, index);
+                    }
+                }
+                var dotIndex = betterAmount.IndexOf('.');
+                if (dotIndex != -1 && betterAmount.Length - dotIndex > 8) // Enable max 8 decimals.
+                {
+                    betterAmount = betterAmount.Substring(0, dotIndex + 1 + 8);
+                }
+
+                if (betterAmount != AmountText)
+                {
+                    AmountText = betterAmount;
+                }
+            }
         }
 
         private void ApplyFees()
