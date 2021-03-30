@@ -7,18 +7,18 @@ using System.Net.Sockets;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Chaincase.Common.Contracts;
+using Chaincase.Common.Services;
 using Microsoft.Extensions.Caching.Memory;
 using NBitcoin;
 using NBitcoin.Protocol;
 using NBitcoin.Protocol.Behaviors;
 using NBitcoin.Protocol.Connectors;
+using Nito.AsyncEx;
 using WalletWasabi.Blockchain.Analysis.FeesEstimation;
-using WalletWasabi.Blockchain.Blocks;
-using WalletWasabi.Blockchain.Mempool;
 using WalletWasabi.Blockchain.TransactionBroadcasting;
 using WalletWasabi.Blockchain.TransactionOutputs;
 using WalletWasabi.Blockchain.TransactionProcessing;
-using WalletWasabi.Blockchain.Transactions;
 using WalletWasabi.CoinJoin.Client;
 using WalletWasabi.CoinJoin.Client.Clients.Queuing;
 using WalletWasabi.Helpers;
@@ -26,13 +26,10 @@ using WalletWasabi.Logging;
 using WalletWasabi.Services;
 using WalletWasabi.Stores;
 using WalletWasabi.Wallets;
-using Nito.AsyncEx;
-using Chaincase.Common.Contracts;
-using Chaincase.Common.Services;
 
 namespace Chaincase.Common
 {
-    public class Global
+	public class Global
     {
         private string DataDir => DataDirProvider.Get();
         private Config Config { get; set; }
@@ -43,6 +40,10 @@ namespace Chaincase.Common
         private readonly INotificationManager NotificationManager;
         private readonly ITorManager TorManager;
         private readonly IDataDirProvider DataDirProvider;
+        private MemoryCache Cache { get; set; }
+        private HostedServices HostedServices { get; }
+        private CoinJoinProcessor CoinJoinProcessor { get; set; }
+        private Node RegTestMempoolServingNode { get; set; }
 
         public string AddressManagerFilePath { get; private set; }
         public AddressManager AddressManager { get; private set; }
@@ -51,21 +52,27 @@ namespace Chaincase.Common
         public ChaincaseSynchronizer Synchronizer { get; private set; }
         public FeeProviders FeeProviders { get; private set; }
         public TransactionBroadcaster TransactionBroadcaster { get; set; }
-        public CoinJoinProcessor CoinJoinProcessor { get; set; }
-        public Node RegTestMempoolServingNode { get; private set; }
 
-        public HostedServices HostedServices { get; }
-
-
-        public MemoryCache Cache { get; private set; }
         /// <summary>
         /// Responsible for keeping one life cycle event in critical sections at once
         /// </summary>
         private readonly AsyncLock LifeCycleMutex = new AsyncLock();
         private readonly AsyncLock SleepMutex = new AsyncLock();
 
+        public event EventHandler Initialized = delegate { };
+
+        public bool IsInitialized { get; private set; } = false;
+
+        private bool InitializationCompleted { get; set; } = false;
+
+        private bool InitializationStarted { get; set; } = false;
+
+        private CancellationTokenSource StoppingCts { get; set; }
         // Chaincase Specific
         public Wallet Wallet { get; set; }
+        private IEnumerable<SmartCoin> SleepingCoins;
+        private protected CancellationTokenSource SleepCts { get; set; } = new CancellationTokenSource();
+        private protected bool IsGoingToSleep = false;
 
         public Global(INotificationManager notificationManager, ITorManager torManager, IDataDirProvider dataDirProvider, Config config, UiConfig uiConfig, WalletManager walletManager, BitcoinStore bitcoinStore)
         {
@@ -95,16 +102,6 @@ namespace Chaincase.Common
         {
             Wallet = WalletManager.GetWalletByName(Network.ToString());
         }
-
-        public event EventHandler Initialized = delegate { };
-
-        public bool IsInitialized { get; private set; } = false;
-
-        private bool InitializationCompleted { get; set; } = false;
-
-        private bool InitializationStarted { get; set; } = false;
-
-        private CancellationTokenSource StoppingCts { get; set; }
 
         public async Task InitializeNoWalletAsync(CancellationToken cancellationToken = default) 
         {
@@ -366,8 +363,6 @@ namespace Chaincase.Common
 
         }
 
-        private IEnumerable<SmartCoin> SleepingCoins;
-
         private void WalletManager_OnDequeue(object? sender, DequeueResult e)
         {
             try
@@ -583,9 +578,6 @@ namespace Chaincase.Common
                 Logger.LogDebug("Global.OnResuming():Chaincase Resumed");
             }
         }
-
-        private protected CancellationTokenSource SleepCts { get;  set; } = new CancellationTokenSource();
-        private protected bool IsGoingToSleep = false;
 
         public async Task OnSleeping()
         {
