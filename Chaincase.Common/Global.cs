@@ -40,10 +40,7 @@ namespace Chaincase.Common
         private readonly INotificationManager NotificationManager;
         private readonly ITorManager TorManager;
         private readonly IDataDirProvider DataDirProvider;
-        private MemoryCache Cache { get; set; }
-        private HostedServices HostedServices { get; }
-        private CoinJoinProcessor CoinJoinProcessor { get; set; }
-        private Node RegTestMempoolServingNode { get; set; }
+        private CoinJoinProcessor CoinJoinProcessor;
 
         public string AddressManagerFilePath { get; private set; }
         public AddressManager AddressManager { get; private set; }
@@ -113,7 +110,7 @@ namespace Chaincase.Common
 
                 Logger.LogDebug($"Global.InitializeNoWalletAsync(): Got lock");
 
-                Cache = new MemoryCache(new MemoryCacheOptions
+                MemoryCache Cache = new MemoryCache(new MemoryCacheOptions
                 {
                     SizeLimit = 1_000,
                     ExpirationScanFrequency = TimeSpan.FromSeconds(30)
@@ -184,7 +181,7 @@ namespace Chaincase.Common
                 #endregion AddressManagerInitialization
 
                 #region P2PInitialization
-
+                Node regTestMempoolServingNode = null;
                 if (Network == Network.RegTest)
                 {
                     Nodes = new NodesGroup(Network, requirements: Constants.NodeRequirements);
@@ -196,9 +193,9 @@ namespace Chaincase.Common
 
                         Nodes.ConnectedNodes.Add(node);
 
-                        RegTestMempoolServingNode = await Node.ConnectAsync(NBitcoin.Network.RegTest, bitcoinCoreEndpoint).ConfigureAwait(false);
+                        regTestMempoolServingNode = await Node.ConnectAsync(NBitcoin.Network.RegTest, bitcoinCoreEndpoint).ConfigureAwait(false);
 
-                        RegTestMempoolServingNode.Behaviors.Add(BitcoinStore.CreateUntrustedP2pBehavior());
+                        regTestMempoolServingNode.Behaviors.Add(BitcoinStore.CreateUntrustedP2pBehavior());
                     }
                     catch (SocketException ex)
                     {
@@ -219,13 +216,12 @@ namespace Chaincase.Common
                     }
                     Nodes = new NodesGroup(Network, connectionParameters, requirements: Constants.NodeRequirements);
                     Nodes.MaximumNodeConnection = 12;
-                    RegTestMempoolServingNode = null;
+                    regTestMempoolServingNode = null;
                 }
 
                 Nodes.Connect();
                 Logger.LogInfo("Global.InitializeNoWalletAsync(): Start connecting to nodes...");
 
-                var regTestMempoolServingNode = RegTestMempoolServingNode;
                 if (regTestMempoolServingNode != null)
                 {
                     regTestMempoolServingNode.VersionHandshake();
@@ -250,6 +246,8 @@ namespace Chaincase.Common
                 #endregion SynchronizerInitialization
 
                 TransactionBroadcaster = new TransactionBroadcaster(Network, BitcoinStore, Synchronizer, Nodes, WalletManager, null);
+                // CoinJoinProcessor maintains an event handler to process joins.
+                // We need this reference.
                 CoinJoinProcessor = new CoinJoinProcessor(Synchronizer, WalletManager, null);
 
                 #region Blocks provider
