@@ -410,38 +410,38 @@ namespace Chaincase.Common
 
                     if (e.Transaction.Transaction.IsCoinBase)
                     {
-                        NotifyAndLog($"{amountString} BTC", "Mined", NotificationType.Success, e);
+                        NotificationManager.NotifyAndLog($"{amountString} BTC", "Mined", NotificationType.Success, e);
                     }
                     else if (isSpent && receiveSpentDiff == miningFee)
                     {
-                        NotifyAndLog($"Mining Fee: {amountString} BTC", "Self Spend", NotificationType.Information, e);
+                        NotificationManager.NotifyAndLog($"Mining Fee: {amountString} BTC", "Self Spend", NotificationType.Information, e);
                     }
                     else if (isSpent && receiveSpentDiff.Almost(Money.Zero, Money.Coins(0.01m)) && e.IsLikelyOwnCoinJoin)
                     {
-                        NotifyAndLog($"CoinJoin Completed!", "", NotificationType.Success, e);
+                        NotificationManager.NotifyAndLog($"CoinJoin Completed!", "", NotificationType.Success, e);
                     }
                     else if (incoming > Money.Zero)
                     {
                         if (e.Transaction.IsRBF && e.Transaction.IsReplacement)
                         {
-                            NotifyAndLog($"{amountString} BTC", "Received Replaceable Replacement Transaction", NotificationType.Information, e);
+                            NotificationManager.NotifyAndLog($"{amountString} BTC", "Received Replaceable Replacement Transaction", NotificationType.Information, e);
                         }
                         else if (e.Transaction.IsRBF)
                         {
-                            NotifyAndLog($"{amountString} BTC", "Received Replaceable Transaction", NotificationType.Success, e);
+                            NotificationManager.NotifyAndLog($"{amountString} BTC", "Received Replaceable Transaction", NotificationType.Success, e);
                         }
                         else if (e.Transaction.IsReplacement)
                         {
-                            NotifyAndLog($"{amountString} BTC", "Received Replacement Transaction", NotificationType.Information, e);
+                            NotificationManager.NotifyAndLog($"{amountString} BTC", "Received Replacement Transaction", NotificationType.Information, e);
                         }
                         else
                         {
-                            NotifyAndLog($"{amountString} BTC", "Received", NotificationType.Success, e);
+                            NotificationManager.NotifyAndLog($"{amountString} BTC", "Received", NotificationType.Success, e);
                         }
                     }
                     else if (incoming < Money.Zero)
                     {
-                        NotifyAndLog($"{amountString} BTC", "Sent", NotificationType.Information, e);
+                        NotificationManager.NotifyAndLog($"{amountString} BTC", "Sent", NotificationType.Information, e);
                     }
                 }
                 else if (isConfirmedReceive || isConfirmedSpent)
@@ -454,19 +454,19 @@ namespace Chaincase.Common
 
                     if (isConfirmedSpent && receiveSpentDiff == miningFee)
                     {
-                        NotifyAndLog($"Mining Fee: {amountString} BTC", "Self Spend Confirmed", NotificationType.Information, e);
+                        NotificationManager.NotifyAndLog($"Mining Fee: {amountString} BTC", "Self Spend Confirmed", NotificationType.Information, e);
                     }
                     else if (isConfirmedSpent && e.IsLikelyOwnCoinJoin)
                     {
-                        NotifyAndLog($"CoinJoin Confirmed!", "", NotificationType.Information, e);
+                        NotificationManager.NotifyAndLog($"CoinJoin Confirmed!", "", NotificationType.Information, e);
                     }
                     else if (incoming > Money.Zero)
                     {
-                        NotifyAndLog($"{amountString} BTC", "Receive Confirmed", NotificationType.Information, e);
+                        NotificationManager.NotifyAndLog($"{amountString} BTC", "Receive Confirmed", NotificationType.Information, e);
                     }
                     else if (incoming < Money.Zero)
                     {
-                        NotifyAndLog($"{amountString} BTC", "Send Confirmed", NotificationType.Information, e);
+                        NotificationManager.NotifyAndLog($"{amountString} BTC", "Send Confirmed", NotificationType.Information, e);
                     }
                 }
             }
@@ -485,29 +485,6 @@ namespace Chaincase.Common
             }
 
             return !StoppingCts.IsCancellationRequested;
-        }
-
-        /// <summary>
-        /// Enumeration of types for <see cref="T:Avalonia.Controls.Notifications.INotification" />.
-        /// </summary>
-        public enum NotificationType
-        {
-            Information,
-            Success,
-            Warning,
-            Error
-        }
-
-        private void NotifyAndLog(string message, string title, NotificationType notificationType, ProcessedResult e)
-        {
-            message = Guard.Correct(message);
-            title = Guard.Correct(title);
-            // other types are best left logged for now
-            if (notificationType == NotificationType.Success)
-            {
-                NotificationManager.ScheduleNotification(title, message, 1);
-            }
-            Logger.LogInfo($"Transaction Notification ({notificationType}): {title} - {message} - {e.Transaction.GetHash()}");
         }
 
         public event EventHandler Resumed;
