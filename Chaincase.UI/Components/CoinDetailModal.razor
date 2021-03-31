@@ -22,7 +22,7 @@
                     <IonLabel>@ViewModel.AmountBtc BTC</IonLabel>
                 </IonItem>
                 <IonItem OnClick="@(async () => await CopyToClipboardAsync(ViewModel.TransactionId))">
-                      <ion-label>Transaction ID: @ViewModel.TransactionId</ion-label>
+                    <IonLabel>Transaction ID: @ViewModel.TransactionId</IonLabel>
                 </IonItem>
                 <IonItem>
                     <IonLabel>Output Index: @ViewModel.OutputIndex</IonLabel>
