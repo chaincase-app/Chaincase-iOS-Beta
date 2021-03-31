@@ -1,11 +1,11 @@
 ﻿@using Chaincase.Common.Contracts
 @inject IClipboard Clipboard 
-@inherits ReactiveComponentBase<CoinViewModel>
+@inherits ReactiveComponentBase<TransactionViewModel>
 
 <IonModal @bind-Visible="Visible">
     <IonHeader>
         <IonToolbar>
-            <IonTitle>Coin Details</IonTitle>
+            <IonTitle>Transaction Details</IonTitle>
             <IonButtons slot="start">
                 <IonButton @onclick="CloseModal">Back</IonButton>
             </IonButtons>
@@ -13,34 +13,46 @@
     </IonHeader>
 
     <IonContent>
-
-
-       @if (ViewModel is not null)
+        @if (ViewModel is not null)
         {
             <IonList>
                 <IonItem>
                     <IonLabel>@ViewModel.AmountBtc BTC</IonLabel>
                 </IonItem>
+<<<<<<< HEAD
                 <IonItem OnClick="@(async () => await CopyToClipboardAsync(ViewModel.TransactionId))">
-                      <ion-label>Transaction ID: @ViewModel.TransactionId</ion-label>
+                    <ion-label>Transaction ID: @ViewModel.TransactionId</ion-label>
+||||||| e20c0b685
+                <IonItem>
+                    <ion-label>Transaction ID: @ViewModel.TransactionId</ion-label>
+=======
+                <IonItem>
+                    <IonLabel>Transaction ID: @ViewModel.TransactionId</IonLabel>
+>>>>>>> bump-blazorv12
                 </IonItem>
                 <IonItem>
-                    <IonLabel>Output Index: @ViewModel.OutputIndex</IonLabel>
+                    <IonLabel>Date: @ViewModel.DateTime</IonLabel>
+                </IonItem>
+                <IonItem>
+                    <IonLabel>Block Height: @ViewModel.BlockHeight</IonLabel>
+                </IonItem>
+                <IonItem>
+                    <IonLabel>Confirmed: @ViewModel.Confirmed</IonLabel>
                 </IonItem>
                 <IonItem>
                     <IonLabel>Confirmations: @ViewModel.Confirmations</IonLabel>
                 </IonItem>
-                <IonItem>
-                    <IonLabel>Anonymity Set: @ViewModel.AnonymitySet</IonLabel>
-                </IonItem>
-                <IonItem>
-                    <IonLabel>Contacts: @ViewModel.Clusters</IonLabel>
-                </IonItem>
             </IonList>
         }
 
+<<<<<<< HEAD
         <ClipboardToast @bind-Visible="@IsToastVisible" />
+    </ion-content>
+||||||| e20c0b685
+    </ion-content>
+=======
     </IonContent>
+>>>>>>> bump-blazorv12
 </IonModal>
 
 
@@ -52,7 +64,7 @@
     public EventCallback<bool> VisibleChanged { get; set; }
 
     [Parameter]
-    public CoinViewModel CoinViewModel {
+    public TransactionViewModel TransactionViewModel {
         get { return ViewModel; }
         set { ViewModel = value; }
     }
@@ -73,4 +85,5 @@
         await Clipboard.Copy(toCopy);
         IsToastVisible = true;
     }
+
 }

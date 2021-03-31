@@ -14,9 +14,19 @@
         <IonLabel>@ViewModel.AccountKeyPath</IonLabel>
     </IonItem>
 
-    <IonLabel>EXTENDED PUBLIC KEY</IonLabel>
+<<<<<<< HEAD
+    <ion-label>EXTENDED PUBLIC KEY</ion-label>
     <IonItem OnClick="() => CopyToClipboardAsync(ViewModel.ExtendedAccountPublicKey.ToString())">
+        <ion-label>@ViewModel.ExtendedAccountPublicKey</ion-label>
+||||||| e20c0b685
+    <ion-label>EXTENDED PUBLIC KEY</ion-label>
+    <IonItem>
+        <ion-label>@ViewModel.ExtendedAccountPublicKey</ion-label>
+=======
+    <IonLabel>EXTENDED PUBLIC KEY</IonLabel>
+    <IonItem>
         <IonLabel>@ViewModel.ExtendedAccountPublicKey</IonLabel>
+>>>>>>> bump-blazorv12
     </IonItem>
 
     <IonListHeader>
@@ -35,9 +45,17 @@
         <IonItem button OnClick="ViewModel.ShareDebugLog">
             Share Debug Log
         </IonItem>
-    </IonList>
+<<<<<<< HEAD
+    </ion-list>
     <ClipboardToast @bind-Visible="@IsToastVisible"/>
+</ion-content>
+||||||| e20c0b685
+    </ion-list>
+</ion-content>
+=======
+    </IonList>
 </IonContent>
+>>>>>>> bump-blazorv12
 
 @code {
     private bool IsToastVisible = false;

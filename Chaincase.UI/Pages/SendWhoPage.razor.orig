@@ -18,15 +18,24 @@
     <IonItem>
         <IonLabel position="stacked">Address or <code>bitcoin:</code> uri</IonLabel>
         <IonInput @bind-Value="ViewModel.DestinationString" placeholder="Enter address..." />
+<<<<<<< HEAD
+        
     </IonItem>
     <IonItem>
         <IonButton OnClick="OnClickPaste">
-            <IonIcon slot="start" name="clipboard-outline"/>
+            <ion-icon slot="start" name="clipboard-outline"/>
             Paste
         </IonButton>
         <IonButton OnClick="OnClickScan">
-            <IonIcon slot="start" name="scan-outline"/>
+            <ion-icon slot="start" name="scan-outline"/>
             Scan QR Code
+||||||| e20c0b685
+        <IonButton slot="end" OnClick="OnClickScan">
+            <ion-icon name="scan-outline"></ion-icon>
+=======
+        <IonButton slot="end" OnClick="OnClickScan">
+            <IonIcon name="scan-outline"></IonIcon>
+>>>>>>> bump-blazorv12
         </IonButton>
     </IonItem>
     <IonButton OnClick="OnContinue" expand="block" disabled="@(!IsAddressValid)">NEXT</IonButton>

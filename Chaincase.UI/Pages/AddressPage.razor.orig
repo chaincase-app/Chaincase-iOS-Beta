@@ -15,14 +15,34 @@
 
 
     <p>@ViewModel.AppliedLabel</p>
-    <IonLabel>Address</IonLabel>
+<<<<<<< HEAD
+    <ion-label>Address</ion-label>
+
     <IonText @onclick="@(async () => await CopyToClipboardAsync(ViewModel.Address))">
         <p>@ViewModel.Address</p>
     </IonText>
+||||||| e20c0b685
+    <ion-label>Address</ion-label>
+    <p>@ViewModel.Address</p>
+=======
+    <IonLabel>Address</IonLabel>
+    <p>@ViewModel.Address</p>
+>>>>>>> bump-blazorv12
+
     <IonButton OnClick="ShareLink" expand="block">SHARE LINK</IonButton>
+<<<<<<< HEAD
     <IonButton href="/overview" expand="block">DONE</IonButton>
+
     <ClipboardToast @bind-Visible="@IsToastVisible" />
+
+</ion-content>
+||||||| e20c0b685
+    <IonButton href="/" expand="block">DONE</IonButton>
+</ion-content>
+=======
+    <IonButton href="/" expand="block">DONE</IonButton>
 </IonContent>
+>>>>>>> bump-blazorv12
 
 @code {
     private bool IsToastVisible;

@@ -5,10 +5,18 @@
 @inject NavigationManager NavigationManager
 @inject StackService StackService
 
-<IonContent class="ion-padding">
-    <IonImg style="margin: 0 auto; padding: 2rem; width: 16rem; height: 16rem;" src="_content/Chaincase.UI/img/logo_vertical.png" />
+<<<<<<< HEAD
+<ion-content class="ion-padding">
+    <ion-img style="margin: 0 auto; padding: 2rem; width: 16rem; height: 16rem;" src="_content/Chaincase.UI/img/logo_vertical.png" />
+||||||| e20c0b685
+<ion-content class="ion-padding">
     <h1>BITCOIN FOR HUMANS</h1>
 
+=======
+<IonContent class="ion-padding">
+    <h1>BITCOIN FOR HUMANS</h1>
+
+>>>>>>> bump-blazorv12
     <IonButton OnClick='@(() => StackPush("/new"))' expand="block">NEW WALLET</IonButton>
     <IonButton OnClick='@(() => StackPush("/load"))' expand="block">LOAD WALLET</IonButton>
 </IonContent>

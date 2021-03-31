@@ -3,15 +3,15 @@
 <IonItem>
     @if(!ViewModel.Confirmed)
     {
-        <ion-icon slot="start"
+        <IonIcon slot="start"
                   style="color: grey;"
                   name="ellipsis-horizontal-circle-outline" />
     } else if (ViewModel.Amount > 0)
     {
-        <ion-icon slot="start"
+        <IonIcon slot="start"
                   name="add-circle-outline" />
     } else { 
-        <ion-icon slot="start"
+        <IonIcon slot="start"
                   name="remove-circle-outline" />
     }
     <p>@ViewModel.Label</p>
