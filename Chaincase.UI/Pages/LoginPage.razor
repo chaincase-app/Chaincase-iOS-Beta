@@ -1,9 +1,9 @@
 ﻿@layout FullPageLayout
 @page "/"
 @using Chaincase.UI.Services
-@using Chaincase.Common
+@using Chaincase.Common.Services
 
-@inject Global Global
+@inject ChaincaseWalletManager WalletManager
 @inject UIStateService UiStateService
 @inject NavigationManager NavigationManager
 @inject PINViewModel PINViewModel
@@ -27,7 +27,7 @@
     {
         ViewModel = PINViewModel;
 
-        if (!Global.HasWalletFile())
+        if (!WalletManager.HasDefaultWalletFile())
             NavigationManager.NavigateTo("/landing");
 
         UiStateService.Title = "Chaincase";

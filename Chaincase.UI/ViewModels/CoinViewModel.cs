@@ -6,9 +6,9 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Chaincase.Common;
 using Chaincase.Common.Models;
+using Chaincase.Common.Services;
 using NBitcoin;
 using ReactiveUI;
-using Splat;
 using WalletWasabi.Blockchain.TransactionOutputs;
 using WalletWasabi.CoinJoin.Client.Rounds;
 using WalletWasabi.CoinJoin.Common.Models;
@@ -19,7 +19,7 @@ namespace Chaincase.UI.ViewModels
 {
 	public class CoinViewModel : ReactiveObject
 	{
-		protected Global Global { get; }
+		private readonly ChaincaseWalletManager _walletManager;
 		private readonly Config _config;
 		private readonly BitcoinStore _bitcoinStore;
 
@@ -35,9 +35,9 @@ namespace Chaincase.UI.ViewModels
 
 		public ReactiveCommand<Unit, Unit> NavBackCommand;
 
-		public CoinViewModel(Global global, Config config, BitcoinStore bitcoinStore, SmartCoin model)
+		public CoinViewModel(ChaincaseWalletManager walletManager, Config config, BitcoinStore bitcoinStore, SmartCoin model)
 		{
-			Global = global;
+			_walletManager = walletManager;
 			_config = config;
 			_bitcoinStore = bitcoinStore;
 			Model = model;
@@ -70,7 +70,7 @@ namespace Chaincase.UI.ViewModels
 
 			Observable
 				.Merge(Model.WhenAnyValue(x => x.IsBanned, x => x.SpentAccordingToBackend, x => x.CoinJoinInProgress).Select(_ => Unit.Default))
-				.Merge(Observable.FromEventPattern(Global.Wallet.ChaumianClient, nameof(Global.Wallet.ChaumianClient.StateUpdated)).Select(_ => Unit.Default))
+				.Merge(Observable.FromEventPattern(_walletManager.CurrentWallet.ChaumianClient, nameof(_walletManager.CurrentWallet.ChaumianClient.StateUpdated)).Select(_ => Unit.Default))
 				.ObserveOn(RxApp.MainThreadScheduler)
 				.Subscribe(_ => RefreshSmartCoinStatus())
 				.DisposeWith(Disposables);
@@ -169,9 +169,9 @@ namespace Chaincase.UI.ViewModels
 				return SmartCoinStatus.MixingBanned;
 			}
 
-			if (Model.CoinJoinInProgress && Global.Wallet.ChaumianClient != null)
+			if (Model.CoinJoinInProgress && _walletManager.CurrentWallet.ChaumianClient != null)
 			{
-				ClientState clientState = Global.Wallet.ChaumianClient.State;
+				ClientState clientState = _walletManager.CurrentWallet.ChaumianClient.State;
 				foreach (var round in clientState.GetAllMixingRounds())
 				{
 					if (round.CoinsRegistered.Contains(Model))

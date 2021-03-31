@@ -36,7 +36,7 @@ namespace Chaincase.Common
         private UiConfig UiConfig { get; set; }
         private BitcoinStore BitcoinStore { get; set; }
         private Network Network => Config.Network;
-        private WalletManager WalletManager { get; set; }
+        private ChaincaseWalletManager WalletManager { get; set; }
         private readonly INotificationManager NotificationManager;
         private readonly ITorManager TorManager;
         private readonly IDataDirProvider DataDirProvider;
@@ -66,12 +66,11 @@ namespace Chaincase.Common
 
         private CancellationTokenSource StoppingCts { get; set; }
         // Chaincase Specific
-        public Wallet Wallet { get; set; }
         private IEnumerable<SmartCoin> SleepingCoins;
         private protected CancellationTokenSource SleepCts { get; set; } = new CancellationTokenSource();
         private protected bool IsGoingToSleep = false;
 
-        public Global(INotificationManager notificationManager, ITorManager torManager, IDataDirProvider dataDirProvider, Config config, UiConfig uiConfig, WalletManager walletManager, BitcoinStore bitcoinStore)
+        public Global(INotificationManager notificationManager, ITorManager torManager, IDataDirProvider dataDirProvider, Config config, UiConfig uiConfig, ChaincaseWalletManager walletManager, BitcoinStore bitcoinStore)
         {
 	        TorManager = torManager;
 	        NotificationManager = notificationManager;
@@ -93,11 +92,6 @@ namespace Chaincase.Common
                 WalletManager.OnDequeue += WalletManager_OnDequeue;
                 WalletManager.WalletRelevantTransactionProcessed += WalletManager_WalletRelevantTransactionProcessed;
             }
-        }
-
-        public void SetDefaultWallet()
-        {
-            Wallet = WalletManager.GetWalletByName(Network.ToString());
         }
 
         public async Task InitializeNoWalletAsync(CancellationToken cancellationToken = default) 
@@ -536,7 +530,7 @@ namespace Chaincase.Common
 
                     if (SleepingCoins is { })
                     {
-                        await Wallet.ChaumianClient.QueueCoinsToMixAsync(SleepingCoins);
+                        await WalletManager.CurrentWallet.ChaumianClient.QueueCoinsToMixAsync(SleepingCoins);
                         SleepingCoins = null;
                     }
 
@@ -639,14 +633,6 @@ namespace Chaincase.Common
             {
                 Logger.LogDebug("Global.OnSleeping():Chaincase Sleeping"); // no real termination on iOS
             }
-        }
-
-        public bool HasWalletFile()
-        {
-            // this is kinda codesmell biz logic but it doesn't make sense for a full VM here
-            var walletName = Network.ToString();
-            (string walletFullPath, _) = WalletManager.WalletDirectories.GetWalletFilePaths(walletName);
-            return File.Exists(walletFullPath);
         }
     }
 }

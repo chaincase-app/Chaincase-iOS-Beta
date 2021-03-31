@@ -4,6 +4,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Chaincase.Common;
 using Chaincase.Common.Models;
+using Chaincase.Common.Services;
 using NBitcoin.Protocol;
 using ReactiveUI;
 using WalletWasabi.Blockchain.Blocks;
@@ -20,6 +21,7 @@ namespace Chaincase.UI.ViewModels
         protected Global Global { get; }
         private Config Config { get; }
         private UiConfig UiConfig { get; }
+        private readonly ChaincaseWalletManager _walletManager;
         private readonly BitcoinStore _bitcoinStore;
         private CompositeDisposable Disposables { get; } = new CompositeDisposable();
         private NodesCollection Nodes { get; set; }
@@ -43,9 +45,10 @@ namespace Chaincase.UI.ViewModels
         private bool _downloadingBlock;
         private StatusSet ActiveStatuses { get; }
 
-        public StatusViewModel(Global global, Config config, UiConfig uiConfig)
+        public StatusViewModel(Global global, ChaincaseWalletManager walletManager, Config config, UiConfig uiConfig)
         {
             Global = global;
+            _walletManager = walletManager;
             Config = config;
             UiConfig = uiConfig;
             Backend = BackendStatus.NotConnected;
@@ -120,7 +123,7 @@ namespace Chaincase.UI.ViewModels
                                .ObserveOn(RxApp.MainThreadScheduler)
                                .Subscribe(_ =>
                                {
-                                   var wallet = Global.Wallet;
+                                   var wallet = _walletManager.CurrentWallet;
                                    if (wallet is { })
                                    {
                                        var startingHeight = SmartHeader.GetStartingHeader(wallet.Network).Height;
@@ -153,7 +156,7 @@ namespace Chaincase.UI.ViewModels
                     {
                         walletCheckingInterval?.Dispose();
                         walletCheckingInterval = null;
-                        UiConfig.Balance = Global.Wallet.Coins.TotalAmount().ToString();
+                        UiConfig.Balance = _walletManager.CurrentWallet.Coins.TotalAmount().ToString();
                         UiConfig.ToFile();
                         TryRemoveStatus(StatusType.WalletLoading, StatusType.WalletProcessingFilters, StatusType.WalletProcessingTransactions);
                     }

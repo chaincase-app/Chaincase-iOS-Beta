@@ -1,4 +1,5 @@
 ﻿using Chaincase.Common;
+using Chaincase.Common.Services;
 using ReactiveUI;
 using WalletWasabi.Blockchain.Keys;
 
@@ -6,22 +7,22 @@ namespace Chaincase.UI.ViewModels
 {
     public class ReceiveViewModel : ReactiveObject
     {
-        protected Global Global { get; }
+        private readonly ChaincaseWalletManager _walletManager;
         private readonly Config _config;
 
         private string _proposedLabel;
         private bool[,] _qrCode;
         private string _requestAmount;
 
-        public ReceiveViewModel(Global global, Config config)
+        public ReceiveViewModel(ChaincaseWalletManager walletManager, Config config)
         {
-            Global = global;
+            _walletManager = walletManager;
             _config = config;
         }
 
         public void InitNextReceiveKey()
         {
-            ReceivePubKey = Global.Wallet.KeyManager.GetNextReceiveKey(ProposedLabel, out bool minGapLimitIncreased);
+            ReceivePubKey = _walletManager.CurrentWallet.KeyManager.GetNextReceiveKey(ProposedLabel, out bool minGapLimitIncreased);
             ProposedLabel = "";
         }
 

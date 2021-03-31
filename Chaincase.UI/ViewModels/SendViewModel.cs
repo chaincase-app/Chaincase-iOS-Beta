@@ -20,12 +20,14 @@ using System.Threading.Tasks;
 using WalletWasabi.Blockchain.Analysis.Clustering;
 using WalletWasabi.Blockchain.TransactionBuilding;
 using WalletWasabi.Exceptions;
+using Chaincase.Common.Services;
 
 namespace Chaincase.UI.ViewModels
 {
     public class SendViewModel : ReactiveObject
     {
         protected Global Global { get; }
+        private readonly ChaincaseWalletManager _walletManager;
         private readonly Config _config;
         private UiConfig UiConfig { get; }
 
@@ -51,9 +53,10 @@ namespace Chaincase.UI.ViewModels
 
         protected CompositeDisposable Disposables { get; } = new CompositeDisposable();
 
-        public SendViewModel(Global global, Config config, UiConfig uiConfig, SelectCoinsViewModel selectCoinsViewModel)
+        public SendViewModel(Global global, ChaincaseWalletManager walletManager, Config config, UiConfig uiConfig, SelectCoinsViewModel selectCoinsViewModel)
         {
 	        Global = global;
+            _walletManager = walletManager;
             _config = config;
             UiConfig = uiConfig;
             SelectCoinsViewModel = selectCoinsViewModel;
@@ -350,7 +353,7 @@ namespace Chaincase.UI.ViewModels
                 requests.Add(activeDestinationRequest);
                 var intent = new PaymentIntent(requests);
 
-                var result = await Task.Run(() => Global.Wallet.BuildTransaction(
+                var result = await Task.Run(() => _walletManager.CurrentWallet.BuildTransaction(
                     password,
                     intent,
                     feeStrategy,

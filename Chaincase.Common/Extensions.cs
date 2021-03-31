@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using Chaincase.Common.Contracts;
+using Chaincase.Common.Services;
 using Microsoft.Extensions.DependencyInjection;
 using WalletWasabi.Blockchain.Blocks;
 using WalletWasabi.Blockchain.Mempool;
@@ -21,7 +22,7 @@ namespace Chaincase.Common
             services.AddSingleton(x => {
                 var network = x.GetRequiredService<Config>().Network;
                 var dataDir = x.GetRequiredService<IDataDirProvider>().Get();
-                return new WalletManager(network, new WalletDirectories(dataDir));
+                return new ChaincaseWalletManager(network, new WalletDirectories(dataDir));
             });
             services.AddSingleton(x =>
             {

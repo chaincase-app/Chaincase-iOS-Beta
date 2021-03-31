@@ -6,6 +6,7 @@ using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Chaincase.Common;
+using Chaincase.Common.Services;
 using DynamicData;
 using NBitcoin;
 using ReactiveUI;
@@ -17,7 +18,7 @@ namespace Chaincase.UI.ViewModels
 {
 	public class SelectCoinsViewModel : ReactiveObject
     {
-        protected Global Global { get; }
+        private readonly ChaincaseWalletManager _walletManager;
         private readonly Config _config;
         private readonly BitcoinStore _bitcoinStore;
 
@@ -35,9 +36,9 @@ namespace Chaincase.UI.ViewModels
 
         // public ReactiveCommand<CoinViewModel, Unit> OpenCoinDetail;
 
-        public SelectCoinsViewModel(Global global, Config config, BitcoinStore bitcoinStore, bool isPrivate = false)
+        public SelectCoinsViewModel(ChaincaseWalletManager walletManager, Config config, BitcoinStore bitcoinStore, bool isPrivate = false)
         {
-            Global = global;
+            _walletManager = walletManager;
             _config = config;
             _bitcoinStore = bitcoinStore;
             RootList = new SourceList<CoinViewModel>();
@@ -53,7 +54,7 @@ namespace Chaincase.UI.ViewModels
 
             UpdateRootList();
             Observable
-                .Merge(Observable.FromEventPattern<ProcessedResult>(Global.Wallet.TransactionProcessor, nameof(Global.Wallet.TransactionProcessor.WalletRelevantTransactionProcessed)).Select(_ => Unit.Default))
+                .Merge(Observable.FromEventPattern<ProcessedResult>(_walletManager.CurrentWallet.TransactionProcessor, nameof(_walletManager.CurrentWallet.TransactionProcessor.WalletRelevantTransactionProcessed)).Select(_ => Unit.Default))
                 .Throttle(TimeSpan.FromSeconds(1)) // Throttle TransactionProcessor events adds/removes. 
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(_ =>
@@ -83,7 +84,7 @@ namespace Chaincase.UI.ViewModels
         {
             try
             {
-                var actual = Global.Wallet.TransactionProcessor.Coins.ToHashSet();
+                var actual = _walletManager.CurrentWallet.TransactionProcessor.Coins.ToHashSet();
                 var old = RootList.Items.ToDictionary(c => c.Model, c => c);
 
                 var coinToRemove = old.Where(c => !actual.Contains(c.Key)).ToArray();
@@ -91,7 +92,7 @@ namespace Chaincase.UI.ViewModels
 
                 RootList.RemoveMany(coinToRemove.Select(kp => kp.Value));
 
-                var newCoinViewModels = coinToAdd.Select(c => new CoinViewModel(Global, _config, _bitcoinStore, c)).ToArray();
+                var newCoinViewModels = coinToAdd.Select(c => new CoinViewModel(_walletManager, _config, _bitcoinStore, c)).ToArray();
                 foreach (var cvm in newCoinViewModels)
                 {
                     SubscribeToCoinEvents(cvm);

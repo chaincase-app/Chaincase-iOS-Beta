@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Chaincase.Common;
 using Chaincase.Common.Contracts;
 using Chaincase.Common.Models;
+using Chaincase.Common.Services;
 using NBitcoin;
 using ReactiveUI;
 using WalletWasabi.Blockchain.Keys;
@@ -22,8 +23,7 @@ namespace Chaincase.UI.ViewModels
     public class OverviewViewModel : ReactiveObject
     {
         private readonly IMainThreadInvoker _mainThreadInvoker;
-        private readonly Global _global;
-        private readonly WalletManager _walletManager;
+        private readonly ChaincaseWalletManager _walletManager;
         private readonly Config _config;
         private readonly UiConfig _uiConfig;
         private readonly BitcoinStore _bitcoinStore;
@@ -36,9 +36,8 @@ namespace Chaincase.UI.ViewModels
         private ObservableAsPropertyHelper<bool> _canBackUp;
         private bool _isWalletInitialized;
 
-        public OverviewViewModel(Global global, WalletManager walletManager, Config config, UiConfig uiConfig, BitcoinStore bitcoinStore, IMainThreadInvoker mainThreadInvoker)
+        public OverviewViewModel(ChaincaseWalletManager walletManager, Config config, UiConfig uiConfig, BitcoinStore bitcoinStore, IMainThreadInvoker mainThreadInvoker)
         {
-            _global = global;
             _walletManager = walletManager;
             _config = config;
             _uiConfig = uiConfig;
@@ -46,9 +45,9 @@ namespace Chaincase.UI.ViewModels
             _mainThreadInvoker = mainThreadInvoker;
             Transactions = new ObservableCollection<TransactionViewModel>();
 
-            if (_global.HasWalletFile() && _global.Wallet == null)
+            if (_walletManager.HasDefaultWalletFile() && _walletManager.CurrentWallet == null)
             {
-                _global.SetDefaultWallet();
+                _walletManager.SetDefaultWallet();
                 Task.Run(async () => await LoadWalletAsync());
 
                 TryWriteTableFromCache();
@@ -78,7 +77,7 @@ namespace Chaincase.UI.ViewModels
         {
             Initializing -= OnInit;
 
-            while (_global.Wallet == null || _global.Wallet.State < WalletState.Initialized)
+            while (_walletManager.CurrentWallet == null || _walletManager.CurrentWallet.State < WalletState.Initialized)
             {
                 await Task.Delay(200);
             }
@@ -86,17 +85,17 @@ namespace Chaincase.UI.ViewModels
             _mainThreadInvoker.Invoke(() =>
             {
                 //CoinList = new CoinListViewModel();
-                Observable.FromEventPattern(_global.Wallet.TransactionProcessor, nameof(_global.Wallet.TransactionProcessor.WalletRelevantTransactionProcessed))
+                Observable.FromEventPattern(_walletManager.CurrentWallet.TransactionProcessor, nameof(_walletManager.CurrentWallet.TransactionProcessor.WalletRelevantTransactionProcessed))
                    .Throttle(TimeSpan.FromSeconds(0.1))
                    .ObserveOn(RxApp.MainThreadScheduler)
                    .Subscribe(_ =>
                    {
                        // TODO make ObservableAsPropertyHelper
-                       Balance = _global.Wallet.Coins.TotalAmount().ToString();
+                       Balance = _walletManager.CurrentWallet.Coins.TotalAmount().ToString();
                    });
 
-                Observable.FromEventPattern(_global.Wallet, nameof(_global.Wallet.NewBlockProcessed))
-                    .Merge(Observable.FromEventPattern(_global.Wallet.TransactionProcessor, nameof(_global.Wallet.TransactionProcessor.WalletRelevantTransactionProcessed)))
+                Observable.FromEventPattern(_walletManager.CurrentWallet, nameof(_walletManager.CurrentWallet.NewBlockProcessed))
+                    .Merge(Observable.FromEventPattern(_walletManager.CurrentWallet.TransactionProcessor, nameof(_walletManager.CurrentWallet.TransactionProcessor.WalletRelevantTransactionProcessed)))
                     .Throttle(TimeSpan.FromSeconds(3))
                     .ObserveOn(RxApp.MainThreadScheduler)
                     .Subscribe(async _ => await TryRewriteTableAsync());
@@ -121,7 +120,7 @@ namespace Chaincase.UI.ViewModels
         {
             try
             {
-                var historyBuilder = new TransactionHistoryBuilder(_global.Wallet);
+                var historyBuilder = new TransactionHistoryBuilder(_walletManager.CurrentWallet);
                 var txRecordList = await Task.Run(historyBuilder.BuildHistorySummary);
                 var tis = txRecordList.Select(txr => new TransactionInfo
                 {
@@ -159,7 +158,7 @@ namespace Chaincase.UI.ViewModels
 
             try
             {
-                _global.Wallet = await _walletManager.StartWalletAsync(keyManager);
+                _walletManager.CurrentWallet = await _walletManager.StartWalletAsync(keyManager);
                 // Successfully initialized.
             }
             catch (OperationCanceledException ex)
