@@ -109,8 +109,8 @@ ion-button:not(.in-toolbar).button-disabled {
     --ion-background-color: #F2F2F3;
   --ion-background-color-rgb: 242,242,243;
 
-  --IonText-color: #222222;
-  --IonText-color-rgb: 34,34,34;
+  --ion-text-color: #222222;
+  --ion-text-color-rgb: 34,34,34;
 
   --ion-color-step-25: #ededee;
 
@@ -208,8 +208,8 @@ body.dark {
     --ion-background-color: #121212;
     --ion-background-color-rgb: 18,18,18;
 
-    --IonText-color: #ffffff;
-    --IonText-color-rgb: 255,255,255;
+    --ion-text-color: #ffffff;
+    --ion-text-color-rgb: 255,255,255;
 
     --ion-border-color: #222222;
 
