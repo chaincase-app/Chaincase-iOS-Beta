@@ -1,4 +1,4 @@
-﻿@page "/coinjoin"
+@page "/coinjoin"
 @using NBitcoin
 @using Chaincase.UI.Services
 @using Chaincase.Common
@@ -39,40 +39,40 @@
             @* List Coin Join round info**@
 <IonList>
 
-    <IonList-header>
+    <IonListHeader>
         <IonLabel>
             Peers to CoinJoin
         </IonLabel>
-    </IonList-header>
+    </IonListHeader>
     <IonProgressBar value="@ViewModel.RegisteredPercentage" buffer="@ViewModel.QueuedPercentage" />
 
     <IonItem>
         <IonLabel>Online</IonLabel>
-        <ion-badge>@ViewModel.PeersRegistered</ion-badge>
+        <IonBadge>@ViewModel.PeersRegistered</IonBadge>
         <IonLabel slot="end">Queued</IonLabel>
-        <ion-badge slot="end" color="dark">@ViewModel.PeersQueued</ion-badge>
+        <IonBadge slot="end" color="dark">@ViewModel.PeersQueued</IonBadge>
     </IonItem>
     <IonItem>
         <IonLabel>Minimum required</IonLabel>
-        <ion-badge color="secondary" slot="end">₿ @ViewModel.RequiredBTC</ion-badge>
+        <IonBadge color="secondary" slot="end">₿ @ViewModel.RequiredBTC</IonBadge>
     </IonItem>
 
     <IonItem>
         <IonLabel>Auto-join at</IonLabel>
-        <ion-badge slot="end">@ViewModel.PeersNeeded peers</ion-badge>
+        <IonBadge slot="end">@ViewModel.PeersNeeded peers</IonBadge>
     </IonItem>
 
     <IonItem>
         <IonLabel>Current phase</IonLabel>
-        <ion-badge color="light" slot="end">@ViewModel.RoundPhaseState.Phase</ion-badge>
+        <IonBadge color="light" slot="end">@ViewModel.RoundPhaseState.Phase</IonBadge>
     </IonItem>
     <IonItem>
         <IonLabel>Phase ends in</IonLabel>
-        <ion-badge color="light" slot="end">@($"{ViewModel.TimeLeftTillRoundTimeout:hh\\:mm\\:ss}")</ion-badge>
+        <IonBadge color="light" slot="end">@($"{ViewModel.TimeLeftTillRoundTimeout:hh\\:mm\\:ss}")</IonBadge>
     </IonItem>
     <IonItem>
         <IonLabel>CoinJoin fee</IonLabel>
-        <ion-badge color="light" slot="end">@(ViewModel.CoordinatorFeePercent)% per peer</ion-badge>
+        <IonBadge color="light" slot="end">@(ViewModel.CoordinatorFeePercent)% per peer</IonBadge>
     </IonItem>
 </IonList>
         <div class="ion-padding">
