@@ -18,9 +18,9 @@ namespace Chaincase.UI.ViewModels
 {
     public class StatusViewModel : ReactiveObject
     {
-        protected Global Global { get; }
-        private Config Config { get; }
-        private UiConfig UiConfig { get; }
+        private readonly Global _global;
+        private readonly Config _Config;
+        private readonly UiConfig _uiConfig;
         private readonly ChaincaseWalletManager _walletManager;
         private readonly BitcoinStore _bitcoinStore;
         private CompositeDisposable Disposables { get; } = new CompositeDisposable();
@@ -45,18 +45,19 @@ namespace Chaincase.UI.ViewModels
         private bool _downloadingBlock;
         private StatusSet ActiveStatuses { get; }
 
-        public StatusViewModel(Global global, ChaincaseWalletManager walletManager, Config config, UiConfig uiConfig)
+        public StatusViewModel(Global global, ChaincaseWalletManager walletManager, Config config, UiConfig uiConfig, BitcoinStore bitcoinStore)
         {
-            Global = global;
+            _global = global;
             _walletManager = walletManager;
-            Config = config;
-            UiConfig = uiConfig;
+            _bitcoinStore = bitcoinStore;
+            _Config = config;
+            _uiConfig = uiConfig;
             Backend = BackendStatus.NotConnected;
             Tor = TorStatus.NotRunning;
             Peers = 0;
             BtcPrice = "$0";
             ActiveStatuses = new StatusSet();
-            UseTor = Config.UseTor; // Do not make it dynamic, because if you change this config settings only next time will it activate.
+            UseTor = _Config.UseTor; // Do not make it dynamic, because if you change this config settings only next time will it activate.
 
             _status = ActiveStatuses.WhenAnyValue(x => x.CurrentStatus)
                 .Select(x => x.ToString())
@@ -66,13 +67,13 @@ namespace Chaincase.UI.ViewModels
 
 
             // Subscribe to the init function if needed
-            if (Global.IsInitialized)
+            if (_global.IsInitialized)
             {
                 OnInitialized(this, EventArgs.Empty);
             }
             else
             {
-                Global.Initialized += OnInitialized;
+                _global.Initialized += OnInitialized;
             }
             // Set number of peers currently connected
             Peers = Tor == TorStatus.NotRunning ? 0 : Nodes.Count;
@@ -156,8 +157,8 @@ namespace Chaincase.UI.ViewModels
                     {
                         walletCheckingInterval?.Dispose();
                         walletCheckingInterval = null;
-                        UiConfig.Balance = _walletManager.CurrentWallet.Coins.TotalAmount().ToString();
-                        UiConfig.ToFile();
+                        _uiConfig.Balance = _walletManager.CurrentWallet.Coins.TotalAmount().ToString();
+                        _uiConfig.ToFile();
                         TryRemoveStatus(StatusType.WalletLoading, StatusType.WalletProcessingFilters, StatusType.WalletProcessingTransactions);
                     }
                 })
@@ -210,8 +211,8 @@ namespace Chaincase.UI.ViewModels
 
         public void OnInitialized(object sender, EventArgs args)
         {
-            var nodes = Global.Nodes.ConnectedNodes;
-            var synchronizer = Global.Synchronizer;
+            var nodes = _global.Nodes.ConnectedNodes;
+            var synchronizer = _global.Synchronizer;
             Nodes = nodes;
             Synchronizer = synchronizer;
             HashChain = synchronizer.BitcoinStore.SmartHeaderChain;
