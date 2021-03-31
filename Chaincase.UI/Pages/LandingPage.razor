@@ -1,4 +1,4 @@
-﻿@layout FullPageLayout
+@layout FullPageLayout
 @page "/landing"
 @using Chaincase.UI.Services
 @inject UIStateService UiStateService
@@ -7,7 +7,6 @@
 
 <IonContent class="ion-padding">
     <IonImg style="margin: 0 auto; padding: 2rem; width: 16rem; height: 16rem;" src="_content/Chaincase.UI/img/logo_vertical.png" />
-    <h1>BITCOIN FOR HUMANS</h1>
 
     <IonButton OnClick='@(() => StackPush("/new"))' expand="block">NEW WALLET</IonButton>
     <IonButton OnClick='@(() => StackPush("/load"))' expand="block">LOAD WALLET</IonButton>
