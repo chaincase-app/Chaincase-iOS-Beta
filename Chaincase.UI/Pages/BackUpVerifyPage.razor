@@ -7,14 +7,14 @@
 
 <IonContent class="ion-padding">
 
-    <IonText class="IonText-center">Select word @(ViewModel.SeedWords.IndexOf(WordToVerify) + 1)</IonText>
+    <IonText class="ion-text-center">Select word @(ViewModel.SeedWords.IndexOf(WordToVerify) + 1)</IonText>
 
     @foreach (string word in ButtonWords)
     {
         <IonButton OnClick="@(() => ClickWordToVerify(@word))" expand="block">@word</IonButton>
     }
 
-    <IonText class="IonText-center">@SuccessCount of @VERIFY_THIS_MANY verified.</IonText>
+    <IonText class="ion-text-center">@SuccessCount of @VERIFY_THIS_MANY verified.</IonText>
     <IonAlert @bind-Visible="@IsSuccessAlertVisible" Buttons="@AlertButtons" message="Backup Verified" backdrop-dismiss="true"></IonAlert>
 </IonContent>
 
