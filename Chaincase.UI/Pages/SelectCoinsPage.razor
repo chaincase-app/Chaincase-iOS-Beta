@@ -6,31 +6,31 @@
 @inherits ReactiveComponentBase<SelectCoinsViewModel>
 
 
-<ion-content>
+<IonContent>
 
     @if (!ViewModel.CoinList.Any())
     {
-        <ion-text>
+        <IonText>
             <p>Your coins will appear here</p>
-        </ion-text>
+        </IonText>
     }
     else
     {
         <IonList>
             @foreach (var coin in ViewModel.CoinList)
             {
-                <ion-item-sliding>
+                <IonItemSliding>
                     <SelectableCoin CoinViewModel="@coin" />
 
-                    <ion-item-options side="end">
+                    <IonItemOptions side="end">
                         <IonItemOption OnClick="@(() => OpenCoinDetail(coin))" color="secondary">Details</IonItemOption>
-                    </ion-item-options>
-                </ion-item-sliding>
+                    </IonItemOptions>
+                </IonItemSliding>
             }
         </IonList>
     }
 
-</ion-content>
+</IonContent>
 
 <CoinDetailModal @bind-Visible="@IsDetailModalVisible" @bind-CoinViewModel="@CurrentCoinViewModel"/>
 

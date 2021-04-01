@@ -3,43 +3,44 @@
 @inherits ReactiveComponentBase<CoinViewModel>
 
 <IonModal @bind-Visible="Visible">
-    <ion-header>
-        <ion-toolbar>
-            <ion-title>Coin Details</ion-title>
-            <ion-buttons slot="start">
+    <IonHeader>
+        <IonToolbar>
+            <IonTitle>Coin Details</IonTitle>
+            <IonButtons slot="start">
                 <IonButton @onclick="CloseModal">Back</IonButton>
-            </ion-buttons>
-        </ion-toolbar>
-    </ion-header>
+            </IonButtons>
+        </IonToolbar>
+    </IonHeader>
 
-    <ion-content>
+    <IonContent>
 
-        @if (ViewModel is not null)
+
+       @if (ViewModel is not null)
         {
-            <ion-list>
+            <IonList>
                 <IonItem>
-                    <ion-label>@ViewModel.AmountBtc BTC</ion-label>
+                    <IonLabel>@ViewModel.AmountBtc BTC</IonLabel>
                 </IonItem>
                 <IonItem OnClick="@(async () => await CopyToClipboardAsync(ViewModel.TransactionId))">
-                    <ion-label>Transaction ID: @ViewModel.TransactionId</ion-label>
+                    <IonLabel>Transaction ID: @ViewModel.TransactionId</IonLabel>
                 </IonItem>
                 <IonItem>
-                    <ion-label>Output Index: @ViewModel.OutputIndex</ion-label>
+                    <IonLabel>Output Index: @ViewModel.OutputIndex</IonLabel>
                 </IonItem>
                 <IonItem>
-                    <ion-label>Confirmations: @ViewModel.Confirmations</ion-label>
+                    <IonLabel>Confirmations: @ViewModel.Confirmations</IonLabel>
                 </IonItem>
                 <IonItem>
-                    <ion-label>Anonymity Set: @ViewModel.AnonymitySet</ion-label>
+                    <IonLabel>Anonymity Set: @ViewModel.AnonymitySet</IonLabel>
                 </IonItem>
                 <IonItem>
-                    <ion-label>Contacts: @ViewModel.Clusters</ion-label>
+                    <IonLabel>Contacts: @ViewModel.Clusters</IonLabel>
                 </IonItem>
-            </ion-list>
+            </IonList>
         }
 
         <ClipboardToast @bind-Visible="@IsToastVisible" />
-    </ion-content>
+    </IonContent>
 </IonModal>
 
 

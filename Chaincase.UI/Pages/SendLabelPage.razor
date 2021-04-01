@@ -8,14 +8,14 @@
 @inject NavigationManager NavigationManager
 @inherits ReactiveComponentBase<SendViewModel>
 
-<ion-content class="ion-padding">
+<IonContent class="ion-padding">
     <h1>Send bitcoin</h1>
 
-    <ion-label floating>Label</ion-label>
+    <IonLabel floating>Label</IonLabel>
     <IonInput @bind-Value="@ViewModel.Label" placeholder="This transaction is for..." />
 
     <IonButton OnClick="OnContinue" expand="block" disabled="@IsLabelEmpty">CONTINUE</IonButton>
-</ion-content>
+</IonContent>
 
 @code {
 
