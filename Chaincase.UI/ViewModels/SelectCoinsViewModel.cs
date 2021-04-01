@@ -79,7 +79,8 @@ namespace Chaincase.UI.ViewModels
         {
             try
             {
-                var actual = Global.Wallet.TransactionProcessor.Coins.ToHashSet();
+                var actual = Global.Wallet.TransactionProcessor?.Coins?.ToHashSet()
+                    ?? Enumerable.Empty<SmartCoin>();
                 var old = RootList.Items.ToDictionary(c => c.Model, c => c);
 
                 var coinToRemove = old.Where(c => !actual.Contains(c.Key)).ToArray();

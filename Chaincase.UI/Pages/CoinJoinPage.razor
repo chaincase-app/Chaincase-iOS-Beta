@@ -14,18 +14,12 @@
 
 <IonContent>
 
-    @if (!IsSynced)
-    {
-        <IonText>
-            Once your wallet has sync'd, you can pick coins to mix!
-        </IonText>
-    }
-    else
-    {
+
+        <IonToast Visible="@(!IsSynced)" position="top" color="warning" message="Once your wallet syncs with the network, you can pick coins to join." />
         <div class="ion-padding">
             <IonText>
                 Amount Selected:
-                ₿ @ViewModel.CoinList.SelectedAmount
+                ₿ @ViewModel.CoinList?.SelectedAmount
             </IonText>
 
             @* Coin Selection*@
@@ -36,45 +30,45 @@
 
 
 
-            @* List Coin Join round info**@
-<IonList>
+        @* List Coin Join round info**@
+        <IonList>
 
-    <IonListHeader>
-        <IonLabel>
-            Peers to CoinJoin
-        </IonLabel>
-    </IonListHeader>
-    <IonProgressBar value="@ViewModel.RegisteredPercentage" buffer="@ViewModel.QueuedPercentage" />
+            <IonListHeader>
+                <IonLabel>
+                    Peers to CoinJoin
+                </IonLabel>
+            </IonListHeader>
+            <IonProgressBar value="@ViewModel.RegisteredPercentage" buffer="@ViewModel.QueuedPercentage" />
 
-    <IonItem>
-        <IonLabel>Online</IonLabel>
-        <IonBadge>@ViewModel.PeersRegistered</IonBadge>
-        <IonLabel slot="end">Queued</IonLabel>
-        <IonBadge slot="end" color="dark">@ViewModel.PeersQueued</IonBadge>
-    </IonItem>
-    <IonItem>
-        <IonLabel>Minimum required</IonLabel>
-        <IonBadge color="secondary" slot="end">₿ @ViewModel.RequiredBTC</IonBadge>
-    </IonItem>
+            <IonItem>
+                <IonLabel>Online</IonLabel>
+                <IonBadge>@ViewModel.PeersRegistered</IonBadge>
+                <IonLabel slot="end">Queued</IonLabel>
+                <IonBadge slot="end" color="dark">@ViewModel.PeersQueued</IonBadge>
+            </IonItem>
+            <IonItem>
+                <IonLabel>Minimum required</IonLabel>
+                <IonBadge color="secondary" slot="end">₿ @ViewModel.RequiredBTC</IonBadge>
+            </IonItem>
 
-    <IonItem>
-        <IonLabel>Auto-join at</IonLabel>
-        <IonBadge slot="end">@ViewModel.PeersNeeded peers</IonBadge>
-    </IonItem>
+            <IonItem>
+                <IonLabel>Auto-join at</IonLabel>
+                <IonBadge slot="end">@ViewModel.PeersNeeded peers</IonBadge>
+            </IonItem>
 
-    <IonItem>
-        <IonLabel>Current phase</IonLabel>
-        <IonBadge color="light" slot="end">@ViewModel.RoundPhaseState.Phase</IonBadge>
-    </IonItem>
-    <IonItem>
-        <IonLabel>Phase ends in</IonLabel>
-        <IonBadge color="light" slot="end">@($"{ViewModel.TimeLeftTillRoundTimeout:hh\\:mm\\:ss}")</IonBadge>
-    </IonItem>
-    <IonItem>
-        <IonLabel>CoinJoin fee</IonLabel>
-        <IonBadge color="light" slot="end">@(ViewModel.CoordinatorFeePercent)% per peer</IonBadge>
-    </IonItem>
-</IonList>
+            <IonItem>
+                <IonLabel>Current phase</IonLabel>
+                <IonBadge color="light" slot="end">@ViewModel.RoundPhaseState.Phase</IonBadge>
+            </IonItem>
+            <IonItem>
+                <IonLabel>Phase ends in</IonLabel>
+                <IonBadge color="light" slot="end">@($"{ViewModel.TimeLeftTillRoundTimeout:hh\\:mm\\:ss}")</IonBadge>
+            </IonItem>
+            <IonItem>
+                <IonLabel>CoinJoin fee</IonLabel>
+                <IonBadge color="light" slot="end">@(ViewModel.CoordinatorFeePercent)% per peer</IonBadge>
+            </IonItem>
+        </IonList>
         <div class="ion-padding">
             <IonModal @bind-Visible="IsPasswordModalVisible">
                 <IonHeader>
@@ -108,8 +102,8 @@
             }
         </div>
     }
-    <IonToast Visible="@IsQueuedToCoinJoin" position="middle" color="warning"  message="Chaincase must be open to complete a CoinJoin. We'll notify you when to open back up." />
-    <IonToast @bind-Visible="@IsToastVisible" color="@ToastColor" message="@ToastMessage" duration="@ToastDuration"/>
+    <IonToast Visible="@IsQueuedToCoinJoin" position="middle" color="warning" message="Chaincase must be open to complete a CoinJoin. We'll notify you when to open back up." />
+    <IonToast @bind-Visible="@IsToastVisible" color="@ToastColor" message="@ToastMessage" duration="@ToastDuration" />
 
     <IonLoading @bind-Visible="@ViewModel.IsEnqueueBusy" message="Coinjoin magic..." />
 </IonContent>
