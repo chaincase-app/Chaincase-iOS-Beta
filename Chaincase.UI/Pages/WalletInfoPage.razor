@@ -8,36 +8,36 @@
 @inject NavigationManager NavigationManager
 @inherits ReactiveComponentBase<WalletInfoViewModel>
 
-<ion-content class="ion-padding">
-    <ion-label>ACCOUNT KEY PATH</ion-label>
+<IonContent class="ion-padding">
+    <IonLabel>ACCOUNT KEY PATH</IonLabel>
     <IonItem>
-        <ion-label>@ViewModel.AccountKeyPath</ion-label>
+        <IonLabel>@ViewModel.AccountKeyPath</IonLabel>
     </IonItem>
 
-    <ion-label>EXTENDED PUBLIC KEY</ion-label>
+    <IonLabel>EXTENDED PUBLIC KEY</IonLabel>
     <IonItem OnClick="() => CopyToClipboardAsync(ViewModel.ExtendedAccountPublicKey.ToString())">
-        <ion-label>@ViewModel.ExtendedAccountPublicKey</ion-label>
+        <IonLabel>@ViewModel.ExtendedAccountPublicKey</IonLabel>
     </IonItem>
 
-    <ion-list-header>
-        <ion-label>KEYS</ion-label>
-    </ion-list-header>
-    <ion-list>
+    <IonListHeader>
+        <IonLabel>KEYS</IonLabel>
+    </IonListHeader>
+    <IonList>
         <IonItem button OnClick="@NavigateToBackUp">
             Back Up Seed Words
         </IonItem>
         <IonItem button OnClick="ViewModel.ExportWallet">
             Export Wallet File
         </IonItem>
-    </ion-list>
+    </IonList>
 
-    <ion-list>
+    <IonList>
         <IonItem button OnClick="ViewModel.ShareDebugLog">
             Share Debug Log
         </IonItem>
-    </ion-list>
+    </IonList>
     <ClipboardToast @bind-Visible="@IsToastVisible"/>
-</ion-content>
+</IonContent>
 
 @code {
     private bool IsToastVisible = false;

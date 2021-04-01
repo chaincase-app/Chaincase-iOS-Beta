@@ -8,25 +8,21 @@
 @inject IShare Share
 @inherits ReactiveComponentBase<ReceiveViewModel>
 
-<ion-content class="ion-padding">
+<IonContent class="ion-padding">
     <p style="width: 256px; height: 256px; margin: auto">
         <QRCode Data="@ViewModel.BitcoinUri"></QRCode>
     </p>
 
 
     <p>@ViewModel.AppliedLabel</p>
-    <ion-label>Address</ion-label>
-
+    <IonLabel>Address</IonLabel>
     <IonText @onclick="@(async () => await CopyToClipboardAsync(ViewModel.Address))">
         <p>@ViewModel.Address</p>
     </IonText>
-
     <IonButton OnClick="ShareLink" expand="block">SHARE LINK</IonButton>
     <IonButton href="/overview" expand="block">DONE</IonButton>
-
     <ClipboardToast @bind-Visible="@IsToastVisible" />
-
-</ion-content>
+</IonContent>
 
 @code {
     private bool IsToastVisible;
