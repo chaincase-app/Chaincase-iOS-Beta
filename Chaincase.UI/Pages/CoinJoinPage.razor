@@ -89,9 +89,9 @@
                     <IonText class="ion-padding">
                         <h1 class="ion-padding">Authorize Selected Coins to Join</h1>
                     </IonText>
+                    <IonLabel position="stacked">Enter Password</IonLabel>
                     <IonItem>
-                        <IonLabel floating>Password</IonLabel>
-                        <IonPasswordInput @bind-Value="Password" />
+                        <IonPasswordInput @bind-Value="Password" placeholder="e.g. margaretthatcheris110%SEXY" />
                     </IonItem>
                     <IonButton OnClick="@CoinJoin" class="ion-padding">JOIN NOW</IonButton>
 
@@ -126,6 +126,7 @@
     private string ToastColor;
 
     private string Password = "";
+    private bool IsShaking { get; set; }
 
     protected override void OnInitialized()
     {
