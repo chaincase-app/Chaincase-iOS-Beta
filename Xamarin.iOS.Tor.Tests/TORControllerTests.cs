@@ -250,6 +250,22 @@ namespace Xamarin.iOS.Tor.Tests
             ewh.WaitOne();
         }
 
+        [Fact]
+        public void TestHiddenService()
+        {
+            EventWaitHandle ewh = new EventWaitHandle(false, EventResetMode.AutoReset);
+
+            Exec(() =>
+            {
+                // ADD_ONION NEW:BEST Flags=DiscardPK Port=37129,37129"
+                Controller.SendCommand("ADD_ONION", new String[] { "NEW:BEST" }, "Flags=DiscardPK Port=37129,37129", (a, b, c) => { return true; });
+                ewh.Set();
+            });
+
+            ewh.WaitOne();
+        }
+
+
         public delegate void Callback();
 
         public void Exec(Callback callback)

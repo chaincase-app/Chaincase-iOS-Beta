@@ -282,6 +282,22 @@ namespace Chaincase.iOS.Services
             }
         }
 
+        public async Task CreateHiddenServiceAsync() {
+            try
+            {
+                TorController.SendCommand("ADD_ONION NEW:BEST Flags=DiscardPK Port=37129,37129",null, null, null);
+            }
+            catch (Exception error) {
+               
+            }
+        }
+
+        public async Task DestroyHiddenServiceAsync()
+        {
+
+        }
+
+
         private static string NSHomeDirectory() => Directory.GetParent(NSFileManager.DefaultManager.GetUrls(NSSearchPathDirectory.LibraryDirectory, NSSearchPathDomain.User).First().Path).FullName;
 
         // Cancel the connection retry and fail guard.
