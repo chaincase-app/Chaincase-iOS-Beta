@@ -14,17 +14,15 @@
 
 <IonContent class="ion-padding">
 
-    <IonLabel position="stacked">Add Recipient</IonLabel>
+    <IonLabel position="stacked" id="destination-label">Add Recipient</IonLabel>
     <IonItem>
-        <IonInput @bind-Value="ViewModel.DestinationString" placeholder="address or uri" />
+        <IonInput @bind-Value="ViewModel.DestinationString" placeholder="address/bitcoin:uri" aria-labelledby="destination-label"/>
         <IonIcon @onclick="OnClickPaste" size="small" slot="end" name="clipboard-outline" aria-label="paste"/>
         <IonIcon @onclick="OnClickScan" size="small" slot="end" name="scan-outline" aria-label="scan"/>
     </IonItem>
 
-</IonContent>
-<IonFooter class="ion-padding">
     <IonButton OnClick="OnContinue" color="primary" expand="block" disabled="@(!IsAddressValid)">NEXT</IonButton>
-</IonFooter>
+</IonContent>
 
 @code {
 
