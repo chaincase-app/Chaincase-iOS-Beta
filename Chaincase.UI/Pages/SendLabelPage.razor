@@ -8,14 +8,23 @@
 @inject NavigationManager NavigationManager
 @inherits ReactiveComponentBase<SendViewModel>
 
-<IonContent class="ion-padding">
-    <h1>Send bitcoin</h1>
-
-    <IonLabel floating>Label</IonLabel>
-    <IonInput @bind-Value="@ViewModel.Label" placeholder="This transaction is for..." />
-
-    <IonButton OnClick="OnContinue" expand="block" disabled="@IsLabelEmpty">CONTINUE</IonButton>
+<IonContent>
+    <div class="ion-padding">
+        <IonItem>
+            <IonLabel position="stacked">Add Label</IonLabel>
+            <IonInput @bind-Value="@ViewModel.Label" placeholder="Who are you sending to?" />
+        </IonItem>
+    </div>
+    <IonCard color="primary">
+        <IonCardContent>
+            <strong>Info:</strong>
+            Contact labels help keep your future activity private and organized. This information is not shared with anyone.
+        </IonCardContent>
+    </IonCard>
 </IonContent>
+<IonFooter class="ion-padding">
+    <IonButton OnClick="OnContinue" color="primary" expand="block" disabled="@IsLabelEmpty">CONTINUE</IonButton>
+</IonFooter>
 
 @code {
 
