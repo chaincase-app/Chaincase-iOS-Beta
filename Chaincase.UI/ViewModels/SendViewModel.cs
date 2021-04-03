@@ -133,6 +133,7 @@ namespace Chaincase.UI.ViewModels
         internal BitcoinUrlBuilder ParseDestinationString(string destinationString)
 		{
             if (destinationString == null) return null;
+            destinationString = destinationString.Trim();
             BitcoinUrlBuilder url = null;
             try
             {
