@@ -135,6 +135,7 @@
     <Compile Include="TORControllerTests.cs" />
     <Compile Include="XunitAppDelegate.cs" />
     <Compile Include="RunStopConnectTests.cs" />
+    <Compile Include="P2EPTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Xamarin.iOS.Tor\Xamarin.iOS.Tor.csproj">

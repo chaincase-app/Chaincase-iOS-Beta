@@ -284,8 +284,11 @@ namespace Chaincase.iOS.Services
 
         public async Task CreateHiddenServiceAsync() {
             try
-            {
-                TorController.SendCommand("ADD_ONION NEW:BEST Flags=DiscardPK Port=37129,37129",null, null, null);
+            {    
+                TorController.SendCommand("ADD_ONION", new String[] { "NEW:BEST" }, "Flags=DiscardPK Port=37129,37129",
+                    (keys, values, boolPointer) => {
+                        return true;
+                });
             }
             catch (Exception error) {
                

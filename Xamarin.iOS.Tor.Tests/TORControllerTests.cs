@@ -249,22 +249,65 @@ namespace Xamarin.iOS.Tor.Tests
 
             ewh.WaitOne();
         }
+        private static string NSHomeDirectory() => Directory.GetParent(NSFileManager.DefaultManager.GetUrls(NSSearchPathDirectory.LibraryDirectory, NSSearchPathDomain.User).First().Path).FullName;
+
 
         [Fact]
         public void TestHiddenService()
         {
-            EventWaitHandle ewh = new EventWaitHandle(false, EventResetMode.AutoReset);
-
+            CanLog();
+            EventWaitHandle  ewh = new EventWaitHandle(false, EventResetMode.AutoReset);
+            //System.Diagnostics.Debug.WriteLine(NSHomeDirectory());
+            string serviceId = "";
             Exec(() =>
             {
                 // ADD_ONION NEW:BEST Flags=DiscardPK Port=37129,37129"
-                Controller.SendCommand("ADD_ONION", new String[] { "NEW:BEST" }, "Flags=DiscardPK Port=37129,37129", (a, b, c) => { return true; });
+                Controller.SendCommand(new NSString("ADD_ONION"), new string[] { "NEW:BEST" , "Port=37129,37129" , "Flags=DiscardPK"}, null,
+                                   (keys, values, boolPointer) => {
+//                                       Assert.True(keys[0] == (NSNumber)250);
+                                       serviceId = values[0].ToString().Split('=')[1];
+
+                                       ewh.Set();
+                                       return true;
+                                   });
+
+            });
+            ewh.WaitOne();
+
+            Exec(() =>
+			{
+
+                Controller.SendCommand(new NSString("DEL_ONION"), new string[] { $"{serviceId}" }, null,
+								   (keys, values, boolPointer) =>
+								   {
+                                       ewh.Set();
+
+                                       return true;
+								   });
+			});
+            ewh.WaitOne();
+        }
+
+
+        [Fact]
+        public void CanDestroyHiddenService(string serviceId)
+        {
+            CanLog();
+            EventWaitHandle ewh = new EventWaitHandle(false, EventResetMode.AutoReset);
+            //System.Diagnostics.Debug.WriteLine(NSHomeDirectory());
+            Exec(() =>
+            {
+                // ADD_ONION NEW:BEST Flags=DiscardPK Port=37129,37129"
+                Controller.SendCommand(new NSString("DEL_ONION"), new string[] { $"SP {serviceId} CRLF" }, null,
+                                   (keys, values, boolPointer) => {
+                                       // Assert.True(values.)
+                                       return true;
+                                   });
                 ewh.Set();
             });
 
             ewh.WaitOne();
         }
-
 
         public delegate void Callback();
 

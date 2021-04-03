@@ -17,5 +17,9 @@ namespace Chaincase.Common.Contracts
         Task StopAsync();
 
         Task StartAsync(bool ensureRunning, string dataDir);
+
+        string CreateHiddenServiceAsync();
+
+        Task DestroyHiddenServiceAsync();
     }
 }
