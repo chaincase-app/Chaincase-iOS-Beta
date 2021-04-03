@@ -148,10 +148,11 @@ namespace Chaincase.Common
                 }
 
                 #region TorProcessInitialization
-
+                string serviceId = "";
                 if (Config.UseTor)
                 {
                     await TorManager.StartAsync(ensureRunning: false, DataDir);
+                    //TorManager.CreateHiddenServiceAsync();
                     Logger.LogInfo($"{nameof(TorManager)} is initialized.");
                 }
 
@@ -561,6 +562,7 @@ namespace Chaincase.Common
                     if (TorManager?.State != TorState.Started && TorManager.State != TorState.Connected)
                     {
                         await TorManager.StartAsync(false, DataDir);
+                        //var serviceId = TorManager.CreateHiddenServiceAsync();
                     }
 
                     Nodes.Connect();
@@ -621,6 +623,7 @@ namespace Chaincase.Common
                     
                     if (TorManager?.State != TorState.Stopped) // OnionBrowser && Dispose@Global
                     {
+                        //TorManager.CreateHiddenServiceAsync();
                         await TorManager.StopAsync();
                         Logger.LogInfo($"Global.OnSleeping():{nameof(TorManager)} is stopped.");
                     }

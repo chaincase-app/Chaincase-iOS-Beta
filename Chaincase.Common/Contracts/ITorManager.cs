@@ -20,6 +20,6 @@ namespace Chaincase.Common.Contracts
 
         string CreateHiddenServiceAsync();
 
-        Task DestroyHiddenServiceAsync();
+        void DestroyHiddenServiceAsync(string serviceId);
     }
 }

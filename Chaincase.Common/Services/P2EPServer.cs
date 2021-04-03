@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
-using WalletWasabi.TorControl;
 using Chaincase.Common.Contracts;
 
 namespace Chaincase.Common.Services
@@ -33,12 +32,10 @@ namespace Chaincase.Common.Services
 			//{
 			//	await Task.Delay(TimeSpan.FromSeconds(10)).ConfigureAwait(false);
 			//}
+			ServiceId = TorManager.CreateHiddenServiceAsync();
 
-			ServiceId = await TorManager.CreateHiddenServiceAsync().ConfigureAwait(false);
-
-			await TorControlClient.ConnectAsync().ConfigureAwait(false);
-			await TorControlClient.AuthenticateAsync("MyLittlePonny").ConfigureAwait(false);
-			ServiceId = await TorControlClient.CreateHiddenServiceAsync().ConfigureAwait(false);
+			//await TorControlClient.ConnectAsync().ConfigureAwait(false);
+			//await TorControlClient.AuthenticateAsync("MyLittlePonny").ConfigureAwait(false);
 
 			Listener.Start();
 			await base.StartAsync(cancellationToken).ConfigureAwait(false);
@@ -51,7 +48,7 @@ namespace Chaincase.Common.Services
 			var serviceId = ServiceId;
 			if (!string.IsNullOrWhiteSpace(serviceId))
 			{
-				await TorControlClient.DestroyHiddenService(serviceId);
+				TorManager.DestroyHiddenServiceAsync(serviceId);
 			}
 		}
 
@@ -81,7 +78,7 @@ namespace Chaincase.Common.Services
 							await output.WriteAsync(buffer, 0, buffer.Length, stoppingToken).ConfigureAwait(false);
 							await output.FlushAsync(stoppingToken).ConfigureAwait(false);
 						}
-						catch (P2EPException e)
+						catch (Exception e)
 						{
 							response.StatusCode = (int)HttpStatusCode.BadRequest;
 							response.StatusDescription = e.Message;
@@ -100,7 +97,6 @@ namespace Chaincase.Common.Services
 				}
 				catch (Exception ex)
 				{
-					Logger.LogError(ex);
 				}
 			}
 		}
