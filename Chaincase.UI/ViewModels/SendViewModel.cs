@@ -51,7 +51,7 @@ namespace Chaincase.UI.ViewModels
 
         public SendViewModel(Global global, SelectCoinsViewModel selectCoinsViewModel)
         {
-	        Global = global;
+            Global = global;
             SelectCoinsViewModel = selectCoinsViewModel;
             AmountText = "0.0";
             AllSelectedAmount = Money.Zero;
@@ -121,7 +121,14 @@ namespace Chaincase.UI.ViewModels
             FeeRate = new FeeRate((decimal)50); //50 sat/vByte placeholder til loads
             SetFees();
 
-            Observable
+            Task.Run(async () =>
+            {
+                while (Global.FeeProviders == null)
+                {
+                    await Task.Delay(50).ConfigureAwait(false);
+                }
+
+                Observable
                 .FromEventPattern<AllFeeEstimate>(Global.FeeProviders, nameof(Global.FeeProviders.AllFeeEstimateChanged))
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(_ =>
@@ -140,6 +147,7 @@ namespace Chaincase.UI.ViewModels
                     SetFees();
                 })
                 .DisposeWith(Disposables);
+            });
 
             this.WhenAnyValue(x => x.FeeTarget)
                 .ObserveOn(RxApp.MainThreadScheduler)
@@ -171,7 +179,7 @@ namespace Chaincase.UI.ViewModels
         }
 
         internal BitcoinUrlBuilder ParseDestinationString(string destinationString)
-		{
+        {
             if (destinationString == null) return null;
             BitcoinUrlBuilder url = null;
             try
@@ -188,14 +196,15 @@ namespace Chaincase.UI.ViewModels
                 // identify the sender or receiver. We care about the recipient only here.
                 return url;
             }
-            catch (Exception){ /* invalid bitcoin uri */ }
+            catch (Exception) { /* invalid bitcoin uri */ }
 
             try
             {
                 BitcoinAddress address = BitcoinAddress.Create(destinationString.Trim(), Global.Network);
                 url = new BitcoinUrlBuilder();
                 url.Address = address;
-            } catch (Exception) { /* invalid bitcoin address */ }
+            }
+            catch (Exception) { /* invalid bitcoin address */ }
 
             return url;
         }
@@ -464,9 +473,9 @@ namespace Chaincase.UI.ViewModels
         }
 
         public SmartTransaction SignedTransaction
-		{
+        {
             get => _signedTransaction;
             set => this.RaiseAndSetIfChanged(ref _signedTransaction, value);
-		}
+        }
     }
 }

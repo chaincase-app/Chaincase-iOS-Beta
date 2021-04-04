@@ -6,126 +6,125 @@
 
 @inject UIStateService UiStateService
 @inject NavigationManager NavigationManager
-@inject StackService StackService 
+@inject StackService StackService
 @inject CoinJoinViewModel CoinJoinViewModel
-@inject StatusViewModel StatusViewModel 
+@inject StatusViewModel StatusViewModel
 
 @inherits ReactiveComponentBase<CoinJoinViewModel>
 
 <IonContent>
 
-    @if (!IsSynced)
-    {
-        <IonText>
-            Once your wallet has sync'd, you can pick coins to mix!
-        </IonText>
-    }
-    else
-    {
-        <div class="ion-padding">
-            <IonText>
-                Amount Selected:
-                ₿ @ViewModel.CoinList.SelectedAmount
-            </IonText>
+    @* List Coin Join round info**@
+    <IonList>
 
-            @* Coin Selection*@
-            <IonButton @onclick="NavigateToSelectCoins" expand="block">
-                SELECT COINS <IonIcon name="chevron-forward-outline" />
-            </IonButton>
-        </div>
+        <IonListHeader>
+            <IonLabel>
+                CoinJoin Server Status
+            </IonLabel>
+        </IonListHeader>
+        <IonProgressBar value="@ViewModel.RegisteredPercentage" buffer="@ViewModel.QueuedPercentage" />
 
+        <IonItem>
+            <IonLabel>Online</IonLabel>
+            <IonBadge>@ViewModel.PeersRegistered</IonBadge>
+            <IonLabel slot="end">Queued</IonLabel>
+            <IonBadge slot="end" color="dark">@ViewModel.PeersQueued</IonBadge>
+        </IonItem>
+        <IonItem>
+            <IonLabel>Minimum required</IonLabel>
+            <IonBadge color="secondary" slot="end">₿ @ViewModel.RequiredBTC</IonBadge>
+        </IonItem>
 
+        <IonItem>
+            <IonLabel>Auto-join at</IonLabel>
+            <IonBadge slot="end">@ViewModel.PeersNeeded peers</IonBadge>
+        </IonItem>
 
-            @* List Coin Join round info**@
-<IonList>
+        <IonItem>
+            <IonLabel>Current phase</IonLabel>
+            <IonBadge color="light" slot="end">@ViewModel.RoundPhaseState.Phase</IonBadge>
+        </IonItem>
+        <IonItem>
+            <IonLabel>Phase ends in</IonLabel>
+            <IonBadge color="light" slot="end">@($"{ViewModel.TimeLeftTillRoundTimeout:hh\\:mm\\:ss}")</IonBadge>
+        </IonItem>
+        <IonItem>
+            <IonLabel>CoinJoin fee</IonLabel>
+            <IonBadge color="light" slot="end">@(ViewModel.CoordinatorFeePercent)% per peer</IonBadge>
+        </IonItem>
+    </IonList>
+    <IonList>
 
-    <IonListHeader>
-        <IonLabel>
-            Peers to CoinJoin
-        </IonLabel>
-    </IonListHeader>
-    <IonProgressBar value="@ViewModel.RegisteredPercentage" buffer="@ViewModel.QueuedPercentage" />
-
-    <IonItem>
-        <IonLabel>Online</IonLabel>
-        <IonBadge>@ViewModel.PeersRegistered</IonBadge>
-        <IonLabel slot="end">Queued</IonLabel>
-        <IonBadge slot="end" color="dark">@ViewModel.PeersQueued</IonBadge>
-    </IonItem>
-    <IonItem>
-        <IonLabel>Minimum required</IonLabel>
-        <IonBadge color="secondary" slot="end">₿ @ViewModel.RequiredBTC</IonBadge>
-    </IonItem>
-
-    <IonItem>
-        <IonLabel>Auto-join at</IonLabel>
-        <IonBadge slot="end">@ViewModel.PeersNeeded peers</IonBadge>
-    </IonItem>
-
-    <IonItem>
-        <IonLabel>Current phase</IonLabel>
-        <IonBadge color="light" slot="end">@ViewModel.RoundPhaseState.Phase</IonBadge>
-    </IonItem>
-    <IonItem>
-        <IonLabel>Phase ends in</IonLabel>
-        <IonBadge color="light" slot="end">@($"{ViewModel.TimeLeftTillRoundTimeout:hh\\:mm\\:ss}")</IonBadge>
-    </IonItem>
-    <IonItem>
-        <IonLabel>CoinJoin fee</IonLabel>
-        <IonBadge color="light" slot="end">@(ViewModel.CoordinatorFeePercent)% per peer</IonBadge>
-    </IonItem>
-</IonList>
-        <div class="ion-padding">
-            <IonModal @bind-Visible="IsPasswordModalVisible">
-                <IonHeader>
-                    <IonToolbar>
-                        <IonTitle>Queue to Join</IonTitle>
-                        <IonButtons slot="start">
-                            <IonButton @onclick="@ToggleModal">Back</IonButton>
-                        </IonButtons>
-                    </IonToolbar>
-                </IonHeader>
-                <IonContent>
-                    <IonText class="ion-padding">
-                        <h1 class="ion-padding">Authorize Selected Coins to Join</h1>
-                    </IonText>
-                    <IonItem>
-                        <IonLabel floating>Password</IonLabel>
-                        <IonPasswordInput @bind-Value="Password" />
-                    </IonItem>
-                    <IonButton OnClick="@CoinJoin" class="ion-padding">JOIN NOW</IonButton>
-
-                </IonContent>
-
-            </IonModal>
-            @if (IsQueuedToCoinJoin)
+        <IonListHeader>
+            <IonLabel>
+                My Coins
+            </IonLabel>
+        </IonListHeader>
+        <IonItem>
+            <IonLabel>Coins to Join</IonLabel>
+            @if (IsReady)
             {
-                <IonButton OnClick='@ExitCoinJoin' expand="block">EXIT COINJOIN</IonButton>
+                <IonChip color="primary" @onclick="NavigateToSelectCoins">
+                    @(HasSelectedCoins ? $"₿ {ViewModel.CoinList?.SelectedAmount}" : "Add +")
+                </IonChip>
             }
             else
             {
-                <IonButton OnClick='@ToggleModal' expand="block">COINJOIN</IonButton>
+                <IonSpinner slot="end"/>
             }
-        </div>
+        </IonItem>
+    </IonList>
+
+    <div class="ion-padding">
+        <IonModal @bind-Visible="IsPasswordModalVisible">
+            <IonHeader>
+                <IonToolbar>
+                    <IonTitle>Queue to Join</IonTitle>
+                    <IonButtons slot="start">
+                        <IonButton @onclick="@ToggleModal">Back</IonButton>
+                    </IonButtons>
+                </IonToolbar>
+            </IonHeader>
+            <IonContent>
+                <IonText class="ion-padding">
+                    <h1 class="ion-padding">Authorize Selected Coins to Join</h1>
+                </IonText>
+                <IonLabel position="stacked">Enter Password</IonLabel>
+                <IonItem>
+                    <IonPasswordInput @bind-Value="Password" placeholder="e.g. margaretthatcheris110%SEXY" />
+                </IonItem>
+                <IonButton OnClick="@CoinJoin" class="ion-padding">JOIN NOW</IonButton>
+
+            </IonContent>
+
+        </IonModal>
+    </div>
     }
-    <IonToast Visible="@IsQueuedToCoinJoin" position="middle" color="warning"  message="Chaincase must be open to complete a CoinJoin. We'll notify you when to open back up." />
-    <IonToast @bind-Visible="@IsToastVisible" color="@ToastColor" message="@ToastMessage" duration="@ToastDuration"/>
+    <IonToast Visible="@IsQueuedToCoinJoin" position="middle" color="warning" message="Chaincase must be open to complete a CoinJoin. We'll notify you when to open back up." />
+    <IonToast @bind-Visible="@IsToastVisible" color="@ToastColor" message="@ToastMessage" duration="@ToastDuration" />
 
     <IonLoading @bind-Visible="@ViewModel.IsEnqueueBusy" message="Coinjoin magic..." />
 </IonContent>
+<IonFooter class="ion-padding">
+    @if (IsQueuedToCoinJoin)
+    {
+        <IonButton OnClick='@ExitCoinJoin' expand="block">EXIT COINJOIN</IonButton>
+    }
+    else
+    {
+        <IonButton OnClick='@ToggleModal' color="primary" expand="block" disabled="@(!HasSelectedCoins)">COINJOIN</IonButton>
+    }
+</IonFooter>
 
 @code {
-    private ElementReference loader;
     private bool IsPasswordModalVisible;
     private bool IsToastVisible;
-    private bool IsWarningToastVisible;
-    private bool IsEnqueueBusy;
-    private bool IsLoading() => ViewModel.IsEnqueueBusy;
     private string ToastMessage = "";
     private const int ToastDuration = 2000; // ms
     private string ToastColor;
 
     private string Password = "";
+    private bool IsShaking { get; set; }
 
     protected override void OnInitialized()
     {
@@ -169,6 +168,10 @@
 
     private bool IsQueuedToCoinJoin => ViewModel.AmountQueued is not null && ViewModel.AmountQueued.CompareTo(Money.Zero) != 0;
 
-    private bool IsSynced => StatusViewModel.FiltersLeft == 0;
+    private bool IsReady => StatusViewModel.FiltersLeft == 0 &&
+                             StatusViewModel.Backend == WalletWasabi.Models.BackendStatus.Connected &&
+                             StatusViewModel.Tor == WalletWasabi.Models.TorStatus.Running;
+
+    private bool HasSelectedCoins => (ViewModel.CoinList?.SelectedAmount ?? Money.Zero) > Money.Zero;
 
 }

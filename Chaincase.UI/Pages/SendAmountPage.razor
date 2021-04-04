@@ -7,20 +7,19 @@
 @inherits ReactiveComponentBase<SendViewModel>
 
 <IonContent>
-
     <IonItem>
         <IonLabel>Amount</IonLabel>
-        <IonInput @bind-Value="ViewModel.AmountText" min="0"/>
+        <IonInput class="ion-text-end" slot="end" @bind-Value="ViewModel.AmountText" min="0"/>
     </IonItem>
     <IonItem>
         <IonLabel>Automatic Coin Selection</IonLabel>
-        <IonToggle  color="secondary" @bind-Value="IsCoinSelectionAutomatic"/>
+        <IonToggle color="secondary" @bind-Value="IsCoinSelectionAutomatic"/>
     </IonItem>
     <IonItem>
         <IonLabel>Amount Selected</IonLabel>
-        <IonButton OnClick="NavigateToSelectCoinsPage" disabled="@(IsCoinSelectionAutomatic)">
-            ₿@ViewModel.SelectCoinsViewModel.SelectedAmount
-        </IonButton>
+        <IonChip @onclick="NavigateToSelectCoinsPage" color="primary" disabled="@(IsCoinSelectionAutomatic)">
+            ₿ @ViewModel.SelectCoinsViewModel.SelectedAmount
+        </IonChip>
     </IonItem>
     <IonItem>
         <IonLabel>Send Max</IonLabel>
@@ -28,11 +27,13 @@
     </IonItem>
     <IonItem>
         <IonLabel>Fee</IonLabel>
-        <ion-badge @onclick="ToggleSelectFeeModal">@ViewModel.FeeRate</ion-badge>
+        <IonChip color="primary" @onclick="ToggleSelectFeeModal">@ViewModel.FeeRate</IonChip>
     </IonItem>
-
-    <IonButton class="ion-padding" OnClick="NavigateToSendApprovalPage" expand="block" disabled="@(!ViewModel.IsTransactionOkToSign)">CONTINUE</IonButton>
-</IonContent>
+    <div class="ion-padding">
+        <IonButton OnClick="NavigateToSendApprovalPage" expand="block" color="primary"
+                   disabled="@(!ViewModel.IsTransactionOkToSign)">CONFIRM SEND</IonButton>
+    </div>
+</IonContent> stat
 
 <FeeModal @bind-Visible="@IsFeeModalVisible"
             FeeViewModel="@FeeViewModel"/>
@@ -75,7 +76,7 @@
         {
             await NavigationManager.NavigateBack(null, "/send/amount");
         });
-        NavigationManager.NavigateTo("selectcoins");
+        NavigationManager.NavigateTo("/selectcoins");
     }
 
     private void NavigateToSendApprovalPage()

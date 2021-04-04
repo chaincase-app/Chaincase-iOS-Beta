@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using Chaincase.Common;
 using DynamicData;
 using NBitcoin;
@@ -48,23 +49,24 @@ namespace Chaincase.UI.ViewModels
                throw new NotSupportedException($"Cannot open {GetType().Name} before closing it.");
 
             UpdateRootList();
-            Observable
-                .Merge(Observable.FromEventPattern<ProcessedResult>(Global.Wallet.TransactionProcessor, nameof(Global.Wallet.TransactionProcessor.WalletRelevantTransactionProcessed)).Select(_ => Unit.Default))
-                .Throttle(TimeSpan.FromSeconds(1)) // Throttle TransactionProcessor events adds/removes. 
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(_ =>
+
+            Task.Run(async () =>
+            {
+                while (Global.Wallet?.TransactionProcessor == null)
                 {
-                    UpdateRootList();
-                })
-                .DisposeWith(Disposables);
+                    await Task.Delay(50).ConfigureAwait(false);
+                }
 
-
-            //OpenCoinDetail = ReactiveCommand.CreateFromObservable((CoinViewModel cvm) =>
-            //{
-            //    ViewStackService.PushModal(cvm).Subscribe();
-            //    return Observable.Return(Unit.Default);
-            //});
-
+                Observable
+                   .Merge(Observable.FromEventPattern<ProcessedResult>(Global.Wallet.TransactionProcessor, nameof(Global.Wallet.TransactionProcessor.WalletRelevantTransactionProcessed)).Select(_ => Unit.Default))
+                   .Throttle(TimeSpan.FromSeconds(1)) // Throttle TransactionProcessor events adds/removes. 
+                   .ObserveOn(RxApp.MainThreadScheduler)
+                   .Subscribe(_ =>
+                   {
+                       UpdateRootList();
+                   })
+                   .DisposeWith(Disposables);
+            });
         }
 
         public void SelectCoins(Func<CoinViewModel, bool> coinFilterPredicate)
@@ -79,7 +81,8 @@ namespace Chaincase.UI.ViewModels
         {
             try
             {
-                var actual = Global.Wallet.TransactionProcessor.Coins.ToHashSet();
+                var actual = Global.Wallet.TransactionProcessor?.Coins?.ToHashSet()
+                    ?? Enumerable.Empty<SmartCoin>();
                 var old = RootList.Items.ToDictionary(c => c.Model, c => c);
 
                 var coinToRemove = old.Where(c => !actual.Contains(c.Key)).ToArray();

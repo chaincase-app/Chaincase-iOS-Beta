@@ -12,26 +12,6 @@
     <IonPage class="ion-page" id="main-content">
         <IonTabs>
             <IonTab>
-                <IonHeader>
-                    <IonToolbar>
-                        <IonButtons slot="start">
-                            @if (StackService.AnyStackState)
-                            {
-                                <ion-back-button @onclick="() => StackService.InvokeStackState()" @onclick:preventDefault="true" default-href="lol"></ion-back-button>
-                            }
-                        </IonButtons>
-                        @if (NavigationManager.Uri == NavigationManager.ToAbsoluteUri("/overview").ToString())
-                        {
-                            <IonButtons slot="end">
-                                <IonButton OnClick='@(() => StackPush("/walletinfo"))'>
-                                    <IonIcon slot="icon-only" name="information-circle-outline"></IonIcon>
-                                </IonButton>
-                            </IonButtons>
-
-                        }
-                        <IonTitle>@StateService.Title</IonTitle>
-                    </IonToolbar>
-                </IonHeader>
                 @Body
             </IonTab>
 
@@ -41,7 +21,7 @@
                     <IonLabel>RECEIVE</IonLabel>
                 </IonTabButton>
                 <IonTabButton @onclick='() => StackPush("/coinjoin")'>
-                    <IonIcon name="logo-bitcoin"></IonIcon>
+                    <IonIcon name="shuffle"></IonIcon>
                     <IonLabel>COINJOIN</IonLabel>
                 </IonTabButton>
                 <IonTabButton @onclick='() => StackPush("/send/who")'>

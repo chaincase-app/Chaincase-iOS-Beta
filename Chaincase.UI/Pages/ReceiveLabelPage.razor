@@ -1,0 +1,42 @@
+﻿@page "/receive"
+@using Chaincase.UI.Services
+
+@inject IJSRuntime JS
+@inject UIStateService UiStateService
+@inject NavigationManager NavigationManager
+@inject ReceiveViewModel ReceiveViewModel
+@inherits ReactiveComponentBase<ReceiveViewModel>
+
+<IonContent>
+    <IonItem class="ion-padding">
+        <IonLabel position="stacked">Add Label</IonLabel>
+        <IonInput @bind-Value="@ViewModel.ProposedLabel" placeholder="Who are you receiving from?" />
+    </IonItem>
+    <IonCard color="primary">
+        <IonCardContent>
+            <strong>Info:</strong>
+            Contact labels help keep your future activity private and organized. This information is not shared with anyone.
+        </IonCardContent>
+    </IonCard>
+</IonContent>
+<IonFooter class="ion-padding">
+    <IonButton color="primary" @onclick="ApplyLabel" disabled="@IsContinueDisabled" expand="block">Continue</IonButton>
+</IonFooter>
+
+@code {
+
+    protected override void OnInitialized()
+    {
+        ViewModel = ReceiveViewModel;
+        UiStateService.Title = "RECEIVE BITCOIN";
+    }
+
+    private bool IsContinueDisabled => ViewModel.ProposedLabel.IsNullOrWhiteSpace();
+
+    private void ApplyLabel()
+    {
+        ViewModel.InitNextReceiveKey();
+        NavigationManager.NavigateTo("receive/address");
+    }
+
+}
