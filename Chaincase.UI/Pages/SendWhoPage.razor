@@ -40,7 +40,7 @@
 
     private string _addressString;
 
-    private bool IsAddressValid => ViewModel.Address is not null;
+    private bool IsAddressValid => ViewModel.DestinationUrl?.Address is not null;
 
     protected override void OnInitialized()
     {

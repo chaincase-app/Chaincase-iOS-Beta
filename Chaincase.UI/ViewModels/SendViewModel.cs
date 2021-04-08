@@ -338,7 +338,7 @@ namespace Chaincase.UI.ViewModels
                 var feeStrategy = FeeStrategy.CreateFromFeeRate(FeeRate);
 
                 var smartLabel = new SmartLabel(Label);
-                var activeDestinationRequest = new DestinationRequest(Address, moneyRequest, smartLabel);
+                var activeDestinationRequest = new DestinationRequest(DestinationUrl.Address, moneyRequest, smartLabel);
                 requests.Add(activeDestinationRequest);
                 var intent = new PaymentIntent(requests);
 
@@ -374,8 +374,6 @@ namespace Chaincase.UI.ViewModels
         }
 
         public BitcoinUrlBuilder DestinationUrl => _destinationUrl.Value;
-
-        public BitcoinAddress Address => _destinationUrl.Value?.Address;
 
         public Money OutputAmount => _outputAmount.Value;
 
