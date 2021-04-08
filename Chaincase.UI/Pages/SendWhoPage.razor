@@ -13,24 +13,15 @@
 @inherits ReactiveComponentBase<SendViewModel>
 
 <IonContent class="ion-padding">
-    <h1>Sending to who?</h1>
 
+    <IonLabel position="stacked" id="destination-label">Add Recipient</IonLabel>
     <IonItem>
-        <IonLabel position="stacked">Address or <code>bitcoin:</code> uri</IonLabel>
-        <IonInput @bind-Value="ViewModel.DestinationString" placeholder="Enter address..." />
+        <IonInput @bind-Value="ViewModel.DestinationString" placeholder="address/bitcoin:uri" aria-labelledby="destination-label"/>
+        <IonIcon @onclick="OnClickPaste" size="small" slot="end" name="clipboard-outline" aria-label="paste"/>
+        <IonIcon @onclick="OnClickScan" size="small" slot="end" name="scan-outline" aria-label="scan"/>
     </IonItem>
-    <IonItem>
-        <IonButton OnClick="OnClickPaste">
-            <IonIcon slot="start" name="clipboard-outline"/>
-            Paste
-        </IonButton>
-        <IonButton OnClick="OnClickScan">
-            <IonIcon slot="start" name="scan-outline"/>
-            Scan QR Code
-        </IonButton>
-    </IonItem>
-    <IonButton OnClick="OnContinue" expand="block" disabled="@(!IsAddressValid)">NEXT</IonButton>
 
+    <IonButton OnClick="OnContinue" color="primary" expand="block" disabled="@(!IsAddressValid)">NEXT</IonButton>
 </IonContent>
 
 @code {

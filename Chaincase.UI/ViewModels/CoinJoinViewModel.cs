@@ -21,30 +21,30 @@ using WalletWasabi.Logging;
 
 namespace Chaincase.UI.ViewModels
 {
-	public class CoinJoinViewModel : ReactiveObject
-	{
-		protected Global Global { get; }
+    public class CoinJoinViewModel : ReactiveObject
+    {
+        protected Global Global { get; }
         private CompositeDisposable Disposables { get; set; }
 
         private string _coordinatorFeePercent;
-		private int _peersRegistered;
-		private int _peersNeeded;
+        private int _peersRegistered;
+        private int _peersNeeded;
         private int _peersQueued;
 
-		private RoundPhaseState _roundPhaseState;
-		private DateTimeOffset _roundTimesout;
-		private TimeSpan _timeLeftTillRoundTimeout;
-		private Money _requiredBTC;
-		private Money _amountQueued;
-		private bool _isDequeueBusy;
-		private bool _isEnqueueBusy;
+        private RoundPhaseState _roundPhaseState;
+        private DateTimeOffset _roundTimesout;
+        private TimeSpan _timeLeftTillRoundTimeout;
+        private Money _requiredBTC;
+        private Money _amountQueued;
+        private bool _isDequeueBusy;
+        private bool _isEnqueueBusy;
         private bool _isQueuedToCoinJoin = false;
-		private string _balance;
+        private string _balance;
         private string _toastErrorMessage;
         private bool _shouldShowErrorToast;
         private SelectCoinsViewModel _selectCoinsViewModel;
 
-        public CoinJoinViewModel(Global global, SelectCoinsViewModel selectCoinsViewModel) 
+        public CoinJoinViewModel(Global global, SelectCoinsViewModel selectCoinsViewModel)
         {
             Global = global;
             CoinList = selectCoinsViewModel;
@@ -57,7 +57,7 @@ namespace Chaincase.UI.ViewModels
             Disposables = new CompositeDisposable();
 
             // Infer coordinator fee
-            var registrableRound = Global.Wallet.ChaumianClient.State.GetRegistrableRoundOrDefault();
+            var registrableRound = Global.Wallet.ChaumianClient?.State?.GetRegistrableRoundOrDefault();
             CoordinatorFeePercent = registrableRound?.State?.CoordinatorFeePercent.ToString() ?? "0.003";
 
             // Select most advanced coin join round
@@ -90,37 +90,45 @@ namespace Chaincase.UI.ViewModels
                     TimeLeftTillRoundTimeout = left > TimeSpan.Zero ? left : TimeSpan.Zero; // Make sure cannot be less than zero.
                 });
 
+            Task.Run(async () =>
+            {
+                while (Global.Wallet.ChaumianClient == null)
+                {
+                    await Task.Delay(50).ConfigureAwait(false);
+                }
 
-            // Update view model state on chaumian client state updates
-            Observable.FromEventPattern(Global.Wallet.ChaumianClient, nameof(Global.Wallet.ChaumianClient.CoinQueued))
-                .Merge(Observable.FromEventPattern(Global.Wallet.ChaumianClient, nameof(Global.Wallet.ChaumianClient.OnDequeue)))
-                .Merge(Observable.FromEventPattern(Global.Wallet.ChaumianClient, nameof(Global.Wallet.ChaumianClient.StateUpdated)))
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(_ => UpdateStates())
-                .DisposeWith(Disposables);
+                // Update view model state on chaumian client state updates
+                Observable.FromEventPattern(Global.Wallet.ChaumianClient, nameof(Global.Wallet.ChaumianClient.CoinQueued))
+                    .Merge(Observable.FromEventPattern(Global.Wallet.ChaumianClient, nameof(Global.Wallet.ChaumianClient.OnDequeue)))
+                    .Merge(Observable.FromEventPattern(Global.Wallet.ChaumianClient, nameof(Global.Wallet.ChaumianClient.StateUpdated)))
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Subscribe(_ => UpdateStates())
+                    .DisposeWith(Disposables);
 
-            // Remove notification on unconfirming status in coin join round
-            Observable.FromEventPattern(Global.Wallet.ChaumianClient, nameof(Global.Wallet.ChaumianClient.OnDequeue))
-                   .Subscribe(pattern =>
-                   {
-                       var e = (DequeueResult)pattern.EventArgs;
-                       try
-                       {
-                           foreach (var success in e.Successful.Where(x => x.Value.Any()))
-                           {
-                               DequeueReason reason = success.Key;
-                               if (reason == DequeueReason.UserRequested)
-                               {
-                                   Global.NotificationManager.RemoveAllPendingNotifications();
-                               }
-                           }
-                       }
-                       catch (Exception ex)
-                       {
-                           Logger.LogWarning(ex);
-                       }
-                   })
-                   .DisposeWith(Disposables);
+                // Remove notification on unconfirming status in coin join round
+                Observable.FromEventPattern(Global.Wallet.ChaumianClient, nameof(Global.Wallet.ChaumianClient.OnDequeue))
+                    .Subscribe(pattern =>
+                    {
+                        var e = (DequeueResult)pattern.EventArgs;
+                        try
+                        {
+                            foreach (var success in e.Successful.Where(x => x.Value.Any()))
+                            {
+                                DequeueReason reason = success.Key;
+                                if (reason == DequeueReason.UserRequested)
+                                {
+                                    Global.NotificationManager.RemoveAllPendingNotifications();
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogWarning(ex);
+                        }
+                    })
+                    .DisposeWith(Disposables);
+            });
+
             // Update timeout label
             Observable.Interval(TimeSpan.FromSeconds(1))
                 .ObserveOn(RxApp.MainThreadScheduler)
@@ -216,7 +224,8 @@ namespace Chaincase.UI.ViewModels
             return true;
         }
 
-        public async void JoinRound(string password) {
+        public async void JoinRound(string password)
+        {
             try
             {
                 var coins = CoinList.CoinList.Where(c => c.IsSelected).Select(c => c.Model);
@@ -230,7 +239,8 @@ namespace Chaincase.UI.ViewModels
                     throw new Exception("Please provide a valid password");
                 _isQueuedToCoinJoin = true;
             }
-            catch (Exception error) {
+            catch (Exception error)
+            {
                 Logger.LogError($"CoinJoinViewModel.JoinRound() ${error} ");
                 _isQueuedToCoinJoin = false;
                 throw error;
@@ -279,14 +289,15 @@ namespace Chaincase.UI.ViewModels
                 }
                 try
                 {
-                    await Task.Run(() => {
+                    await Task.Run(() =>
+                    {
                         // If the password is incorrect this throws.
                         PasswordHelper.GetMasterExtKey(Global.Wallet.KeyManager, password, out string compatiblityPassword);
                         if (compatiblityPassword != null)
                         {
                             password = compatiblityPassword;
                         }
-                    }); 
+                    });
 
                     await Global.Wallet.ChaumianClient.QueueCoinsToMixAsync(password, coins.ToArray());
                     Global.NotificationManager.RequestAuthorization();

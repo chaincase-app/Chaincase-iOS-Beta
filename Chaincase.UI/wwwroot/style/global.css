@@ -60,6 +60,24 @@ ion-button:not(.in-toolbar).button-disabled {
     animation: shake 0.5s;
 }
 
+.overview-header {
+    color: var(--ion-color-light);
+    background: var(--ion-color-primary);
+}
+
+.overview-header__buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.overview-header__buttons > * {
+    margin: 1rem;
+}
+
 @keyframes shake {
     0% {
         transform: translate(0);
