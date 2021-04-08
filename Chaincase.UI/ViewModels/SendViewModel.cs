@@ -109,16 +109,16 @@ namespace Chaincase.UI.ViewModels
                 });
 
             _destinationUrl = this.WhenAnyValue(x => x.DestinationString, ParseDestinationString)
-                .ToProperty(this, nameof(Url));
+                .ToProperty(this, nameof(DestinationUrl));
 
             var isTransactionOkToSign = this.WhenAnyValue(
-                x => x.Label, x => x.Address, x => x.OutputAmount,
+                x => x.Label, x => x.DestinationUrl, x => x.OutputAmount,
                 x => x.SelectCoinsViewModel.SelectedAmount,
                 x => x.EstimatedBtcFee,
             (label, address, outputAmount, selectedAmount, feeAmount) =>
             {
                 return label.NotNullAndNotEmpty()
-                    && address is not null
+                    && DestinationUrl.Address is not null
                     && outputAmount > Money.Zero
                     && outputAmount + feeAmount <= selectedAmount;
 
@@ -373,7 +373,7 @@ namespace Chaincase.UI.ViewModels
             return false;
         }
 
-        public BitcoinUrlBuilder Url => _destinationUrl.Value;
+        public BitcoinUrlBuilder DestinationUrl => _destinationUrl.Value;
 
         public BitcoinAddress Address => _destinationUrl.Value?.Address;
 
