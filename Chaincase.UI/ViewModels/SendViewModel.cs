@@ -57,43 +57,6 @@ namespace Chaincase.UI.ViewModels
             AllSelectedAmount = Money.Zero;
             EstimatedBtcFee = Money.Zero;
 
-            this.WhenAnyValue(x => x.AmountText)
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(amount =>
-                {
-                    // Correct amount
-                    if (IsMax)
-                    {
-                        SetAmountIfMax();
-                    }
-                    else
-                    {
-                        Regex digitsOnly = new Regex(@"[^\d,.]");
-                        string betterAmount = digitsOnly.Replace(amount, ""); // Make it digits , and . only.
-
-                        betterAmount = betterAmount.Replace(',', '.');
-                        int countBetterAmount = betterAmount.Count(x => x == '.');
-                        if (countBetterAmount > 1) // Do not enable typing two dots.
-                        {
-                            var index = betterAmount.IndexOf('.', betterAmount.IndexOf('.') + 1);
-                            if (index > 0)
-                            {
-                                betterAmount = betterAmount.Substring(0, index);
-                            }
-                        }
-                        var dotIndex = betterAmount.IndexOf('.');
-                        if (dotIndex != -1 && betterAmount.Length - dotIndex > 8) // Enable max 8 decimals.
-                        {
-                            betterAmount = betterAmount.Substring(0, dotIndex + 1 + 8);
-                        }
-
-                        if (betterAmount != amount)
-                        {
-                            AmountText = betterAmount;
-                        }
-                    }
-                });
-
             _outputAmount = this.WhenAnyValue(x => x.AmountText,
                 (amountText) =>
                 {
@@ -111,7 +74,7 @@ namespace Chaincase.UI.ViewModels
 
             Observable.FromEventPattern(SelectCoinsViewModel, nameof(SelectCoinsViewModel.SelectionChanged))
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(_ => SetFees());
+                .Subscribe(_ => ApplyFees());
 
             _minMaxFeeTargetsEqual = this.WhenAnyValue(x => x.MinimumFeeTarget, x => x.MaximumFeeTarget, (x, y) => x == y)
                 .ToProperty(this, x => x.MinMaxFeeTargetsEqual, scheduler: RxApp.MainThreadScheduler);
@@ -119,7 +82,6 @@ namespace Chaincase.UI.ViewModels
             SetFeeTargetLimits();
             FeeTarget = Global.UiConfig.FeeTarget;
             FeeRate = new FeeRate((decimal)50); //50 sat/vByte placeholder til loads
-            SetFees();
 
             Task.Run(async () =>
             {
@@ -143,8 +105,6 @@ namespace Chaincase.UI.ViewModels
                     {
                         FeeTarget = MaximumFeeTarget;
                     }
-
-                    SetFees();
                 })
                 .DisposeWith(Disposables);
             });
@@ -153,20 +113,20 @@ namespace Chaincase.UI.ViewModels
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(_ =>
                 {
-                    SetFees();
+                    ApplyFees();
                 });
 
             _destinationUrl = this.WhenAnyValue(x => x.DestinationString, ParseDestinationString)
-                .ToProperty(this, nameof(Url));
+                .ToProperty(this, nameof(DestinationUrl));
 
             var isTransactionOkToSign = this.WhenAnyValue(
-                x => x.Label, x => x.Address, x => x.OutputAmount,
+                x => x.Label, x => x.DestinationUrl, x => x.OutputAmount,
                 x => x.SelectCoinsViewModel.SelectedAmount,
                 x => x.EstimatedBtcFee,
             (label, address, outputAmount, selectedAmount, feeAmount) =>
             {
                 return label.NotNullAndNotEmpty()
-                    && address is not null
+                    && DestinationUrl.Address is not null
                     && outputAmount > Money.Zero
                     && outputAmount + feeAmount <= selectedAmount;
 
@@ -181,6 +141,7 @@ namespace Chaincase.UI.ViewModels
         internal BitcoinUrlBuilder ParseDestinationString(string destinationString)
         {
             if (destinationString == null) return null;
+            destinationString = destinationString.Trim();
             BitcoinUrlBuilder url = null;
             try
             {
@@ -209,7 +170,41 @@ namespace Chaincase.UI.ViewModels
             return url;
         }
 
-        private void SetFees()
+        public void SetAmountText()
+        {
+            if (IsMax)
+            {
+                SetAmountIfMax();
+            }
+            else
+            {
+                Regex digitsOnly = new Regex(@"[^\d,.]");
+                string betterAmount = digitsOnly.Replace(AmountText, ""); // Make it digits , and . only.
+
+                betterAmount = betterAmount.Replace(',', '.');
+                int countBetterAmount = betterAmount.Count(x => x == '.');
+                if (countBetterAmount > 1) // Do not enable typing two dots.
+                {
+                    var index = betterAmount.IndexOf('.', betterAmount.IndexOf('.') + 1);
+                    if (index > 0)
+                    {
+                        betterAmount = betterAmount.Substring(0, index);
+                    }
+                }
+                var dotIndex = betterAmount.IndexOf('.');
+                if (dotIndex != -1 && betterAmount.Length - dotIndex > 8) // Enable max 8 decimals.
+                {
+                    betterAmount = betterAmount.Substring(0, dotIndex + 1 + 8);
+                }
+
+                if (betterAmount != AmountText)
+                {
+                    AmountText = betterAmount;
+                }
+            }
+        }
+
+        private void ApplyFees()
         {
             AllFeeEstimate allFeeEstimate = Global.FeeProviders?.AllFeeEstimate;
 
@@ -268,6 +263,7 @@ namespace Chaincase.UI.ViewModels
                 }
                 long all = selectedCoins.Sum(x => x.Amount);
                 AllSelectedAmount = Math.Max(Money.Zero, all - EstimatedBtcFee);
+                SetAmountIfMax();
             }
         }
 
@@ -351,7 +347,7 @@ namespace Chaincase.UI.ViewModels
                 var feeStrategy = FeeStrategy.CreateFromFeeRate(FeeRate);
 
                 var smartLabel = new SmartLabel(Label);
-                var activeDestinationRequest = new DestinationRequest(Address, moneyRequest, smartLabel);
+                var activeDestinationRequest = new DestinationRequest(DestinationUrl.Address, moneyRequest, smartLabel);
                 requests.Add(activeDestinationRequest);
                 var intent = new PaymentIntent(requests);
 
@@ -386,9 +382,7 @@ namespace Chaincase.UI.ViewModels
             return false;
         }
 
-        public BitcoinUrlBuilder Url => _destinationUrl.Value;
-
-        public BitcoinAddress Address => _destinationUrl.Value?.Address;
+        public BitcoinUrlBuilder DestinationUrl => _destinationUrl.Value;
 
         public Money OutputAmount => _outputAmount.Value;
 

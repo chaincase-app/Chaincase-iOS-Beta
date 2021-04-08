@@ -9,7 +9,7 @@
 <IonContent>
     <IonItem>
         <IonLabel>Amount</IonLabel>
-        <IonInput class="ion-text-end" slot="end" @bind-Value="ViewModel.AmountText" min="0"/>
+        <IonInput @onkeyup='ViewModel.SetAmountText' @bind-Value ="ViewModel.AmountText" min="0" slot="end" class="ion-text-end"/>
     </IonItem>
     <IonItem>
         <IonLabel>Automatic Coin Selection</IonLabel>
@@ -36,7 +36,7 @@
 </IonContent> stat
 
 <FeeModal @bind-Visible="@IsFeeModalVisible"
-            FeeViewModel="@FeeViewModel"/>
+            SendViewModel="@ViewModel"/>
 
 @code {
 
@@ -56,14 +56,11 @@
         }
     }
 
-    private FeeViewModel FeeViewModel { get; set; }
-
     private double amount { get; set; }
 
     protected override void OnInitialized()
     {
         ViewModel = SendViewModel;
-        FeeViewModel = new FeeViewModel(SendViewModel);
         UiStateService.Title = "SEND";
     }
 
