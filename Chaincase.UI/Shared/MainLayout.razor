@@ -9,17 +9,17 @@
 
 <ion-split-pane when="sm" content-id="main-content" disabled="@StackService.AnyStackState">
     <ion-page class="ion-page" id="main-content">
-        <ion-header>
-            <ion-toolbar>
-                <ion-buttons slot="start">
+        <IonHeader>
+            <IonToolbar>
+                <IonButtons slot="start">
                     @if (StackService.AnyStackState)
                     {
                         <ion-back-button @onclick="() => StackService.InvokeStackState()" @onclick:preventDefault="true" default-href="lol"></ion-back-button>
                     }
-                </ion-buttons>
-                <ion-title>@StateService.Title</ion-title>
-            </ion-toolbar>
-        </ion-header>
+                </IonButtons>
+                <IonTitle>@StateService.Title</IonTitle>
+            </IonToolbar>
+        </IonHeader>
         @Body
     </ion-page>
 </ion-split-pane>

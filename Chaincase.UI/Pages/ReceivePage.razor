@@ -7,16 +7,16 @@
 @inject ReceiveViewModel ReceiveViewModel
 @inherits ReactiveComponentBase<ReceiveViewModel>
 
-<ion-content class="ion-padding">
+<IonContent class="ion-padding">
     <p>Who are you receiving from?</p>
     <p>This information is never shared with anyone. Contact labels help keep your future activity private.</p>
-    <ion-label>Contact Label</ion-label>
+    <IonLabel>Contact Label</IonLabel>
     <IonInput @bind-Value="@ViewModel.ProposedLabel" placeholder="a contact e.g. Mt. Fox exchange" />
 
 
     <IonButton @onclick="ApplyLabel" disabled="@IsContinueDisabled" expand="block">Continue</IonButton>
 
-</ion-content>
+</IonContent>
 
 @code {
 

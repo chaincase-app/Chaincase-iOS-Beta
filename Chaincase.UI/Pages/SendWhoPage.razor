@@ -12,27 +12,26 @@
 @inject IClipboard Clipboard
 @inherits ReactiveComponentBase<SendViewModel>
 
-<ion-content class="ion-padding">
+<IonContent class="ion-padding">
     <h1>Sending to who?</h1>
 
     <IonItem>
-        <ion-label position="stacked">Address or <code>bitcoin:</code> uri</ion-label>
+        <IonLabel position="stacked">Address or <code>bitcoin:</code> uri</IonLabel>
         <IonInput @bind-Value="ViewModel.DestinationString" placeholder="Enter address..." />
-        
     </IonItem>
     <IonItem>
         <IonButton OnClick="OnClickPaste">
-            <ion-icon slot="start" name="clipboard-outline"/>
+            <IonIcon slot="start" name="clipboard-outline"/>
             Paste
         </IonButton>
         <IonButton OnClick="OnClickScan">
-            <ion-icon slot="start" name="scan-outline"/>
+            <IonIcon slot="start" name="scan-outline"/>
             Scan QR Code
         </IonButton>
     </IonItem>
     <IonButton OnClick="OnContinue" expand="block" disabled="@(!IsAddressValid)">NEXT</IonButton>
 
-</ion-content>
+</IonContent>
 
 @code {
 

@@ -1,4 +1,4 @@
-﻿@page "/send/amount"
+@page "/send/amount"
 @using Chaincase.UI.Services
 @inject SendViewModel SendViewModel
 @inject StackService StackService
@@ -6,33 +6,33 @@
 @inject NavigationManager NavigationManager
 @inherits ReactiveComponentBase<SendViewModel>
 
-<IonContent>
+<ion-content>
 
     <IonItem>
-        <IonLabel>Amount</IonLabel>
-        <IonInput @onkeyup='ViewModel.SetAmountText' @bind-Value ="ViewModel.AmountText" min="0"/>
+        <ion-label>Amount</ion-label>
+        <IonInput @onkeyup='ViewModel.SetAmountText' Value="ViewModel.AmountText" min="0"/>
     </IonItem>
     <IonItem>
-        <IonLabel>Automatic Coin Selection</IonLabel>
+        <ion-label>Automatic Coin Selection</ion-label>
         <IonToggle  color="secondary" @bind-Value="IsCoinSelectionAutomatic"/>
     </IonItem>
     <IonItem>
-        <IonLabel>Amount Selected</IonLabel>
+        <ion-label>Amount Selected</ion-label>
         <IonButton OnClick="NavigateToSelectCoinsPage" disabled="@(IsCoinSelectionAutomatic)">
             ₿@ViewModel.SelectCoinsViewModel.SelectedAmount
         </IonButton>
     </IonItem>
     <IonItem>
-        <IonLabel>Send Max</IonLabel>
+        <ion-label>Send Max</ion-label>
         <IonToggle color="secondary" @bind-Value="ViewModel.IsMax" />
     </IonItem>
     <IonItem>
-        <IonLabel>Fee</IonLabel>
+        <ion-label>Fee</ion-label>
         <ion-badge @onclick="ToggleSelectFeeModal">@ViewModel.FeeRate</ion-badge>
     </IonItem>
 
     <IonButton class="ion-padding" OnClick="NavigateToSendApprovalPage" expand="block" disabled="@(!ViewModel.IsTransactionOkToSign)">CONTINUE</IonButton>
-</IonContent>
+</ion-content>
 
 <FeeModal @bind-Visible="@IsFeeModalVisible"
             SendViewModel="@ViewModel"/>
