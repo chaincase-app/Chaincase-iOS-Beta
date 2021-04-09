@@ -16,17 +16,17 @@
             </IonTab>
 
             <IonTabBar slot="bottom">
-                <IonTabButton @onclick='() => StackPush("/receive")'>
-                    <IonIcon name="qr-code"></IonIcon>
-                    <IonLabel>RECEIVE</IonLabel>
+                <IonTabButton @onclick='() => StackPush("/")'>
+                    <IonIcon name="home"></IonIcon>
+                    <IonLabel>HOME</IonLabel>
                 </IonTabButton>
                 <IonTabButton @onclick='() => StackPush("/coinjoin")'>
                     <IonIcon name="shuffle"></IonIcon>
                     <IonLabel>COINJOIN</IonLabel>
                 </IonTabButton>
-                <IonTabButton @onclick='() => StackPush("/send/who")'>
-                    <IonIcon name="send"></IonIcon>
-                    <IonLabel>SEND</IonLabel>
+                <IonTabButton @onclick='() => StackPush("/walletinfo")'>
+                    <IonIcon name="cog"></IonIcon>
+                    <IonLabel>SETTINGS</IonLabel>
                 </IonTabButton>
             </IonTabBar>
         </IonTabs>

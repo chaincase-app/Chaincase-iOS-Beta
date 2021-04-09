@@ -1,0 +1,71 @@
+﻿@page "/receive/address"
+@using Chaincase.UI.Services
+@using Chaincase.Common.Contracts
+@inject UIStateService UiStateService
+@inject NavigationManager NavigationManager
+@inject ReceiveViewModel ReceiveViewModel
+@inject IClipboard Clipboard 
+@inject IShare Share
+@inherits ReactiveComponentBase<ReceiveViewModel>
+
+<IonContent>
+    <div class="ion-padding center-and-expand-vertical">
+        <div>
+            <div style="width: 256px; height: 256px; margin: auto">
+                <QRCode Data="@ViewModel.BitcoinUri"></QRCode>
+            </div>
+            <IonText class="ion-text-center" @onclick="@(async () => await CopyToClipboardAsync(ViewModel.Address))">
+                <p>@ViewModel.Address</p>
+            </IonText>
+            <div style="display:flex; justify-content: center;">
+                <IonChip @onclick="@(async () => await CopyToClipboardAsync(ViewModel.BitcoinUri))" color="primary">
+                    <ion-icon name="copy-outline"></ion-icon>
+                    <IonLabel>Copy</IonLabel>
+                </IonChip>
+                <IonChip @onclick="ShareLink" color="primary">
+                    <ion-icon name="share-outline"></ion-icon>
+                    <IonLabel>Share</IonLabel>
+                </IonChip>
+            </div>
+        </div>
+    </div>
+
+    <ClipboardToast @bind-Visible="@IsToastVisible" />
+</IonContent>
+<IonFooter class="ion-padding">
+    <IonList>
+        <IonItem>
+            <IonLabel>Label</IonLabel>
+            <IonBadge slot="end">@ViewModel.AppliedLabel</IonBadge>
+        </IonItem>
+        @if (ViewModel.ProposedAmount != null)
+        {
+            <IonItem>
+                <IonLabel>Amount</IonLabel>
+                <IonBadge color="secondary" slot="end">₿ @ViewModel.ProposedAmount</IonBadge>
+            </IonItem>
+
+        }
+    </IonList>
+    <IonButton class="neu-button" href="/overview" expand="block">DONE</IonButton>
+</IonFooter>
+
+@code {
+    private bool IsToastVisible;
+
+    protected override void OnInitialized()
+    {
+        ViewModel = ReceiveViewModel;
+        UiStateService.Title = "RECEIVE";
+    }
+
+    private async Task ShareLink() {
+        await Share.ShareText(ViewModel.BitcoinUri);
+    }
+
+    private async Task CopyToClipboardAsync(string toCopy)
+    {
+        await Clipboard.Copy(toCopy);
+        IsToastVisible = true;
+    }
+}

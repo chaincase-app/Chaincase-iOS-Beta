@@ -93,13 +93,13 @@
                 <IonItem>
                     <IonPasswordInput @bind-Value="Password" placeholder="e.g. margaretthatcheris110%SEXY" />
                 </IonItem>
-                <IonButton OnClick="@CoinJoin" class="ion-padding">JOIN NOW</IonButton>
+                <IonButton OnClick="@CoinJoin" class="ion-padding neu-button">JOIN NOW</IonButton>
 
             </IonContent>
 
         </IonModal>
     </div>
-    }
+
     <IonToast Visible="@IsQueuedToCoinJoin" position="middle" color="warning" message="Chaincase must be open to complete a CoinJoin. We'll notify you when to open back up." />
     <IonToast @bind-Visible="@IsToastVisible" color="@ToastColor" message="@ToastMessage" duration="@ToastDuration" />
 
@@ -108,11 +108,11 @@
 <IonFooter class="ion-padding">
     @if (IsQueuedToCoinJoin)
     {
-        <IonButton OnClick='@ExitCoinJoin' expand="block">EXIT COINJOIN</IonButton>
+        <IonButton class="neu-button" OnClick='@ExitCoinJoin' expand="block">EXIT COINJOIN</IonButton>
     }
     else
     {
-        <IonButton OnClick='@ToggleModal' color="primary" expand="block" disabled="@(!HasSelectedCoins)">COINJOIN</IonButton>
+        <IonButton class="neu-button" OnClick='@ToggleModal' color="primary" expand="block" disabled="@(!HasSelectedCoins)">COINJOIN</IonButton>
     }
 </IonFooter>
 

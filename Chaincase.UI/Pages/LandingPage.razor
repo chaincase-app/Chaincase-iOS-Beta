@@ -10,8 +10,8 @@
             src='@($"_content/Chaincase.UI/img/chaincase-{(UiStateService.DarkMode ? "dark" : "light" )}-theme-vertical-logomark.svg")' />
 </IonContent>
 <IonFooter class="ion-padding">
-    <IonButton color="primary" OnClick='@(() => StackPush("/new"))' expand="block">CREATE NEW WALLET</IonButton>
-    <IonButton OnClick='@(() => StackPush("/load"))' expand="block">LOAD OLD WALLET</IonButton>
+    <IonButton class="neu-button" color="primary" OnClick='@(() => StackPush("/new"))' expand="block">CREATE NEW WALLET</IonButton>
+    <IonButton class="neu-button" OnClick='@(() => StackPush("/load"))' expand="block">LOAD OLD WALLET</IonButton>
 </IonFooter>
 
 @code {
