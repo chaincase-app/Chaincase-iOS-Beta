@@ -78,6 +78,14 @@ ion-button:not(.in-toolbar).button-disabled {
     margin: 1rem;
 }
 
+.center-and-expand-vertical {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    flex-direction: column;
+    height: 100%;
+}
+
 @keyframes shake {
     0% {
         transform: translate(0);
