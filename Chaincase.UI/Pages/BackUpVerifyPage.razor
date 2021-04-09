@@ -11,7 +11,7 @@
 
     @foreach (string word in ButtonWords)
     {
-        <IonButton OnClick="@(() => ClickWordToVerify(@word))" expand="block">@word</IonButton>
+        <IonButton class="neu-button" OnClick="@(() => ClickWordToVerify(@word))" expand="block">@word</IonButton>
     }
 
     <IonText class="ion-text-center">@SuccessCount of @VERIFY_THIS_MANY verified.</IonText>

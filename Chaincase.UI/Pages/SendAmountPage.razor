@@ -30,7 +30,8 @@
         <IonChip color="primary" @onclick="ToggleSelectFeeModal">@ViewModel.FeeRate</IonChip>
     </IonItem>
     <div class="ion-padding">
-        <IonButton OnClick="NavigateToSendApprovalPage" expand="block" color="primary"
+        <IonButton class="neu-button"
+                   OnClick="NavigateToSendApprovalPage" expand="block" color="primary"
                    disabled="@(!ViewModel.IsTransactionOkToSign)">CONFIRM SEND</IonButton>
     </div>
 </IonContent> stat

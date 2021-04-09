@@ -93,7 +93,7 @@
                 <IonItem>
                     <IonPasswordInput @bind-Value="Password" placeholder="e.g. margaretthatcheris110%SEXY" />
                 </IonItem>
-                <IonButton OnClick="@CoinJoin" class="ion-padding">JOIN NOW</IonButton>
+                <IonButton OnClick="@CoinJoin" class="ion-padding neu-button">JOIN NOW</IonButton>
 
             </IonContent>
 
@@ -108,11 +108,11 @@
 <IonFooter class="ion-padding">
     @if (IsQueuedToCoinJoin)
     {
-        <IonButton OnClick='@ExitCoinJoin' expand="block">EXIT COINJOIN</IonButton>
+        <IonButton class="neu-button" OnClick='@ExitCoinJoin' expand="block">EXIT COINJOIN</IonButton>
     }
     else
     {
-        <IonButton OnClick='@ToggleModal' color="primary" expand="block" disabled="@(!HasSelectedCoins)">COINJOIN</IonButton>
+        <IonButton class="neu-button" OnClick='@ToggleModal' color="primary" expand="block" disabled="@(!HasSelectedCoins)">COINJOIN</IonButton>
     }
 </IonFooter>
 
