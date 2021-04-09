@@ -17,10 +17,9 @@ input::-ms-clear {
     display: none;
 }
 
-ion-button:not(.in-toolbar) {
+neu-button:not(.in-toolbar) {
     font-weight: bold;
     --background: linear-gradient(180deg, var(--ion-color-step-50) -60%, var(--ion-background-color) 100%);
-    /* light shadow on top dark shadow below  ... these r gonna need to be swapped for light should be alpha based */
     --box-shadow: 0 .5rem .4rem rgba(0,0,0,0.08), 0 -.4rem .5rem rgba(255, 255, 255,1);
     text-transform: uppercase;
     --color: var(--ion-color-primary);
@@ -30,23 +29,21 @@ ion-button:not(.in-toolbar) {
     --background-activated: linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0, rgba(0, 0, 0, 0.08) 26%);
 }
 
-body.dark ion-button:not(.in-toolbar) {
+body.dark neu-button:not(.in-toolbar) {
     --background: linear-gradient(180deg, rgba(0, 0, 0, 0.16) 0%, var(--ion-color-step-25) 100%);
     --box-shadow: 0 .5rem .4rem rgba(0,0,0,1), 0 -.4rem .5rem rgba(255, 255, 255, 0.08);
     --background-activated: linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.08) 26%);
 }
 
-ion-button.ion-activated {
+neu-button.ion-activated {
     --box-shadow: 0 .4rem 1rem rgba(255, 255, 255, 1);
 }
 
-body.dark ion-button.ion-activated {
+body.dark neu-button.ion-activated {
     --box-shadow: 0 .4rem 1rem rgba(255, 255, 255, 0.1);
 }
 
-
-
-ion-button:not(.in-toolbar).button-disabled {
+neu-button:not(.in-toolbar).button-disabled {
     --background: var(--ion-background-color);
     --padding-start: 0;
     --box-shadow: none !important;
@@ -79,6 +76,10 @@ ion-button:not(.in-toolbar).button-disabled {
 .overview-header__buttons * {
     color: var(--ion-color-primary-contrast);
     border-color: var(--ion-color-primary-contrast);
+}
+
+.overview-header__buttons .ion-activated {
+    color:var(--ion-color-primary);
 }
 
 .center-and-expand-vertical {

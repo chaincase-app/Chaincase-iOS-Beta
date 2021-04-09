@@ -12,19 +12,21 @@
 
 <IonContent>
 
-    <div class="ion-padding overview-header">
-        <IonImg style="box-sizing: content-box; margin: 0 auto; padding: 10vw; width: 20vw;"
-                src='@($"_content/Chaincase.UI/img/chaincase-white-theme-mark.svg")' />
-        <h1 class="ion-text-center">₿ <strong>@ViewModel.Balance</strong></h1>
-        <div class="overview-header__buttons">
-            <IonChip @onclick='() => StackPush("/send/who")'>
-                <IonIcon name="paper-plane"/>
+    <div class="overview-header">
+        <div class="overview-header__balance">
+            <IonImg class="ion-padding" style="box-sizing: content-box; margin: 0 auto; padding: 10vw; width: 20vw;"
+                    src='@($"_content/Chaincase.UI/img/chaincase-white-theme-mark.svg")' />
+            <h1 class="ion-text-center ion-padding">₿ <strong>@ViewModel.Balance</strong></h1>
+        </div>
+        <div class="ion-padding overview-header__buttons">
+            <IonButton @onclick='() => StackPush("/send/who")' class="ion-margin-horizontal" color="dark" fill="outline">
+                <IonIcon slot="start" name="paper-plane"/>
                 <IonLabel>Send</IonLabel>
-            </IonChip>
-            <IonChip @onclick='() => StackPush("/receive/label")' outline color="dark">
-                <IonIcon name="qr-code"/>
+            </IonButton>
+            <IonButton @onclick='() => StackPush("/receive")' class="ion-margin-horizontal" outline color="dark" fill="outline">
+                <IonIcon slot="start" name="qr-code"/>
                 <IonLabel>Receive</IonLabel>
-            </IonChip>
+            </IonButton>
         </div>
     </div>
 
