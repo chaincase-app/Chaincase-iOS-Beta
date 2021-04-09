@@ -8,21 +8,45 @@
 @inject IShare Share
 @inherits ReactiveComponentBase<ReceiveViewModel>
 
-<IonContent class="ion-padding">
-    <p style="width: 256px; height: 256px; margin: auto">
-        <QRCode Data="@ViewModel.BitcoinUri"></QRCode>
-    </p>
+<IonContent>
+    <div class="ion-padding">
+        <div style="width: 256px; height: 256px; margin: auto">
+            <QRCode Data="@ViewModel.BitcoinUri"></QRCode>
+        </div>
+        <IonText class="ion-text-center" @onclick="@(async () => await CopyToClipboardAsync(ViewModel.Address))">
+            <p>@ViewModel.Address</p>
+        </IonText>
+        <div style="display:flex; justify-content: center;">
+            <IonChip @onclick="@(async () => await CopyToClipboardAsync(ViewModel.BitcoinUri))" color="primary">
+                <ion-icon name="copy-outline"></ion-icon>
+                <IonLabel>Copy</IonLabel>
+            </IonChip>
+            <IonChip @onclick="ShareLink" color="primary">
+                <ion-icon name="share-outline"></ion-icon>
+                <IonLabel>Share</IonLabel>
+            </IonChip>
+        </div>
+    </div>
 
+    <IonList class="ion-padding">
+        <IonItem>
+            <IonLabel>Label</IonLabel>
+            <IonBadge slot="end">@ViewModel.AppliedLabel</IonBadge>
+        </IonItem>
+        @if (ViewModel.ProposedAmount != null)
+        {
+            <IonItem>
+                <IonLabel>Amount</IonLabel>
+                <IonBadge color="secondary" slot="end">₿ @ViewModel.ProposedAmount</IonBadge>
+            </IonItem>
 
-    <p>@ViewModel.AppliedLabel</p>
-    <IonLabel>Address</IonLabel>
-    <IonText @onclick="@(async () => await CopyToClipboardAsync(ViewModel.Address))">
-        <p>@ViewModel.Address</p>
-    </IonText>
-    <IonButton OnClick="ShareLink" expand="block">SHARE LINK</IonButton>
-    <IonButton href="/overview" expand="block">DONE</IonButton>
+        }
+    </IonList>
     <ClipboardToast @bind-Visible="@IsToastVisible" />
 </IonContent>
+<IonFooter class="ion-padding">
+    <IonButton href="/overview" expand="block">DONE</IonButton>
+</IonFooter>
 
 @code {
     private bool IsToastVisible;
