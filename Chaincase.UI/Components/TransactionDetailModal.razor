@@ -1,5 +1,5 @@
 ﻿@using Chaincase.Common.Contracts
-@inject IClipboard Clipboard 
+@inject IClipboard Clipboard
 @inherits ReactiveComponentBase<TransactionViewModel>
 
 <IonModal @bind-Visible="Visible">
@@ -20,19 +20,34 @@
                     <IonLabel>@ViewModel.AmountBtc BTC</IonLabel>
                 </IonItem>
                 <IonItem OnClick="@(async () => await CopyToClipboardAsync(ViewModel.TransactionId))">
-                    <IonLabel>Transaction ID: @ViewModel.TransactionId</IonLabel>
+                    <IonLabel>
+                        <h3>Transaction ID:</h3>
+                        <p>@ViewModel.TransactionId</p>
+                    </IonLabel>
                 </IonItem>
                 <IonItem>
-                    <IonLabel>Date: @ViewModel.DateString</IonLabel>
+                    <IonLabel>
+                        <h3>Date:</h3>
+                        <p>@ViewModel.DateString</p>
+                    </IonLabel>
                 </IonItem>
                 <IonItem>
-                    <IonLabel>Block Height: @ViewModel.BlockHeight</IonLabel>
+                    <IonLabel>
+                        <h3>Block Height:</h3>
+                        <p>@ViewModel.BlockHeight</p>
+                    </IonLabel>
                 </IonItem>
                 <IonItem>
-                    <IonLabel>Confirmed: @ViewModel.Confirmed</IonLabel>
+                    <IonLabel>
+                        <h3>Confirmed:</h3>
+                        <p>@ViewModel.Confirmed</p>
+                    </IonLabel>
                 </IonItem>
                 <IonItem>
-                    <IonLabel>Confirmations: @ViewModel.Confirmations</IonLabel>
+                    <IonLabel>
+                        <h3>Confirmations:</h3>
+                        <p>@ViewModel.Confirmations</p>
+                    </IonLabel>
                 </IonItem>
             </IonList>
         }
@@ -50,7 +65,8 @@
     public EventCallback<bool> VisibleChanged { get; set; }
 
     [Parameter]
-    public TransactionViewModel TransactionViewModel {
+    public TransactionViewModel TransactionViewModel
+    {
         get { return ViewModel; }
         set { ViewModel = value; }
     }
