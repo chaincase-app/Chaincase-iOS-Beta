@@ -27,9 +27,7 @@
                 <IonLabel slot="start">
                     <h3>₿ @coin.Amount</h3>
                     <p>@coin.Clusters</p>
-                </IonLabel>
-                <IonLabel class="ion-float-end"></IonLabel>
-               
+                </IonLabel>               
                 <IonNote slot="end" color="@(coin.AnonymitySet > Config.DefaultPrivacyLevelSome ? "success" : "warning")">
                     <ion-anchor @onclick="@(() => OpenCoinDetail(coin))">@coin.AnonymitySet</ion-anchor>
                 </IonNote>
