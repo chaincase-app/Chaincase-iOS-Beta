@@ -1,5 +1,6 @@
 ﻿@using Chaincase.Common.Contracts
-@inject IClipboard Clipboard 
+@using Chaincase.Common
+@inject IClipboard Clipboard
 @inherits ReactiveComponentBase<CoinViewModel>
 
 <IonModal @bind-Visible="Visible">
@@ -15,28 +16,53 @@
     <IonContent>
 
 
-       @if (ViewModel is not null)
+        @if (ViewModel is not null)
         {
             <IonList>
                 <IonItem>
                     <IonLabel>@ViewModel.AmountBtc BTC</IonLabel>
                 </IonItem>
                 <IonItem OnClick="@(async () => await CopyToClipboardAsync(ViewModel.TransactionId))">
-                    <IonLabel>Transaction ID: @ViewModel.TransactionId</IonLabel>
+                    <IonLabel>
+                        <h3>Transaction ID</h3>
+                        <p>@ViewModel.TransactionId</p>
+                    </IonLabel>
                 </IonItem>
                 <IonItem>
-                    <IonLabel>Output Index: @ViewModel.OutputIndex</IonLabel>
+                    <IonLabel>
+                        <h3>Output Index</h3>
+                        <p>@ViewModel.OutputIndex</p>
+                    </IonLabel>
                 </IonItem>
                 <IonItem>
-                    <IonLabel>Confirmations: @ViewModel.Confirmations</IonLabel>
+                    <IonLabel>
+                        <h3>Confirmations</h3>
+                        <p>@ViewModel.Confirmations</p>
+                    </IonLabel>
                 </IonItem>
                 <IonItem>
-                    <IonLabel>Anonymity Set: @ViewModel.AnonymitySet</IonLabel>
+                    <IonLabel>
+                        <h3>Anonymity Set</h3>
+                        <IonText color="@(ViewModel.AnonymitySet > Config.DefaultPrivacyLevelSome ? "success" : "warning")">
+                            <p>@ViewModel.AnonymitySet</p>
+                        </IonText>
+                    </IonLabel>
                 </IonItem>
                 <IonItem>
-                    <IonLabel>Contacts: @ViewModel.Clusters</IonLabel>
+                    <IonLabel>
+                        <h3>Contact labels</h3>
+                        <p>@ViewModel.Clusters</p>
+                    </IonLabel>
                 </IonItem>
             </IonList>
+
+            <IonCard color="primary">
+                <IonCardContent>
+                    <strong>Info:</strong>
+                    Contact labels stay with a coin until it becomes indistinguishable from a threshold
+                    number of other coins from that contact's point of view. We call this number "anonymity set." It's a measure of your privacy.
+                </IonCardContent>
+            </IonCard>
         }
 
         <ClipboardToast @bind-Visible="@IsToastVisible" />
@@ -52,7 +78,8 @@
     public EventCallback<bool> VisibleChanged { get; set; }
 
     [Parameter]
-    public CoinViewModel CoinViewModel {
+    public CoinViewModel CoinViewModel
+    {
         get { return ViewModel; }
         set { ViewModel = value; }
     }
