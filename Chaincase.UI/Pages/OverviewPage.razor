@@ -19,12 +19,12 @@
             <h1 class="ion-text-center ion-padding">₿ <strong>@ViewModel.Balance</strong></h1>
         </div>
         <div class="ion-padding overview-header__buttons">
-            <IonButton @onclick='() => StackPush("/send/who")' class="ion-margin-horizontal" color="dark" fill="outline">
-                <IonIcon slot="start" name="paper-plane"/>
+            <IonButton @onclick='() => StackPush("/send/who")' class="ion-margin-horizontal" fill="outline">
+                <IonIcon slot="start" name="paper-plane" />
                 <IonLabel>Send</IonLabel>
             </IonButton>
-            <IonButton @onclick='() => StackPush("/receive")' class="ion-margin-horizontal" outline color="dark" fill="outline">
-                <IonIcon slot="start" name="qr-code"/>
+            <IonButton @onclick='() => StackPush("/receive")' class="ion-margin-horizontal" fill="outline">
+                <IonIcon slot="start" name="qr-code" />
                 <IonLabel>Receive</IonLabel>
             </IonButton>
         </div>
@@ -35,12 +35,31 @@
     <IonList>
         @foreach (var transaction in ViewModel.Transactions)
         {
-            <IonItemSliding>
-                <TransactionListItem TransactionViewModel="@transaction" />
-                <IonItemOptions side="end">
-                    <IonItemOption OnClick="@(() => OpenTransactionDetail(transaction))" color="secondary">Details</IonItemOption>
-                </IonItemOptions>
-            </IonItemSliding>
+            <IonItem button OnClick="@(() => OpenTransactionDetail(transaction))">
+                @if (!transaction.Confirmed)
+                {
+                    <IonIcon slot="start"
+                             color="medium"
+                             name="ellipsis-horizontal-circle-outline" />
+                }
+                else if (transaction.IsAmountPositive)
+                {
+                    <IonIcon slot="start"
+                             name="add-circle-outline"
+                             color="success" />
+                }
+                else
+                {
+                    <IonIcon slot="start"
+                             name="remove-circle-outline"
+                             color="danger" />
+                }
+                <IonLabel>
+                    <h3>@transaction.Label</h3>
+                    <h3 class="ion-text-end ion-float-end">@transaction.AmountBtc</h3>
+                    <p>@transaction.RelativeDateString()</p>
+                </IonLabel>
+            </IonItem>
         }
     </IonList>
 
@@ -74,7 +93,7 @@
             new IonToast.IonToastButton()
             {
                 Options = new Dictionary<string, object>()
-                {
+            {
                     {"text", "BACK UP"},
                 },
                 Handler = _ =>
@@ -86,7 +105,7 @@
             new IonToast.IonToastButton()
             {
                 Options = new Dictionary<string, object>()
-                {
+            {
                     {"icon", "close"},
                     {"role", "cancel"}
                 }

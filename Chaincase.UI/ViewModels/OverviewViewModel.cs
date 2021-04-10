@@ -100,7 +100,7 @@ namespace Chaincase.UI.ViewModels
             try
             {
                 var trs = _global.UiConfig.Transactions?.Select(ti => new TransactionViewModel(ti)) ?? new TransactionViewModel[0];
-                Transactions = new ObservableCollection<TransactionViewModel>(trs.OrderByDescending(t => t.DateTime));
+                Transactions = new ObservableCollection<TransactionViewModel>(trs.OrderByDescending(t => t.DateString));
             }
             catch (Exception ex)
             {
@@ -128,7 +128,7 @@ namespace Chaincase.UI.ViewModels
                 Transactions?.Clear();
                 var trs = tis.Select(ti => new TransactionViewModel(ti));
 
-                Transactions = new ObservableCollection<TransactionViewModel>(trs.OrderByDescending(t => t.DateTime));
+                Transactions = new ObservableCollection<TransactionViewModel>(trs.OrderByDescending(t => t.DateString));
 
                 _global.UiConfig.Transactions = tis.ToArray();
                 _global.UiConfig.ToFile(); // write to file once height is the highest

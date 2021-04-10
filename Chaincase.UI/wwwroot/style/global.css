@@ -74,8 +74,10 @@ body.dark neu-button.ion-activated {
 }
 
 .overview-header__buttons * {
-    color: var(--ion-color-primary-contrast);
-    border-color: var(--ion-color-primary-contrast);
+    --color: var(--ion-color-primary-contrast);
+    --color-activated: var(--ion-color-primary);
+    --border-color: var(--ion-color-primary-contrast);
+    --background-activated: var(--ion-color-primary-contrast);
 }
 
 .overview-header__buttons .ion-activated {
