@@ -21,14 +21,17 @@
         @foreach (var coin in ViewModel.CoinList)
         {
         <IonItemSliding>
-            <IonItem>
+            <IonItem button>
                 <IonCheckbox slot="start"
                              @bind-Value="coin.IsSelected" />
-                <IonLabel slot="start">@coin.Clusters</IonLabel>
-                <IonLabel class="ion-float-end">₿ @coin.Amount</IonLabel>
-                <IonNote color="@(coin.AnonymitySet > Config.DefaultPrivacyLevelSome ? "success" : "warning")"
-                         slot="end">
-                    @coin.AnonymitySet
+                <IonLabel slot="start">
+                    <h3>@coin.Clusters</h3>
+                    <p>₿ @coin.Amount</p>
+                </IonLabel>
+                <IonLabel class="ion-float-end"></IonLabel>
+               
+                <IonNote slot="end" color="@(coin.AnonymitySet > Config.DefaultPrivacyLevelSome ? "success" : "warning")">
+                    <ion-anchor @onclick="@(() => OpenCoinDetail(coin))">@coin.AnonymitySet</ion-anchor>
                 </IonNote>
             </IonItem>
             <IonItemOptions side="end">
