@@ -17,27 +17,27 @@
     }
     else
     {
-    <IonList>
-        @foreach (var coin in ViewModel.CoinList)
-        {
-        <IonItemSliding>
-            <IonItem button>
-                <IonCheckbox slot="start"
-                             @bind-Value="coin.IsSelected" />
-                <IonLabel slot="start">
-                    <h3>₿ @coin.Amount</h3>
-                    <p>@coin.Clusters</p>
-                </IonLabel>               
-                <IonNote slot="end" color="@(coin.AnonymitySet > Config.DefaultPrivacyLevelSome ? "success" : "warning")">
-                    <ion-anchor @onclick="@(() => OpenCoinDetail(coin))">@coin.AnonymitySet</ion-anchor>
-                </IonNote>
-            </IonItem>
-            <IonItemOptions side="end">
-                <IonItemOption OnClick="@(() => OpenCoinDetail(coin))" color="default">Details</IonItemOption>
-            </IonItemOptions>
-        </IonItemSliding>
-        }
-    </IonList>
+        <IonList>
+            @foreach (var coin in ViewModel.CoinList)
+            {
+                <IonItemSliding>
+                    <IonItem button>
+                        <IonCheckbox slot="start"
+                                     @bind-Value="coin.IsSelected" />
+                        <IonLabel slot="start">
+                            <h3>₿ @coin.Amount</h3>
+                            <p>@coin.Clusters</p>
+                        </IonLabel>
+                        <IonNote slot="end" color="@(coin.AnonymitySet > Config.DefaultPrivacyLevelSome ? "success" : "warning")">
+                            <ion-anchor @onclick="@(() => OpenCoinDetail(coin))">@coin.AnonymitySet</ion-anchor>
+                        </IonNote>
+                    </IonItem>
+                    <IonItemOptions side="end">
+                        <IonItemOption OnClick="@(() => OpenCoinDetail(coin))" color="default">Details</IonItemOption>
+                    </IonItemOptions>
+                </IonItemSliding>
+            }
+        </IonList>
     }
 
 </IonContent>
