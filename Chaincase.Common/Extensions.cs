@@ -19,7 +19,7 @@ namespace Chaincase.Common
             services.AddSingleton<UiConfig>();
             // WalletManager = new WalletManager(Network, new WalletDirectories(DataDir));
 
-            services.AddSingleton(x => {
+            services.AddSingleton<ChaincaseWalletManager>(x => {
                 var network = x.GetRequiredService<Config>().Network;
                 var dataDir = x.GetRequiredService<IDataDirProvider>().Get();
                 return new ChaincaseWalletManager(network, new WalletDirectories(dataDir));

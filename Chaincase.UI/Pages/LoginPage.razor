@@ -1,5 +1,6 @@
 ﻿@layout FullPageLayout
 @page "/"
+@using WalletWasabi.Wallets
 @using Chaincase.UI.Services
 @using Chaincase.Common.Services
 
@@ -27,7 +28,7 @@
     {
         ViewModel = PINViewModel;
 
-        if (!WalletManager.HasDefaultWalletFile())
+        if (!(WalletManager).HasDefaultWalletFile())
             NavigationManager.NavigateTo("/landing");
 
         UiStateService.Title = "Chaincase";

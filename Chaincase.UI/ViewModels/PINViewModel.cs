@@ -1,20 +1,19 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 using Chaincase.Common;
-using NBitcoin;
+using Chaincase.Common.Services;
 using ReactiveUI;
 using WalletWasabi.Blockchain.Keys;
-using WalletWasabi.Wallets;
 
 namespace Chaincase.UI.ViewModels
 {
     public class PINViewModel : ReactiveObject
     {
-        private readonly WalletManager _walletManager;
+        private readonly ChaincaseWalletManager _walletManager;
         private readonly Config _config;
         public bool IsBusy { get; set; }
 
-        public PINViewModel(WalletManager walletManager, Config config)
+        public PINViewModel(ChaincaseWalletManager walletManager, Config config)
         {
             _walletManager = walletManager;
             _config = config;
