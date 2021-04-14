@@ -38,12 +38,12 @@ namespace Chaincase.Common
         private readonly IDataDirProvider _dataDirProvider;
         private string DataDir => _dataDirProvider.Get();
         private CoinJoinProcessor _coinJoinProcessor;
+        private readonly ChaincaseSynchronizer _synchronizer;
 
         public string AddressManagerFilePath { get; private set; }
         public AddressManager AddressManager { get; private set; }
 
         public NodesGroup Nodes { get; private set; }
-        public ChaincaseSynchronizer Synchronizer { get; private set; }
         public FeeProviders FeeProviders { get; private set; }
         public TransactionBroadcaster TransactionBroadcaster { get; set; }
 
@@ -62,7 +62,7 @@ namespace Chaincase.Common
         private protected CancellationTokenSource SleepCts { get; set; } = new CancellationTokenSource();
         private protected bool IsGoingToSleep = false;
 
-        public Global(ITorManager torManager, IDataDirProvider dataDirProvider, Config config, UiConfig uiConfig, ChaincaseWalletManager walletManager, BitcoinStore bitcoinStore)
+        public Global(ITorManager torManager, IDataDirProvider dataDirProvider, Config config, UiConfig uiConfig, ChaincaseWalletManager walletManager, BitcoinStore bitcoinStore, ChaincaseSynchronizer synchronizer)
         {
             _torManager = torManager;
             _dataDirProvider = dataDirProvider;
@@ -70,15 +70,12 @@ namespace Chaincase.Common
             _uiConfig = uiConfig;
             _walletManager = walletManager;
             _bitcoinStore = bitcoinStore;
+            _synchronizer = synchronizer;
             using (BenchmarkLogger.Measure())
             {
                 StoppingCts = new CancellationTokenSource();
-                Directory.CreateDirectory(DataDir);
-
                 Logger.InitializeDefaults(Path.Combine(DataDir, "Logs.txt"));
-
                 _uiConfig.LoadOrCreateDefaultFile();
-                _config.LoadOrCreateDefaultFile();
             }
         }
 
@@ -107,15 +104,6 @@ namespace Chaincase.Common
                 var userAgent = Constants.UserAgents.RandomElement();
                 var connectionParameters = new NodeConnectionParameters { UserAgent = userAgent };
 
-                if (_config.UseTor)
-                {
-                    Synchronizer = new ChaincaseSynchronizer(Network, _bitcoinStore, () => _config.GetCurrentBackendUri(), _config.TorSocks5EndPoint);
-                }
-                else
-                {
-                    Synchronizer = new ChaincaseSynchronizer(Network, _bitcoinStore, _config.GetFallbackBackendUri(), null);
-                }
-
                 #region TorProcessInitialization
 
                 if (_config.UseTor)
@@ -141,9 +129,9 @@ namespace Chaincase.Common
                 // Mirrors #region BitcoinCoreInitialization in WalletWasabi
 
                 var feeProviderList = new List<IFeeProvider>
-            {
-                Synchronizer
-            };
+                {
+                    _synchronizer
+                };
 
                 FeeProviders = new FeeProviders(feeProviderList);
 
@@ -222,27 +210,27 @@ namespace Chaincase.Common
 
                 int maxFiltSyncCount = Network == Network.Main ? 1000 : 10000; // On testnet, filters are empty, so it's faster to query them together
 
-                Synchronizer.Start(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
+                _synchronizer.Start(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
                 Logger.LogInfo($"{nameof(Global)}.InitializeNoWalletAsync(): Start synchronizing filters...");
 
                 #endregion SynchronizerInitialization
 
-                TransactionBroadcaster = new TransactionBroadcaster(Network, _bitcoinStore, Synchronizer, Nodes, _walletManager, null);
+                TransactionBroadcaster = new TransactionBroadcaster(Network, _bitcoinStore, _synchronizer, Nodes, _walletManager, null);
                 // CoinJoinProcessor maintains an event handler to process joins.
                 // We need this reference.
-                _coinJoinProcessor = new CoinJoinProcessor(Synchronizer, _walletManager, null);
+                _coinJoinProcessor = new CoinJoinProcessor(_synchronizer, _walletManager, null);
 
                 #region Blocks provider
 
                 var blockProvider = new CachedBlockProvider(
                     new SmartBlockProvider(
-                        new P2pBlockProvider(Nodes, null, Synchronizer, _config.ServiceConfiguration, Network),
+                        new P2pBlockProvider(Nodes, null, _synchronizer, _config.ServiceConfiguration, Network),
                         Cache),
                     new FileSystemBlockRepository(blocksFolderPath, Network));
 
                 #endregion Blocks provider
 
-                _walletManager.RegisterServices(_bitcoinStore, Synchronizer, Nodes, _config.ServiceConfiguration, FeeProviders, blockProvider);
+                _walletManager.RegisterServices(_bitcoinStore, _synchronizer, Nodes, _config.ServiceConfiguration, FeeProviders, blockProvider);
 
                 Initialized(this, new AppInitializedEventArgs(this));
                 IsInitialized = true;
@@ -398,7 +386,7 @@ namespace Chaincase.Common
 
                     var requestInterval = (Network == Network.RegTest) ? TimeSpan.FromSeconds(5) : TimeSpan.FromSeconds(30);
                     int maxFiltSyncCount = Network == Network.Main ? 1000 : 10000; // On testnet, filters are empty, so it's faster to query them together
-                    Synchronizer.Resume(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
+                    _synchronizer.Resume(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
                     Logger.LogInfo($"{nameof(Global)}.OnResuming():Start synchronizing filters...");
 
                     if (_walletManager.SleepingCoins is { })
@@ -462,12 +450,12 @@ namespace Chaincase.Common
                         Logger.LogError($"Error during {nameof(_walletManager.DequeueAllCoinsGracefullyAsync)}: {ex}");
                     }
 
-                    var synchronizer = Synchronizer;
+                    var synchronizer = _synchronizer;
                     if (synchronizer is { })
 
                     {
                         await synchronizer.SleepAsync();
-                        Logger.LogInfo($"{nameof(Global)}.OnSleeping():{nameof(Synchronizer)} is sleeping.");
+                        Logger.LogInfo($"{nameof(Global)}.OnSleeping():{nameof(_synchronizer)} is sleeping.");
                     }
 
                     var addressManagerFilePath = AddressManagerFilePath;

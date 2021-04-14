@@ -5,7 +5,7 @@ using Chaincase.Common;
 using Chaincase.Common.Contracts;
 using Chaincase.Services;
 using Chaincase.UI.Services;
-using Chaincase.UI.ViewModels;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;

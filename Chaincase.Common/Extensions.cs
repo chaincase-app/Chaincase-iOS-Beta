@@ -18,7 +18,10 @@ namespace Chaincase.Common
             services.AddSingleton<Config>();
             services.AddSingleton<UiConfig>();
             services.AddSingleton(x => {
-                var network = x.GetRequiredService<Config>().Network;
+                var config = x.GetRequiredService<Config>();
+                // TODO FEEL ENOUGH PAIN FROM THIS ANTIPATTERN TO FIX IT
+                config.LoadOrCreateDefaultFile();
+                var network = config.Network;
                 var dataDir = x.GetRequiredService<IDataDirProvider>().Get();
                 var notificationManager = x.GetRequiredService<INotificationManager>();
                 return new ChaincaseWalletManager(network, new WalletDirectories(dataDir), notificationManager);
@@ -32,6 +35,17 @@ namespace Chaincase.Common
                 return new BitcoinStore(Path.Combine(dataDir, "BitcoinStore"), network,
                     indexStore, new AllTransactionStore(), new MempoolService()
                 );
+            });
+            services.AddSingleton(x =>
+            {
+                var config = x.GetRequiredService<Config>();
+                var network = config.Network;
+                var bitcoinStore = x.GetRequiredService<BitcoinStore>();
+
+                if (config.UseTor)
+                    return new ChaincaseSynchronizer(network, bitcoinStore, () => config.GetCurrentBackendUri(), config.TorSocks5EndPoint);
+
+                return new ChaincaseSynchronizer(network, bitcoinStore, config.GetFallbackBackendUri(), null);
             });
 
             return services;

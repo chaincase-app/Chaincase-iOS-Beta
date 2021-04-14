@@ -29,10 +29,10 @@ namespace Chaincase.UI.ViewModels
         private readonly UiConfig _uiConfig;
         private readonly ChaincaseWalletManager _walletManager;
         private readonly BitcoinStore _bitcoinStore;
+        private SmartHeaderChain HashChain => _bitcoinStore.SmartHeaderChain;
+        private readonly ChaincaseSynchronizer _synchronizer;
         private CompositeDisposable Disposables { get; } = new CompositeDisposable();
         private NodesCollection Nodes { get; set; }
-        private WasabiSynchronizer Synchronizer { get; set; }
-        private SmartHeaderChain HashChain { get; set; }
 
         private ObservableAsPropertyHelper<double> _progressPercent;
 
@@ -51,13 +51,14 @@ namespace Chaincase.UI.ViewModels
         private bool _downloadingBlock;
         private StatusSet ActiveStatuses { get; }
 
-        public StatusViewModel(Global global, ChaincaseWalletManager walletManager, Config config, UiConfig uiConfig, BitcoinStore bitcoinStore)
+        public StatusViewModel(Global global, ChaincaseWalletManager walletManager, Config config, UiConfig uiConfig, BitcoinStore bitcoinStore, ChaincaseSynchronizer synchronizer)
         {
             _global = global;
             _walletManager = walletManager;
             _bitcoinStore = bitcoinStore;
             _Config = config;
             _uiConfig = uiConfig;
+            _synchronizer = synchronizer;
             Backend = BackendStatus.NotConnected;
             Tor = TorStatus.NotRunning;
             Peers = 0;
@@ -216,27 +217,24 @@ namespace Chaincase.UI.ViewModels
         public void OnAppInitialized(object sender, AppInitializedEventArgs args)
         {
             var nodes = args.Nodes.ConnectedNodes;
-            var synchronizer = args.Synchronizer;
             Nodes = nodes;
-            Synchronizer = synchronizer;
-            HashChain = synchronizer.BitcoinStore.SmartHeaderChain;
 
             Observable
                 .Merge(Observable.FromEventPattern<NodeEventArgs>(nodes, nameof(nodes.Added)).Select(x => true)
                 .Merge(Observable.FromEventPattern<NodeEventArgs>(nodes, nameof(nodes.Removed)).Select(x => true)
-                .Merge(Synchronizer.WhenAnyValue(x => x.TorStatus).Select(x => true))))
+                .Merge(_synchronizer.WhenAnyValue(x => x.TorStatus).Select(x => true))))
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(_ => Peers = Synchronizer.TorStatus == TorStatus.NotRunning ? 0 : Nodes.Count) // Set peers to 0 if Tor is not running, because we get Tor status from backend answer so it seems to the user that peers are connected over clearnet, while they are not.
+                .Subscribe(_ => Peers = _synchronizer.TorStatus == TorStatus.NotRunning ? 0 : Nodes.Count) // Set peers to 0 if Tor is not running, because we get Tor status from backend answer so it seems to the user that peers are connected over clearnet, while they are not.
                 .DisposeWith(Disposables);
 
-            Synchronizer.WhenAnyValue(x => x.TorStatus)
+            _synchronizer.WhenAnyValue(x => x.TorStatus)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(status => Tor = UseTor ? status : TorStatus.TurnedOff)
                 .DisposeWith(Disposables);
 
-            Synchronizer.WhenAnyValue(x => x.BackendStatus)
+            _synchronizer.WhenAnyValue(x => x.BackendStatus)
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(_ => Backend = Synchronizer.BackendStatus)
+                .Subscribe(_ => Backend = _synchronizer.BackendStatus)
                 .DisposeWith(Disposables);
 
             _filtersLeft = HashChain.WhenAnyValue(x => x.HashesLeft)
@@ -245,7 +243,7 @@ namespace Chaincase.UI.ViewModels
                 .ToProperty(this, x => x.FiltersLeft)
                 .DisposeWith(Disposables);
             // Not used right now
-            Synchronizer.WhenAnyValue(x => x.UsdExchangeRate)
+            _synchronizer.WhenAnyValue(x => x.UsdExchangeRate)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(usd => BtcPrice = $"${(long)usd}")
                 .DisposeWith(Disposables);

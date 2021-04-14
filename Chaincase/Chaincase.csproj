@@ -36,6 +36,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Chaincase.UI\Chaincase.UI.csproj" />
+    <ProjectReference Include="..\Chaincase.Common\Chaincase.Common.csproj" />
+    <ProjectReference Include="..\WalletWasabi\WalletWasabi.Standard\WalletWasabi.Standard.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Background\" />
