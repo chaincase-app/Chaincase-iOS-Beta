@@ -7,7 +7,6 @@ using System.Net.Sockets;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Chaincase.Common;
 using Chaincase.Common.Contracts;
 using Chaincase.Common.Services;
 using Microsoft.Extensions.Caching.Memory;
@@ -18,8 +17,6 @@ using NBitcoin.Protocol.Connectors;
 using Nito.AsyncEx;
 using WalletWasabi.Blockchain.Analysis.FeesEstimation;
 using WalletWasabi.Blockchain.TransactionBroadcasting;
-using WalletWasabi.Blockchain.TransactionOutputs;
-using WalletWasabi.Blockchain.TransactionProcessing;
 using WalletWasabi.CoinJoin.Client;
 using WalletWasabi.CoinJoin.Client.Clients.Queuing;
 using WalletWasabi.Helpers;
@@ -56,16 +53,12 @@ namespace Chaincase.Common
         private readonly AsyncLock LifeCycleMutex = new AsyncLock();
         private readonly AsyncLock SleepMutex = new AsyncLock();
 
-        public event EventHandler<AppInitializedEventArgs> Initialized = delegate { };
-
-        public bool IsInitialized { get; private set; } = false;
-
-        private bool InitializationCompleted { get; set; } = false;
-
         private bool InitializationStarted { get; set; } = false;
+        public event EventHandler<AppInitializedEventArgs> Initialized = delegate { };
+        public bool IsInitialized { get; private set; }
+        private bool InitializationCompleted { get; set; }
 
         private CancellationTokenSource StoppingCts { get; set; }
-        // Chaincase Specific
         private protected CancellationTokenSource SleepCts { get; set; } = new CancellationTokenSource();
         private protected bool IsGoingToSleep = false;
 
