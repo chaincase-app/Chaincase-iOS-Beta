@@ -1,4 +1,4 @@
-﻿ using System;
+ using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -136,7 +136,7 @@ namespace Chaincase.UI.ViewModels
                 Transactions?.Clear();
                 var trs = tis.Select(ti => new TransactionViewModel(ti));
 
-                Transactions = new ObservableCollection<TransactionViewModel>(trs.OrderByDescending(t => t.DateTime));
+                Transactions = new ObservableCollection<TransactionViewModel>(trs.OrderByDescending(t => t.DateString));
 
                 _uiConfig.Transactions = tis.ToArray();
                 _uiConfig.ToFile(); // write to file once height is the highest

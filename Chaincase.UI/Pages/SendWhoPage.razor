@@ -19,7 +19,7 @@
         <IonIcon @onclick="OnClickScan" size="small" slot="end" name="scan-outline" aria-label="scan"/>
     </IonItem>
 
-    <IonButton OnClick="OnContinue" color="primary" expand="block" disabled="@(!IsAddressValid)">NEXT</IonButton>
+    <IonButton class="neu-button" OnClick="OnContinue" color="primary" expand="block" disabled="@(!IsAddressValid)">NEXT</IonButton>
 </IonContent>
 
 @code {

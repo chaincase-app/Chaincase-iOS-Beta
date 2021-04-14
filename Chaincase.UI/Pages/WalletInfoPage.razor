@@ -9,34 +9,39 @@
 @inherits ReactiveComponentBase<WalletInfoViewModel>
 
 <IonContent class="ion-padding">
-    <IonLabel>ACCOUNT KEY PATH</IonLabel>
-    <IonItem>
-        <IonLabel>@ViewModel.AccountKeyPath</IonLabel>
-    </IonItem>
-
-    <IonLabel>EXTENDED PUBLIC KEY</IonLabel>
-    <IonItem OnClick="() => CopyToClipboardAsync(ViewModel.ExtendedAccountPublicKey.ToString())">
-        <IonLabel>@ViewModel.ExtendedAccountPublicKey</IonLabel>
-    </IonItem>
-
-    <IonListHeader>
-        <IonLabel>KEYS</IonLabel>
-    </IonListHeader>
+    <ClipboardToast @bind-Visible="@IsToastVisible" />
     <IonList>
-        <IonItem button OnClick="@NavigateToBackUp">
-            Back Up Seed Words
+        <IonItem button OnClick="NavigateToBackUp">
+            <IonIcon slot="start" color="primary" name="lock-closed" />
+            <IonLabel>Back Up Seed Words</IonLabel>
         </IonItem>
         <IonItem button OnClick="ViewModel.ExportWallet">
-            Export Wallet File
+            <IonIcon slot="start" color="primary" name="shield-checkmark" />
+            <IonLabel>Export Wallet File</IonLabel>
         </IonItem>
-    </IonList>
-
-    <IonList>
         <IonItem button OnClick="ViewModel.ShareDebugLog">
-            Share Debug Log
+            <IonIcon slot="start" color="primary" name="bug" />
+            <IonLabel>Share Debug Log</IonLabel>
         </IonItem>
     </IonList>
-    <ClipboardToast @bind-Visible="@IsToastVisible"/>
+    <ion-item-divider></ion-item-divider>
+    <IonList>
+        <IonItem @onclick="() => CopyToClipboardAsync(ViewModel.AccountKeyPath)">
+            <IonLabel>
+                <h3>Account Key Path</h3>
+                <p color="medium">@ViewModel.AccountKeyPath</p>
+            </IonLabel>
+            <IonIcon size="small" color="primary" slot="end" name="copy-outline" />
+        </IonItem>
+
+        <IonItem OnClick="() => CopyToClipboardAsync(ViewModel.ExtendedAccountPublicKey.ToString())">
+            <IonLabel>
+                <h3>Extended Public Key (xpub)</h3>
+                <p>@ViewModel.ExtendedAccountPublicKey</p>
+            </IonLabel>
+            <IonIcon size="small" color="primary" slot="end" name="copy-outline" />
+        </IonItem>
+    </IonList>
 </IonContent>
 
 @code {

@@ -1,5 +1,6 @@
-﻿using Chaincase.Common;
+using Chaincase.Common;
 using Chaincase.Common.Services;
+using NBitcoin;
 using ReactiveUI;
 using WalletWasabi.Blockchain.Keys;
 
@@ -10,6 +11,7 @@ namespace Chaincase.UI.ViewModels
         private readonly ChaincaseWalletManager _walletManager;
         private readonly Config _config;
 
+        public Money ProposedAmount { get; private set; }
         private string _proposedLabel;
         private bool[,] _qrCode;
         private string _requestAmount;

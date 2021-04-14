@@ -1,32 +1,49 @@
 ﻿@page "/send/sent"
+@using Chaincase.Common.Contracts
 @using Chaincase.UI.Services
 @inject UIStateService UiStateService
 @inject StackService StackService
 @inject NavigationManager NavigationManager
 @inject SendViewModel SendViewModel
+@inject IClipboard Clipboard  
 @inherits ReactiveComponentBase<SendViewModel>
 
 
 <IonContent class="ion-padding">
-    <IonIcon class="ion-text-center" name="paper-plane-outline"></IonIcon>
-    <IonText>@ViewModel.AmountText</IonText>
-    <IonText>To @ViewModel.DestinationString</IonText>
-    <IonText>@ViewModel.SignedTransaction.GetHash().ToString()</IonText>
-    <IonText>It usually takes about 30 minutes for a transaction to be finalized.</IonText>
-
-    <IonButton OnClick="@ClickDone" expand="block">DONE</IonButton>
+    <ClipboardToast @bind-Visible="@IsToastVisible" />
+    <div class="ion-text-center">
+        <ion-icon name="checkmark-done-circle" size="large"/>
+    </div>
+    <p class="ion-text-center">₿ @ViewModel.AmountText</p>
+    <p class="ion-text-center" @onclick="@(async () => await CopyToClipboardAsync(ViewModel.DestinationString))">
+        To @ViewModel.DestinationString
+    </p>
+    <p class="ion-text-center" @onclick="@(async () => await CopyToClipboardAsync(TxId))">
+        @TxId
+    </p>
+    <p class="ion-text-center">It usually takes about 30 minutes for a transaction to be finalized.</p>
 </IonContent>
+<IonFooter class="ion-padding">
+    <IonButton class="neu-button" OnClick="@ClickDone" expand="block">DONE</IonButton>
+</IonFooter>
 
 @code {
-
+    private bool IsToastVisible;
+    private string TxId => ViewModel.SignedTransaction.GetHash().ToString();
     protected override void OnInitialized()
     {
         ViewModel = SendViewModel;
         UiStateService.Title = "SENT";
     }
 
+    private async Task CopyToClipboardAsync(string toCopy)
+    {
+        await Clipboard.Copy(toCopy);
+        IsToastVisible = true;
+    }
+
     private void ClickDone()
     {
-        NavigationManager.NavigateTo("/");
+        NavigationManager.NavigateTo("/overview");
     }
 }

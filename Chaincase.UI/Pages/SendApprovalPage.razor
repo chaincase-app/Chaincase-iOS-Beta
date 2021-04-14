@@ -9,23 +9,25 @@
 @inherits ReactiveComponentBase<SendViewModel>
 
 <IonContent class="ion-padding">
-    <IonText>@ViewModel.AmountText</IonText>
-    <IonText>To @ViewModel.DestinationString</IonText>
+    <p class="ion-text-center">₿ @ViewModel.AmountText</p>
+    <p class="ion-text-center">To @ViewModel.DestinationString</p>
+
     <IonLabel position="stacked">Enter Password</IonLabel>
     <div class="@(IsShaking ? "shake" : "")">
         <IonItem>
             <IonPasswordInput @bind-Value="Password" placeholder="e.g. margaretthatcheris110%SEXY" />
         </IonItem>
     </div>
-    <IonButton @onclick="ClickSendNow" expand="block">SEND NOW</IonButton>
-    <IonLoading Visible="@ViewModel.IsBusy"></IonLoading>
 
+    <IonLoading Visible="@ViewModel.IsBusy"></IonLoading>
 </IonContent>
+<IonFooter class="ion-padding">
+    <IonButton class="neu-button" @onclick="ClickSendNow" expand="block">SEND NOW</IonButton>
+</IonFooter>
 
 @code {
     private string Password { get; set; }
     private bool IsShaking { get; set; }
-
 
     protected override void OnInitialized()
     {
