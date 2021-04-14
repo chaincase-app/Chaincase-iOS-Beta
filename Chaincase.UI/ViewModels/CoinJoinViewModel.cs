@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -33,24 +33,24 @@ namespace Chaincase.UI.ViewModels
         private CompositeDisposable Disposables { get; set; }
 
         private string _coordinatorFeePercent;
-		private int _peersRegistered;
-		private int _peersNeeded;
+        private int _peersRegistered;
+        private int _peersNeeded;
         private int _peersQueued;
 
-		private RoundPhaseState _roundPhaseState;
-		private DateTimeOffset _roundTimesout;
-		private TimeSpan _timeLeftTillRoundTimeout;
-		private Money _requiredBTC;
-		private Money _amountQueued;
-		private bool _isDequeueBusy;
-		private bool _isEnqueueBusy;
+        private RoundPhaseState _roundPhaseState;
+        private DateTimeOffset _roundTimesout;
+        private TimeSpan _timeLeftTillRoundTimeout;
+        private Money _requiredBTC;
+        private Money _amountQueued;
+        private bool _isDequeueBusy;
+        private bool _isEnqueueBusy;
         private bool _isQueuedToCoinJoin = false;
-		private string _balance;
+        private string _balance;
         private string _toastErrorMessage;
         private bool _shouldShowErrorToast;
         private SelectCoinsViewModel _selectCoinsViewModel;
 
-        public CoinJoinViewModel(ChaincaseWalletManager walletManager, Config config, INotificationManager notificationManager, SelectCoinsViewModel selectCoinsViewModel) 
+        public CoinJoinViewModel(ChaincaseWalletManager walletManager, Config config, INotificationManager notificationManager, SelectCoinsViewModel selectCoinsViewModel)
         {
             _walletManager = walletManager;
             _config = config;
@@ -65,7 +65,8 @@ namespace Chaincase.UI.ViewModels
             Disposables = new CompositeDisposable();
 
             // Infer coordinator fee
-            var registrableRound = _walletManager.CurrentWallet.ChaumianClient.State.GetRegistrableRoundOrDefault();
+            var registrableRound = _walletManager.CurrentWallet?.ChaumianClient.State.GetRegistrableRoundOrDefault();
+
             CoordinatorFeePercent = registrableRound?.State?.CoordinatorFeePercent.ToString() ?? "0.003";
 
             // Select most advanced coin join round
@@ -98,8 +99,14 @@ namespace Chaincase.UI.ViewModels
                     TimeLeftTillRoundTimeout = left > TimeSpan.Zero ? left : TimeSpan.Zero; // Make sure cannot be less than zero.
                 });
 
+            Task.Run(async () =>
+            {
+                while (_walletManager.CurrentWallet?.ChaumianClient == null)
+                {
+                    await Task.Delay(50).ConfigureAwait(false);
+                }
 
-            // Update view model state on chaumian client state updates
+                // Update view model state on chaumian client state updates
             Observable.FromEventPattern(_walletManager.CurrentWallet.ChaumianClient, nameof(_walletManager.CurrentWallet.ChaumianClient.CoinQueued))
                 .Merge(Observable.FromEventPattern(_walletManager.CurrentWallet.ChaumianClient, nameof(_walletManager.CurrentWallet.ChaumianClient.OnDequeue)))
                 .Merge(Observable.FromEventPattern(_walletManager.CurrentWallet.ChaumianClient, nameof(_walletManager.CurrentWallet.ChaumianClient.StateUpdated)))
@@ -129,6 +136,8 @@ namespace Chaincase.UI.ViewModels
                        }
                    })
                    .DisposeWith(Disposables);
+            });
+
             // Update timeout label
             Observable.Interval(TimeSpan.FromSeconds(1))
                 .ObserveOn(RxApp.MainThreadScheduler)
@@ -224,7 +233,8 @@ namespace Chaincase.UI.ViewModels
             return true;
         }
 
-        public async void JoinRound(string password) {
+        public async void JoinRound(string password)
+        {
             try
             {
                 var coins = CoinList.CoinList.Where(c => c.IsSelected).Select(c => c.Model);
@@ -238,7 +248,8 @@ namespace Chaincase.UI.ViewModels
                     throw new Exception("Please provide a valid password");
                 _isQueuedToCoinJoin = true;
             }
-            catch (Exception error) {
+            catch (Exception error)
+            {
                 Logger.LogError($"CoinJoinViewModel.JoinRound() ${error} ");
                 _isQueuedToCoinJoin = false;
                 throw error;
@@ -287,14 +298,15 @@ namespace Chaincase.UI.ViewModels
                 }
                 try
                 {
-                    await Task.Run(() => {
+                    await Task.Run(() =>
+                    {
                         // If the password is incorrect this throws.
                         PasswordHelper.GetMasterExtKey(_walletManager.CurrentWallet.KeyManager, password, out string compatiblityPassword);
                         if (compatiblityPassword != null)
                         {
                             password = compatiblityPassword;
                         }
-                    }); 
+                    });
 
                     await _walletManager.CurrentWallet.ChaumianClient.QueueCoinsToMixAsync(password, coins.ToArray());
                     _notificationManager.RequestAuthorization();

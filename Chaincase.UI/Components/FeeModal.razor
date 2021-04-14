@@ -1,18 +1,18 @@
 ﻿@using WalletWasabi.Exceptions
 @using WalletWasabi.Helpers
-@inherits ReactiveComponentBase<FeeViewModel>
+@inherits ReactiveComponentBase<SendViewModel>
 
 <IonModal @bind-Visible="@Visible">
-    <ion-header>
-        <ion-toolbar>
-            <ion-title>Select Fee</ion-title>
-            <ion-buttons slot="start">
+    <IonHeader>
+        <IonToolbar>
+            <IonTitle>Select Fee</IonTitle>
+            <IonButtons slot="start">
                 <IonButton @onclick="CloseModal">Back</IonButton>
-            </ion-buttons>
-        </ion-toolbar>
-    </ion-header>
+            </IonButtons>
+        </IonToolbar>
+    </IonHeader>
 
-    <ion-content class="ion-padding">
+    <IonContent class="ion-padding">
         <p>
             Bitcoin miners prioritize transactions that pay them the highest fee.
             Only a limited number can be mined every 10 minute block.
@@ -21,15 +21,15 @@
         </p>
         <p>
             Fee:
-            <ion-badge class="ion-text-center">~@ViewModel.SendViewModel.FeeRate</ion-badge>
+            <IonBadge class="ion-text-center">~@ViewModel.FeeRate</IonBadge>
             @FeeTargetTimeString
         </p>
-        <IonRange min="@(-1 * ViewModel.SendViewModel.MaximumFeeTarget)"
-                  max="@(-1 * ViewModel.SendViewModel.MinimumFeeTarget)"
+        <IonRange min="@(-1 * ViewModel.MaximumFeeTarget)"
+                  max="@(-1 * ViewModel.MinimumFeeTarget)"
                   @bind-Value="@InverseFeeTarget"
-                  debounce="16"/>
+                  debounce="150"/>
 
-    </ion-content>
+    </IonContent>
 </IonModal>
 
 @code {
@@ -41,20 +41,20 @@
     public EventCallback<bool> VisibleChanged { get; set; }
 
     [Parameter]
-    public FeeViewModel FeeViewModel { get; set; }
+    public SendViewModel SendViewModel { get; set; }
 
     string FeeTargetTimeString =>
-        ConvertFeeTargetToString(ViewModel.SendViewModel.FeeTarget);
+        ConvertFeeTargetToString(ViewModel.FeeTarget);
 
     public int InverseFeeTarget
     {
-        get => -1 * ViewModel.SendViewModel.FeeTarget;
-        set => ViewModel.SendViewModel.FeeTarget = -1 * value;
+        get => -1 * ViewModel.FeeTarget;
+        set => ViewModel.FeeTarget = -1 * value;
     }
 
     protected override void OnParametersSet()
     {
-        ViewModel = FeeViewModel;
+        ViewModel = SendViewModel;
         base.OnParametersSet();
     }
 

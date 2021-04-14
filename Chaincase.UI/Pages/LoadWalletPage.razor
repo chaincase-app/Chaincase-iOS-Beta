@@ -7,34 +7,27 @@
 
 @inherits ReactiveComponentBase<LoadWalletViewModel>
 
-<ion-content class="ion-padding">
-    <h1>Load from Backup</h1>
-    <ion-label floating>SEED WORDS</ion-label>
-    <IonInput type='text' @bind-Value="@ViewModel.SeedWords" />
+<IonContent class="ion-padding">
+    <IonLabel position="stacked">Enter 12 Seed Words</IonLabel>
+    <IonItem>
+        <IonInput type='text' @bind-Value="@ViewModel.SeedWords" />
+    </IonItem>
     <p>Enter the 12 words you wrote down as a backup in order and separated by spaces.</p>
 
-    <ion-label floating>PASSWORD</ion-label>
-    <IonInput type='@(showPassword ? "text" : "password")'
-              @bind-Value="@ViewModel.Password"
-              placeholder="e.g. margaretthatcheris110%SEXY" />
-    @if (showPassword)
-    {
-        <ion-icon slot="end" name="eye" class="eye" @onclick='HideShowPassword' />
-    }
-    else
-    {
-        <ion-icon slot="end" name="eye-off" class="eye-off" @onclick='HideShowPassword' />
-    }
+    <IonLabel floating>Enter Password</IonLabel>
+    <IonItem>
+        <IonPasswordInput clear-on-edit="false" @bind-Value="@ViewModel.Password" placeholder="e.g. margaretthatcheris110%SEXY" />
+    </IonItem>
     <p>
         If funds secured using these seed words are hidden behind a password you must enter it here.
         The password must be exactly as it was created. As it is your secret, we cannot check whether or not it is correct.
-        </p>
+    </p>
 
     <IonButton OnClick="LoadWallet"
-                expand="block">
+               expand="block">
         LOAD WALLET
     </IonButton>
-</ion-content>
+</IonContent>
 
 @code {
 

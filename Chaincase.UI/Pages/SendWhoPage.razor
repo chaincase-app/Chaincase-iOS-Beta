@@ -10,27 +10,17 @@
 @inject IClipboard Clipboard
 @inherits ReactiveComponentBase<SendViewModel>
 
-<ion-content class="ion-padding">
-    <h1>Sending to who?</h1>
+<IonContent class="ion-padding">
 
+    <IonLabel position="stacked" id="destination-label">Add Recipient</IonLabel>
     <IonItem>
-        <ion-label position="stacked">Address or <code>bitcoin:</code> uri</ion-label>
-        <IonInput @bind-Value="ViewModel.DestinationString" placeholder="Enter address..." />
-        
+        <IonInput @bind-Value="ViewModel.DestinationString" placeholder="address/bitcoin:uri" aria-labelledby="destination-label"/>
+        <IonIcon @onclick="OnClickPaste" size="small" slot="end" name="clipboard-outline" aria-label="paste"/>
+        <IonIcon @onclick="OnClickScan" size="small" slot="end" name="scan-outline" aria-label="scan"/>
     </IonItem>
-    <IonItem>
-        <IonButton OnClick="OnClickPaste">
-            <ion-icon slot="start" name="clipboard-outline"/>
-            Paste
-        </IonButton>
-        <IonButton OnClick="OnClickScan">
-            <ion-icon slot="start" name="scan-outline"/>
-            Scan QR Code
-        </IonButton>
-    </IonItem>
-    <IonButton OnClick="OnContinue" expand="block" disabled="@(!IsAddressValid)">NEXT</IonButton>
 
-</ion-content>
+    <IonButton OnClick="OnContinue" color="primary" expand="block" disabled="@(!IsAddressValid)">NEXT</IonButton>
+</IonContent>
 
 @code {
 
@@ -38,7 +28,7 @@
 
     private string _addressString;
 
-    private bool IsAddressValid => ViewModel.Address is not null;
+    private bool IsAddressValid => ViewModel.DestinationUrl?.Address is not null;
 
     protected override void OnInitialized()
     {

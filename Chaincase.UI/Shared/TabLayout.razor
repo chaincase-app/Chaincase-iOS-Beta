@@ -6,50 +6,30 @@
 @inject NavigationManager NavigationManager
 @inject ThemeSwitcher ThemeSwitcher
 
-<ion-split-pane when="sm" content-id="main-content" disabled="@StackService.AnyStackState">
-    <ion-page class="ion-page" id="main-content">
+<IonSplitPane when="sm" content-id="main-content" disabled="@StackService.AnyStackState">
+    <IonPage class="ion-page" id="main-content">
         <IonTabs>
-            <ion-tab>
-                <ion-header>
-                    <ion-toolbar>
-                        <ion-buttons slot="start">
-                            @if (StackService.AnyStackState)
-                            {
-                                <ion-back-button @onclick="() => StackService.InvokeStackState()" @onclick:preventDefault="true" default-href="lol"></ion-back-button>
-                            }
-                        </ion-buttons>
-                        @if (NavigationManager.Uri == NavigationManager.ToAbsoluteUri("/overview").ToString())
-                        {
-                            <ion-buttons slot="end">
-                                <IonButton OnClick='@(() => StackPush("/walletinfo"))'>
-                                    <ion-icon slot="icon-only" name="information-circle-outline"></ion-icon>
-                                </IonButton>
-                            </ion-buttons>
-
-                        }
-                        <ion-title>@StateService.Title</ion-title>
-                    </ion-toolbar>
-                </ion-header>
+            <IonTab>
                 @Body
-            </ion-tab>
+            </IonTab>
 
-            <ion-tab-bar slot="bottom">
+            <IonTabBar slot="bottom">
                 <IonTabButton @onclick='() => StackPush("/receive")'>
-                    <ion-icon name="qr-code"></ion-icon>
-                    <ion-label>RECEIVE</ion-label>
+                    <IonIcon name="qr-code"></IonIcon>
+                    <IonLabel>RECEIVE</IonLabel>
                 </IonTabButton>
                 <IonTabButton @onclick='() => StackPush("/coinjoin")'>
-                    <ion-icon name="logo-bitcoin"></ion-icon>
-                    <ion-label>COINJOIN</ion-label>
+                    <IonIcon name="shuffle"></IonIcon>
+                    <IonLabel>COINJOIN</IonLabel>
                 </IonTabButton>
                 <IonTabButton @onclick='() => StackPush("/send/who")'>
-                    <ion-icon name="send"></ion-icon>
-                    <ion-label>SEND</ion-label>
+                    <IonIcon name="send"></IonIcon>
+                    <IonLabel>SEND</IonLabel>
                 </IonTabButton>
-            </ion-tab-bar>
+            </IonTabBar>
         </IonTabs>
-    </ion-page>
-</ion-split-pane>
+    </IonPage>
+</IonSplitPane>
 
 @code{
 

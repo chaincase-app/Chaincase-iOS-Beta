@@ -1,4 +1,4 @@
-@layout TabLayout
+﻿@layout TabLayout
 @page "/overview"
 @using Chaincase.UI.Services
 @using Chaincase.Common.Services
@@ -11,13 +11,22 @@
 
 @inherits ReactiveComponentBase<OverviewViewModel>
 
-<ion-content>
-    <IonToast Visible="@(!ViewModel.IsBackedUp)" Buttons="toastButtons" color="danger" message="Don't forget!" />
+<IonContent>
 
-    <div class="ion-padding">
-        <ion-text>
-            <h1>Balance: @ViewModel.Balance</h1>
-        </ion-text>
+    <div class="ion-padding overview-header">
+        <IonImg style="box-sizing: content-box; margin: 0 auto; padding: 10vw; width: 20vw;"
+                src='@($"_content/Chaincase.UI/img/chaincase-white-theme-mark.svg")' />
+        <h1 class="ion-text-center">₿ <strong>@ViewModel.Balance</strong></h1>
+        <div class="overview-header__buttons">
+            <IonChip>
+                <IonIcon name="paper-plane"/>
+                <IonLabel>Send</IonLabel>
+            </IonChip>
+            <IonChip outline color="dark">
+                <IonIcon name="qr-code"/>
+                <IonLabel>Receive</IonLabel>
+            </IonChip>
+        </div>
     </div>
 
     <Status />
@@ -25,22 +34,23 @@
     <IonList>
         @foreach (var transaction in ViewModel.Transactions)
         {
-            <ion-item-sliding>
+            <IonItemSliding>
                 <TransactionListItem TransactionViewModel="@transaction" />
-                <ion-item-options side="end">
+                <IonItemOptions side="end">
                     <IonItemOption OnClick="@(() => OpenTransactionDetail(transaction))" color="secondary">Details</IonItemOption>
-                </ion-item-options>
-            </ion-item-sliding>
+                </IonItemOptions>
+            </IonItemSliding>
         }
     </IonList>
 
-    <TransactionDetailModal @bind-Visible="IsDetailModalVisible" TransactionViewModel="@CurrentTransactionViewModel" />
 
     @if (!ViewModel.Transactions.Any())
     {
-        <p>Your transactions will appear here</p>
+        <p class="ion-text-center">Your transactions will appear here</p>
     }
-</ion-content>
+    <TransactionDetailModal @bind-Visible="IsDetailModalVisible" TransactionViewModel="@CurrentTransactionViewModel" />
+    <IonToast Visible="@(!ViewModel.IsBackedUp)" Buttons="toastButtons" color="danger" message="Don't forget!" />
+</IonContent>
 
 @code{
     public IonToast.IonToastButton[] toastButtons;

@@ -1,36 +1,53 @@
-﻿@page "/selectcoins"
+@page "/selectcoins"
 
+@using Chaincase.Common
+@using Chaincase.UI.Services
+@inject UIStateService UiStateService
 @inject SelectCoinsViewModel SelectCoinsViewModel
 @inherits ReactiveComponentBase<SelectCoinsViewModel>
 
-<ion-content>
 
+<IonContent>
     @if (!ViewModel.CoinList.Any())
     {
-        <ion-text>
+        <IonText class="ion-text-center">
             <p>Your coins will appear here</p>
-        </ion-text>
+        </IonText>
     }
     else
     {
-        <IonList>
-            @foreach (var coin in ViewModel.CoinList)
-            {
-                <ion-item-sliding>
-                    <SelectableCoin CoinViewModel="@coin" />
-
-                    <ion-item-options side="end">
-                        <IonItemOption OnClick="@(() => OpenCoinDetail(coin))" color="secondary">Details</IonItemOption>
-                    </ion-item-options>
-                </ion-item-sliding>
-            }
-        </IonList>
+    <IonList>
+        @foreach (var coin in ViewModel.CoinList)
+        {
+        <IonItemSliding>
+            <IonItem>
+                <IonCheckbox slot="start"
+                             @bind-Value="coin.IsSelected" />
+                <IonLabel slot="start">@coin.Clusters</IonLabel>
+                <IonLabel class="ion-float-end">₿ @coin.Amount</IonLabel>
+                <IonNote color="@(coin.AnonymitySet > Config.DefaultPrivacyLevelSome ? "success" : "warning")"
+                         slot="end">
+                    @coin.AnonymitySet
+                </IonNote>
+            </IonItem>
+            <IonItemOptions side="end">
+                <IonItemOption OnClick="@(() => OpenCoinDetail(coin))" color="default">Details</IonItemOption>
+            </IonItemOptions>
+        </IonItemSliding>
+        }
+    </IonList>
     }
 
-</ion-content>
-
-<CoinDetailModal @bind-Visible="@IsDetailModalVisible" @bind-CoinViewModel="@CurrentCoinViewModel"/>
-
+</IonContent>
+<IonFooter>
+    <IonCard color="primary">
+        <IonCardContent>
+            <strong>Total:</strong>
+            <span class="ion-float-end">@ViewModel.SelectedAmount BTC</span>
+        </IonCardContent>
+    </IonCard>
+</IonFooter>
+<CoinDetailModal @bind-Visible="@IsDetailModalVisible" @bind-CoinViewModel="@CurrentCoinViewModel" />
 
 @code {
 
@@ -44,6 +61,8 @@
     {
         ViewModel = SelectCoinsViewModel;
         base.OnParametersSet();
+        UiStateService.Title = "Select Coins";
+
     }
 
     private void OpenCoinDetail(CoinViewModel coin)

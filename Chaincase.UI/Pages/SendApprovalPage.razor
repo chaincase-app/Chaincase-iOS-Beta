@@ -8,17 +8,24 @@
 @inject SendViewModel SendViewModel
 @inherits ReactiveComponentBase<SendViewModel>
 
-<ion-content class="ion-padding">
-    <ion-text>@ViewModel.AmountText</ion-text>
-    <ion-text>To @ViewModel.DestinationString</ion-text>
-    <PasswordInputItem @bind-Value="Password" />
+<IonContent class="ion-padding">
+    <IonText>@ViewModel.AmountText</IonText>
+    <IonText>To @ViewModel.DestinationString</IonText>
+    <IonLabel position="stacked">Enter Password</IonLabel>
+    <div class="@(IsShaking ? "shake" : "")">
+        <IonItem>
+            <IonPasswordInput @bind-Value="Password" placeholder="e.g. margaretthatcheris110%SEXY" />
+        </IonItem>
+    </div>
     <IonButton @onclick="ClickSendNow" expand="block">SEND NOW</IonButton>
     <IonLoading Visible="@ViewModel.IsBusy"></IonLoading>
 
-</ion-content>
+</IonContent>
 
 @code {
     private string Password { get; set; }
+    private bool IsShaking { get; set; }
+
 
     protected override void OnInitialized()
     {
@@ -28,11 +35,15 @@
 
     private async Task ClickSendNow()
     {
+        IsShaking = false;
         var isSent = await ViewModel.SendTransactionCommand.Execute(Password).ToTask();
         if (isSent)
         {
             // TODO clear stack service
             NavigationManager.NavigateTo("/send/sent");
-        } // else TODO shake da input binch like yo enemy's baby
+        } else
+        {
+            IsShaking = true;
+        }
     }
 }

@@ -2,34 +2,34 @@
 
 @inherits ReactiveComponentBase<StatusViewModel>
 
-<ion-list>
-    <ion-item>
-        <ion-label>Numbers of Peers: @ViewModel.Peers</ion-label>
-    </ion-item>
-    <ion-item>
-        <ion-label>Backend Status: @Backendlabel()</ion-label>
-    </ion-item>
-    <ion-item>
-        <ion-label>Tor Status: @TorLabel()</ion-label>
-    </ion-item>
-    <ion-item>
+<IonList>
+    <IonItem>
+        <IonLabel>Numbers of Peers: @ViewModel.Peers</IonLabel>
+    </IonItem>
+    <IonItem>
+        <IonLabel>Backend Status: @Backendlabel()</IonLabel>
+    </IonItem>
+    <IonItem>
+        <IonLabel>Tor Status: @TorLabel()</IonLabel>
+    </IonItem>
+    <IonItem>
         @if (ViewModel.FiltersLeft == 0)
         {
-            <ion-label>Your wallet is sync'd</ion-label>
+            <IonLabel>Your wallet is sync'd</IonLabel>
         }
         else
         {
-            <ion-label>Filters left: @ViewModel.FiltersLeft</ion-label>
+            <IonLabel>Filters left: @ViewModel.FiltersLeft</IonLabel>
         }
-    </ion-item>
+    </IonItem>
     @if (ViewModel.ProgressPercent != 100)
     {
-        <ion-item>
-            <ion-progress-bar value="@ViewModel.ProgressPercent"/>
-        </ion-item>
+        <IonItem>
+            <IonProgressBar value="@ViewModel.ProgressPercent"/>
+        </IonItem>
     }
 
-</ion-list>
+</IonList>
 
 @code{
 
