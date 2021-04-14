@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Chaincase.Common;
 using Chaincase.Common.Contracts;
 using Chaincase.Common.Services;
 using Microsoft.Extensions.Caching.Memory;
@@ -23,7 +24,6 @@ using WalletWasabi.CoinJoin.Client;
 using WalletWasabi.CoinJoin.Client.Clients.Queuing;
 using WalletWasabi.Helpers;
 using WalletWasabi.Logging;
-using WalletWasabi.Services;
 using WalletWasabi.Stores;
 using WalletWasabi.Wallets;
 
@@ -56,7 +56,7 @@ namespace Chaincase.Common
         private readonly AsyncLock LifeCycleMutex = new AsyncLock();
         private readonly AsyncLock SleepMutex = new AsyncLock();
 
-        public event EventHandler Initialized = delegate { };
+        public event EventHandler<AppInitializedEventArgs> Initialized = delegate { };
 
         public bool IsInitialized { get; private set; } = false;
 
@@ -72,14 +72,14 @@ namespace Chaincase.Common
 
         public Global(INotificationManager notificationManager, ITorManager torManager, IDataDirProvider dataDirProvider, Config config, UiConfig uiConfig, ChaincaseWalletManager walletManager, BitcoinStore bitcoinStore)
         {
-	        TorManager = torManager;
-	        NotificationManager = notificationManager;
+            TorManager = torManager;
+            NotificationManager = notificationManager;
             DataDirProvider = dataDirProvider;
             Config = config;
             UiConfig = uiConfig;
             WalletManager = walletManager;
             BitcoinStore = bitcoinStore;
-	        using (BenchmarkLogger.Measure())
+            using (BenchmarkLogger.Measure())
             {
                 StoppingCts = new CancellationTokenSource();
                 Directory.CreateDirectory(DataDir);
@@ -94,7 +94,7 @@ namespace Chaincase.Common
             }
         }
 
-        public async Task InitializeNoWalletAsync(CancellationToken cancellationToken = default) 
+        public async Task InitializeNoWalletAsync(CancellationToken cancellationToken = default)
         {
             AddressManager = null;
             Logger.LogDebug($"Global.InitializeNoWalletAsync(): Waiting for a lock");
@@ -256,7 +256,7 @@ namespace Chaincase.Common
 
                 WalletManager.RegisterServices(BitcoinStore, Synchronizer, Nodes, Config.ServiceConfiguration, FeeProviders, blockProvider);
 
-                Initialized(this, EventArgs.Empty);
+                Initialized(this, new AppInitializedEventArgs(this));
                 IsInitialized = true;
             }
             finally
@@ -488,11 +488,11 @@ namespace Chaincase.Common
         public async Task OnResuming()
         {
             if (IsResuming)
-			{
+            {
                 Logger.LogDebug($"Global.OnResuming(): SleepCts.Cancel()");
                 SleepCts.Cancel();
                 return;
-			}
+            }
 
             try
             {
@@ -514,7 +514,7 @@ namespace Chaincase.Common
                     var addrManTask = InitializeAddressManagerBehaviorAsync();
                     AddressManagerBehavior addressManagerBehavior = await addrManTask.ConfigureAwait(false);
                     connectionParameters.TemplateBehaviors.Add(addressManagerBehavior);
-                    
+
                     if (TorManager?.State != TorState.Started && TorManager.State != TorState.Connected)
                     {
                         await TorManager.StartAsync(false, DataDir);
@@ -572,7 +572,7 @@ namespace Chaincase.Common
                     // don't ever cancel Init. use an ephemeral token
                     await WaitForInitializationCompletedAsync(new CancellationToken());
 
-                    
+
                     if (TorManager?.State != TorState.Stopped) // OnionBrowser && Dispose@Global
                     {
                         await TorManager.StopAsync();

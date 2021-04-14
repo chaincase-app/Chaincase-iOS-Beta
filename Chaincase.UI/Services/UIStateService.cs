@@ -8,14 +8,20 @@ namespace Chaincase.UI.Services
 	{
 		private string _title;
 		private bool _darkMode;
-		protected IThemeManager _themeManager;
+		private readonly Global _global;
+		private readonly IThemeManager _themeManager;
 
-		public UIStateService(IThemeManager themeManager, Global global)
+		public UIStateService(Global global, IThemeManager themeManager)
 		{
-			global.Resumed += (s, e) => SetSystemTheme();
-
+			_global = global;
+			_global.Resumed += (s, e) => SetSystemTheme();
 			_themeManager = themeManager;
 			themeManager.SubscribeToThemeChanged(() => SetSystemTheme());
+		}
+
+		public void OnResume(object sender, EventArgs args)
+		{
+			SetSystemTheme();
 		}
 
 		public string Title

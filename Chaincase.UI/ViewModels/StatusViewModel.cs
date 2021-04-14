@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Chaincase.Common;
+using Chaincase.Common.Contracts;
 using Chaincase.Common.Models;
 using Chaincase.Common.Services;
 using NBitcoin.Protocol;
@@ -16,6 +17,11 @@ using WalletWasabi.Wallets;
 
 namespace Chaincase.UI.ViewModels
 {
+    public class StatusEventArgs : EventArgs
+    {
+
+    }
+
     public class StatusViewModel : ReactiveObject
     {
         private readonly Global _global;
@@ -59,22 +65,21 @@ namespace Chaincase.UI.ViewModels
             ActiveStatuses = new StatusSet();
             UseTor = _Config.UseTor; // Do not make it dynamic, because if you change this config settings only next time will it activate.
 
+            if (_global.IsInitialized)
+            {
+                OnAppInitialized(this, new AppInitializedEventArgs(_global));
+            }
+            else
+            {
+                _global.Initialized += OnAppInitialized;
+            }
+
             _status = ActiveStatuses.WhenAnyValue(x => x.CurrentStatus)
                 .Select(x => x.ToString())
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .ToProperty(this, x => x.Status)
                 .DisposeWith(Disposables);
 
-
-            // Subscribe to the init function if needed
-            if (_global.IsInitialized)
-            {
-                OnInitialized(this, EventArgs.Empty);
-            }
-            else
-            {
-                _global.Initialized += OnInitialized;
-            }
             // Set number of peers currently connected
             Peers = Tor == TorStatus.NotRunning ? 0 : Nodes.Count;
             // Subscribe to downloading block activity
@@ -164,7 +169,6 @@ namespace Chaincase.UI.ViewModels
                 })
                 .DisposeWith(Disposables);
 
-
             this.WhenAnyValue(x => x.FiltersLeft, x => x.DownloadingBlock)
                .ObserveOn(RxApp.MainThreadScheduler)
                .Subscribe(tup =>
@@ -209,10 +213,10 @@ namespace Chaincase.UI.ViewModels
                 });
         }
 
-        public void OnInitialized(object sender, EventArgs args)
+        public void OnAppInitialized(object sender, AppInitializedEventArgs args)
         {
-            var nodes = _global.Nodes.ConnectedNodes;
-            var synchronizer = _global.Synchronizer;
+            var nodes = args.Nodes.ConnectedNodes;
+            var synchronizer = args.Synchronizer;
             Nodes = nodes;
             Synchronizer = synchronizer;
             HashChain = synchronizer.BitcoinStore.SmartHeaderChain;

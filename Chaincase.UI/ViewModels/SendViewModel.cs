@@ -21,12 +21,17 @@ using WalletWasabi.Blockchain.Analysis.Clustering;
 using WalletWasabi.Blockchain.TransactionBuilding;
 using WalletWasabi.Exceptions;
 using Chaincase.Common.Services;
+using Chaincase.Common.Contracts;
+using WalletWasabi.Blockchain.TransactionBroadcasting;
 
 namespace Chaincase.UI.ViewModels
 {
     public class SendViewModel : ReactiveObject
     {
-        protected Global Global { get; }
+        private FeeProviders _feeProviders;
+        private TransactionBroadcaster _transactionBroadcaster;
+
+        private readonly Global _global;
         private readonly ChaincaseWalletManager _walletManager;
         private readonly Config _config;
         private UiConfig UiConfig { get; }
@@ -55,7 +60,7 @@ namespace Chaincase.UI.ViewModels
 
         public SendViewModel(Global global, ChaincaseWalletManager walletManager, Config config, UiConfig uiConfig, SelectCoinsViewModel selectCoinsViewModel)
         {
-	        Global = global;
+            _global = global;
             _walletManager = walletManager;
             _config = config;
             UiConfig = uiConfig;
@@ -64,7 +69,16 @@ namespace Chaincase.UI.ViewModels
             AllSelectedAmount = Money.Zero;
             EstimatedBtcFee = Money.Zero;
 
-            this.WhenAnyValue(x => x.AmountText)
+			if (_global.IsInitialized)
+			{
+				OnAppInitialized(this, new AppInitializedEventArgs(_global));
+			}
+			else
+			{
+				_global.Initialized += OnAppInitialized;
+			}
+
+			this.WhenAnyValue(x => x.AmountText)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(amount =>
                 {
@@ -128,26 +142,6 @@ namespace Chaincase.UI.ViewModels
             FeeRate = new FeeRate((decimal)50); //50 sat/vByte placeholder til loads
             SetFees();
 
-            Observable
-                .FromEventPattern<AllFeeEstimate>(Global.FeeProviders, nameof(Global.FeeProviders.AllFeeEstimateChanged))
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(_ =>
-                {
-                    SetFeeTargetLimits();
-
-                    if (FeeTarget < MinimumFeeTarget) // Should never happen.
-                    {
-                        FeeTarget = MinimumFeeTarget;
-                    }
-                    else if (FeeTarget > MaximumFeeTarget)
-                    {
-                        FeeTarget = MaximumFeeTarget;
-                    }
-
-                    SetFees();
-                })
-                .DisposeWith(Disposables);
-
             this.WhenAnyValue(x => x.FeeTarget)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(_ =>
@@ -177,8 +171,34 @@ namespace Chaincase.UI.ViewModels
             SendTransactionCommand = ReactiveCommand.CreateFromTask<string, bool>(SendTransaction, isTransactionOkToSign);
         }
 
-        internal BitcoinUrlBuilder ParseDestinationString(string destinationString)
+        public void OnAppInitialized(object sender, AppInitializedEventArgs args)
 		{
+            _feeProviders = args.FeeProviders;
+            _transactionBroadcaster = args.TransactionBroadcaster;
+
+            Observable
+               .FromEventPattern<AllFeeEstimate>(_feeProviders, nameof(_feeProviders.AllFeeEstimateChanged))
+               .ObserveOn(RxApp.MainThreadScheduler)
+               .Subscribe(_ =>
+               {
+                   SetFeeTargetLimits();
+
+                   if (FeeTarget < MinimumFeeTarget) // Should never happen.
+                    {
+                       FeeTarget = MinimumFeeTarget;
+                   }
+                   else if (FeeTarget > MaximumFeeTarget)
+                   {
+                       FeeTarget = MaximumFeeTarget;
+                   }
+
+                   SetFees();
+               })
+               .DisposeWith(Disposables);
+        }
+
+        internal BitcoinUrlBuilder ParseDestinationString(string destinationString)
+        {
             if (destinationString == null) return null;
             BitcoinUrlBuilder url = null;
             try
@@ -195,21 +215,22 @@ namespace Chaincase.UI.ViewModels
                 // identify the sender or receiver. We care about the recipient only here.
                 return url;
             }
-            catch (Exception){ /* invalid bitcoin uri */ }
+            catch (Exception) { /* invalid bitcoin uri */ }
 
             try
             {
                 BitcoinAddress address = BitcoinAddress.Create(destinationString.Trim(), _config.Network);
                 url = new BitcoinUrlBuilder();
                 url.Address = address;
-            } catch (Exception) { /* invalid bitcoin address */ }
+            }
+            catch (Exception) { /* invalid bitcoin address */ }
 
             return url;
         }
 
         private void SetFees()
         {
-            AllFeeEstimate allFeeEstimate = Global.FeeProviders?.AllFeeEstimate;
+            AllFeeEstimate allFeeEstimate = _feeProviders?.AllFeeEstimate;
 
             if (allFeeEstimate is { })
             {
@@ -271,7 +292,7 @@ namespace Chaincase.UI.ViewModels
 
         private void SetFeeTargetLimits()
         {
-            var allFeeEstimate = Global.FeeProviders?.AllFeeEstimate;
+            var allFeeEstimate = _feeProviders?.AllFeeEstimate;
 
             if (allFeeEstimate != null)
             {
@@ -362,7 +383,7 @@ namespace Chaincase.UI.ViewModels
                 SmartTransaction signedTransaction = result.Transaction;
                 SignedTransaction = signedTransaction;
 
-                await Global.TransactionBroadcaster.SendTransactionAsync(signedTransaction); // put this on non-ui theread?
+                await _transactionBroadcaster.SendTransactionAsync(signedTransaction); // put this on non-ui theread?
 
                 return true;
             }
@@ -471,9 +492,9 @@ namespace Chaincase.UI.ViewModels
         }
 
         public SmartTransaction SignedTransaction
-		{
+        {
             get => _signedTransaction;
             set => this.RaiseAndSetIfChanged(ref _signedTransaction, value);
-		}
+        }
     }
 }

@@ -14,7 +14,6 @@ namespace Chaincase.UI.Services
 		{
 			services.AddSingleton<UIStateService>();
 
-			services.AddSingleton<Global>();
 			services.AddSingleton<StackService>();
 			services.AddScoped<ThemeSwitcher>();
 			services.AddSingleton<QRCodeGenerator>();
