@@ -33,7 +33,6 @@ namespace Chaincase.Common
         private readonly UiConfig _uiConfig;
         private readonly BitcoinStore _bitcoinStore;
         private readonly ChaincaseWalletManager _walletManager;
-        private readonly INotificationManager _notificationManager;
         private readonly ITorManager _torManager;
         private readonly IDataDirProvider _dataDirProvider;
         private string DataDir => _dataDirProvider.Get();
