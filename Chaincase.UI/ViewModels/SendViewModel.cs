@@ -28,13 +28,13 @@ namespace Chaincase.UI.ViewModels
 {
     public class SendViewModel : ReactiveObject
     {
-        private FeeProviders _feeProviders;
         private TransactionBroadcaster _transactionBroadcaster;
 
         private readonly Global _global;
         private readonly ChaincaseWalletManager _walletManager;
         private readonly Config _config;
-        private UiConfig UiConfig { get; }
+        private readonly UiConfig _uiConfig;
+        private readonly FeeProviders _feeProviders;
 
         private bool _isMax;
         private string _amountText;
@@ -58,12 +58,13 @@ namespace Chaincase.UI.ViewModels
 
         protected CompositeDisposable Disposables { get; } = new CompositeDisposable();
 
-        public SendViewModel(Global global, ChaincaseWalletManager walletManager, Config config, UiConfig uiConfig, SelectCoinsViewModel selectCoinsViewModel)
+        public SendViewModel(Global global, ChaincaseWalletManager walletManager, Config config, UiConfig uiConfig, SelectCoinsViewModel selectCoinsViewModel, FeeProviders feeProviders)
         {
             _global = global;
             _walletManager = walletManager;
             _config = config;
-            UiConfig = uiConfig;
+            _uiConfig = uiConfig;
+            _feeProviders = feeProviders;
             SelectCoinsViewModel = selectCoinsViewModel;
             AmountText = "0.0";
             AllSelectedAmount = Money.Zero;
@@ -138,7 +139,7 @@ namespace Chaincase.UI.ViewModels
                 .ToProperty(this, x => x.MinMaxFeeTargetsEqual, scheduler: RxApp.MainThreadScheduler);
 
             SetFeeTargetLimits();
-            FeeTarget = UiConfig.FeeTarget;
+            FeeTarget = _uiConfig.FeeTarget;
             FeeRate = new FeeRate((decimal)50); //50 sat/vByte placeholder til loads
             SetFees();
 
@@ -173,7 +174,6 @@ namespace Chaincase.UI.ViewModels
 
         public void OnAppInitialized(object sender, AppInitializedEventArgs args)
 		{
-            _feeProviders = args.FeeProviders;
             _transactionBroadcaster = args.TransactionBroadcaster;
 
             Observable
