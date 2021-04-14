@@ -17,12 +17,11 @@ namespace Chaincase.Common
             services.AddSingleton<Global>();
             services.AddSingleton<Config>();
             services.AddSingleton<UiConfig>();
-            // WalletManager = new WalletManager(Network, new WalletDirectories(DataDir));
-
-            services.AddSingleton<ChaincaseWalletManager>(x => {
+            services.AddSingleton(x => {
                 var network = x.GetRequiredService<Config>().Network;
                 var dataDir = x.GetRequiredService<IDataDirProvider>().Get();
-                return new ChaincaseWalletManager(network, new WalletDirectories(dataDir));
+                var notificationManager = x.GetRequiredService<INotificationManager>();
+                return new ChaincaseWalletManager(network, new WalletDirectories(dataDir), notificationManager);
             });
             services.AddSingleton(x =>
             {

@@ -29,17 +29,17 @@ using WalletWasabi.Wallets;
 
 namespace Chaincase.Common
 {
-	public class Global
+    public class Global
     {
-        private string DataDir => DataDirProvider.Get();
-        private Config Config { get; set; }
-        private UiConfig UiConfig { get; set; }
-        private BitcoinStore BitcoinStore { get; set; }
+        private readonly Config Config;
         private Network Network => Config.Network;
-        private ChaincaseWalletManager WalletManager { get; set; }
+        private readonly UiConfig UiConfig;
+        private readonly BitcoinStore BitcoinStore;
+        private readonly ChaincaseWalletManager WalletManager;
         private readonly INotificationManager NotificationManager;
         private readonly ITorManager TorManager;
         private readonly IDataDirProvider DataDirProvider;
+        private string DataDir => DataDirProvider.Get();
         private CoinJoinProcessor CoinJoinProcessor;
 
         public string AddressManagerFilePath { get; private set; }
@@ -66,14 +66,12 @@ namespace Chaincase.Common
 
         private CancellationTokenSource StoppingCts { get; set; }
         // Chaincase Specific
-        private IEnumerable<SmartCoin> SleepingCoins;
         private protected CancellationTokenSource SleepCts { get; set; } = new CancellationTokenSource();
         private protected bool IsGoingToSleep = false;
 
-        public Global(INotificationManager notificationManager, ITorManager torManager, IDataDirProvider dataDirProvider, Config config, UiConfig uiConfig, ChaincaseWalletManager walletManager, BitcoinStore bitcoinStore)
+        public Global(ITorManager torManager, IDataDirProvider dataDirProvider, Config config, UiConfig uiConfig, ChaincaseWalletManager walletManager, BitcoinStore bitcoinStore)
         {
             TorManager = torManager;
-            NotificationManager = notificationManager;
             DataDirProvider = dataDirProvider;
             Config = config;
             UiConfig = uiConfig;
@@ -88,9 +86,6 @@ namespace Chaincase.Common
 
                 UiConfig.LoadOrCreateDefaultFile();
                 Config.LoadOrCreateDefaultFile();
-
-                WalletManager.OnDequeue += WalletManager_OnDequeue;
-                WalletManager.WalletRelevantTransactionProcessed += WalletManager_WalletRelevantTransactionProcessed;
             }
         }
 
@@ -355,121 +350,6 @@ namespace Chaincase.Common
 
         }
 
-        private void WalletManager_OnDequeue(object? sender, DequeueResult e)
-        {
-            try
-            {
-                foreach (var success in e.Successful.Where(x => x.Value.Any()))
-                {
-                    DequeueReason reason = success.Key;
-                    if (reason == DequeueReason.ApplicationExit)
-                    {
-                        SleepingCoins = success.Value;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogWarning(ex);
-            }
-        }
-
-        private void WalletManager_WalletRelevantTransactionProcessed(object sender, ProcessedResult e)
-        {
-            try
-            {
-                // If there are no news, then don't bother.
-                if (!e.IsNews || (sender as Wallet).State != WalletState.Started)
-                {
-                    return;
-                }
-
-                // ToDo
-                // Double spent.
-                // Anonymity set gained?
-                // Received dust
-
-                bool isSpent = e.NewlySpentCoins.Any();
-                bool isReceived = e.NewlyReceivedCoins.Any();
-                bool isConfirmedReceive = e.NewlyConfirmedReceivedCoins.Any();
-                bool isConfirmedSpent = e.NewlyConfirmedReceivedCoins.Any();
-                Money miningFee = e.Transaction.Transaction.GetFee(e.SpentCoins.Select(x => x.GetCoin()).ToArray());
-                if (isReceived || isSpent)
-                {
-                    Money receivedSum = e.NewlyReceivedCoins.Sum(x => x.Amount);
-                    Money spentSum = e.NewlySpentCoins.Sum(x => x.Amount);
-                    Money incoming = receivedSum - spentSum;
-                    Money receiveSpentDiff = incoming.Abs();
-                    string amountString = receiveSpentDiff.ToString(false, true);
-
-                    if (e.Transaction.Transaction.IsCoinBase)
-                    {
-                        NotificationManager.NotifyAndLog($"{amountString} BTC", "Mined", NotificationType.Success, e);
-                    }
-                    else if (isSpent && receiveSpentDiff == miningFee)
-                    {
-                        NotificationManager.NotifyAndLog($"Mining Fee: {amountString} BTC", "Self Spend", NotificationType.Information, e);
-                    }
-                    else if (isSpent && receiveSpentDiff.Almost(Money.Zero, Money.Coins(0.01m)) && e.IsLikelyOwnCoinJoin)
-                    {
-                        NotificationManager.NotifyAndLog($"CoinJoin Completed!", "", NotificationType.Success, e);
-                    }
-                    else if (incoming > Money.Zero)
-                    {
-                        if (e.Transaction.IsRBF && e.Transaction.IsReplacement)
-                        {
-                            NotificationManager.NotifyAndLog($"{amountString} BTC", "Received Replaceable Replacement Transaction", NotificationType.Information, e);
-                        }
-                        else if (e.Transaction.IsRBF)
-                        {
-                            NotificationManager.NotifyAndLog($"{amountString} BTC", "Received Replaceable Transaction", NotificationType.Success, e);
-                        }
-                        else if (e.Transaction.IsReplacement)
-                        {
-                            NotificationManager.NotifyAndLog($"{amountString} BTC", "Received Replacement Transaction", NotificationType.Information, e);
-                        }
-                        else
-                        {
-                            NotificationManager.NotifyAndLog($"{amountString} BTC", "Received", NotificationType.Success, e);
-                        }
-                    }
-                    else if (incoming < Money.Zero)
-                    {
-                        NotificationManager.NotifyAndLog($"{amountString} BTC", "Sent", NotificationType.Information, e);
-                    }
-                }
-                else if (isConfirmedReceive || isConfirmedSpent)
-                {
-                    Money receivedSum = e.ReceivedCoins.Sum(x => x.Amount);
-                    Money spentSum = e.SpentCoins.Sum(x => x.Amount);
-                    Money incoming = receivedSum - spentSum;
-                    Money receiveSpentDiff = incoming.Abs();
-                    string amountString = receiveSpentDiff.ToString(false, true);
-
-                    if (isConfirmedSpent && receiveSpentDiff == miningFee)
-                    {
-                        NotificationManager.NotifyAndLog($"Mining Fee: {amountString} BTC", "Self Spend Confirmed", NotificationType.Information, e);
-                    }
-                    else if (isConfirmedSpent && e.IsLikelyOwnCoinJoin)
-                    {
-                        NotificationManager.NotifyAndLog($"CoinJoin Confirmed!", "", NotificationType.Information, e);
-                    }
-                    else if (incoming > Money.Zero)
-                    {
-                        NotificationManager.NotifyAndLog($"{amountString} BTC", "Receive Confirmed", NotificationType.Information, e);
-                    }
-                    else if (incoming < Money.Zero)
-                    {
-                        NotificationManager.NotifyAndLog($"{amountString} BTC", "Send Confirmed", NotificationType.Information, e);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogWarning(ex);
-            }
-        }
-
         /// <returns>If initialization is successful, otherwise it was interrupted which means stopping was requested.</returns>
         public async Task<bool> WaitForInitializationCompletedAsync(CancellationToken cancellationToken)
         {
@@ -528,10 +408,10 @@ namespace Chaincase.Common
                     Synchronizer.Resume(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
                     Logger.LogInfo("Global.OnResuming():Start synchronizing filters...");
 
-                    if (SleepingCoins is { })
+                    if (WalletManager.SleepingCoins is { })
                     {
-                        await WalletManager.CurrentWallet.ChaumianClient.QueueCoinsToMixAsync(SleepingCoins);
-                        SleepingCoins = null;
+                        await WalletManager.CurrentWallet.ChaumianClient.QueueCoinsToMixAsync(WalletManager.SleepingCoins);
+                        WalletManager.SleepingCoins = null;
                     }
 
                     IsResuming = false;
