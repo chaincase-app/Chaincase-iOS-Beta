@@ -31,16 +31,16 @@ namespace Chaincase.Common
 {
     public class Global
     {
-        private readonly Config Config;
-        private Network Network => Config.Network;
-        private readonly UiConfig UiConfig;
-        private readonly BitcoinStore BitcoinStore;
-        private readonly ChaincaseWalletManager WalletManager;
-        private readonly INotificationManager NotificationManager;
-        private readonly ITorManager TorManager;
-        private readonly IDataDirProvider DataDirProvider;
-        private string DataDir => DataDirProvider.Get();
-        private CoinJoinProcessor CoinJoinProcessor;
+        private readonly Config _config;
+        private Network Network => _config.Network;
+        private readonly UiConfig _uiConfig;
+        private readonly BitcoinStore _bitcoinStore;
+        private readonly ChaincaseWalletManager _walletManager;
+        private readonly INotificationManager _notificationManager;
+        private readonly ITorManager _torManager;
+        private readonly IDataDirProvider _dataDirProvider;
+        private string DataDir => _dataDirProvider.Get();
+        private CoinJoinProcessor _coinJoinProcessor;
 
         public string AddressManagerFilePath { get; private set; }
         public AddressManager AddressManager { get; private set; }
@@ -71,12 +71,12 @@ namespace Chaincase.Common
 
         public Global(ITorManager torManager, IDataDirProvider dataDirProvider, Config config, UiConfig uiConfig, ChaincaseWalletManager walletManager, BitcoinStore bitcoinStore)
         {
-            TorManager = torManager;
-            DataDirProvider = dataDirProvider;
-            Config = config;
-            UiConfig = uiConfig;
-            WalletManager = walletManager;
-            BitcoinStore = bitcoinStore;
+            _torManager = torManager;
+            _dataDirProvider = dataDirProvider;
+            _config = config;
+            _uiConfig = uiConfig;
+            _walletManager = walletManager;
+            _bitcoinStore = bitcoinStore;
             using (BenchmarkLogger.Measure())
             {
                 StoppingCts = new CancellationTokenSource();
@@ -84,27 +84,27 @@ namespace Chaincase.Common
 
                 Logger.InitializeDefaults(Path.Combine(DataDir, "Logs.txt"));
 
-                UiConfig.LoadOrCreateDefaultFile();
-                Config.LoadOrCreateDefaultFile();
+                _uiConfig.LoadOrCreateDefaultFile();
+                _config.LoadOrCreateDefaultFile();
             }
         }
 
         public async Task InitializeNoWalletAsync(CancellationToken cancellationToken = default)
         {
             AddressManager = null;
-            Logger.LogDebug($"Global.InitializeNoWalletAsync(): Waiting for a lock");
+            Logger.LogDebug($"{nameof(Global)}.InitializeNoWalletAsync(): Waiting for a lock");
             try
             {
                 InitializationStarted = true;
 
-                Logger.LogDebug($"Global.InitializeNoWalletAsync(): Got lock");
+                Logger.LogDebug($"{nameof(Global)}.InitializeNoWalletAsync(): Got lock");
 
                 MemoryCache Cache = new MemoryCache(new MemoryCacheOptions
                 {
                     SizeLimit = 1_000,
                     ExpirationScanFrequency = TimeSpan.FromSeconds(30)
                 });
-                var bstoreInitTask = BitcoinStore.InitializeAsync();
+                var bstoreInitTask = _bitcoinStore.InitializeAsync();
                 var addressManagerFolderPath = Path.Combine(DataDir, "AddressManager");
 
                 AddressManagerFilePath = Path.Combine(addressManagerFolderPath, $"AddressManager{Network}.dat");
@@ -114,24 +114,24 @@ namespace Chaincase.Common
                 var userAgent = Constants.UserAgents.RandomElement();
                 var connectionParameters = new NodeConnectionParameters { UserAgent = userAgent };
 
-                if (Config.UseTor)
+                if (_config.UseTor)
                 {
-                    Synchronizer = new ChaincaseSynchronizer(Network, BitcoinStore, () => Config.GetCurrentBackendUri(), Config.TorSocks5EndPoint);
+                    Synchronizer = new ChaincaseSynchronizer(Network, _bitcoinStore, () => _config.GetCurrentBackendUri(), _config.TorSocks5EndPoint);
                 }
                 else
                 {
-                    Synchronizer = new ChaincaseSynchronizer(Network, BitcoinStore, Config.GetFallbackBackendUri(), null);
+                    Synchronizer = new ChaincaseSynchronizer(Network, _bitcoinStore, _config.GetFallbackBackendUri(), null);
                 }
 
                 #region TorProcessInitialization
 
-                if (Config.UseTor)
+                if (_config.UseTor)
                 {
-                    await TorManager.StartAsync(ensureRunning: false, DataDir);
-                    Logger.LogInfo($"{nameof(TorManager)} is initialized.");
+                    await _torManager.StartAsync(ensureRunning: false, DataDir);
+                    Logger.LogInfo($"{nameof(_torManager)} is initialized.");
                 }
 
-                Logger.LogInfo($"Global.InitializeNoWalletAsync():{nameof(TorManager)} is initialized.");
+                Logger.LogInfo($"{nameof(Global)}.InitializeNoWalletAsync():{nameof(_torManager)} is initialized.");
 
                 #endregion TorProcessInitialization
 
@@ -140,7 +140,7 @@ namespace Chaincase.Common
                 await bstoreInitTask.ConfigureAwait(false);
 
                 // Make sure that the height of the wallets will not be better than the current height of the filters.
-                WalletManager.SetMaxBestHeight(BitcoinStore.IndexStore.SmartHeaderChain.TipHeight);
+                _walletManager.SetMaxBestHeight(_bitcoinStore.IndexStore.SmartHeaderChain.TipHeight);
 
                 #endregion BitcoinStoreInitialization
 
@@ -158,7 +158,7 @@ namespace Chaincase.Common
 
                 #region MempoolInitialization
 
-                connectionParameters.TemplateBehaviors.Add(BitcoinStore.CreateUntrustedP2pBehavior());
+                connectionParameters.TemplateBehaviors.Add(_bitcoinStore.CreateUntrustedP2pBehavior());
 
                 #endregion MempoolInitialization
 
@@ -176,7 +176,7 @@ namespace Chaincase.Common
                     Nodes = new NodesGroup(Network, requirements: Constants.NodeRequirements);
                     try
                     {
-                        EndPoint bitcoinCoreEndpoint = Config.GetBitcoinP2pEndPoint();
+                        EndPoint bitcoinCoreEndpoint = _config.GetBitcoinP2pEndPoint();
 
                         Node node = await Node.ConnectAsync(NBitcoin.Network.RegTest, bitcoinCoreEndpoint).ConfigureAwait(false);
 
@@ -184,7 +184,7 @@ namespace Chaincase.Common
 
                         regTestMempoolServingNode = await Node.ConnectAsync(NBitcoin.Network.RegTest, bitcoinCoreEndpoint).ConfigureAwait(false);
 
-                        regTestMempoolServingNode.Behaviors.Add(BitcoinStore.CreateUntrustedP2pBehavior());
+                        regTestMempoolServingNode.Behaviors.Add(_bitcoinStore.CreateUntrustedP2pBehavior());
                     }
                     catch (SocketException ex)
                     {
@@ -193,10 +193,10 @@ namespace Chaincase.Common
                 }
                 else
                 {
-                    if (Config.UseTor)
+                    if (_config.UseTor)
                     {
                         // onlyForOnionHosts: false - Connect to clearnet IPs through Tor, too.
-                        connectionParameters.TemplateBehaviors.Add(new SocksSettingsBehavior(Config.TorSocks5EndPoint, onlyForOnionHosts: false, networkCredential: null, streamIsolation: true));
+                        connectionParameters.TemplateBehaviors.Add(new SocksSettingsBehavior(_config.TorSocks5EndPoint, onlyForOnionHosts: false, networkCredential: null, streamIsolation: true));
                         // allowOnlyTorEndpoints: true - Connect only to onions and don't connect to clearnet IPs at all.
                         // This of course makes the first setting unneccessary, but it's better if that's around, in case someone wants to tinker here.
                         connectionParameters.EndpointConnector = new DefaultEndpointConnector(allowOnlyTorEndpoints: Network == Network.Main);
@@ -209,12 +209,12 @@ namespace Chaincase.Common
                 }
 
                 Nodes.Connect();
-                Logger.LogInfo("Global.InitializeNoWalletAsync(): Start connecting to nodes...");
+                Logger.LogInfo($"{nameof(Global)}.InitializeNoWalletAsync(): Start connecting to nodes...");
 
                 if (regTestMempoolServingNode != null)
                 {
                     regTestMempoolServingNode.VersionHandshake();
-                    Logger.LogInfo("Global.InitializeNoWalletAsync(): Start connecting to mempool serving regtest node...");
+                    Logger.LogInfo($"{nameof(Global)}.InitializeNoWalletAsync(): Start connecting to mempool serving regtest node...");
                 }
 
                 #endregion P2PInitialization
@@ -230,26 +230,26 @@ namespace Chaincase.Common
                 int maxFiltSyncCount = Network == Network.Main ? 1000 : 10000; // On testnet, filters are empty, so it's faster to query them together
 
                 Synchronizer.Start(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
-                Logger.LogInfo("Global.InitializeNoWalletAsync(): Start synchronizing filters...");
+                Logger.LogInfo($"{nameof(Global)}.InitializeNoWalletAsync(): Start synchronizing filters...");
 
                 #endregion SynchronizerInitialization
 
-                TransactionBroadcaster = new TransactionBroadcaster(Network, BitcoinStore, Synchronizer, Nodes, WalletManager, null);
+                TransactionBroadcaster = new TransactionBroadcaster(Network, _bitcoinStore, Synchronizer, Nodes, _walletManager, null);
                 // CoinJoinProcessor maintains an event handler to process joins.
                 // We need this reference.
-                CoinJoinProcessor = new CoinJoinProcessor(Synchronizer, WalletManager, null);
+                _coinJoinProcessor = new CoinJoinProcessor(Synchronizer, _walletManager, null);
 
                 #region Blocks provider
 
                 var blockProvider = new CachedBlockProvider(
                     new SmartBlockProvider(
-                        new P2pBlockProvider(Nodes, null, Synchronizer, Config.ServiceConfiguration, Network),
+                        new P2pBlockProvider(Nodes, null, Synchronizer, _config.ServiceConfiguration, Network),
                         Cache),
                     new FileSystemBlockRepository(blocksFolderPath, Network));
 
                 #endregion Blocks provider
 
-                WalletManager.RegisterServices(BitcoinStore, Synchronizer, Nodes, Config.ServiceConfiguration, FeeProviders, blockProvider);
+                _walletManager.RegisterServices(_bitcoinStore, Synchronizer, Nodes, _config.ServiceConfiguration, FeeProviders, blockProvider);
 
                 Initialized(this, new AppInitializedEventArgs(this));
                 IsInitialized = true;
@@ -284,7 +284,7 @@ namespace Chaincase.Common
                     // of course).
                     // On the other side, increasing this number forces users that do not need to discover more peers
                     // to spend resources (CPU/bandwidth) to discover new peers.
-                    needsToDiscoverPeers = Config.UseTor == true || AddressManager.Count < 500;
+                    needsToDiscoverPeers = _config.UseTor == true || AddressManager.Count < 500;
                     Logger.LogInfo($"Loaded {nameof(AddressManager)} from `{AddressManagerFilePath}`.");
                 }
                 catch (DirectoryNotFoundException ex)
@@ -369,7 +369,7 @@ namespace Chaincase.Common
         {
             if (IsResuming)
             {
-                Logger.LogDebug($"Global.OnResuming(): SleepCts.Cancel()");
+                Logger.LogDebug($"{nameof(Global)}.OnResuming(): SleepCts.Cancel()");
                 SleepCts.Cancel();
                 return;
             }
@@ -377,14 +377,14 @@ namespace Chaincase.Common
             try
             {
                 Resumed?.Invoke(this, null);
-                Logger.LogDebug($"Global.OnResuming(): Waiting for a lock");
+                Logger.LogDebug($"{nameof(Global)}.OnResuming(): Waiting for a lock");
                 ResumeCts.Dispose();
                 ResumeCts = new CancellationTokenSource();
                 using (await LifeCycleMutex.LockAsync(ResumeCts.Token))
                 {
                     #region CriticalSection
                     IsResuming = true;
-                    Logger.LogDebug($"Global.OnResuming(): Entered critical section");
+                    Logger.LogDebug($"{nameof(Global)}.OnResuming(): Entered critical section");
 
                     // don't ever cancel Init. use an ephemeral token
                     await WaitForInitializationCompletedAsync(new CancellationToken());
@@ -395,23 +395,23 @@ namespace Chaincase.Common
                     AddressManagerBehavior addressManagerBehavior = await addrManTask.ConfigureAwait(false);
                     connectionParameters.TemplateBehaviors.Add(addressManagerBehavior);
 
-                    if (TorManager?.State != TorState.Started && TorManager.State != TorState.Connected)
+                    if (_torManager?.State != TorState.Started && _torManager.State != TorState.Connected)
                     {
-                        await TorManager.StartAsync(false, DataDir);
+                        await _torManager.StartAsync(false, DataDir);
                     }
 
                     Nodes.Connect();
-                    Logger.LogInfo("Global.OnResuming():Start connecting to nodes...");
+                    Logger.LogInfo($"{nameof(Global)}.OnResuming():Start connecting to nodes...");
 
                     var requestInterval = (Network == Network.RegTest) ? TimeSpan.FromSeconds(5) : TimeSpan.FromSeconds(30);
                     int maxFiltSyncCount = Network == Network.Main ? 1000 : 10000; // On testnet, filters are empty, so it's faster to query them together
                     Synchronizer.Resume(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
-                    Logger.LogInfo("Global.OnResuming():Start synchronizing filters...");
+                    Logger.LogInfo($"{nameof(Global)}.OnResuming():Start synchronizing filters...");
 
-                    if (WalletManager.SleepingCoins is { })
+                    if (_walletManager.SleepingCoins is { })
                     {
-                        await WalletManager.CurrentWallet.ChaumianClient.QueueCoinsToMixAsync(WalletManager.SleepingCoins);
-                        WalletManager.SleepingCoins = null;
+                        await _walletManager.CurrentWallet.ChaumianClient.QueueCoinsToMixAsync(_walletManager.SleepingCoins);
+                        _walletManager.SleepingCoins = null;
                     }
 
                     IsResuming = false;
@@ -420,11 +420,11 @@ namespace Chaincase.Common
             }
             catch (OperationCanceledException ex)
             {
-                Logger.LogTrace($"Global.OnResuming(): Exception OperationCanceledException risen: {ex}");
+                Logger.LogTrace($"{nameof(Global)}.OnResuming(): Exception OperationCanceledException risen: {ex}");
             }
             finally
             {
-                Logger.LogDebug("Global.OnResuming():Chaincase Resumed");
+                Logger.LogDebug($"{nameof(Global)}.OnResuming():Chaincase Resumed");
             }
         }
 
@@ -432,20 +432,20 @@ namespace Chaincase.Common
         {
             if (IsGoingToSleep)
             {
-                Logger.LogDebug($"Global.OnResuming(): ResumeCts.Cancel()");
+                Logger.LogDebug($"{nameof(Global)}.OnResuming(): ResumeCts.Cancel()");
                 ResumeCts.Cancel();
                 return;
             }
 
             try
             {
-                Logger.LogDebug($"Global.OnSleeping(): Waiting for a lock");
+                Logger.LogDebug($"{nameof(Global)}.OnSleeping(): Waiting for a lock");
                 SleepCts.Dispose();
                 SleepCts = new CancellationTokenSource();
                 using (await LifeCycleMutex.LockAsync(SleepCts.Token))
                 {
                     #region CriticalSection
-                    Logger.LogDebug($"Global.OnSleeping(): Entered critical section");
+                    Logger.LogDebug($"{nameof(Global)}.OnSleeping(): Entered critical section");
 
                     IsGoingToSleep = true;
 
@@ -453,20 +453,20 @@ namespace Chaincase.Common
                     await WaitForInitializationCompletedAsync(new CancellationToken());
 
 
-                    if (TorManager?.State != TorState.Stopped) // OnionBrowser && Dispose@Global
+                    if (_torManager?.State != TorState.Stopped) // OnionBrowser && Dispose@Global
                     {
-                        await TorManager.StopAsync();
-                        Logger.LogInfo($"Global.OnSleeping():{nameof(TorManager)} is stopped.");
+                        await _torManager.StopAsync();
+                        Logger.LogInfo($"{nameof(Global)}.OnSleeping():{nameof(_torManager)} is stopped.");
                     }
 
                     try
                     {
                         using var dequeueCts = new CancellationTokenSource(TimeSpan.FromMinutes(6));
-                        await WalletManager.DequeueAllCoinsGracefullyAsync(DequeueReason.ApplicationExit, dequeueCts.Token).ConfigureAwait(false);
+                        await _walletManager.DequeueAllCoinsGracefullyAsync(DequeueReason.ApplicationExit, dequeueCts.Token).ConfigureAwait(false);
                     }
                     catch (Exception ex)
                     {
-                        Logger.LogError($"Error during {nameof(WalletManager.DequeueAllCoinsGracefullyAsync)}: {ex}");
+                        Logger.LogError($"Error during {nameof(_walletManager.DequeueAllCoinsGracefullyAsync)}: {ex}");
                     }
 
                     var synchronizer = Synchronizer;
@@ -474,7 +474,7 @@ namespace Chaincase.Common
 
                     {
                         await synchronizer.SleepAsync();
-                        Logger.LogInfo($"Global.OnSleeping():{nameof(Synchronizer)} is sleeping.");
+                        Logger.LogInfo($"{nameof(Global)}.OnSleeping():{nameof(Synchronizer)} is sleeping.");
                     }
 
                     var addressManagerFilePath = AddressManagerFilePath;
@@ -484,8 +484,8 @@ namespace Chaincase.Common
                         var addressManager = AddressManager;
                         if (addressManager is { })
                         {
-                            addressManager.SavePeerFile(AddressManagerFilePath, Config.Network);
-                            Logger.LogInfo($"Global.OnSleeping():{nameof(AddressManager)} is saved to `{AddressManagerFilePath}`.");
+                            addressManager.SavePeerFile(AddressManagerFilePath, _config.Network);
+                            Logger.LogInfo($"{nameof(Global)}.OnSleeping():{nameof(AddressManager)} is saved to `{AddressManagerFilePath}`.");
                         }
                     }
 
@@ -498,7 +498,7 @@ namespace Chaincase.Common
                             await Task.Delay(50);
                         }
 
-                        Logger.LogInfo($"Global.OnSleeping():{nameof(Nodes)} are disconnected.");
+                        Logger.LogInfo($"{nameof(Global)}.OnSleeping():{nameof(Nodes)} are disconnected.");
                     }
 
                     IsGoingToSleep = false;
@@ -507,11 +507,11 @@ namespace Chaincase.Common
             }
             catch (Exception ex)
             {
-                Logger.LogWarning($"Global.OnSleeping(): Error while sleeping: {ex}");
+                Logger.LogWarning($"{nameof(Global)}.OnSleeping(): Error while sleeping: {ex}");
             }
             finally
             {
-                Logger.LogDebug("Global.OnSleeping():Chaincase Sleeping"); // no real termination on iOS
+                Logger.LogDebug($"{nameof(Global)}.OnSleeping():Chaincase Sleeping"); // no real termination on iOS
             }
         }
     }
