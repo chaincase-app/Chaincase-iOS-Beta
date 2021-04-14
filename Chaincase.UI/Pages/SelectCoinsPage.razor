@@ -1,10 +1,7 @@
 ﻿@page "/selectcoins"
 
-@using Chaincase.Common
-@inject Global Global
 @inject SelectCoinsViewModel SelectCoinsViewModel
 @inherits ReactiveComponentBase<SelectCoinsViewModel>
-
 
 <ion-content>
 
@@ -33,8 +30,6 @@
 </ion-content>
 
 <CoinDetailModal @bind-Visible="@IsDetailModalVisible" @bind-CoinViewModel="@CurrentCoinViewModel"/>
-
-
 
 
 @code {

@@ -26,7 +26,6 @@ namespace Chaincase.UI.ViewModels
 {
     public class CoinJoinViewModel : ReactiveObject
     {
-        protected Global Global { get; }
         private readonly ChaincaseWalletManager _walletManager;
         private readonly Config _config;
         private readonly INotificationManager _notificationManager;
