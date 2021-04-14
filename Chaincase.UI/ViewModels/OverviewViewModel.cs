@@ -108,7 +108,7 @@ namespace Chaincase.UI.ViewModels
             try
             {
                 var trs = _uiConfig.Transactions?.Select(ti => new TransactionViewModel(ti)) ?? new TransactionViewModel[0];
-                Transactions = new ObservableCollection<TransactionViewModel>(trs.OrderByDescending(t => t.DateTime));
+                Transactions = new ObservableCollection<TransactionViewModel>(trs.OrderByDescending(t => t.DateString));
             }
             catch (Exception ex)
             {
