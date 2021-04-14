@@ -39,12 +39,12 @@ namespace Chaincase.Common
         private string DataDir => _dataDirProvider.Get();
         private CoinJoinProcessor _coinJoinProcessor;
         private readonly ChaincaseSynchronizer _synchronizer;
+        public readonly FeeProviders _feeProviders;
 
         public string AddressManagerFilePath { get; private set; }
         public AddressManager AddressManager { get; private set; }
 
         public NodesGroup Nodes { get; private set; }
-        public FeeProviders FeeProviders { get; private set; }
         public TransactionBroadcaster TransactionBroadcaster { get; set; }
 
         /// <summary>
@@ -62,7 +62,16 @@ namespace Chaincase.Common
         private protected CancellationTokenSource SleepCts { get; set; } = new CancellationTokenSource();
         private protected bool IsGoingToSleep = false;
 
-        public Global(ITorManager torManager, IDataDirProvider dataDirProvider, Config config, UiConfig uiConfig, ChaincaseWalletManager walletManager, BitcoinStore bitcoinStore, ChaincaseSynchronizer synchronizer)
+        public Global(
+            ITorManager torManager,
+            IDataDirProvider dataDirProvider,
+            Config config,
+            UiConfig uiConfig,
+            ChaincaseWalletManager walletManager,
+            BitcoinStore bitcoinStore,
+            ChaincaseSynchronizer synchronizer,
+            FeeProviders feeProviders
+            )
         {
             _torManager = torManager;
             _dataDirProvider = dataDirProvider;
@@ -71,6 +80,7 @@ namespace Chaincase.Common
             _walletManager = walletManager;
             _bitcoinStore = bitcoinStore;
             _synchronizer = synchronizer;
+            _feeProviders = feeProviders;
             using (BenchmarkLogger.Measure())
             {
                 StoppingCts = new CancellationTokenSource();
@@ -124,18 +134,6 @@ namespace Chaincase.Common
                 _walletManager.SetMaxBestHeight(_bitcoinStore.IndexStore.SmartHeaderChain.TipHeight);
 
                 #endregion BitcoinStoreInitialization
-
-                #region FeeProviderInitialization
-                // Mirrors #region BitcoinCoreInitialization in WalletWasabi
-
-                var feeProviderList = new List<IFeeProvider>
-                {
-                    _synchronizer
-                };
-
-                FeeProviders = new FeeProviders(feeProviderList);
-
-                #endregion FeeProviderInitialization
 
                 #region MempoolInitialization
 
@@ -230,7 +228,7 @@ namespace Chaincase.Common
 
                 #endregion Blocks provider
 
-                _walletManager.RegisterServices(_bitcoinStore, _synchronizer, Nodes, _config.ServiceConfiguration, FeeProviders, blockProvider);
+                _walletManager.RegisterServices(_bitcoinStore, _synchronizer, Nodes, _config.ServiceConfiguration, _feeProviders, blockProvider);
 
                 Initialized(this, new AppInitializedEventArgs(this));
                 IsInitialized = true;
