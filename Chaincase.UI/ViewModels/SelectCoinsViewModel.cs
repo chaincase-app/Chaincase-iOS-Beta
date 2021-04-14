@@ -11,6 +11,7 @@ using Chaincase.Common.Services;
 using DynamicData;
 using NBitcoin;
 using ReactiveUI;
+using WalletWasabi.Blockchain.TransactionOutputs;
 using WalletWasabi.Blockchain.TransactionProcessing;
 using WalletWasabi.Logging;
 using WalletWasabi.Stores;

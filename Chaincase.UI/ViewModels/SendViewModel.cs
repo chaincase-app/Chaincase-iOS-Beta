@@ -154,8 +154,6 @@ namespace Chaincase.UI.ViewModels
                    {
                        FeeTarget = MaximumFeeTarget;
                    }
-
-                   SetFees();
                })
                .DisposeWith(Disposables);
         }
