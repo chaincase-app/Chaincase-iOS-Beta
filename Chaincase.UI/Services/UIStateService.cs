@@ -19,11 +19,6 @@ namespace Chaincase.UI.Services
             themeManager.SubscribeToThemeChanged(() => SetSystemTheme());
         }
 
-        public void OnResume(object sender, EventArgs args)
-        {
-            SetSystemTheme();
-        }
-
         public string Title
         {
             get => _title;
