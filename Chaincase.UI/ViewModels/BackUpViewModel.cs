@@ -8,7 +8,7 @@ using ReactiveUI;
 
 namespace Chaincase.UI.ViewModels
 {
-	public class BackUpViewModel : ReactiveObject
+    public class BackUpViewModel : ReactiveObject
     {
         private Config Config { get; }
         private UiConfig UiConfig { get; }

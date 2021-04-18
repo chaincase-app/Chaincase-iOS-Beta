@@ -7,7 +7,7 @@ using WalletWasabi.Bases;
 
 namespace Chaincase.Common
 {
-	[JsonObject(MemberSerialization.OptIn)]
+    [JsonObject(MemberSerialization.OptIn)]
     public class UiConfig : ConfigBase
     {
         private string _balance;

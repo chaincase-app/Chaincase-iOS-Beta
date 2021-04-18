@@ -17,7 +17,7 @@ using WalletWasabi.TorSocks5;
 
 namespace Chaincase.Common
 {
-	[JsonObject(MemberSerialization.OptIn)]
+    [JsonObject(MemberSerialization.OptIn)]
     public class Config : ConfigBase
     {
         public const int DefaultPrivacyLevelSome = 2;

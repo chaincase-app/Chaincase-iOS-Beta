@@ -18,7 +18,7 @@ using WalletWasabi.Stores;
 
 namespace Chaincase.UI.ViewModels
 {
-	public class SelectCoinsViewModel : ReactiveObject
+    public class SelectCoinsViewModel : ReactiveObject
     {
         private readonly ChaincaseWalletManager _walletManager;
         private readonly Config _config;
@@ -64,14 +64,14 @@ namespace Chaincase.UI.ViewModels
                 }
 
                 Observable
-	                .Merge(Observable.FromEventPattern<ProcessedResult>(_walletManager.CurrentWallet.TransactionProcessor, nameof(_walletManager.CurrentWallet.TransactionProcessor.WalletRelevantTransactionProcessed)).Select(_ => Unit.Default))
-	                .Throttle(TimeSpan.FromSeconds(1)) // Throttle TransactionProcessor events adds/removes. 
-	                .ObserveOn(RxApp.MainThreadScheduler)
-	                .Subscribe(_ =>
-	                {
-	                    UpdateRootList();
-	                })
-	                .DisposeWith(Disposables);
+                    .Merge(Observable.FromEventPattern<ProcessedResult>(_walletManager.CurrentWallet.TransactionProcessor, nameof(_walletManager.CurrentWallet.TransactionProcessor.WalletRelevantTransactionProcessed)).Select(_ => Unit.Default))
+                    .Throttle(TimeSpan.FromSeconds(1)) // Throttle TransactionProcessor events adds/removes. 
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Subscribe(_ =>
+                    {
+                        UpdateRootList();
+                    })
+                    .DisposeWith(Disposables);
             });
         }
 
@@ -87,7 +87,7 @@ namespace Chaincase.UI.ViewModels
         {
             try
             {
-                var actual =_walletManager.CurrentWallet.TransactionProcessor?.Coins?.ToHashSet()
+                var actual = _walletManager.CurrentWallet.TransactionProcessor?.Coins?.ToHashSet()
                     ?? Enumerable.Empty<SmartCoin>();
                 var old = RootList.Items.ToDictionary(c => c.Model, c => c);
 
