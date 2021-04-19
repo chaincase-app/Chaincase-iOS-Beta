@@ -1,10 +1,12 @@
-﻿using NBitcoin;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.ComponentModel;
+using System.IO;
 using System.Net;
 using System.Threading.Tasks;
+using Chaincase.Common.Contracts;
+using NBitcoin;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using WalletWasabi.Bases;
 using WalletWasabi.Exceptions;
 using WalletWasabi.Helpers;
@@ -244,8 +246,12 @@ namespace Chaincase.Common
             }
         }
 
-        public Config() : base()
+        const string FILENAME = "Config.json";
+
+        public Config(IDataDirProvider dataDirProvider)
+            : base(Path.Combine(dataDirProvider.Get(), FILENAME))
         {
+            ServiceConfiguration = new ServiceConfiguration(MixUntilAnonymitySet.ToString(), PrivacyLevelSome, PrivacyLevelFine, PrivacyLevelStrong, GetBitcoinP2pEndPoint(), DustThreshold);
         }
 
         public Config(string filePath) : base(filePath)

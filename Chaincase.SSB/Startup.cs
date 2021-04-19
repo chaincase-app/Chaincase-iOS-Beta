@@ -37,7 +37,6 @@ namespace Chaincase.SSB
 			services.AddSingleton<IMainThreadInvoker, SSBMainThreadInvoker>();
 			services.AddSingleton<ITorManager, MockTorManager>();
 			services.AddSingleton<INotificationManager, MockNotificationManager>();
-			services.AddHostedService<WalletInitializer>();
 			services.AddBlazorDownloadFile();
 		}
 

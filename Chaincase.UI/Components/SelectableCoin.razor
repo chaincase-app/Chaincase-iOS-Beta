@@ -1,5 +1,5 @@
 ﻿@using Chaincase.Common
-@inject Global Global
+@inject Config Config 
 @inherits ReactiveComponentBase<CoinViewModel>
 
 <IonItem>
@@ -23,6 +23,6 @@
     }
 
     private string PrivacyLabel(int anonymitySet) =>
-        anonymitySet >= Global.Config.PrivacyLevelSome ? "🗽" : "⚠️";
+        anonymitySet >= Config.PrivacyLevelSome ? "🗽" : "⚠️";
 
 }

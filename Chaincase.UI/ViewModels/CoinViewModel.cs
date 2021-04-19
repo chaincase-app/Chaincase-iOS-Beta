@@ -6,19 +6,22 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Chaincase.Common;
 using Chaincase.Common.Models;
+using Chaincase.Common.Services;
 using NBitcoin;
 using ReactiveUI;
-using Splat;
 using WalletWasabi.Blockchain.TransactionOutputs;
 using WalletWasabi.CoinJoin.Client.Rounds;
 using WalletWasabi.CoinJoin.Common.Models;
 using WalletWasabi.Models;
+using WalletWasabi.Stores;
 
 namespace Chaincase.UI.ViewModels
 {
 	public class CoinViewModel : ReactiveObject
 	{
-		protected Global Global { get; }
+		private readonly ChaincaseWalletManager _walletManager;
+		private readonly Config _config;
+		private readonly BitcoinStore _bitcoinStore;
 
 		public CompositeDisposable Disposables { get; set; }
 
@@ -32,9 +35,11 @@ namespace Chaincase.UI.ViewModels
 
 		public ReactiveCommand<Unit, Unit> NavBackCommand;
 
-		public CoinViewModel(Global global, SmartCoin model)
+		public CoinViewModel(ChaincaseWalletManager walletManager, Config config, BitcoinStore bitcoinStore, SmartCoin model)
 		{
-			Global = global;
+			_walletManager = walletManager;
+			_config = config;
+			_bitcoinStore = bitcoinStore;
 			Model = model;
 
 			Disposables = new CompositeDisposable();
@@ -65,12 +70,12 @@ namespace Chaincase.UI.ViewModels
 
 			Observable
 				.Merge(Model.WhenAnyValue(x => x.IsBanned, x => x.SpentAccordingToBackend, x => x.CoinJoinInProgress).Select(_ => Unit.Default))
-				.Merge(Observable.FromEventPattern(Global.Wallet.ChaumianClient, nameof(Global.Wallet.ChaumianClient.StateUpdated)).Select(_ => Unit.Default))
+				.Merge(Observable.FromEventPattern(_walletManager.CurrentWallet.ChaumianClient, nameof(_walletManager.CurrentWallet.ChaumianClient.StateUpdated)).Select(_ => Unit.Default))
 				.ObserveOn(RxApp.MainThreadScheduler)
 				.Subscribe(_ => RefreshSmartCoinStatus())
 				.DisposeWith(Disposables);
 
-			Global.BitcoinStore.SmartHeaderChain
+			_bitcoinStore.SmartHeaderChain
 				.WhenAnyValue(x => x.TipHeight).Select(_ => Unit.Default)
 				.Merge(Model.WhenAnyValue(x => x.Height).Select(_ => Unit.Default))
 				.Throttle(TimeSpan.FromSeconds(0.1)) // DO NOT TAKE THIS THROTTLE OUT, OTHERWISE SYNCING WITH COINS IN THE WALLET WILL STACKOVERFLOW!
@@ -90,10 +95,10 @@ namespace Chaincase.UI.ViewModels
 
 		public bool Unspent => _unspent?.Value ?? false;
 
-		public string Address => Model.ScriptPubKey.GetDestinationAddress(Global.Network).ToString();
+		public string Address => Model.ScriptPubKey.GetDestinationAddress(_config.Network).ToString();
 
 		public int Confirmations => Model.Height.Type == HeightType.Chain
-			? (int)Global.BitcoinStore.SmartHeaderChain.TipHeight - Model.Height.Value + 1
+			? (int)_bitcoinStore.SmartHeaderChain.TipHeight - Model.Height.Value + 1
 			: 0;
 
 		public string ToolTip
@@ -164,9 +169,9 @@ namespace Chaincase.UI.ViewModels
 				return SmartCoinStatus.MixingBanned;
 			}
 
-			if (Model.CoinJoinInProgress && Global.Wallet.ChaumianClient != null)
+			if (Model.CoinJoinInProgress && _walletManager.CurrentWallet.ChaumianClient != null)
 			{
-				ClientState clientState = Global.Wallet.ChaumianClient.State;
+				ClientState clientState = _walletManager.CurrentWallet.ChaumianClient.State;
 				foreach (var round in clientState.GetAllMixingRounds())
 				{
 					if (round.CoinsRegistered.Contains(Model))

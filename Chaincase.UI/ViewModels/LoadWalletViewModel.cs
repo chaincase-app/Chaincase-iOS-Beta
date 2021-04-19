@@ -11,13 +11,16 @@ using Splat;
 using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Helpers;
 using WalletWasabi.Logging;
+using WalletWasabi.Wallets;
 
 namespace Chaincase.UI.ViewModels
 {
 	public class LoadWalletViewModel : ReactiveObject
 	{
-		protected Global Global { get; }
-		protected IHsmStorage Hsm { get; }
+		private readonly WalletManager _walletManager;
+		private readonly Config _config;
+		private readonly UiConfig _uiConfig;
+		private readonly IHsmStorage _hsm;
 
 		private string _password;
 		private string _seedWords;
@@ -25,10 +28,12 @@ namespace Chaincase.UI.ViewModels
 		private readonly string ACCOUNT_KEY_PATH = $"m/{KeyManager.DefaultAccountKeyPath}";
 		private const int MIN_GAP_LIMIT = KeyManager.AbsoluteMinGapLimit * 4;
 
-		public LoadWalletViewModel(Global global, IHsmStorage hsmStorage)
+		public LoadWalletViewModel(WalletManager walletManager, Config config, UiConfig uiConfig, IHsmStorage hsmStorage)
 		{
-			Global = global;
-			Hsm = hsmStorage;
+			_walletManager = walletManager;
+			_config = config;
+			_uiConfig = uiConfig;
+			_hsm = hsmStorage;
 		}
 
 		public bool LoadWallet()
@@ -36,7 +41,7 @@ namespace Chaincase.UI.ViewModels
 			SeedWords = Guard.Correct(SeedWords);
 			Password = Guard.Correct(Password); // Do not let whitespaces to the beginning and to the end.
 
-			string walletFilePath = Path.Combine(Global.WalletManager.WalletDirectories.WalletsDir, $"{Global.Network}.json");
+			string walletFilePath = Path.Combine(_walletManager.WalletDirectories.WalletsDir, $"{_config.Network}.json");
 			bool isLoadSuccessful;
 
 			try
@@ -45,12 +50,12 @@ namespace Chaincase.UI.ViewModels
 
 				var mnemonic = new Mnemonic(SeedWords);
 				var km = KeyManager.Recover(mnemonic, Password, filePath: null, keyPath, MIN_GAP_LIMIT);
-				km.SetNetwork(Global.Network);
+				km.SetNetwork(_config.Network);
 				km.SetFilePath(walletFilePath);
-				Global.WalletManager.AddWallet(km);
-				Hsm.SetAsync($"{Global.Network}-seedWords", SeedWords.ToString()); // PROMPT
-				Global.UiConfig.HasSeed = true;
-				Global.UiConfig.ToFile();
+				_walletManager.AddWallet(km);
+				_hsm.SetAsync($"{_config.Network}-seedWords", SeedWords.ToString()); // PROMPT
+				_uiConfig.HasSeed = true;
+				_uiConfig.ToFile();
 				isLoadSuccessful = true;
 			}
 			catch (Exception ex)

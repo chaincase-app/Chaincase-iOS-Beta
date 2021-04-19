@@ -3,24 +3,31 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Chaincase.Common;
+using Chaincase.Common.Contracts;
 using Chaincase.Common.Models;
+using Chaincase.Common.Services;
 using NBitcoin.Protocol;
 using ReactiveUI;
 using WalletWasabi.Blockchain.Blocks;
 using WalletWasabi.Logging;
 using WalletWasabi.Models;
 using WalletWasabi.Services;
+using WalletWasabi.Stores;
 using WalletWasabi.Wallets;
 
 namespace Chaincase.UI.ViewModels
 {
-	public class StatusViewModel : ReactiveObject
+    public class StatusViewModel : ReactiveObject
     {
-        protected Global Global { get; }
+        private readonly Global _global;
+        private readonly Config _Config;
+        private readonly UiConfig _uiConfig;
+        private readonly ChaincaseWalletManager _walletManager;
+        private readonly BitcoinStore _bitcoinStore;
+        private SmartHeaderChain HashChain => _bitcoinStore.SmartHeaderChain;
+        private readonly ChaincaseSynchronizer _synchronizer;
         private CompositeDisposable Disposables { get; } = new CompositeDisposable();
         private NodesCollection Nodes { get; set; }
-        private WasabiSynchronizer Synchronizer { get; set; }
-        private SmartHeaderChain HashChain { get; set; }
 
         private ObservableAsPropertyHelper<double> _progressPercent;
 
@@ -39,15 +46,29 @@ namespace Chaincase.UI.ViewModels
         private bool _downloadingBlock;
         private StatusSet ActiveStatuses { get; }
 
-        public StatusViewModel(Global global)
+        public StatusViewModel(Global global, ChaincaseWalletManager walletManager, Config config, UiConfig uiConfig, BitcoinStore bitcoinStore, ChaincaseSynchronizer synchronizer)
         {
-            Global = global;
+            _global = global;
+            _walletManager = walletManager;
+            _bitcoinStore = bitcoinStore;
+            _Config = config;
+            _uiConfig = uiConfig;
+            _synchronizer = synchronizer;
             Backend = BackendStatus.NotConnected;
             Tor = TorStatus.NotRunning;
             Peers = 0;
             BtcPrice = "$0";
             ActiveStatuses = new StatusSet();
-            UseTor = Global.Config.UseTor; // Do not make it dynamic, because if you change this config settings only next time will it activate.
+            UseTor = _Config.UseTor; // Do not make it dynamic, because if you change this config settings only next time will it activate.
+
+            if (_global.IsInitialized)
+            {
+                OnAppInitialized(this, new AppInitializedEventArgs(_global));
+            }
+            else
+            {
+                _global.Initialized += OnAppInitialized;
+            }
 
             _status = ActiveStatuses.WhenAnyValue(x => x.CurrentStatus)
                 .Select(x => x.ToString())
@@ -55,16 +76,6 @@ namespace Chaincase.UI.ViewModels
                 .ToProperty(this, x => x.Status)
                 .DisposeWith(Disposables);
 
-
-            // Subscribe to the init function if needed
-            if (Global.IsInitialized)
-            {
-                OnInitialized(this, EventArgs.Empty);
-            }
-            else
-            {
-                Global.Initialized += OnInitialized;
-            }
             // Set number of peers currently connected
             Peers = Tor == TorStatus.NotRunning ? 0 : Nodes.Count;
             // Subscribe to downloading block activity
@@ -114,13 +125,13 @@ namespace Chaincase.UI.ViewModels
                                .ObserveOn(RxApp.MainThreadScheduler)
                                .Subscribe(_ =>
                                {
-                                   var wallet = Global.Wallet;
+                                   var wallet = _walletManager.CurrentWallet;
                                    if (wallet is { })
                                    {
                                        var startingHeight = SmartHeader.GetStartingHeader(wallet.Network).Height;
                                        if (wallet.LastProcessedFilter?.Header?.Height is uint lastProcessedFilterHeight
                                             && lastProcessedFilterHeight > startingHeight
-                                            && Global.BitcoinStore?.SmartHeaderChain?.TipHeight is uint tipHeight
+                                            && _bitcoinStore?.SmartHeaderChain?.TipHeight is uint tipHeight
                                             && tipHeight > startingHeight)
                                        {
                                            var allFilters = tipHeight - startingHeight;
@@ -147,13 +158,12 @@ namespace Chaincase.UI.ViewModels
                     {
                         walletCheckingInterval?.Dispose();
                         walletCheckingInterval = null;
-                        Global.UiConfig.Balance = Global.Wallet.Coins.TotalAmount().ToString();
-                        Global.UiConfig.ToFile();
+                        _uiConfig.Balance = _walletManager.CurrentWallet.Coins.TotalAmount().ToString();
+                        _uiConfig.ToFile();
                         TryRemoveStatus(StatusType.WalletLoading, StatusType.WalletProcessingFilters, StatusType.WalletProcessingTransactions);
                     }
                 })
                 .DisposeWith(Disposables);
-
 
             this.WhenAnyValue(x => x.FiltersLeft, x => x.DownloadingBlock)
                .ObserveOn(RxApp.MainThreadScheduler)
@@ -199,30 +209,27 @@ namespace Chaincase.UI.ViewModels
                 });
         }
 
-        public void OnInitialized(object sender, EventArgs args)
+        public void OnAppInitialized(object sender, AppInitializedEventArgs args)
         {
-            var nodes = Global.Nodes.ConnectedNodes;
-            var synchronizer = Global.Synchronizer;
+            var nodes = args.Nodes.ConnectedNodes;
             Nodes = nodes;
-            Synchronizer = synchronizer;
-            HashChain = synchronizer.BitcoinStore.SmartHeaderChain;
 
             Observable
                 .Merge(Observable.FromEventPattern<NodeEventArgs>(nodes, nameof(nodes.Added)).Select(x => true)
                 .Merge(Observable.FromEventPattern<NodeEventArgs>(nodes, nameof(nodes.Removed)).Select(x => true)
-                .Merge(Synchronizer.WhenAnyValue(x => x.TorStatus).Select(x => true))))
+                .Merge(_synchronizer.WhenAnyValue(x => x.TorStatus).Select(x => true))))
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(_ => Peers = Synchronizer.TorStatus == TorStatus.NotRunning ? 0 : Nodes.Count) // Set peers to 0 if Tor is not running, because we get Tor status from backend answer so it seems to the user that peers are connected over clearnet, while they are not.
+                .Subscribe(_ => Peers = _synchronizer.TorStatus == TorStatus.NotRunning ? 0 : Nodes.Count) // Set peers to 0 if Tor is not running, because we get Tor status from backend answer so it seems to the user that peers are connected over clearnet, while they are not.
                 .DisposeWith(Disposables);
 
-            Synchronizer.WhenAnyValue(x => x.TorStatus)
+            _synchronizer.WhenAnyValue(x => x.TorStatus)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(status => Tor = UseTor ? status : TorStatus.TurnedOff)
                 .DisposeWith(Disposables);
 
-            Synchronizer.WhenAnyValue(x => x.BackendStatus)
+            _synchronizer.WhenAnyValue(x => x.BackendStatus)
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(_ => Backend = Synchronizer.BackendStatus)
+                .Subscribe(_ => Backend = _synchronizer.BackendStatus)
                 .DisposeWith(Disposables);
 
             _filtersLeft = HashChain.WhenAnyValue(x => x.HashesLeft)
@@ -231,7 +238,7 @@ namespace Chaincase.UI.ViewModels
                 .ToProperty(this, x => x.FiltersLeft)
                 .DisposeWith(Disposables);
             // Not used right now
-            Synchronizer.WhenAnyValue(x => x.UsdExchangeRate)
+            _synchronizer.WhenAnyValue(x => x.UsdExchangeRate)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(usd => BtcPrice = $"${(long)usd}")
                 .DisposeWith(Disposables);

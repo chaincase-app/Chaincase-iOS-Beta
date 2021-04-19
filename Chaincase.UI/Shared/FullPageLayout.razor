@@ -1,11 +1,9 @@
 ﻿@inherits LayoutComponentBase 
 @using Chaincase.UI.Services
-@using Chaincase.Common
 @implements IDisposable
 @inject UIStateService StateService
 @inject NavigationManager NavigationManager
 @inject ThemeSwitcher ThemeSwitcher
-@inject Global Global
 
 <IonSplitPane when="sm" content-id="main-content">
     <IonPage class="ion-page" id="main-content">

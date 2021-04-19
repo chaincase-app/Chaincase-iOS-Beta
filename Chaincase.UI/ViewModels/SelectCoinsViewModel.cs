@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -7,18 +7,22 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Chaincase.Common;
+using Chaincase.Common.Services;
 using DynamicData;
 using NBitcoin;
 using ReactiveUI;
 using WalletWasabi.Blockchain.TransactionOutputs;
 using WalletWasabi.Blockchain.TransactionProcessing;
 using WalletWasabi.Logging;
+using WalletWasabi.Stores;
 
 namespace Chaincase.UI.ViewModels
 {
     public class SelectCoinsViewModel : ReactiveObject
     {
-        protected Global Global { get; }
+        private readonly ChaincaseWalletManager _walletManager;
+        private readonly Config _config;
+        private readonly BitcoinStore _bitcoinStore;
 
         private CompositeDisposable Disposables { get; set; }
 
@@ -34,9 +38,11 @@ namespace Chaincase.UI.ViewModels
 
         // public ReactiveCommand<CoinViewModel, Unit> OpenCoinDetail;
 
-        public SelectCoinsViewModel(Global global, bool isPrivate = false)
+        public SelectCoinsViewModel(ChaincaseWalletManager walletManager, Config config, BitcoinStore bitcoinStore, bool isPrivate = false)
         {
-            Global = global;
+            _walletManager = walletManager;
+            _config = config;
+            _bitcoinStore = bitcoinStore;
             RootList = new SourceList<CoinViewModel>();
             RootList
                 .Connect()
@@ -52,20 +58,20 @@ namespace Chaincase.UI.ViewModels
 
             Task.Run(async () =>
             {
-                while (Global.Wallet?.TransactionProcessor == null)
+                while (_walletManager.CurrentWallet?.TransactionProcessor == null)
                 {
                     await Task.Delay(50).ConfigureAwait(false);
                 }
 
                 Observable
-                   .Merge(Observable.FromEventPattern<ProcessedResult>(Global.Wallet.TransactionProcessor, nameof(Global.Wallet.TransactionProcessor.WalletRelevantTransactionProcessed)).Select(_ => Unit.Default))
-                   .Throttle(TimeSpan.FromSeconds(1)) // Throttle TransactionProcessor events adds/removes. 
-                   .ObserveOn(RxApp.MainThreadScheduler)
-                   .Subscribe(_ =>
-                   {
-                       UpdateRootList();
-                   })
-                   .DisposeWith(Disposables);
+                    .Merge(Observable.FromEventPattern<ProcessedResult>(_walletManager.CurrentWallet.TransactionProcessor, nameof(_walletManager.CurrentWallet.TransactionProcessor.WalletRelevantTransactionProcessed)).Select(_ => Unit.Default))
+                    .Throttle(TimeSpan.FromSeconds(1)) // Throttle TransactionProcessor events adds/removes. 
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Subscribe(_ =>
+                    {
+                        UpdateRootList();
+                    })
+                    .DisposeWith(Disposables);
             });
         }
 
@@ -81,7 +87,7 @@ namespace Chaincase.UI.ViewModels
         {
             try
             {
-                var actual = Global.Wallet.TransactionProcessor?.Coins?.ToHashSet()
+                var actual = _walletManager.CurrentWallet.TransactionProcessor?.Coins?.ToHashSet()
                     ?? Enumerable.Empty<SmartCoin>();
                 var old = RootList.Items.ToDictionary(c => c.Model, c => c);
 
@@ -90,7 +96,7 @@ namespace Chaincase.UI.ViewModels
 
                 RootList.RemoveMany(coinToRemove.Select(kp => kp.Value));
 
-                var newCoinViewModels = coinToAdd.Select(c => new CoinViewModel(Global, c)).ToArray();
+                var newCoinViewModels = coinToAdd.Select(c => new CoinViewModel(_walletManager, _config, _bitcoinStore, c)).ToArray();
                 foreach (var cvm in newCoinViewModels)
                 {
                     SubscribeToCoinEvents(cvm);
@@ -176,7 +182,7 @@ namespace Chaincase.UI.ViewModels
 
         private void ClearRootList() => RootList.Clear();
 
-        public void SelectPrivateCoins() => SelectCoins(x => x.AnonymitySet >= Global.Config.PrivacyLevelSome);
+        public void SelectPrivateCoins() => SelectCoins(x => x.AnonymitySet >= _config.PrivacyLevelSome);
 
         public void AfterDismissed()
         {

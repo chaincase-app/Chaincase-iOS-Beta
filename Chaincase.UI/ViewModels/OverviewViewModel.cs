@@ -1,4 +1,4 @@
-﻿ using System;
+ using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -8,12 +8,14 @@ using System.Threading.Tasks;
 using Chaincase.Common;
 using Chaincase.Common.Contracts;
 using Chaincase.Common.Models;
+using Chaincase.Common.Services;
 using NBitcoin;
 using ReactiveUI;
 using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Blockchain.Transactions;
 using WalletWasabi.Logging;
 using WalletWasabi.Models;
+using WalletWasabi.Stores;
 using WalletWasabi.Wallets;
 
 namespace Chaincase.UI.ViewModels
@@ -21,7 +23,10 @@ namespace Chaincase.UI.ViewModels
     public class OverviewViewModel : ReactiveObject
     {
         private readonly IMainThreadInvoker _mainThreadInvoker;
-        private readonly Global _global;
+        private readonly ChaincaseWalletManager _walletManager;
+        private readonly Config _config;
+        private readonly UiConfig _uiConfig;
+        private readonly BitcoinStore _bitcoinStore;
 
         private ObservableCollection<TransactionViewModel> _transactions;
         public string _balance;
@@ -31,24 +36,27 @@ namespace Chaincase.UI.ViewModels
         private ObservableAsPropertyHelper<bool> _canBackUp;
         private bool _isWalletInitialized;
 
-        public OverviewViewModel(Global global, IMainThreadInvoker mainThreadInvoker)
+        public OverviewViewModel(ChaincaseWalletManager walletManager, Config config, UiConfig uiConfig, BitcoinStore bitcoinStore, IMainThreadInvoker mainThreadInvoker)
         {
-            _global = global;
+            _walletManager = walletManager;
+            _config = config;
+            _uiConfig = uiConfig;
+            _bitcoinStore = bitcoinStore;
             _mainThreadInvoker = mainThreadInvoker;
             Transactions = new ObservableCollection<TransactionViewModel>();
 
-            if (_global.HasWalletFile() && _global.Wallet == null)
+            if (_walletManager.HasDefaultWalletFile() && _walletManager.CurrentWallet == null)
             {
-                _global.SetDefaultWallet();
+                _walletManager.SetDefaultWallet();
                 Task.Run(async () => await LoadWalletAsync());
 
                 TryWriteTableFromCache();
             }
 
-            _hasSeed = this.WhenAnyValue(x => x._global.UiConfig.HasSeed)
+            _hasSeed = this.WhenAnyValue(x => x._uiConfig.HasSeed)
                 .ToProperty(this, nameof(HasSeed));
 
-            _isBackedUp = this.WhenAnyValue(x => x._global.UiConfig.IsBackedUp)
+            _isBackedUp = this.WhenAnyValue(x => x._uiConfig.IsBackedUp)
                 .ToProperty(this, nameof(IsBackedUp));
 
             var canBackUp = this.WhenAnyValue(x => x.HasSeed, x => x.IsBackedUp,
@@ -56,7 +64,7 @@ namespace Chaincase.UI.ViewModels
 
             canBackUp.ToProperty(this, x => x.CanBackUp, out _canBackUp);
 
-            Balance = _global.UiConfig.Balance;
+            Balance = _uiConfig.Balance;
 
             Initializing += OnInit;
             Initializing(this, EventArgs.Empty);
@@ -69,7 +77,7 @@ namespace Chaincase.UI.ViewModels
         {
             Initializing -= OnInit;
 
-            while (_global.Wallet == null || _global.Wallet.State < WalletState.Initialized)
+            while (_walletManager.CurrentWallet == null || _walletManager.CurrentWallet.State < WalletState.Initialized)
             {
                 await Task.Delay(200);
             }
@@ -77,17 +85,17 @@ namespace Chaincase.UI.ViewModels
             _mainThreadInvoker.Invoke(() =>
             {
                 //CoinList = new CoinListViewModel();
-                Observable.FromEventPattern(_global.Wallet.TransactionProcessor, nameof(_global.Wallet.TransactionProcessor.WalletRelevantTransactionProcessed))
+                Observable.FromEventPattern(_walletManager.CurrentWallet.TransactionProcessor, nameof(_walletManager.CurrentWallet.TransactionProcessor.WalletRelevantTransactionProcessed))
                    .Throttle(TimeSpan.FromSeconds(0.1))
                    .ObserveOn(RxApp.MainThreadScheduler)
                    .Subscribe(_ =>
                    {
                        // TODO make ObservableAsPropertyHelper
-                       Balance = _global.Wallet.Coins.TotalAmount().ToString();
+                       Balance = _walletManager.CurrentWallet.Coins.TotalAmount().ToString();
                    });
 
-                Observable.FromEventPattern(_global.Wallet, nameof(_global.Wallet.NewBlockProcessed))
-                    .Merge(Observable.FromEventPattern(_global.Wallet.TransactionProcessor, nameof(_global.Wallet.TransactionProcessor.WalletRelevantTransactionProcessed)))
+                Observable.FromEventPattern(_walletManager.CurrentWallet, nameof(_walletManager.CurrentWallet.NewBlockProcessed))
+                    .Merge(Observable.FromEventPattern(_walletManager.CurrentWallet.TransactionProcessor, nameof(_walletManager.CurrentWallet.TransactionProcessor.WalletRelevantTransactionProcessed)))
                     .Throttle(TimeSpan.FromSeconds(3))
                     .ObserveOn(RxApp.MainThreadScheduler)
                     .Subscribe(async _ => await TryRewriteTableAsync());
@@ -99,7 +107,7 @@ namespace Chaincase.UI.ViewModels
         {
             try
             {
-                var trs = _global.UiConfig.Transactions?.Select(ti => new TransactionViewModel(ti)) ?? new TransactionViewModel[0];
+                var trs = _uiConfig.Transactions?.Select(ti => new TransactionViewModel(ti)) ?? new TransactionViewModel[0];
                 Transactions = new ObservableCollection<TransactionViewModel>(trs.OrderByDescending(t => t.DateString));
             }
             catch (Exception ex)
@@ -112,13 +120,13 @@ namespace Chaincase.UI.ViewModels
         {
             try
             {
-                var historyBuilder = new TransactionHistoryBuilder(_global.Wallet);
+                var historyBuilder = new TransactionHistoryBuilder(_walletManager.CurrentWallet);
                 var txRecordList = await Task.Run(historyBuilder.BuildHistorySummary);
                 var tis = txRecordList.Select(txr => new TransactionInfo
                 {
                     DateTime = txr.DateTime.ToLocalTime(),
                     Confirmed = txr.Height.Type == HeightType.Chain,
-                    Confirmations = txr.Height.Type == HeightType.Chain ? (int)_global.BitcoinStore.SmartHeaderChain.TipHeight - txr.Height.Value + 1 : 0,
+                    Confirmations = txr.Height.Type == HeightType.Chain ? (int)_bitcoinStore.SmartHeaderChain.TipHeight - txr.Height.Value + 1 : 0,
                     AmountBtc = $"{txr.Amount.ToString(fplus: true, trimExcessZero: true)}",
                     Label = txr.Label,
                     BlockHeight = txr.Height.Type == HeightType.Chain ? txr.Height.Value : 0,
@@ -130,8 +138,8 @@ namespace Chaincase.UI.ViewModels
 
                 Transactions = new ObservableCollection<TransactionViewModel>(trs.OrderByDescending(t => t.DateString));
 
-                _global.UiConfig.Transactions = tis.ToArray();
-                _global.UiConfig.ToFile(); // write to file once height is the highest
+                _uiConfig.Transactions = tis.ToArray();
+                _uiConfig.ToFile(); // write to file once height is the highest
             }
             catch (Exception ex)
             {
@@ -141,8 +149,8 @@ namespace Chaincase.UI.ViewModels
 
         private async Task LoadWalletAsync()
         {
-            string walletName = _global.Network.ToString();
-            KeyManager keyManager = _global.WalletManager.GetWalletByName(walletName).KeyManager;
+            string walletName = _config.Network.ToString();
+            KeyManager keyManager = _walletManager.GetWalletByName(walletName).KeyManager;
             if (keyManager is null)
             {
                 return;
@@ -150,7 +158,7 @@ namespace Chaincase.UI.ViewModels
 
             try
             {
-                _global.Wallet = await _global.WalletManager.StartWalletAsync(keyManager);
+                _walletManager.CurrentWallet = await _walletManager.StartWalletAsync(keyManager);
                 // Successfully initialized.
             }
             catch (OperationCanceledException ex)

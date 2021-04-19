@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
@@ -20,12 +20,21 @@ using System.Threading.Tasks;
 using WalletWasabi.Blockchain.Analysis.Clustering;
 using WalletWasabi.Blockchain.TransactionBuilding;
 using WalletWasabi.Exceptions;
+using Chaincase.Common.Services;
+using Chaincase.Common.Contracts;
+using WalletWasabi.Blockchain.TransactionBroadcasting;
 
 namespace Chaincase.UI.ViewModels
 {
     public class SendViewModel : ReactiveObject
     {
-        protected Global Global { get; }
+        private TransactionBroadcaster _transactionBroadcaster;
+
+        private readonly Global _global;
+        private readonly ChaincaseWalletManager _walletManager;
+        private readonly Config _config;
+        private readonly UiConfig _uiConfig;
+        private readonly FeeProviders _feeProviders;
 
         private bool _isMax;
         private string _amountText;
@@ -49,13 +58,27 @@ namespace Chaincase.UI.ViewModels
 
         protected CompositeDisposable Disposables { get; } = new CompositeDisposable();
 
-        public SendViewModel(Global global, SelectCoinsViewModel selectCoinsViewModel)
+        public SendViewModel(Global global, ChaincaseWalletManager walletManager, Config config, UiConfig uiConfig, SelectCoinsViewModel selectCoinsViewModel, FeeProviders feeProviders)
         {
-            Global = global;
+            _global = global;
+            _walletManager = walletManager;
+            _config = config;
+            _uiConfig = uiConfig;
+            _feeProviders = feeProviders;
+
             SelectCoinsViewModel = selectCoinsViewModel;
             AmountText = "0.0";
             AllSelectedAmount = Money.Zero;
             EstimatedBtcFee = Money.Zero;
+
+            if (_global.IsInitialized)
+            {
+                OnAppInitialized(this, new AppInitializedEventArgs(_global));
+            }
+            else
+            {
+                _global.Initialized += OnAppInitialized;
+            }
 
             _outputAmount = this.WhenAnyValue(x => x.AmountText,
                 (amountText) =>
@@ -80,34 +103,8 @@ namespace Chaincase.UI.ViewModels
                 .ToProperty(this, x => x.MinMaxFeeTargetsEqual, scheduler: RxApp.MainThreadScheduler);
 
             SetFeeTargetLimits();
-            FeeTarget = Global.UiConfig.FeeTarget;
+            FeeTarget = _uiConfig.FeeTarget;
             FeeRate = new FeeRate((decimal)50); //50 sat/vByte placeholder til loads
-
-            Task.Run(async () =>
-            {
-                while (Global.FeeProviders == null)
-                {
-                    await Task.Delay(50).ConfigureAwait(false);
-                }
-
-                Observable
-                .FromEventPattern<AllFeeEstimate>(Global.FeeProviders, nameof(Global.FeeProviders.AllFeeEstimateChanged))
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(_ =>
-                {
-                    SetFeeTargetLimits();
-
-                    if (FeeTarget < MinimumFeeTarget) // Should never happen.
-                    {
-                        FeeTarget = MinimumFeeTarget;
-                    }
-                    else if (FeeTarget > MaximumFeeTarget)
-                    {
-                        FeeTarget = MaximumFeeTarget;
-                    }
-                })
-                .DisposeWith(Disposables);
-            });
 
             this.WhenAnyValue(x => x.FeeTarget)
                 .ObserveOn(RxApp.MainThreadScheduler)
@@ -138,6 +135,29 @@ namespace Chaincase.UI.ViewModels
             SendTransactionCommand = ReactiveCommand.CreateFromTask<string, bool>(SendTransaction, isTransactionOkToSign);
         }
 
+        public void OnAppInitialized(object sender, AppInitializedEventArgs args)
+        {
+            _transactionBroadcaster = args.TransactionBroadcaster;
+
+            Observable
+               .FromEventPattern<AllFeeEstimate>(_feeProviders, nameof(_feeProviders.AllFeeEstimateChanged))
+               .ObserveOn(RxApp.MainThreadScheduler)
+               .Subscribe(_ =>
+               {
+                   SetFeeTargetLimits();
+
+                   if (FeeTarget < MinimumFeeTarget) // Should never happen.
+                   {
+                       FeeTarget = MinimumFeeTarget;
+                   }
+                   else if (FeeTarget > MaximumFeeTarget)
+                   {
+                       FeeTarget = MaximumFeeTarget;
+                   }
+               })
+               .DisposeWith(Disposables);
+        }
+
         internal BitcoinUrlBuilder ParseDestinationString(string destinationString)
         {
             if (destinationString == null) return null;
@@ -145,7 +165,7 @@ namespace Chaincase.UI.ViewModels
             BitcoinUrlBuilder url = null;
             try
             {
-                url = new BitcoinUrlBuilder(destinationString, Global.Network);
+                url = new BitcoinUrlBuilder(destinationString, _config.Network);
                 if (url.Amount != null)
                 {
                     // since AmountText can be altered by hand, we set it instead
@@ -161,7 +181,7 @@ namespace Chaincase.UI.ViewModels
 
             try
             {
-                BitcoinAddress address = BitcoinAddress.Create(destinationString.Trim(), Global.Network);
+                BitcoinAddress address = BitcoinAddress.Create(destinationString.Trim(), _config.Network);
                 url = new BitcoinUrlBuilder();
                 url.Address = address;
             }
@@ -206,7 +226,7 @@ namespace Chaincase.UI.ViewModels
 
         private void ApplyFees()
         {
-            AllFeeEstimate allFeeEstimate = Global.FeeProviders?.AllFeeEstimate;
+            AllFeeEstimate allFeeEstimate = _feeProviders?.AllFeeEstimate;
 
             if (allFeeEstimate is { })
             {
@@ -269,7 +289,7 @@ namespace Chaincase.UI.ViewModels
 
         private void SetFeeTargetLimits()
         {
-            var allFeeEstimate = Global.FeeProviders?.AllFeeEstimate;
+            var allFeeEstimate = _feeProviders?.AllFeeEstimate;
 
             if (allFeeEstimate != null)
             {
@@ -351,7 +371,7 @@ namespace Chaincase.UI.ViewModels
                 requests.Add(activeDestinationRequest);
                 var intent = new PaymentIntent(requests);
 
-                var result = await Task.Run(() => Global.Wallet.BuildTransaction(
+                var result = await Task.Run(() => _walletManager.CurrentWallet.BuildTransaction(
                     password,
                     intent,
                     feeStrategy,
@@ -360,7 +380,7 @@ namespace Chaincase.UI.ViewModels
                 SmartTransaction signedTransaction = result.Transaction;
                 SignedTransaction = signedTransaction;
 
-                await Global.TransactionBroadcaster.SendTransactionAsync(signedTransaction); // put this on non-ui theread?
+                await _transactionBroadcaster.SendTransactionAsync(signedTransaction); // put this on non-ui theread?
 
                 return true;
             }

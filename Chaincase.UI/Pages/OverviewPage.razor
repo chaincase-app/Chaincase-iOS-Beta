@@ -1,12 +1,13 @@
 ﻿@layout TabLayout
 @page "/overview"
 @using Chaincase.UI.Services
-@using Chaincase.Common
+@using Chaincase.Common.Services
+
 @inject OverviewViewModel IndexViewModel
 @inject UIStateService UiStateService
 @inject StackService StackService
 @inject NavigationManager NavigationManager
-@inject Global Global
+@inject ChaincaseWalletManager WalletManager
 
 @inherits ReactiveComponentBase<OverviewViewModel>
 
@@ -82,7 +83,7 @@
     {
         ViewModel = IndexViewModel;
 
-        if (!Global.HasWalletFile())
+        if (!WalletManager.HasDefaultWalletFile())
             NavigationManager.NavigateTo("landing");
 
         UiStateService.Title = "Chaincase";

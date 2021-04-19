@@ -1,8 +1,7 @@
-﻿@page "/selectcoins"
+@page "/selectcoins"
 
 @using Chaincase.Common
 @using Chaincase.UI.Services
-@inject Global Global
 @inject UIStateService UiStateService
 @inject SelectCoinsViewModel SelectCoinsViewModel
 @inherits ReactiveComponentBase<SelectCoinsViewModel>
@@ -50,7 +49,6 @@
     </IonCard>
 </IonFooter>
 <CoinDetailModal @bind-Visible="@IsDetailModalVisible" @bind-CoinViewModel="@CurrentCoinViewModel" />
-
 
 @code {
 

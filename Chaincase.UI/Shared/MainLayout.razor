@@ -1,11 +1,9 @@
 ﻿@inherits LayoutComponentBase 
 @using Chaincase.UI.Services
-@using Chaincase.Common
 @implements IDisposable
 @inject UIStateService StateService
 @inject StackService StackService
 @inject ThemeSwitcher ThemeSwitcher
-@inject Global Global
 
 <ion-split-pane when="sm" content-id="main-content" disabled="@StackService.AnyStackState">
     <ion-page class="ion-page" id="main-content">
