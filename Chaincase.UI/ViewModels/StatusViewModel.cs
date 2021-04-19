@@ -17,11 +17,6 @@ using WalletWasabi.Wallets;
 
 namespace Chaincase.UI.ViewModels
 {
-    public class StatusEventArgs : EventArgs
-    {
-
-    }
-
     public class StatusViewModel : ReactiveObject
     {
         private readonly Global _global;
