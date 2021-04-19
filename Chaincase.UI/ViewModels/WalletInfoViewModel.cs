@@ -22,15 +22,6 @@ namespace Chaincase.UI.ViewModels
             _dataDirProvider = dataDirProvider;
 
             // var canBackUp = this.WhenAnyValue(x => x.Global.UiConfig.HasSeed, hs => hs == true);
-
-            //NavBackUpCommand = ReactiveCommand.CreateFromObservable(() =>
-            //{
-            //	ViewStackService.PushPage(new StartBackUpViewModel()).Subscribe();
-            //	return Observable.Return(Unit.Default);
-            //}, canBackUp);
-
-            //ShareLogsCommand = ReactiveCommand.CreateFromTask(ShareLogs);
-            //ExportWalletCommand = ReactiveCommand.CreateFromTask(ExportWallet);
         }
 
         public async Task ShareDebugLog()

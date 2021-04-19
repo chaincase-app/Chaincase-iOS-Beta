@@ -99,6 +99,5 @@ namespace Chaincase
         {
             Logger.LogWarning(e?.ExceptionObject as Exception, "UnhandledException");
         }
-
     }
 }
