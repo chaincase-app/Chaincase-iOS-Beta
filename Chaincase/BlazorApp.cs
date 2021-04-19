@@ -5,7 +5,6 @@ using Chaincase.Common;
 using Chaincase.Common.Contracts;
 using Chaincase.Services;
 using Chaincase.UI.Services;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
@@ -15,7 +14,7 @@ using Xamarin.Forms;
 
 namespace Chaincase
 {
-    public class BlazorApp : Application
+	public class BlazorApp : Application
     {
         private readonly IHost _host;
 
@@ -53,13 +52,11 @@ namespace Chaincase
                 hostBuilder.UseStaticFiles();
             }
 
-            _host = hostBuilder.Build();
-
-
-            MainPage = new ContentPage { Title = "Chaincase" };
-
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
+
+            _host = hostBuilder.Build();
+            MainPage = new ContentPage { Title = "Chaincase" };
 
             _host.AddComponent<Main>(parent: MainPage);
         }
