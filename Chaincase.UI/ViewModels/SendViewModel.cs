@@ -71,14 +71,14 @@ namespace Chaincase.UI.ViewModels
             AllSelectedAmount = Money.Zero;
             EstimatedBtcFee = Money.Zero;
 
-			if (_global.IsInitialized)
-			{
-				OnAppInitialized(this, new AppInitializedEventArgs(_global));
-			}
-			else
-			{
-				_global.Initialized += OnAppInitialized;
-			}
+            if (_global.IsInitialized)
+            {
+                OnAppInitialized(this, new AppInitializedEventArgs(_global));
+            }
+            else
+            {
+                _global.Initialized += OnAppInitialized;
+            }
 
             _outputAmount = this.WhenAnyValue(x => x.AmountText,
                 (amountText) =>
@@ -136,7 +136,7 @@ namespace Chaincase.UI.ViewModels
         }
 
         public void OnAppInitialized(object sender, AppInitializedEventArgs args)
-		{
+        {
             _transactionBroadcaster = args.TransactionBroadcaster;
 
             Observable
@@ -147,7 +147,7 @@ namespace Chaincase.UI.ViewModels
                    SetFeeTargetLimits();
 
                    if (FeeTarget < MinimumFeeTarget) // Should never happen.
-                    {
+                   {
                        FeeTarget = MinimumFeeTarget;
                    }
                    else if (FeeTarget > MaximumFeeTarget)
