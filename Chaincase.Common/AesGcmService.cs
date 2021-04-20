@@ -9,17 +9,16 @@ namespace Chaincase.Common.Services
     public class AesGcmService : IDisposable
     {
         private readonly AesGcm _aes;
+        private const int ITERATIONS = 1000; // "A modest number" @ RFC 2898
 
-        public AesGcmService(string password)
+        // <param name="salt">a UNIQUE value, e.g. a random 64 bits long</param>
+        public AesGcmService(string password, byte[] salt)
         {
             // Derive key
             // AES key size is 16 bytes
-            // TODO SALT PROPERLY 🧂
-            // We use a fixed salt and small iteration count here; the latter should be increased for weaker passwords
-            byte[] key = new Rfc2898DeriveBytes(password, new byte[8], 1000).GetBytes(16);
+            byte[] key = new Rfc2898DeriveBytes(password, salt, ITERATIONS).GetBytes(16);
 
             // Initialize AES implementation
-            // TODO Fuel AesGcm with an intermediate key so the pw can be changed
             _aes = new AesGcm(key);
         }
 
