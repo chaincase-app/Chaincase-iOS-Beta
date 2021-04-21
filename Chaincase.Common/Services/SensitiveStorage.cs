@@ -25,10 +25,12 @@ namespace Chaincase.Common.Services
 
         public async Task SetSeedWords(string password, string seedWords)
         {
-            var encryptor = new AesGcmService(await GetOrDefaultIntermediateKey(password));
+            var iKey = await GetOrDefaultIntermediateKey(password);
+            using var encryptor = new AesGcmService(iKey);
 
             var cSeedWords = encryptor.Encrypt(seedWords);
             await _hsm.SetAsync($"{_config.Network}-seedWords", cSeedWords);
+            encryptor.Dispose();
         }
 
         // Use an intermediate key. That way the main password could be changed
@@ -41,7 +43,7 @@ namespace Chaincase.Common.Services
             {
                 string iKeySaltString = await _hsm.GetAsync(I_KEY_SALT_LOC);
                 byte[] iKeySalt = Convert.FromBase64String(iKeySaltString);
-                var decryptor = new AesGcmService(password, iKeySalt);
+                using var decryptor = new AesGcmService(password, iKeySalt);
                 string encIKeyString = await _hsm.GetAsync(I_KEY_LOC);
                 var iKeyString = decryptor.Decrypt(encIKeyString);
                 iKey = Encoding.UTF8.GetBytes(iKeyString);
@@ -50,7 +52,7 @@ namespace Chaincase.Common.Services
             // there must not be an intermediate key yet
             catch (Exception)
             {
-                // pick one at cryptographically-secure pseudo-random
+                // default one at cryptographically-secure pseudo-random
                 RNG.GetBytes(iKey);
                 var iKeyString = Convert.ToBase64String(iKey);
 
@@ -59,7 +61,7 @@ namespace Chaincase.Common.Services
                 RNG.GetBytes(iKeySalt);
 
                 // store it encrypted under the password
-                var encryptor = new AesGcmService(password, iKeySalt);
+                using var encryptor = new AesGcmService(password, iKeySalt);
                 var encIKeyString = encryptor.Encrypt(iKeyString);
 
                 var iKeySaltString = Convert.ToBase64String(iKeySalt);
