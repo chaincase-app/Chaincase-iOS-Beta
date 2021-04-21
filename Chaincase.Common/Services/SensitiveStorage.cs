@@ -29,8 +29,18 @@ namespace Chaincase.Common.Services
             using var encryptor = new AesGcmService(iKey);
 
             var cSeedWords = encryptor.Encrypt(seedWords);
-            await _hsm.SetAsync($"{_config.Network}-seedWords", cSeedWords);
+            await _hsm.SetAsync($"{_config.Network}-cSeedWords", cSeedWords);
             encryptor.Dispose();
+        }
+
+        public async Task<string> GetSeedWords(string password)
+        {
+            var iKey = await GetOrDefaultIntermediateKey(password);
+            using var cryptor = new AesGcmService(iKey);
+
+            var cSeedWords = await _hsm.GetAsync($"{_config.Network}-cSeedWords");
+            var seedWords = cryptor.Decrypt(cSeedWords);
+            return seedWords;
         }
 
         // Use an intermediate key. That way the main password could be changed
