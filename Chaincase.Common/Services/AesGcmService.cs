@@ -11,6 +11,12 @@ namespace Chaincase.Common.Services
         private readonly AesGcm _aes;
         private const int ITERATIONS = 1000; // "A modest number" @ RFC 2898
 
+        // <param name="key">a 256 bit key</param>
+        public AesGcmService(byte[] key)
+		{
+            _aes = new AesGcm(key);
+		}
+
         // <param name="salt">a UNIQUE value, e.g. a random 64 bits long</param>
         public AesGcmService(string password, byte[] salt)
         {
