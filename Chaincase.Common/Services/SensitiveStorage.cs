@@ -12,11 +12,7 @@ namespace Chaincase.Common.Services
     {
         private readonly IHsmStorage _hsm;
         private readonly Network _network;
-        private RNGCryptoServiceProvider RNG;
-        private const int I_KEY_LENGTH = 64; // bytes
         private const string I_KEY_LOC = "i_key";
-        private const string I_KEY_SALT_LOC = "i_key_salt";
-
 
         public SensitiveStorage(IHsmStorage hsm, Network network)
         {
@@ -46,7 +42,7 @@ namespace Chaincase.Common.Services
         // for access without a static password.
         public async Task<byte[]> GetOrDefaultIntermediateKey(string password)
         {
-            byte[] iKey = new byte[I_KEY_LENGTH];
+            byte[] iKey;
             try
             {
                 string encIKeyString = await _hsm.GetAsync(I_KEY_LOC);

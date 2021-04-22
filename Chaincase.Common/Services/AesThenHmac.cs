@@ -1,8 +1,8 @@
 ﻿/*
- * This work (Modern Encryption of a String C#, by James Tuley), 
- * identified by James Tuley, is free of known copyright restrictions.
+ * based on Modern Encryption of a String C#, by James Tuley, 
  * https://gist.github.com/4336842
- * http://creativecommons.org/publicdomain/mark/1.0/ 
+ * 
+ * Dan Gould 2021
  */
 
 using System;
@@ -10,7 +10,6 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-
 
 namespace Chaincase.Common.Services
 {
