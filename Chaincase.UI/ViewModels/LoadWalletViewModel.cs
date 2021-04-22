@@ -1,8 +1,10 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using Chaincase;
 using Chaincase.Common;
 using Chaincase.Common.Contracts;
+using Chaincase.Common.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NBitcoin;
@@ -15,67 +17,67 @@ using WalletWasabi.Wallets;
 
 namespace Chaincase.UI.ViewModels
 {
-	public class LoadWalletViewModel : ReactiveObject
-	{
-		private readonly WalletManager _walletManager;
-		private readonly Config _config;
-		private readonly UiConfig _uiConfig;
-		private readonly IHsmStorage _hsm;
+    public class LoadWalletViewModel : ReactiveObject
+    {
+        private readonly WalletManager _walletManager;
+        private readonly Config _config;
+        private readonly UiConfig _uiConfig;
+        private readonly SensitiveStorage _storage;
 
-		private string _password;
-		private string _seedWords;
+        private string _password;
+        private string _seedWords;
 
-		private readonly string ACCOUNT_KEY_PATH = $"m/{KeyManager.DefaultAccountKeyPath}";
-		private const int MIN_GAP_LIMIT = KeyManager.AbsoluteMinGapLimit * 4;
+        private readonly string ACCOUNT_KEY_PATH = $"m/{KeyManager.DefaultAccountKeyPath}";
+        private const int MIN_GAP_LIMIT = KeyManager.AbsoluteMinGapLimit * 4;
 
-		public LoadWalletViewModel(WalletManager walletManager, Config config, UiConfig uiConfig, IHsmStorage hsmStorage)
-		{
-			_walletManager = walletManager;
-			_config = config;
-			_uiConfig = uiConfig;
-			_hsm = hsmStorage;
-		}
+        public LoadWalletViewModel(WalletManager walletManager, Config config, UiConfig uiConfig, SensitiveStorage storage)
+        {
+            _walletManager = walletManager;
+            _config = config;
+            _uiConfig = uiConfig;
+            _storage = storage;
+        }
 
-		public bool LoadWallet()
-		{
-			SeedWords = Guard.Correct(SeedWords);
-			Password = Guard.Correct(Password); // Do not let whitespaces to the beginning and to the end.
+        public async Task<bool> LoadWallet()
+        {
+            SeedWords = Guard.Correct(SeedWords);
+            Password = Guard.Correct(Password); // Do not let whitespaces to the beginning and to the end.
 
-			string walletFilePath = Path.Combine(_walletManager.WalletDirectories.WalletsDir, $"{_config.Network}.json");
-			bool isLoadSuccessful;
+            string walletFilePath = Path.Combine(_walletManager.WalletDirectories.WalletsDir, $"{_config.Network}.json");
+            bool isLoadSuccessful;
 
-			try
-			{
-				KeyPath.TryParse(ACCOUNT_KEY_PATH, out KeyPath keyPath);
+            try
+            {
+                KeyPath.TryParse(ACCOUNT_KEY_PATH, out KeyPath keyPath);
 
-				var mnemonic = new Mnemonic(SeedWords);
-				var km = KeyManager.Recover(mnemonic, Password, filePath: null, keyPath, MIN_GAP_LIMIT);
-				km.SetNetwork(_config.Network);
-				km.SetFilePath(walletFilePath);
-				_walletManager.AddWallet(km);
-				_hsm.SetAsync($"{_config.Network}-seedWords", SeedWords.ToString()); // PROMPT
-				_uiConfig.HasSeed = true;
-				_uiConfig.ToFile();
-				isLoadSuccessful = true;
-			}
-			catch (Exception ex)
-			{
-				Logger.LogError(ex);
-				isLoadSuccessful =  false;
-			}
-			return isLoadSuccessful;
-		}
+                var mnemonic = new Mnemonic(SeedWords);
+                var km = KeyManager.Recover(mnemonic, Password, filePath: null, keyPath, MIN_GAP_LIMIT);
+                km.SetNetwork(_config.Network);
+                km.SetFilePath(walletFilePath);
+                _walletManager.AddWallet(km);
+                await _storage.SetSeedWords(Password, mnemonic.ToString());
+                _uiConfig.HasSeed = true;
+                _uiConfig.ToFile();
+                isLoadSuccessful = true;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex);
+                isLoadSuccessful = false;
+            }
+            return isLoadSuccessful;
+        }
 
-		public string Password
-		{
-			get => _password;
-			set => this.RaiseAndSetIfChanged(ref _password, value);
-		}
+        public string Password
+        {
+            get => _password;
+            set => this.RaiseAndSetIfChanged(ref _password, value);
+        }
 
-		public string SeedWords
-		{
-			get => _seedWords;
-			set => this.RaiseAndSetIfChanged(ref _seedWords, value);
-		}
-	}
+        public string SeedWords
+        {
+            get => _seedWords;
+            set => this.RaiseAndSetIfChanged(ref _seedWords, value);
+        }
+    }
 }
