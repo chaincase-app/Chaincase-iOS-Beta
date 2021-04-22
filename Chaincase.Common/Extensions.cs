@@ -19,6 +19,7 @@ namespace Chaincase.Common
             services.AddSingleton<Global>();
             services.AddSingleton<Config>();
             services.AddSingleton<UiConfig>();
+            services.AddSingleton<SensitiveStorage>();
             services.AddSingleton(x => {
                 var config = x.GetRequiredService<Config>();
                 // TODO FEEL ENOUGH PAIN FROM THIS ANTIPATTERN TO FIX IT

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Chaincase.Common;
 using Chaincase.Common.Contracts;
 using Chaincase.Common.Services;
 using NBitcoin;
@@ -13,7 +14,8 @@ namespace Chaincase.Tests
         [Fact]
         public void CanStoreSeedWords()
         {
-            SensitiveStorage storage = new(new MockHsm(), Network.Main);
+            var mockConfig = new Config("");
+            SensitiveStorage storage = new(new MockHsm(), mockConfig);
             string password = "password";
             Mnemonic mnemonic = new(Wordlist.English);
             storage.SetSeedWords(password, mnemonic.ToString());

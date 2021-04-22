@@ -16,14 +16,14 @@ namespace Chaincase.UI.ViewModels
         private readonly WalletManager _walletManager;
         private readonly Config _config;
         private readonly UiConfig _uiConfig;
-        private readonly IHsmStorage _hsm;
+        private readonly SensitiveStorage _storage;
 
-        public NewPasswordViewModel(WalletManager walletManager, Config config, UiConfig uiConfig, IHsmStorage hsmStorage)
+        public NewPasswordViewModel(WalletManager walletManager, Config config, UiConfig uiConfig, SensitiveStorage storage)
         {
             _walletManager = walletManager;
             _config = config;
             _uiConfig = uiConfig;
-            _hsm = hsmStorage;
+            _storage = storage;
         }
 
         public async Task SetPasswordAsync(string password)
@@ -35,8 +35,7 @@ namespace Chaincase.UI.ViewModels
             string walletFilePath = Path.Combine(_walletManager.WalletDirectories.WalletsDir, $"{_config.Network}.json");
             KeyManager.CreateNew(out Mnemonic seedWords, password, walletFilePath);
 
-            var cryptor = new SensitiveStorage(_hsm, _config.Network);
-            await cryptor.SetSeedWords(password, seedWords.ToString());
+            await _storage.SetSeedWords(password, seedWords.ToString());
 
             // this should not be a config
             _uiConfig.HasSeed = true;

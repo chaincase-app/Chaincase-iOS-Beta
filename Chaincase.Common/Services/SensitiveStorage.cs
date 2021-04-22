@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 using Chaincase.Common.Contracts;
 using NBitcoin;
@@ -14,25 +12,23 @@ namespace Chaincase.Common.Services
         private readonly Network _network;
         private const string I_KEY_LOC = "i_key";
 
-        public SensitiveStorage(IHsmStorage hsm, Network network)
+        public SensitiveStorage(IHsmStorage hsm, Config config)
         {
-            RNG = new RNGCryptoServiceProvider();
             _hsm = hsm;
-            _network = network;
+            _network = config.Network;
         }
 
         public async Task SetSeedWords(string password, string seedWords)
         {
             var iKey = await GetOrDefaultIntermediateKey(password);
             var encSeedWords = Cryptor.Encrypt(seedWords, iKey);
-            await _hsm.SetAsync($"{_network}-cSeedWords", encSeedWords);
+            await _hsm.SetAsync($"{_network}-encSeedWords", encSeedWords);
         }
 
         public async Task<string> GetSeedWords(string password)
         {
             var iKey = await GetOrDefaultIntermediateKey(password);
-
-            var encSeedWords = await _hsm.GetAsync($"{_network}-cSeedWords");
+            var encSeedWords = await _hsm.GetAsync($"{_network}-encSeedWords");
             var seedWords = Cryptor.Decrypt(encSeedWords, iKey);
             return seedWords;
         }
