@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Chaincase.Common.Contracts;
 using NBitcoin;
+using Cryptor = Chaincase.Common.Services.AesThenHmac;
 
 namespace Chaincase.Common.Services
 {
@@ -12,7 +13,7 @@ namespace Chaincase.Common.Services
         private readonly IHsmStorage _hsm;
         private readonly Network _network;
         private RNGCryptoServiceProvider RNG;
-        private const int I_KEY_LENGTH = 16; // bytes
+        private const int I_KEY_LENGTH = 64; // bytes
         private const string I_KEY_LOC = "i_key";
         private const string I_KEY_SALT_LOC = "i_key_salt";
 
@@ -27,56 +28,41 @@ namespace Chaincase.Common.Services
         public async Task SetSeedWords(string password, string seedWords)
         {
             var iKey = await GetOrDefaultIntermediateKey(password);
-            using var encryptor = new AesGcmService(iKey);
-
-            var cSeedWords = encryptor.Encrypt(seedWords);
-            await _hsm.SetAsync($"{_network}-cSeedWords", cSeedWords);
-            encryptor.Dispose();
+            var encSeedWords = Cryptor.Encrypt(seedWords, iKey);
+            await _hsm.SetAsync($"{_network}-cSeedWords", encSeedWords);
         }
 
         public async Task<string> GetSeedWords(string password)
         {
             var iKey = await GetOrDefaultIntermediateKey(password);
-            using var cryptor = new AesGcmService(iKey);
 
-            var cSeedWords = await _hsm.GetAsync($"{_network}-cSeedWords");
-            var seedWords = cryptor.Decrypt(cSeedWords);
+            var encSeedWords = await _hsm.GetAsync($"{_network}-cSeedWords");
+            var seedWords = Cryptor.Decrypt(encSeedWords, iKey);
             return seedWords;
         }
 
-        // Use an intermediate key. That way the main password could be changed
-        // out for a pin with high iterations in multi-wallet or with biometrics
-        // without storing the password.
+        // Use an intermediate key. This way main password can be changed
+        // out for a global pin in multi-wallet. Store it with biometrics
+        // for access without a static password.
         public async Task<byte[]> GetOrDefaultIntermediateKey(string password)
         {
             byte[] iKey = new byte[I_KEY_LENGTH];
             try
             {
-                string iKeySaltString = await _hsm.GetAsync(I_KEY_SALT_LOC);
-                byte[] iKeySalt = Convert.FromBase64String(iKeySaltString);
-                using var decryptor = new AesGcmService(password, iKeySalt);
                 string encIKeyString = await _hsm.GetAsync(I_KEY_LOC);
-                var iKeyString = decryptor.Decrypt(encIKeyString);
-                iKey = Encoding.UTF8.GetBytes(iKeyString);
+                byte[] encIKey = Convert.FromBase64String(encIKeyString);
+                iKey = Cryptor.DecryptWithPassword(encIKey, password);
                 return iKey;
             }
             // there must not be an intermediate key yet
             catch (Exception)
             {
                 // default one at cryptographically-secure pseudo-random
-                RNG.GetBytes(iKey);
-                var iKeyString = Convert.ToBase64String(iKey);
-
-                // since we're password protecting it, come up with a unique salt
-                var iKeySalt = new byte[8];
-                //RNG.GetBytes(iKeySalt);
+                iKey = Cryptor.NewKey();
 
                 // store it encrypted under the password
-                using var encryptor = new AesGcmService(password, iKeySalt);
-                var encIKeyString = encryptor.Encrypt(iKeyString);
-
-                var iKeySaltString = Convert.ToBase64String(iKeySalt);
-                await _hsm.SetAsync(I_KEY_SALT_LOC, iKeySaltString);
+                var encIKey = Cryptor.EncryptWithPassword(iKey, password);
+                var encIKeyString = Convert.ToBase64String(encIKey);
                 await _hsm.SetAsync(I_KEY_LOC, encIKeyString);
                 return iKey;
             }

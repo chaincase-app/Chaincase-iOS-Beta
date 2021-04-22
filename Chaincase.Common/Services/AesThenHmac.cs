@@ -7,13 +7,14 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
 
 namespace Chaincase.Common.Services
 {
-    public static class AesCbcThenHmac
+    public static class AesThenHmac
     {
         private static readonly RandomNumberGenerator Random = RandomNumberGenerator.Create();
 
@@ -27,12 +28,13 @@ namespace Chaincase.Common.Services
         public static readonly int MinPasswordLength = 6;
 
         /// <summary>
-        /// Helper that generates a random key on each call.
+        /// Helper that generates a random cryptKey concat authKey on each call.
         /// </summary>
         /// <returns></returns>
         public static byte[] NewKey()
         {
-            var key = new byte[KeyBitSize / 8];
+            // key the size of cryptKey + size of authKey
+            var key = new byte[KeyBitSize * 2 / 8];
             Random.GetBytes(key);
             return key;
         }
@@ -63,6 +65,33 @@ namespace Chaincase.Common.Services
         }
 
         /// <summary>
+        ///  Encryption (AES) then Authentication (HMAC) for a UTF8 Message.
+        /// </summary>
+        /// <param name="secretMessage">The secret message.</param>
+        /// <param name="fatKey">The crypt key concatenaded with the auth key.</param>
+        /// <param name="nonSecretPayload">(Optional) Non-Secret Payload.</param>
+        /// <returns>
+        /// Encrypted Message
+        /// </returns>
+        /// <exception cref="System.ArgumentException">Secret Message Required!;secretMessage</exception>
+        /// <remarks>
+        /// Adds overhead of (Optional-Payload + BlockSize(16) + Message-Padded-To-Blocksize +  HMac-Tag(32)) * 1.33 Base64
+        /// </remarks>
+        public static string Encrypt(string secretMessage, byte[] fatKey,
+                            byte[] nonSecretPayload = null)
+        {
+            var fatKeyBitSize = KeyBitSize * 2;
+
+            // Error Checks
+            if (fatKey == null || fatKey.Length != fatKeyBitSize / 8)
+                throw new ArgumentException(String.Format("Key needs to be {0} bit!", fatKeyBitSize), "fatKey");
+
+            byte[] cryptKey = fatKey.Take(fatKey.Length / 2).ToArray();
+            byte[] authKey = fatKey.Skip(fatKey.Length / 2).ToArray();
+            return Encrypt(secretMessage, cryptKey, authKey, nonSecretPayload);
+        }
+
+        /// <summary>
         ///  Authentication (HMAC) then Decryption (AES) for a secrets UTF8 Message.
         /// </summary>
         /// <param name="encryptedMessage">The encrypted message.</param>
@@ -82,6 +111,30 @@ namespace Chaincase.Common.Services
             var cipherText = Convert.FromBase64String(encryptedMessage);
             var plainText = Decrypt(cipherText, cryptKey, authKey, nonSecretPayloadLength);
             return plainText == null ? null : Encoding.UTF8.GetString(plainText);
+        }
+
+        /// <summary>
+        ///  Authentication (HMAC) then Decryption (AES) for a secrets UTF8 Message.
+        /// </summary>
+        /// <param name="encryptedMessage">The encrypted message.</param>
+        /// <param name="fatKey">The crypt key concatenated with the auth key.</param>
+        /// <param name="nonSecretPayloadLength">Length of the non secret payload.</param>
+        /// <returns>
+        /// Decrypted Message
+        /// </returns>
+        /// <exception cref="System.ArgumentException">Encrypted Message Required!;encryptedMessage</exception>
+        public static string Decrypt(string secretMessage, byte[] fatKey,
+                    int nonSecretPayloadLength = 0)
+        {
+            var fatKeyBitSize = KeyBitSize * 2;
+
+            // Error Checks
+            if (fatKey == null || fatKey.Length != fatKeyBitSize / 8)
+                throw new ArgumentException(String.Format("Key needs to be {0} bit!", fatKeyBitSize), "fatKey");
+
+            byte[] cryptKey = fatKey.Take(fatKey.Length / 2).ToArray();
+            byte[] authKey = fatKey.Skip(fatKey.Length / 2).ToArray();
+            return Decrypt(secretMessage, cryptKey, authKey, nonSecretPayloadLength);
         }
 
         /// <summary>
