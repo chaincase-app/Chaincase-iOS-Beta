@@ -3,24 +3,25 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Chaincase.Common.Contracts;
+using NBitcoin;
 
 namespace Chaincase.Common.Services
 {
     public class SensitiveStorage
     {
         private readonly IHsmStorage _hsm;
-        private readonly Config _config;
+        private readonly Network _network;
         private RNGCryptoServiceProvider RNG;
         private const int I_KEY_LENGTH = 16; // bytes
         private const string I_KEY_LOC = "i_key";
         private const string I_KEY_SALT_LOC = "i_key_salt";
 
 
-        public SensitiveStorage(IHsmStorage hsm, Config config)
+        public SensitiveStorage(IHsmStorage hsm, Network network)
         {
             RNG = new RNGCryptoServiceProvider();
             _hsm = hsm;
-            _config = config;
+            _network = network;
         }
 
         public async Task SetSeedWords(string password, string seedWords)
@@ -29,7 +30,7 @@ namespace Chaincase.Common.Services
             using var encryptor = new AesGcmService(iKey);
 
             var cSeedWords = encryptor.Encrypt(seedWords);
-            await _hsm.SetAsync($"{_config.Network}-cSeedWords", cSeedWords);
+            await _hsm.SetAsync($"{_network}-cSeedWords", cSeedWords);
             encryptor.Dispose();
         }
 
@@ -38,7 +39,7 @@ namespace Chaincase.Common.Services
             var iKey = await GetOrDefaultIntermediateKey(password);
             using var cryptor = new AesGcmService(iKey);
 
-            var cSeedWords = await _hsm.GetAsync($"{_config.Network}-cSeedWords");
+            var cSeedWords = await _hsm.GetAsync($"{_network}-cSeedWords");
             var seedWords = cryptor.Decrypt(cSeedWords);
             return seedWords;
         }
@@ -68,7 +69,7 @@ namespace Chaincase.Common.Services
 
                 // since we're password protecting it, come up with a unique salt
                 var iKeySalt = new byte[8];
-                RNG.GetBytes(iKeySalt);
+                //RNG.GetBytes(iKeySalt);
 
                 // store it encrypted under the password
                 using var encryptor = new AesGcmService(password, iKeySalt);
