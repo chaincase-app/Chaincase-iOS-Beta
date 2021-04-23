@@ -21,11 +21,13 @@ namespace Chaincase.Common
             services.AddSingleton<UiConfig>();
             services.AddSingleton<SensitiveStorage>();
             services.AddSingleton(x => {
-                var config = x.GetRequiredService<Config>();
-                // TODO FEEL ENOUGH PAIN FROM THIS ANTIPATTERN TO FIX IT
-                config.LoadOrCreateDefaultFile();
-                var network = config.Network;
                 var dataDir = x.GetRequiredService<IDataDirProvider>().Get();
+                Directory.CreateDirectory(dataDir);
+                var config = x.GetRequiredService<Config>();
+                config.LoadOrCreateDefaultFile();
+                // TODO FEEL ENOUGH PAIN FROM ^ THIS ^ HORRENDUS ANTIPATTERN TO FIX IT
+
+                var network = config.Network;
                 var notificationManager = x.GetRequiredService<INotificationManager>();
                 return new ChaincaseWalletManager(network, new WalletDirectories(dataDir), notificationManager);
             });
