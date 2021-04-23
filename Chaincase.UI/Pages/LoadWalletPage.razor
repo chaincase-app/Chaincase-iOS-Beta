@@ -40,12 +40,12 @@
         UiStateService.Title = "LOAD WALLET";
     }
 
-    private void LoadWallet(MouseEventArgs _)
+    private async Task LoadWallet(MouseEventArgs _)
     {
         // TODO if password is empty, alert the user
 
-        if (ViewModel.LoadWallet()) {
-            StackService.ClearStack();
+        if (await ViewModel.LoadWallet()) {
+            await StackService.ClearStack();
             NavigationManager.NavigateTo("/");
         }
     }

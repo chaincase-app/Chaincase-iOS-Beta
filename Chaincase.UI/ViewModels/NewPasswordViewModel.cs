@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 using Chaincase.Common;
-using Chaincase.Common.Contracts;
 using Chaincase.Common.Services;
 using NBitcoin;
 using ReactiveUI;
@@ -18,7 +17,7 @@ namespace Chaincase.UI.ViewModels
         private readonly UiConfig _uiConfig;
         private readonly SensitiveStorage _storage;
 
-        public NewPasswordViewModel(WalletManager walletManager, Config config, UiConfig uiConfig, SensitiveStorage storage)
+        public NewPasswordViewModel(ChaincaseWalletManager walletManager, Config config, UiConfig uiConfig, SensitiveStorage storage)
         {
             _walletManager = walletManager;
             _config = config;
