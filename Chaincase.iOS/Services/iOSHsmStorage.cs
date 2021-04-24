@@ -11,23 +11,17 @@ namespace Chaincase.iOS.Services
     // based on Xamarin.Essentials SecureStorage
     // Simulator requires Keychain and a keychain access group for the application's bundle identifier.
     // When deploying to an iOS device this entitlement is not required and should be removed.
+    // https://developer.apple.com/documentation/security/keychain_services/keychain_items
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "iOS is iOS")]
     public class iOSHsmStorage : IHsmStorage
     {
-        // has fallback: a device without a passcode is considered "unlocked"
+        // These records can be accessed while the application is in the background
         public static SecAccessible DefaultAccessible { get; set; } =
-           SecAccessible.WhenUnlockedThisDeviceOnly;
+           SecAccessible.AfterFirstUnlock;
 
-        // default to this
         public static SecAccessControl BiometricAccessControl { get; set; } =
             new SecAccessControl(DefaultAccessible,
                 SecAccessControlCreateFlags.BiometryCurrentSet
-            );
-
-        // fall back to this when biomitry disabled
-        public static SecAccessControl PasscodeAccessControl { get; set; } =
-            new SecAccessControl(DefaultAccessible,
-                SecAccessControlCreateFlags.DevicePasscode
             );
 
         public Task<string> GetAsync(string key)
@@ -50,20 +44,26 @@ namespace Chaincase.iOS.Services
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
 
-            var context = new LAContext();
-            KeyChain kc;
-            if (context.CanEvaluatePolicy(LAPolicy.DeviceOwnerAuthenticationWithBiometrics, out var _))
-            {
-                kc = new KeyChain(BiometricAccessControl);
-            }
-            else
-            {
-                // all devices should have passcodes set
-                kc = new KeyChain(PasscodeAccessControl);
-            }
-
+            KeyChain kc = new KeyChain(DefaultAccessible);
             kc.SetValueForKey(value, key);
 
+            return Task.CompletedTask;
+        }
+
+        public Task SetWithBiometryAsync(string key, string value)
+        {
+            if (string.IsNullOrWhiteSpace(key))
+                throw new ArgumentNullException(nameof(key));
+
+            if (value == null)
+                throw new ArgumentNullException(nameof(value));
+
+            LAContext context = new();
+            if (!context.CanEvaluatePolicy(LAPolicy.DeviceOwnerAuthenticationWithBiometrics, out var nsError))
+                throw new Exception(nsError?.Description);
+
+            KeyChain kc = new(BiometricAccessControl);
+            kc.SetValueForKey(value, key);
             return Task.CompletedTask;
         }
 
@@ -180,6 +180,8 @@ namespace Chaincase.iOS.Services
                 Account = key,
                 Label = key,
                 AccessControl = control,
+                // When the keychain information
+                Accessible = accessible,
                 ValueData = NSData.FromString(value, NSStringEncoding.UTF8),
             };
         }
