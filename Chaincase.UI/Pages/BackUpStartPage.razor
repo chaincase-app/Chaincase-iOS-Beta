@@ -12,12 +12,29 @@
     <p>📝</p>
     <p>The seed words together in order with your password are the only way to restore your wallet if your device is lost, broken, stolen, or upgraded.</p>
     <p>This should take 3 minutes</p>
-
-    <IonButton class="neu-button" OnClick="@TryStartBackUp" expand="block">WRITE WORDS & BACK UP</IonButton>
-
+    <IonLabel position="stacked" id="passwordId">Enter Password</IonLabel>
+    <div class="@(IsShaking ? "shake" : "")">
+        <IonItem>
+            <IonPasswordInput aria-labelledby="passwordId" @bind-Value="Password" disabled="@ViewModel.HasNoSeedWords"/>
+        </IonItem>
+    </div>
+    <IonButton class="neu-button" OnClick="@TryStartBackUp" expand="block" disabled="@ViewModel.HasNoSeedWords">
+        WRITE WORDS & BACK UP
+    </IonButton>
+    <IonCard color="warning" Visible="@(ViewModel.HasNoSeedWords)">
+        <IonCardContent>
+            <strong>Warning:</strong> This wallet does not have seed words because it
+            is from the early Chaincase Beta. To make a back up, click Export Wallet File from the Wallet Info page.
+            Please move funds out of this wallet and create a new one in the new format.
+        </IonCardContent>
+    </IonCard>
+    <IonLoading @bind-Visible="@ViewModel.IsBusy" />
 </IonContent>
 
 @code {
+    private string Password;
+    private bool IsBusy;
+    private bool IsShaking;
 
     protected override void OnInitialized()
     {
@@ -27,9 +44,15 @@
 
     private async Task TryStartBackUp()
     {
-        if (await ViewModel.HasGotSeedWords())
+        try
         {
+            IsShaking = false;
+            await ViewModel.InitSeedWords(Password);
             StackPush("/backup/words");
+        }
+        catch (Exception)
+        {
+            IsShaking = true;
         }
     }
 
