@@ -10,25 +10,28 @@ namespace Chaincase.Common.Services
     {
         private readonly IHsmStorage _hsm;
         private readonly Network _network;
+        private readonly UiConfig _uiConfig;
         private const string I_KEY_LOC = "i_key";
+        public string EncSeedWordsLoc => $"{_network}-encSeedWords";
 
-        public SensitiveStorage(IHsmStorage hsm, Config config)
+        public SensitiveStorage(IHsmStorage hsm, Config config, UiConfig uiConfig)
         {
             _hsm = hsm;
             _network = config.Network;
+            _uiConfig = uiConfig;
         }
 
         public async Task SetSeedWords(string password, string seedWords)
         {
             var iKey = await GetOrDefaultIntermediateKey(password);
             var encSeedWords = Cryptor.Encrypt(seedWords, iKey);
-            await _hsm.SetAsync($"{_network}-encSeedWords", encSeedWords);
+            await _hsm.SetAsync(EncSeedWordsLoc, encSeedWords);
         }
 
         public async Task<string> GetSeedWords(string password)
         {
             var iKey = await GetOrDefaultIntermediateKey(password);
-            var encSeedWords = await _hsm.GetAsync($"{_network}-encSeedWords");
+            var encSeedWords = await _hsm.GetAsync(EncSeedWordsLoc);
             var seedWords = Cryptor.Decrypt(encSeedWords, iKey);
             return seedWords;
         }
@@ -56,6 +59,8 @@ namespace Chaincase.Common.Services
                 var encIKey = Cryptor.EncryptWithPassword(iKey, password);
                 var encIKeyString = Convert.ToBase64String(encIKey);
                 await _hsm.SetAsync(I_KEY_LOC, encIKeyString);
+                _uiConfig.HasIntermediateKey = true;
+                _uiConfig.ToFile();
                 return iKey;
             }
         }
