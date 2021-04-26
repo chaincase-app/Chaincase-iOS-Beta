@@ -42,27 +42,29 @@ namespace Chaincase.Common.Services
         public async Task<byte[]> GetOrDefaultIntermediateKey(string password)
         {
             byte[] iKey;
-            try
+            string encIKeyString;
+            byte[] encIKey;
+
+            if (_uiConfig.HasIntermediateKey)
             {
-                string encIKeyString = await _hsm.GetAsync(I_KEY_LOC);
-                byte[] encIKey = Convert.FromBase64String(encIKeyString);
+                // throws if it fails
+                encIKeyString = await _hsm.GetAsync(I_KEY_LOC);
+                encIKey = Convert.FromBase64String(encIKeyString);
                 iKey = Cryptor.DecryptWithPassword(encIKey, password);
                 return iKey;
             }
-            // there must not be an intermediate key yet
-            catch (Exception)
-            {
-                // default one at cryptographically-secure pseudo-random
-                iKey = Cryptor.NewKey();
 
-                // store it encrypted under the password
-                var encIKey = Cryptor.EncryptWithPassword(iKey, password);
-                var encIKeyString = Convert.ToBase64String(encIKey);
-                await _hsm.SetAsync(I_KEY_LOC, encIKeyString);
-                _uiConfig.HasIntermediateKey = true;
-                _uiConfig.ToFile();
-                return iKey;
-            }
+            // default one at cryptographically-secure pseudo-random
+            iKey = Cryptor.NewKey();
+
+            // store it encrypted under the password
+            encIKey = Cryptor.EncryptWithPassword(iKey, password);
+            encIKeyString = Convert.ToBase64String(encIKey);
+            await _hsm.SetAsync(I_KEY_LOC, encIKeyString);
+            _uiConfig.HasIntermediateKey = true;
+            _uiConfig.ToFile();
+            return iKey;
+
         }
     }
 }

@@ -15,19 +15,24 @@
     <IonLabel position="stacked" id="passwordId">Enter Password</IonLabel>
     <div class="@(IsShaking ? "shake" : "")">
         <IonItem>
-            <IonPasswordInput aria-labelledby="passwordId" @bind-Value="Password" disabled="@ViewModel.HasNoSeedWords"/>
+            <IonPasswordInput aria-labelledby="passwordId" @bind-Value="Password" disabled="@ViewModel.HasNoSeedWords" />
         </IonItem>
     </div>
     <IonButton class="neu-button" OnClick="@TryStartBackUp" expand="block" disabled="@ViewModel.HasNoSeedWords">
         WRITE WORDS & BACK UP
     </IonButton>
-    <IonCard color="warning" Visible="@(ViewModel.HasNoSeedWords)">
-        <IonCardContent>
-            <strong>Warning:</strong> This wallet does not have seed words because it
-            is from the early Chaincase Beta. To make a back up, click Export Wallet File from the Wallet Info page.
-            Please move funds out of this wallet and create a new one in the new format.
-        </IonCardContent>
-    </IonCard>
+    @if (ViewModel.HasNoSeedWords)
+    {
+        <IonCard class="ion-padding" color="warning">
+            <IonCardContent>
+                <strong>Warning:</strong> This wallet does not have seed words because it
+                is from the early Chaincase Beta. Thank you sincerely for your support as an early adopter!
+
+                You can still back up with "Export Wallet File" but the recovery process is more complex. Please
+                move funds out of this wallet and create a new one. New wallets have all the latest recovery features.
+            </IonCardContent>
+        </IonCard>
+    }
     <IonLoading @bind-Visible="@ViewModel.IsBusy" />
 </IonContent>
 

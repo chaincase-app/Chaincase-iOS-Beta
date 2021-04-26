@@ -77,18 +77,18 @@ namespace Chaincase.iOS.Services
 
     class KeyChain
     {
-        SecAccessible accessible;
-        SecAccessControl control;
+        readonly SecAccessible _accessible;
+        readonly SecAccessControl _control;
 
         internal KeyChain(SecAccessible accessible)
         {
-            this.accessible = accessible;
+            _accessible = accessible;
         }
 
         internal KeyChain(SecAccessControl control)
         {
-            this.accessible = control.Accessible;
-            this.control = control;
+            _accessible = control.Accessible;
+            _control = control;
         }
 
         SecRecord ExistingRecordForKey(string key)
@@ -175,15 +175,21 @@ namespace Chaincase.iOS.Services
 
         SecRecord CreateRecordForNewKeyValue(string key, string value)
         {
-            return new SecRecord(SecKind.GenericPassword)
+            SecRecord record = new(SecKind.GenericPassword)
             {
                 Account = key,
                 Label = key,
-                AccessControl = control,
                 // When the keychain information
-                Accessible = accessible,
+                Accessible = _accessible,
                 ValueData = NSData.FromString(value, NSStringEncoding.UTF8),
             };
+
+            if (_control != null)
+            {
+                record.AccessControl = _control;
+            }
+
+            return record;
         }
 
         bool RemoveRecord(SecRecord record)

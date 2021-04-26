@@ -8,10 +8,10 @@
 @inject NavigationManager NavigationManager
 @inherits ReactiveComponentBase<WalletInfoViewModel>
 
-<IonContent class="ion-padding">
+<IonContent>
     <ClipboardToast @bind-Visible="@IsToastVisible" />
     <IonList>
-        <IonItem button OnClick="NavigateToBackUp">
+        <IonItem button OnClick="NavigateToBackUp" disabled="@ViewModel.HasNoSeedWords">
             <IonIcon slot="start" color="primary" name="lock-closed" />
             <IonLabel>Back Up Seed Words</IonLabel>
         </IonItem>
@@ -42,6 +42,7 @@
             <IonIcon size="small" color="primary" slot="end" name="copy-outline" />
         </IonItem>
     </IonList>
+
 </IonContent>
 
 @code {
