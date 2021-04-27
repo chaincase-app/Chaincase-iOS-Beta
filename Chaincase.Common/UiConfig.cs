@@ -16,6 +16,11 @@ namespace Chaincase.Common
         private bool _isBackedUp;
         private bool _hasIntermediateKey;
 
+        public UiConfig()
+        {
+	        
+        }
+        
         [DefaultValue("0")]
         [JsonProperty(PropertyName = "Balance", DefaultValueHandling = DefaultValueHandling.Populate)]
         public string Balance

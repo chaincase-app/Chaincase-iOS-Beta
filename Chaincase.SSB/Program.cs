@@ -9,8 +9,8 @@ using Chaincase.Common.Services.Mock;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace Chaincase.SSB
 {
@@ -21,9 +21,17 @@ namespace Chaincase.SSB
 	{
 		public static void Main(string[] args)
 		{
+		var dataDirProvider = new SSBDataDirProvider();
 			// analagous to new BlazorApp()
 			var hostBuilder = Host.CreateDefaultBuilder(args)
-				.ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });
+				.ConfigureWebHostDefaults(webBuilder =>
+				{
+					webBuilder.ConfigureAppConfiguration(builder => builder.Add(new JsonConfigurationSource()
+					{
+						Path = Path.Combine(dataDirProvider.Get(), Config.FILENAME),
+						Optional = true
+					})).UseStartup<Startup>();
+				});
 
 			var host = hostBuilder.Build();
 

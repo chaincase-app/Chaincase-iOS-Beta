@@ -18,8 +18,8 @@ namespace Chaincase.UI.ViewModels
 {
     public class BackUpViewModel : ReactiveObject
     {
-        private readonly Config _config;
-        private readonly UiConfig _uiConfig;
+        private readonly IOptions<Config> _config;
+        private readonly IOptions<UiConfig> _uiConfig;
         private readonly IHsmStorage _hsm;
         private readonly SensitiveStorage _storage;
         private readonly WalletManager _walletManager;
@@ -33,7 +33,7 @@ namespace Chaincase.UI.ViewModels
 
         private string LegacyWordsLoc => $"{_config.Network}-seedWords";
 
-        public BackUpViewModel(Config config, UiConfig uiConfig, IHsmStorage hsm, SensitiveStorage storage, ChaincaseWalletManager walletManager)
+        public BackUpViewModel(IOptions<Config> config, IOptions<UiConfig> uiConfig, IHsmStorage hsm, SensitiveStorage storage, ChaincaseWalletManager walletManager)
         {
             _config = config;
             _uiConfig = uiConfig;
@@ -50,7 +50,7 @@ namespace Chaincase.UI.ViewModels
             {
                 // ensure correct pw
                 PasswordHelper.Guard(password);
-                string walletFilePath = Path.Combine(_walletManager.WalletDirectories.WalletsDir, $"{_config.Network}.json");
+                string walletFilePath = Path.Combine(_walletManager.WalletDirectories.WalletsDir, $"{_config.Value.Network}.json");
                 await Task.Run(() =>
                 {
                     keyManager = KeyManager.FromFile(walletFilePath);
@@ -105,8 +105,8 @@ namespace Chaincase.UI.ViewModels
 
         public void SetIsBackedUp()
         {
-            _uiConfig.IsBackedUp = true;
-            _uiConfig.ToFile(); // successfully backed up!
+            UiConfig.Value.IsBackedUp = true;
+            UiConfig.Value.ToFile(); // successfully backed up!
         }
 
         public List<string> SeedWords

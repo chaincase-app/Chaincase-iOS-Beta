@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Chaincase.Common;
 using Chaincase.Common.Services;
 using Chaincase.Common.Contracts;
+using Microsoft.Extensions.Options;
 using NBitcoin;
 using ReactiveUI;
 using WalletWasabi.Blockchain.Keys;
@@ -15,8 +16,8 @@ namespace Chaincase.UI.ViewModels
     public class NewPasswordViewModel : ReactiveObject
     {
         private readonly WalletManager _walletManager;
-        private readonly Config _config;
-        private readonly UiConfig _uiConfig;
+        private readonly IOptions<Config> _config;
+        private readonly IOptions<UiConfig> _uiConfig;
         private readonly SensitiveStorage _storage;
 
         public const int PasswordMinLength = 8;
@@ -25,7 +26,7 @@ namespace Chaincase.UI.ViewModels
         [MinLength(PasswordMinLength, ErrorMessage = "Make it 8 or more characters")]
         public string Password { get; set; }
 
-        public NewPasswordViewModel(ChaincaseWalletManager walletManager, Config config, UiConfig uiConfig, SensitiveStorage storage)
+        public NewPasswordViewModel(ChaincaseWalletManager walletManager, IOptions<Config> config, IOptions<UiConfig> uiConfig, SensitiveStorage storage)
         {
             _walletManager = walletManager;
             _config = config;

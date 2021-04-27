@@ -7,9 +7,9 @@ using Chaincase.Common.Contracts;
 using Chaincase.Common.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using NBitcoin;
 using ReactiveUI;
-using Splat;
 using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Helpers;
 using WalletWasabi.Logging;
@@ -20,8 +20,8 @@ namespace Chaincase.UI.ViewModels
     public class LoadWalletViewModel : ReactiveObject
     {
         private readonly WalletManager _walletManager;
-        private readonly Config _config;
-        private readonly UiConfig _uiConfig;
+        private readonly IOptions<Config> _config;
+        private readonly IOptions<UiConfig> _uiConfig;
         private readonly SensitiveStorage _storage;
 
         private string _password;
@@ -30,7 +30,7 @@ namespace Chaincase.UI.ViewModels
         private readonly string ACCOUNT_KEY_PATH = $"m/{KeyManager.DefaultAccountKeyPath}";
         private const int MIN_GAP_LIMIT = KeyManager.AbsoluteMinGapLimit * 4;
 
-        public LoadWalletViewModel(ChaincaseWalletManager walletManager, Config config, UiConfig uiConfig, SensitiveStorage storage)
+        public LoadWalletViewModel(ChaincaseWalletManager walletManager, IOptions<Config> config, IOptions<UiConfig> uiConfig, SensitiveStorage storage)
         {
             _walletManager = walletManager;
             _config = config;
@@ -43,7 +43,7 @@ namespace Chaincase.UI.ViewModels
             SeedWords = Guard.Correct(SeedWords);
             Password = Guard.Correct(Password); // Do not let whitespaces to the beginning and to the end.
 
-            string walletFilePath = Path.Combine(_walletManager.WalletDirectories.WalletsDir, $"{_config.Network}.json");
+            string walletFilePath = Path.Combine(_walletManager.WalletDirectories.WalletsDir, $"{_config.Value.Network}.json");
 
             Mnemonic mnemonic = null;
             await Task.Run(() =>
@@ -57,8 +57,8 @@ namespace Chaincase.UI.ViewModels
                 _walletManager.AddWallet(km);
             });
             await _storage.SetSeedWords(Password, mnemonic.ToString());
-            _uiConfig.HasSeed = true;
-            _uiConfig.ToFile();
+            _uiConfig.Value.HasSeed = true;
+            _uiConfig.Value.ToFile();
         }
 
         public string Password

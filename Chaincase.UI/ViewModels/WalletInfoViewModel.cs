@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Chaincase.Common;
 using Chaincase.Common.Contracts;
 using Chaincase.Common.Services;
+using Microsoft.Extensions.Options;
 using ReactiveUI;
 
 namespace Chaincase.UI.ViewModels
@@ -10,14 +11,14 @@ namespace Chaincase.UI.ViewModels
     public class WalletInfoViewModel : ReactiveObject
     {
         private readonly ChaincaseWalletManager _walletManager;
-        private readonly Config _config;
-        private readonly UiConfig _uiConfig;
+        private readonly IOptions<Config> _config;
+        private readonly IOptions<UiConfig> _uiConfig;
         private readonly IShare _share;
         private readonly IDataDirProvider _dataDirProvider;
 
         public bool HasNoSeedWords => !_uiConfig.HasSeed && !_uiConfig.HasIntermediateKey;
 
-        public WalletInfoViewModel(ChaincaseWalletManager walletManager, Config config, UiConfig uiConfig, IShare share, IDataDirProvider dataDirProvider)
+        public WalletInfoViewModel(ChaincaseWalletManager walletManager, IOptions<Config> config, IOptions<UiConfig> uiConfig, IShare share, IDataDirProvider dataDirProvider)
         {
             _walletManager = walletManager;
             _config = config;
@@ -35,12 +36,12 @@ namespace Chaincase.UI.ViewModels
 
         public async Task ExportWallet()
         {
-            var file = Path.Combine(_dataDirProvider.Get(), $"Wallets/{_config.Network}.json");
+            var file = Path.Combine(_dataDirProvider.Get(), $"Wallets/{_config.Value.Network}.json");
 
             await _share.ShareFile(file, "Export Wallet");
         }
 
-        public string ExtendedAccountPublicKey => _walletManager.CurrentWallet.KeyManager.ExtPubKey.ToString(_config.Network) ?? "";
+        public string ExtendedAccountPublicKey => _walletManager.CurrentWallet.KeyManager.ExtPubKey.ToString(_config.Value.Network) ?? "";
         public string AccountKeyPath => $"m/{ _walletManager.CurrentWallet.KeyManager.AccountKeyPath}";
     }
 }
