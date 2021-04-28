@@ -23,14 +23,14 @@ namespace Chaincase.Common.Services
 
         public async Task SetSeedWords(string password, string seedWords)
         {
-            var iKey = await GetOrDefaultIntermediateKey(password);
+            var iKey = await GetOrGenerateIntermediateKey(password);
             var encSeedWords = Cryptor.Encrypt(seedWords, iKey);
             await _hsm.SetAsync(EncSeedWordsLoc, encSeedWords);
         }
 
         public async Task<string> GetSeedWords(string password)
         {
-            var iKey = await GetOrDefaultIntermediateKey(password);
+            var iKey = await GetOrGenerateIntermediateKey(password);
             var encSeedWords = await _hsm.GetAsync(EncSeedWordsLoc);
             var seedWords = Cryptor.Decrypt(encSeedWords, iKey);
             return seedWords;
@@ -39,7 +39,7 @@ namespace Chaincase.Common.Services
         // Use an intermediate key. This way main password can be changed
         // out for a global pin in multi-wallet. Store it with biometrics
         // for access without a static password.
-        public async Task<byte[]> GetOrDefaultIntermediateKey(string password)
+        public async Task<byte[]> GetOrGenerateIntermediateKey(string password)
         {
             byte[] iKey;
             string encIKeyString;
