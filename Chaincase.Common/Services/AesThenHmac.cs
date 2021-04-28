@@ -20,6 +20,7 @@ namespace Chaincase.Common.Services
         //Preconfigured Encryption Parameters
         public static readonly int BlockBitSize = 128;
         public static readonly int KeyBitSize = 256;
+        public static readonly int FatKeyBitSize = KeyBitSize * 2;
 
         //Preconfigured Password Key Derivation Parameters
         public static readonly int SaltBitSize = 64;
@@ -78,11 +79,9 @@ namespace Chaincase.Common.Services
         public static string Encrypt(string secretMessage, byte[] fatKey,
                             byte[] nonSecretPayload = null)
         {
-            var fatKeyBitSize = KeyBitSize * 2;
-
             // Error Checks
-            if (fatKey == null || fatKey.Length != fatKeyBitSize / 8)
-                throw new ArgumentException(String.Format("Key needs to be {0} bit!", fatKeyBitSize), "fatKey");
+            if (fatKey == null || fatKey.Length != FatKeyBitSize / 8)
+                throw new ArgumentException(String.Format("Key needs to be {0} bit!", FatKeyBitSize), "fatKey");
 
             byte[] cryptKey = fatKey.Take(fatKey.Length / 2).ToArray();
             byte[] authKey = fatKey.Skip(fatKey.Length / 2).ToArray();
