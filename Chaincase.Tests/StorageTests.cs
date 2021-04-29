@@ -35,7 +35,7 @@ namespace Chaincase.Tests
         {
             // generated with python
             string password = "password";
-            string b64CipherText = "ckObgI83rw+cL8G+jk94zJR+QhKfvXz1vKgVCwklxpoFWn8TbFZrqvCT//2gEoJQEp3BAThUwF3OXkD8zY2QizksTYs2kL1f/r47Hcs+QZg=";
+            string b64CipherText = "Gup4moWGF4RRcyPUErUuctQE2MlgH7hHIiy0+gxNT3Mc+Ktax/t25W47Lk4jOJt0QT8W2LhkwH8qg28qZ2bM0XozLEIPZe/mi9BuryrMJX8=";
             var plaintext = Cryptor.DecryptWithPassword(b64CipherText, password);
             Assert.True(plaintext == "poops");
         }
