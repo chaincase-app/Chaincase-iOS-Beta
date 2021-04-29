@@ -8,10 +8,12 @@ using Chaincase.Common.Services;
 using NBitcoin;
 using WalletWasabi.Helpers;
 using Xunit;
+using Cryptor = Chaincase.Common.Services.AesThenHmac;
+
 
 namespace Chaincase.Tests
 {
-	public class StorageTests
+    public class StorageTests
     {
         [Fact]
         public void CanStoreSeedWords()
@@ -26,6 +28,16 @@ namespace Chaincase.Tests
             storage.SetSeedWords(password, mnemonic.ToString());
             var gotSeedWords = storage.GetSeedWords(password).Result;
             Assert.True(gotSeedWords == mnemonic.ToString());
+        }
+
+        [Fact]
+        public void CanDecryptCiphertextFromPython()
+        {
+            // generated with python
+            string password = "password";
+            string b64CipherText = "ckObgI83rw+cL8G+jk94zJR+QhKfvXz1vKgVCwklxpoFWn8TbFZrqvCT//2gEoJQEp3BAThUwF3OXkD8zY2QizksTYs2kL1f/r47Hcs+QZg=";
+            var plaintext = Cryptor.DecryptWithPassword(b64CipherText, password);
+            Assert.True(plaintext == "poops");
         }
     }
 
