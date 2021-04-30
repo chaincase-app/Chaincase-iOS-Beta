@@ -42,7 +42,18 @@
             <IonIcon size="small" color="primary" slot="end" name="copy-outline" />
         </IonItem>
     </IonList>
+    @if (ViewModel.HasNoSeedWords)
+    {
+        <IonCard class="ion-padding" color="warning">
+            <IonCardContent>
+                <strong>Warning:</strong> This wallet does not have seed words because it
+                is from the early Chaincase Beta. Thank you sincerely for your support as an early adopter!
 
+                You can still back up with "Export Wallet File" but the recovery process is more complex. Please
+                move funds out of this wallet and create a new one. New wallets have all the latest recovery features.
+            </IonCardContent>
+        </IonCard>
+    }
 </IonContent>
 
 @code {

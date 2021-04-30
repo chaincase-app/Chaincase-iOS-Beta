@@ -25,6 +25,8 @@ namespace Chaincase.Common
                 Directory.CreateDirectory(dataDir);
                 var config = x.GetRequiredService<Config>();
                 config.LoadOrCreateDefaultFile();
+                var uiConfig = x.GetRequiredService<UiConfig>();
+                uiConfig.LoadOrCreateDefaultFile();
                 // TODO FEEL ENOUGH PAIN FROM ^ THIS ^ HORRENDUS ANTIPATTERN TO FIX IT
 
                 var network = config.Network;

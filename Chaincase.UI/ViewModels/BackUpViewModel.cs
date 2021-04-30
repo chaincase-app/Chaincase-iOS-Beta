@@ -39,6 +39,7 @@ namespace Chaincase.UI.ViewModels
 
         public async Task InitSeedWords(string password)
         {
+            IsBusy = true;
             string wordString = await _storage.GetSeedWords(password);
             if (string.IsNullOrEmpty(wordString))
             {
@@ -47,13 +48,12 @@ namespace Chaincase.UI.ViewModels
             }
 
             // iff still empty make list = List.Empty so we can show the warning, or just make it a bool
-
             SeedWords = wordString.Split(' ').ToList();
+            IsBusy = false;
         }
 
         public async Task<string> SetAlphaToBetaSeedWords(string password)
         {
-            IsBusy = true;
             try
             {
                 PasswordHelper.Guard(password);
@@ -73,24 +73,6 @@ namespace Chaincase.UI.ViewModels
             {
 
                 throw e;
-            }
-            finally
-            {
-                IsBusy = false;
-            }
-        }
-
-        public async Task IsPasswordValidAsync(string password)
-        {
-            IsBusy = true;
-            string walletFilePath = Path.Combine(_walletManager.WalletDirectories.WalletsDir, $"{_config.Network}.json");
-            try
-            {
-                await Task.Run(() => KeyManager.FromFile(walletFilePath).GetMasterExtKey(password ?? ""));
-            }
-            finally
-            {
-                IsBusy = false;
             }
         }
 
