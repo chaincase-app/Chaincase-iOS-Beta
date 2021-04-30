@@ -38,15 +38,15 @@ namespace Chaincase.UI.ViewModels
             _storage = storage;
         }
 
-        public async Task<bool> LoadWallet()
+        public async Task LoadWallet()
         {
             SeedWords = Guard.Correct(SeedWords);
             Password = Guard.Correct(Password); // Do not let whitespaces to the beginning and to the end.
 
             string walletFilePath = Path.Combine(_walletManager.WalletDirectories.WalletsDir, $"{_config.Network}.json");
-            bool isLoadSuccessful;
 
-            try
+            Mnemonic mnemonic = null;
+            await Task.Run(() =>
             {
                 KeyPath.TryParse(ACCOUNT_KEY_PATH, out KeyPath keyPath);
 
@@ -55,17 +55,10 @@ namespace Chaincase.UI.ViewModels
                 km.SetNetwork(_config.Network);
                 km.SetFilePath(walletFilePath);
                 _walletManager.AddWallet(km);
-                await _storage.SetSeedWords(Password, mnemonic.ToString());
-                _uiConfig.HasSeed = true;
-                _uiConfig.ToFile();
-                isLoadSuccessful = true;
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex);
-                isLoadSuccessful = false;
-            }
-            return isLoadSuccessful;
+            });
+            await _storage.SetSeedWords(Password, mnemonic.ToString());
+            _uiConfig.HasSeed = true;
+            _uiConfig.ToFile();
         }
 
         public string Password
