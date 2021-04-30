@@ -27,13 +27,16 @@ namespace Chaincase.UI.ViewModels
 
         public async Task SetPasswordAsync(string password)
         {
-            // Here we are not letting anything that will be autocorrected later.
-            // Generate wallet with password exactly as entered for compatibility.
-            PasswordHelper.Guard(password);
+            Mnemonic seedWords = null;
+            await Task.Run(() =>
+            {
+                // Here we are not letting anything that will be autocorrected later.
+                // Generate wallet with password exactly as entered for compatibility.
+                PasswordHelper.Guard(password);
 
-            string walletFilePath = Path.Combine(_walletManager.WalletDirectories.WalletsDir, $"{_config.Network}.json");
-            KeyManager.CreateNew(out Mnemonic seedWords, password, walletFilePath);
-
+                string walletFilePath = Path.Combine(_walletManager.WalletDirectories.WalletsDir, $"{_config.Network}.json");
+                KeyManager.CreateNew(out seedWords, password, walletFilePath);
+            });
             await _storage.SetSeedWords(password, seedWords.ToString());
 
             // this should not be a config
