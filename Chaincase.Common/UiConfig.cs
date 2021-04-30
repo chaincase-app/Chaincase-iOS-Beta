@@ -51,10 +51,10 @@ namespace Chaincase.Common
 
         [JsonProperty(PropertyName = "HasIntermediateKey")]
         public bool HasIntermediateKey
-		{
+        {
             get => _hasIntermediateKey;
             set => RaiseAndSetIfChanged(ref _hasIntermediateKey, value);
-		}
+        }
 
         const string FILENAME = "Config.json";
 
