@@ -34,6 +34,10 @@ namespace Chaincase.Tests
             ctx.Services.AddScoped<ThemeSwitcher>();
 
             ctx.Services.AddSingleton<PINViewModel>();
+            ctx.Services.AddSingleton<SendViewModel>();
+            ctx.Services.AddSingleton<SelectCoinsViewModel>();
+
+
             var dataDir = ctx.Services.GetRequiredService<IDataDirProvider>().Get();
             Directory.CreateDirectory(dataDir);
             var config = ctx.Services.GetRequiredService<Config>();
@@ -53,9 +57,15 @@ namespace Chaincase.Tests
         }
 
         [Fact]
-        public void CanSpend()
+        public void SpendButtonIsEnabled()
 		{
+            var sendViewModel = ctx.Services.GetRequiredService<SendViewModel>();
+
             var sendAmountPage = ctx.RenderComponent<SendAmountPage>();
+            var spendButton = sendAmountPage.Find("ion-button");
+            var disabledAttr = spendButton.Attributes.GetNamedItem("disabled");
+
+            Assert.True(disabledAttr.Value == "true");
 		}
     }
 
