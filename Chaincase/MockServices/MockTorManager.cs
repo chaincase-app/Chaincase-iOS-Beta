@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using Chaincase.Common.Contracts;
 
-namespace Chaincase
+namespace Chaincase.MockServices
 {
 	public class MockTorManager : ITorManager
 

@@ -1,7 +1,7 @@
 using System;
 using Chaincase.Common.Contracts;
 
-namespace Chaincase
+namespace Chaincase.MockServices
 {
 	public class MockNotificationManager : INotificationManager
 	{
