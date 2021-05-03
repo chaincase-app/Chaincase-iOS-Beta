@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using Chaincase.Background;
 using Chaincase.Common;
@@ -57,8 +58,14 @@ namespace Chaincase
 
             _host = hostBuilder.Build();
             MainPage = new ContentPage { Title = "Chaincase" };
-
             _host.AddComponent<Main>(parent: MainPage);
+
+            var dataDir = ServiceProvider.GetRequiredService<IDataDirProvider>().Get();
+            Directory.CreateDirectory(dataDir);
+            var config = ServiceProvider.GetRequiredService<Config>();
+            config.LoadOrCreateDefaultFile();
+            var uiConfig = ServiceProvider.GetRequiredService<UiConfig>();
+            uiConfig.LoadOrCreateDefaultFile();
         }
 
         public void InitializeNoWallet()

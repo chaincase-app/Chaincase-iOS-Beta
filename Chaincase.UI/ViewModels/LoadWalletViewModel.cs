@@ -3,6 +3,7 @@ using System.IO;
 using Chaincase;
 using Chaincase.Common;
 using Chaincase.Common.Contracts;
+using Chaincase.Common.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NBitcoin;
@@ -28,7 +29,7 @@ namespace Chaincase.UI.ViewModels
 		private readonly string ACCOUNT_KEY_PATH = $"m/{KeyManager.DefaultAccountKeyPath}";
 		private const int MIN_GAP_LIMIT = KeyManager.AbsoluteMinGapLimit * 4;
 
-		public LoadWalletViewModel(WalletManager walletManager, Config config, UiConfig uiConfig, IHsmStorage hsmStorage)
+		public LoadWalletViewModel(ChaincaseWalletManager walletManager, Config config, UiConfig uiConfig, IHsmStorage hsmStorage)
 		{
 			_walletManager = walletManager;
 			_config = config;
