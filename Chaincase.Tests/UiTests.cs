@@ -46,11 +46,17 @@ namespace Chaincase.Tests
             ctx.Services.AddScoped<ThemeSwitcher>();
 
             ctx.Services.AddSingleton<PINViewModel>();
+            var dataDir = ctx.Services.GetRequiredService<IDataDirProvider>().Get();
+            Directory.CreateDirectory(dataDir);
             var config = ctx.Services.GetRequiredService<Config>();
+            config.LoadOrCreateDefaultFile();
+            var uiConfig = ctx.Services.GetRequiredService<UiConfig>();
+            uiConfig.LoadOrCreateDefaultFile();
+
             var loginPage = ctx.RenderComponent<LoginPage>();
 
             //assert
-            loginPage.Find("button").MarkupMatches("LOG IN");
+            loginPage.Find("ion-button").TextContent.MarkupMatches("LOG IN");
         }
     }
 
