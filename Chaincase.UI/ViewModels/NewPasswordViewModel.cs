@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using Chaincase.Common;
 using Chaincase.Common.Contracts;
+using Chaincase.Common.Services;
 using NBitcoin;
 using ReactiveUI;
 using WalletWasabi.Blockchain.Keys;
@@ -16,7 +17,7 @@ namespace Chaincase.UI.ViewModels
 		private readonly UiConfig _uiConfig;
 		private readonly IHsmStorage _hsm;
 
-		public NewPasswordViewModel(WalletManager walletManager, Config config, UiConfig uiConfig, IHsmStorage hsmStorage)
+		public NewPasswordViewModel(ChaincaseWalletManager walletManager, Config config, UiConfig uiConfig, IHsmStorage hsmStorage)
 		{
 			_walletManager = walletManager;
 			_config = config;

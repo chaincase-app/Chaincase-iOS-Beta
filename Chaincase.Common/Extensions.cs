@@ -20,10 +20,7 @@ namespace Chaincase.Common
             services.AddSingleton<Config>();
             services.AddSingleton<UiConfig>();
             services.AddSingleton(x => {
-                var config = x.GetRequiredService<Config>();
-                // TODO FEEL ENOUGH PAIN FROM THIS ANTIPATTERN TO FIX IT
-                config.LoadOrCreateDefaultFile();
-                var network = config.Network;
+                var network = x.GetRequiredService<Config>().Network;
                 var dataDir = x.GetRequiredService<IDataDirProvider>().Get();
                 var notificationManager = x.GetRequiredService<INotificationManager>();
                 return new ChaincaseWalletManager(network, new WalletDirectories(dataDir), notificationManager);
