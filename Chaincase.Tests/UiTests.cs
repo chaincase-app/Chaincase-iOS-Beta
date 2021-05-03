@@ -18,22 +18,10 @@ namespace Chaincase.Tests
 {
     public class UiTests
     {
+        private TestContext ctx;
         public UiTests()
         {
-           
-            //var dataDir = ServiceProvider.GetRequiredService<IDataDirProvider>().Get();
-            //Directory.CreateDirectory(dataDir);
-            //var config = ServiceProvider.GetRequiredService<Config>();
-            //config.LoadOrCreateDefaultFile();
-            //var uiConfig = ServiceProvider.GetRequiredService<UiConfig>();
-            //uiConfig.LoadOrCreateDefaultFile();
-
-        }
-        [Fact]
-        public void LoginPageHasAButton()
-        {
-            using var ctx = new TestContext();
-
+            ctx = new TestContext();
             ctx.JSInterop.SetupVoid("IonicBridge.registerBlazorCustomHandler", _ => true);
 
             ctx.Services.AddCommonServices();
@@ -53,11 +41,22 @@ namespace Chaincase.Tests
             var uiConfig = ctx.Services.GetRequiredService<UiConfig>();
             uiConfig.LoadOrCreateDefaultFile();
 
+        }
+
+        [Fact]
+        public void LoginPageHasAButton()
+        {
             var loginPage = ctx.RenderComponent<LoginPage>();
 
             //assert
             loginPage.Find("ion-button").TextContent.MarkupMatches("LOG IN");
         }
+
+        [Fact]
+        public void CanSpend()
+		{
+            var sendAmountPage = ctx.RenderComponent<SendAmountPage>();
+		}
     }
 
     public class TestDataDirProvider : IDataDirProvider
