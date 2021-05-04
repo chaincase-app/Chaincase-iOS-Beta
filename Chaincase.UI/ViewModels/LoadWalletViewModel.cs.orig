@@ -30,13 +30,31 @@ namespace Chaincase.UI.ViewModels
         private readonly string ACCOUNT_KEY_PATH = $"m/{KeyManager.DefaultAccountKeyPath}";
         private const int MIN_GAP_LIMIT = KeyManager.AbsoluteMinGapLimit * 4;
 
-        public LoadWalletViewModel(ChaincaseWalletManager walletManager, Config config, UiConfig uiConfig, SensitiveStorage storage)
+<<<<<<< HEAD
+        public LoadWalletViewModel(WalletManager walletManager, Config config, UiConfig uiConfig, SensitiveStorage storage)
         {
             _walletManager = walletManager;
             _config = config;
             _uiConfig = uiConfig;
             _storage = storage;
         }
+||||||| 85b71c856
+		public LoadWalletViewModel(WalletManager walletManager, Config config, UiConfig uiConfig, IHsmStorage hsmStorage)
+		{
+			_walletManager = walletManager;
+			_config = config;
+			_uiConfig = uiConfig;
+			_hsm = hsmStorage;
+		}
+=======
+		public LoadWalletViewModel(ChaincaseWalletManager walletManager, Config config, UiConfig uiConfig, IHsmStorage hsmStorage)
+		{
+			_walletManager = walletManager;
+			_config = config;
+			_uiConfig = uiConfig;
+			_hsm = hsmStorage;
+		}
+>>>>>>> master
 
         public async Task LoadWallet()
         {
