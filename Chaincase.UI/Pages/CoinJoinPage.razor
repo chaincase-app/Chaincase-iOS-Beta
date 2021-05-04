@@ -54,14 +54,10 @@
         </IonItem>
     </IonList>
     <IonList>
-
         <IonListHeader>
             <IonLabel>
-                My Coins
+                My Coins to Join
             </IonLabel>
-        </IonListHeader>
-        <IonItem>
-            <IonLabel>Coins to Join</IonLabel>
             @if (IsReady)
             {
                 <IonChip color="primary" @onclick="NavigateToSelectCoins">
@@ -70,9 +66,22 @@
             }
             else
             {
-                <IonSpinner slot="end"/>
+                <IonSpinner slot="end" />
             }
-        </IonItem>
+        </IonListHeader>
+        @foreach (var coin in SelectedCoins)
+        {
+            <IonItem button>
+                <IonLabel slot="start">
+                    <h3>₿ @coin.Amount</h3>
+                    <p>@coin.Clusters</p>
+                </IonLabel>
+                <IonNote slot="end" color="@(coin.AnonymitySet > Config.DefaultPrivacyLevelSome ? "success" : "warning")">
+                    <ion-anchor @onclick="@(() => OpenCoinDetail(coin))">@coin.AnonymitySet</ion-anchor>
+                    <p><IonBadge>@coin.Status</IonBadge></p>
+                </IonNote>
+            </IonItem>
+        }
     </IonList>
 
     <div class="ion-padding">
@@ -105,6 +114,7 @@
 
     <IonLoading @bind-Visible="@ViewModel.IsEnqueueBusy" message="Coinjoin magic..." />
 </IonContent>
+<CoinDetailModal @bind-Visible="@IsDetailModalVisible" @bind-CoinViewModel="@CurrentCoinViewModel" />
 <IonFooter class="ion-padding">
     @if (IsQueuedToCoinJoin)
     {
@@ -126,6 +136,10 @@
     private string Password = "";
     private bool IsShaking { get; set; }
 
+    private bool IsDetailModalVisible { get; set; }
+    private CoinViewModel CurrentCoinViewModel { get; set; }
+    private IEnumerable<CoinViewModel> SelectedCoins => ViewModel.CoinList.CoinList.Where(x => x.IsSelected);
+
     protected override void OnInitialized()
     {
         ViewModel = CoinJoinViewModel;
@@ -144,6 +158,12 @@
     private async Task ExitCoinJoin()
     {
         await ViewModel.ExitCoinJoinAsync();
+    }
+
+    private void OpenCoinDetail(CoinViewModel coin)
+    {
+        CurrentCoinViewModel = coin;
+        IsDetailModalVisible = true;
     }
 
     private async Task CoinJoin()

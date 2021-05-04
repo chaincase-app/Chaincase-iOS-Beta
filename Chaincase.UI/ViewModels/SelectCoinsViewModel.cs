@@ -36,8 +36,6 @@ namespace Chaincase.UI.ViewModels
 
         public event EventHandler<CoinViewModel> SelectionChanged;
 
-        // public ReactiveCommand<CoinViewModel, Unit> OpenCoinDetail;
-
         public SelectCoinsViewModel(ChaincaseWalletManager walletManager, Config config, BitcoinStore bitcoinStore, bool isPrivate = false)
         {
             _walletManager = walletManager;
