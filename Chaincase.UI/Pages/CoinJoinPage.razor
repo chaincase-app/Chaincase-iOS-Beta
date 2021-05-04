@@ -2,6 +2,7 @@
 @using NBitcoin
 @using Chaincase.UI.Services
 @using Chaincase.Common
+@using Chaincase.Common.Models
 @using Chaincase.UI.Components;
 
 @inject UIStateService UiStateService
@@ -69,16 +70,16 @@
                 <IonSpinner slot="end" />
             }
         </IonListHeader>
-        @foreach (var coin in SelectedCoins)
+        @foreach (var coin in JoiningCoins)
         {
             <IonItem button>
                 <IonLabel slot="start">
                     <h3>₿ @coin.Amount</h3>
                     <p>@coin.Clusters</p>
+                    <p><IonBadge color="@StatusToColor(coin.Status)">@(StatusToString(coin.Status))</IonBadge></p>
                 </IonLabel>
                 <IonNote slot="end" color="@(coin.AnonymitySet > Config.DefaultPrivacyLevelSome ? "success" : "warning")">
                     <ion-anchor @onclick="@(() => OpenCoinDetail(coin))">@coin.AnonymitySet</ion-anchor>
-                    <p><IonBadge>@coin.Status</IonBadge></p>
                 </IonNote>
             </IonItem>
         }
@@ -138,7 +139,7 @@
 
     private bool IsDetailModalVisible { get; set; }
     private CoinViewModel CurrentCoinViewModel { get; set; }
-    private IEnumerable<CoinViewModel> SelectedCoins => ViewModel.CoinList.CoinList.Where(x => x.IsSelected);
+    private IEnumerable<CoinViewModel> JoiningCoins => ViewModel.CoinList.CoinList.Where(x => x.CoinJoinInProgress);
 
     protected override void OnInitialized()
     {
@@ -182,6 +183,42 @@
             ToastColor = "danger";
             IsToastVisible = true;
         }
+    }
+
+    private static string StatusToColor(SmartCoinStatus status)
+    {
+        return status switch
+        {
+            SmartCoinStatus.Confirmed => "light",
+            SmartCoinStatus.Unconfirmed => "light",
+            SmartCoinStatus.MixingOnWaitingList => "medium",
+            SmartCoinStatus.MixingBanned => "danger",
+            SmartCoinStatus.MixingInputRegistration => "primary",
+            SmartCoinStatus.MixingConnectionConfirmation => "success",
+            SmartCoinStatus.MixingOutputRegistration => "success",
+            SmartCoinStatus.MixingSigning => "success",
+            SmartCoinStatus.SpentAccordingToBackend => "danger",
+            SmartCoinStatus.MixingWaitingForConfirmation => "warning",
+            _ => throw new NotSupportedException() // Or rather not implemented?
+        };
+    }
+
+    private static string StatusToString(SmartCoinStatus status)
+    {
+        return status switch
+        {
+            SmartCoinStatus.Confirmed => "",
+            SmartCoinStatus.Unconfirmed => "",
+            SmartCoinStatus.MixingOnWaitingList => "queued",
+            SmartCoinStatus.MixingBanned => "banned",
+            SmartCoinStatus.MixingInputRegistration => "registered",
+            SmartCoinStatus.MixingConnectionConfirmation => "connection confirmed",
+            SmartCoinStatus.MixingOutputRegistration => "output registered",
+            SmartCoinStatus.MixingSigning => "signed",
+            SmartCoinStatus.SpentAccordingToBackend => "spent",
+            SmartCoinStatus.MixingWaitingForConfirmation => "waiting for confirmation",
+            _ => ""
+        };
     }
 
     private void ToggleModal() => IsPasswordModalVisible = !IsPasswordModalVisible;
