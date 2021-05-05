@@ -72,7 +72,7 @@
                 <IonSpinner class="ion-padding-end" slot="end" />
             }
         </IonListHeader>
-        @foreach (var coin in SelectedCoins)
+        @foreach (var coin in CoinsToJoin)
         {
             <IonItem button>
                 <IonLabel>
@@ -141,7 +141,10 @@
 
     private bool IsDetailModalVisible { get; set; }
     private CoinViewModel CurrentCoinViewModel { get; set; }
+    private IEnumerable<CoinViewModel> CoinsToJoin => SelectedCoins.Union(JoiningCoins).OrderBy(x => x.IsSelected ? 0 : 1);
     private IEnumerable<CoinViewModel> SelectedCoins => ViewModel.CoinList.CoinList.Where(x => x.IsSelected);
+    private IEnumerable<CoinViewModel> JoiningCoins => ViewModel.CoinList.CoinList.Where(x => x.CoinJoinInProgress);
+
 
     protected override void OnInitialized()
     {
