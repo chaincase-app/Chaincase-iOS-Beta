@@ -57,23 +57,25 @@
     <IonList>
         <IonListHeader>
             <IonLabel>
-                My Coins to Join
+                My Bitcoin to Join
             </IonLabel>
             @if (IsReady)
             {
-                <IonChip color="primary" @onclick="NavigateToSelectCoins">
+                <div class="ion-padding-end">
+                <IonChip class="ion-padding-end" color="primary" @onclick="NavigateToSelectCoins">
                     @(HasSelectedCoins ? $"₿ {ViewModel.CoinList?.SelectedAmount}" : "Add +")
                 </IonChip>
+                </div>
             }
             else
             {
-                <IonSpinner slot="end" />
+                <IonSpinner class="ion-padding-end" slot="end" />
             }
         </IonListHeader>
-        @foreach (var coin in JoiningCoins)
+        @foreach (var coin in SelectedCoins)
         {
             <IonItem button>
-                <IonLabel slot="start">
+                <IonLabel>
                     <h3>₿ @coin.Amount</h3>
                     <p>@coin.Clusters</p>
                     <p><IonBadge color="@StatusToColor(coin.Status)">@(StatusToString(coin.Status))</IonBadge></p>
@@ -139,7 +141,7 @@
 
     private bool IsDetailModalVisible { get; set; }
     private CoinViewModel CurrentCoinViewModel { get; set; }
-    private IEnumerable<CoinViewModel> JoiningCoins => ViewModel.CoinList.CoinList.Where(x => x.CoinJoinInProgress);
+    private IEnumerable<CoinViewModel> SelectedCoins => ViewModel.CoinList.CoinList.Where(x => x.IsSelected);
 
     protected override void OnInitialized()
     {
