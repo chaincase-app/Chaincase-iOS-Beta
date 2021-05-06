@@ -280,44 +280,45 @@ namespace Chaincase.Common.Services
 
                 using var encrypter = aes.CreateEncryptor(cryptKey, iv);
                 using var inputStream = new FileStream(inputFile, FileMode.Open);
-                using var cipherStream = new FileStream(inputFile + ".aes", FileMode.Create);
-                using (var aesStream = new CryptoStream(cipherStream, encrypter, CryptoStreamMode.Write))
-                using (var binaryWriter = new BinaryWriter(aesStream))
+                using (var cipherStream = new FileStream(inputFile + ".aes", FileMode.Create))
                 {
-                    byte[] buffer = new byte[1048576];
-                    int read;
-
-                    try
+                    using (var aesStream = new CryptoStream(cipherStream, encrypter, CryptoStreamMode.Write))
+                    using (var binaryWriter = new BinaryWriter(aesStream))
                     {
-                        while ((read = inputStream.Read(buffer, 0, buffer.Length)) > 0)
+                        byte[] buffer = new byte[1048576];
+                        int read;
+
+                        try
                         {
-                            binaryWriter.Write(buffer, 0, read);
+                            while ((read = inputStream.Read(buffer, 0, buffer.Length)) > 0)
+                            {
+                                binaryWriter.Write(buffer, 0, read);
+                            }
+                            cipherStream.Flush();
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine("Error: " + ex.Message);
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine("Error: " + ex.Message);
-                    }
                 }
-                byte[] nonSecretPayload = null;
 
-                //Assemble encrypted message and add authentication
-                using (var hmac = new HMACSHA256(authKey))
-                using (var encryptedStream = new FileStream(inputFile + ".aes.hmac", FileMode.Create))
+                using (var cipherStream = new FileStream(inputFile + ".aes", FileMode.Open))
                 {
+                    //Assemble encrypted message and add authentication
+                    using var hmac = new HMACSHA256(authKey);
+                    using var encryptedStream = new FileStream(inputFile + ".aes.hmac", FileMode.Create);
                     using (var binaryWriter = new BinaryWriter(encryptedStream))
                     {
-                        //Prepend non-secret payload if any
-                        binaryWriter.Write(nonSecretPayload);
                         //Prepend IV
                         binaryWriter.Write(iv);
                         //Write Ciphertext
                         byte[] buffer = new byte[1048576];
                         int read;
-                        binaryWriter.Write(nonSecretPayload);
 
                         try
                         {
+                            // TODO OPEN CIPHERSTREAM
                             while ((read = cipherStream.Read(buffer, 0, buffer.Length)) > 0)
                             {
                                 binaryWriter.Write(buffer, 0, read);
