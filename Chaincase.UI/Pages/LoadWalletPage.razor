@@ -1,9 +1,10 @@
 ﻿@page "/load"
 @using Chaincase.UI.Services
+@using WalletWasabi.Logging
 @inject LoadWalletViewModel vm
 @inject UIStateService UiStateService
 @inject NavigationManager NavigationManager
-@inject StackService StackService 
+@inject StackService StackService
 
 @inherits ReactiveComponentBase<LoadWalletViewModel>
 
@@ -28,10 +29,12 @@
                expand="block">
         LOAD WALLET
     </IonButton>
+    <IonLoading @bind-Visible="@IsBusy" message="Loading..." />
 </IonContent>
 
 @code {
 
+    bool IsBusy;
     bool showPassword;
 
     protected override void OnInitialized()
@@ -40,13 +43,23 @@
         UiStateService.Title = "LOAD WALLET";
     }
 
-    private void LoadWallet(MouseEventArgs _)
+    private async Task LoadWallet(MouseEventArgs _)
     {
         // TODO if password is empty, alert the user
-
-        if (ViewModel.LoadWallet()) {
-            StackService.ClearStack();
+        try
+        {
+            IsBusy = true;
+            await ViewModel.LoadWallet();
+            await StackService.ClearStack();
             NavigationManager.NavigateTo("/");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex);
+        }
+        finally
+        {
+            IsBusy = false;
         }
     }
 

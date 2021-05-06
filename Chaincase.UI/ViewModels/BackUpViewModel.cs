@@ -1,41 +1,85 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Chaincase.Common;
 using Chaincase.Common.Contracts;
+using Chaincase.Common.Services;
 using ReactiveUI;
+using WalletWasabi.Blockchain.Keys;
+using WalletWasabi.Helpers;
+using WalletWasabi.Wallets;
 
 namespace Chaincase.UI.ViewModels
 {
     public class BackUpViewModel : ReactiveObject
     {
-        private Config Config { get; }
-        private UiConfig UiConfig { get; }
-        protected IHsmStorage HSM { get; }
-
+        private readonly Config _config;
+        private readonly UiConfig _uiConfig;
+        private readonly IHsmStorage _hsm;
+        private readonly SensitiveStorage _storage;
+        private readonly WalletManager _walletManager;
         private List<string> _seedWords;
 
-        public BackUpViewModel(Config config, UiConfig uiConfig, IHsmStorage hsm)
+        public bool IsBusy { get; set; }
+        public bool HasNoSeedWords => !_uiConfig.HasSeed && !_uiConfig.HasIntermediateKey;
+
+        private string LegacyWordsLoc => $"{_config.Network}-seedWords";
+
+        public BackUpViewModel(Config config, UiConfig uiConfig, IHsmStorage hsm, SensitiveStorage storage, ChaincaseWalletManager walletManager)
         {
-            Config = config;
-            UiConfig = uiConfig;
-            HSM = hsm;
+            _config = config;
+            _uiConfig = uiConfig;
+            _hsm = hsm;
+            _storage = storage;
+            _walletManager = walletManager;
         }
 
-        public async Task<bool> HasGotSeedWords()
+        public async Task InitSeedWords(string password)
         {
-            var seedWords = await HSM.GetAsync($"{Config.Network}-seedWords");
-            if (seedWords is null) return false;
+            IsBusy = true;
+            string wordString = await _storage.GetSeedWords(password);
+            if (string.IsNullOrEmpty(wordString))
+            {
+                // migrate from the legacy system
+                wordString = await SetAlphaToBetaSeedWords(password);
+            }
 
-            SeedWords = seedWords.Split(' ').ToList();
-            return true;
+            // iff still empty make list = List.Empty so we can show the warning, or just make it a bool
+            SeedWords = wordString.Split(' ').ToList();
+            IsBusy = false;
+        }
+
+        public async Task<string> SetAlphaToBetaSeedWords(string password)
+        {
+            try
+            {
+                PasswordHelper.Guard(password);
+                string walletFilePath = Path.Combine(_walletManager.WalletDirectories.WalletsDir, $"{_config.Network}.json");
+                // the old one will ask you for 
+                var seedWords = await _hsm.GetAsync(LegacyWordsLoc);
+                if (string.IsNullOrEmpty(seedWords))
+                {
+                    throw new Exception("No seed words");
+                }
+
+                await Task.Run(() => KeyManager.FromFile(walletFilePath).GetMasterExtKey(password ?? ""));
+                await _storage.SetSeedWords(password, seedWords);
+                return seedWords;
+            }
+            catch (Exception e)
+            {
+
+                throw e;
+            }
         }
 
         public void SetIsBackedUp()
         {
-            UiConfig.IsBackedUp = true;
-            UiConfig.ToFile(); // successfully backed up!
+            _uiConfig.IsBackedUp = true;
+            _uiConfig.ToFile(); // successfully backed up!
         }
 
         public List<string> SeedWords

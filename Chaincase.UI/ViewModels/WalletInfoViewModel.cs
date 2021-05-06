@@ -11,17 +11,19 @@ namespace Chaincase.UI.ViewModels
     {
         private readonly ChaincaseWalletManager _walletManager;
         private readonly Config _config;
+        private readonly UiConfig _uiConfig;
         private readonly IShare _share;
         private readonly IDataDirProvider _dataDirProvider;
 
-        public WalletInfoViewModel(ChaincaseWalletManager walletManager, Config config, IShare share, IDataDirProvider dataDirProvider)
+        public bool HasNoSeedWords => !_uiConfig.HasSeed && !_uiConfig.HasIntermediateKey;
+
+        public WalletInfoViewModel(ChaincaseWalletManager walletManager, Config config, UiConfig uiConfig, IShare share, IDataDirProvider dataDirProvider)
         {
             _walletManager = walletManager;
             _config = config;
+            _uiConfig = uiConfig;
             _share = share;
             _dataDirProvider = dataDirProvider;
-
-            // var canBackUp = this.WhenAnyValue(x => x.Global.UiConfig.HasSeed, hs => hs == true);
         }
 
         public async Task ShareDebugLog()
