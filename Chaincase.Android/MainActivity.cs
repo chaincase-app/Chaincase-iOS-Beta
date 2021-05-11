@@ -7,6 +7,7 @@ using Chaincase.Common.Contracts;
 using Chaincase.Common.Xamarin;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.MobileBlazorBindings.WebView.Android;
+using Android.Views;
 
 namespace Chaincase.Droid
 {
@@ -18,6 +19,7 @@ namespace Chaincase.Droid
 		protected override void OnCreate(Bundle savedInstanceState)
 		{
 			BlazorHybridAndroid.Init();
+			this.Window.SetFlags(WindowManagerFlags.KeepScreenOn, WindowManagerFlags.KeepScreenOn);
 			var fileProvider = new AssetFileProvider(Assets, "wwwroot");
 
 			base.OnCreate(savedInstanceState);

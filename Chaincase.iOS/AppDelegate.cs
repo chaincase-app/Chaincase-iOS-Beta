@@ -50,7 +50,7 @@ namespace Chaincase.iOS
             UNUserNotificationCenter.Current.Delegate = 
                 formsApp.ServiceProvider.GetService<iOSNotificationReceiver>();
             LoadApplication(formsApp);
-
+            UIApplication.SharedApplication.IdleTimerDisabled = true;
             return base.FinishedLaunching(app, options);
         }
 
