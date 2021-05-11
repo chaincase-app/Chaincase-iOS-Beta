@@ -6,22 +6,22 @@ using Foundation;
 using Chaincase.Common.Contracts;
 using WalletWasabi.Logging;
 
-namespace Chaincase.Common.Services
+namespace Chaincase.iOS.Services
 {
     // based on https://github.com/brunobar79/react-native-cloud-fs/blob/master/ios/RNCloudFs.m
     // more help here https://docs.microsoft.com/en-us/xamarin/ios/data-cloud/introduction-to-icloud#document-storage
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "iCloud is iCloud")]
-    public class iOSiCloudService : IiCloudService
+    public class iCloudService : IiCloudService
     {
-        public static NSUrl iCloudDirectory() =>
+        public static NSUrl iCloudDirectory =>
             NSFileManager.DefaultManager.GetUrlForUbiquityContainer(null);
 
         public static NSFileManager FileManager => NSFileManager.DefaultManager;
 
         public void MoveToCloud(string sourceFile, string destinationPath)
         {
-            var ubiquityPath = iCloudDirectory().Path;
+            var ubiquityPath = iCloudDirectory?.Path;
             if (ubiquityPath != null)
             {
                 var targetFile = Path.Combine(ubiquityPath, destinationPath);

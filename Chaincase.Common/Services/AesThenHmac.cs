@@ -255,7 +255,7 @@ namespace Chaincase.Common.Services
 
         }
 
-        public static void EncryptFile(string inputFile, byte[] fatKey)
+        public static string EncryptFile(string inputFile, byte[] fatKey)
         {
             //User Error Checks
             if (fatKey == null || fatKey.Length != FatKeyBitSize / 8)
@@ -299,6 +299,7 @@ namespace Chaincase.Common.Services
                         catch (Exception ex)
                         {
                             Console.WriteLine("Error: " + ex.Message);
+                            return null;
                         }
                     }
                 }
@@ -328,6 +329,7 @@ namespace Chaincase.Common.Services
                         catch (Exception ex)
                         {
                             Console.WriteLine("Error: " + ex.Message);
+                            return null;
                         }
 
                         //Authenticate all data
@@ -336,6 +338,8 @@ namespace Chaincase.Common.Services
                         binaryWriter.Write(tag);
                     }
                 }
+
+                return inputFile + ".aes.hmac";
             }
         }
 
