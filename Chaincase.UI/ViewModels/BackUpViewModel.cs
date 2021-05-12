@@ -23,7 +23,6 @@ namespace Chaincase.UI.ViewModels
         private readonly WalletManager _walletManager;
         private List<string> _seedWords;
 
-        public bool IsBusy;
         public bool HasNoSeedWords => !_uiConfig.HasSeed && !_uiConfig.HasIntermediateKey;
 
         private string LegacyWordsLoc => $"{_config.Network}-seedWords";
@@ -39,7 +38,6 @@ namespace Chaincase.UI.ViewModels
 
         public async Task InitSeedWords(string password)
         {
-            IsBusy = true;
             string wordString = null;
             try
             {
@@ -49,9 +47,10 @@ namespace Chaincase.UI.ViewModels
                     wordString = await _storage.GetSeedWords(password);
                 });
             }
-            catch (ArgumentException)
+            catch (ArgumentException e)
             {
                 // bad password & thus bad key derived
+                throw e;
             }
             catch
             {
@@ -67,13 +66,8 @@ namespace Chaincase.UI.ViewModels
             }
             finally
             {
-                IsBusy = false;
                 SeedWords = wordString?.Split(' ').ToList();
-				if (string.IsNullOrEmpty(wordString))
-				{
-					throw new Exception("No seed words");
-				}
-			}
+            }
         }
 
         public async Task<string> SetAlphaToBetaSeedWords(string password)

@@ -37,12 +37,13 @@
             </IonCard>
         }
     </div>
-    <IonLoading @bind-Visible="@ViewModel.IsBusy" />
+    <IonLoading @bind-Visible="@IsBusy" />
 </IonContent>
 
 @code {
     private string Password;
     private bool IsShaking;
+    private bool IsBusy;
 
     protected override void OnInitialized()
     {
@@ -59,6 +60,7 @@
     {
         try
         {
+            IsBusy = true;
             IsShaking = false;
             await ViewModel.InitSeedWords(Password);
             await StackPush("/backup/words");
@@ -66,6 +68,10 @@
         catch
         {
             IsShaking = true;
+        }
+        finally
+        {
+            IsBusy = false;
         }
     }
 
