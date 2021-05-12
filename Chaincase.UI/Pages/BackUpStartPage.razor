@@ -6,39 +6,42 @@
 @inject BackUpViewModel BackUpViewModel
 @inherits ReactiveComponentBase<BackUpViewModel>
 
-<IonContent class="ion-padding">
-    <h1>BACK UP</h1>
-    <p>You will be given a list of seed words to write down on paper and keep in a safe place.</p>
-    <p>📝</p>
-    <p>The seed words together in order with your password are the only way to restore your wallet if your device is lost, broken, stolen, or upgraded.</p>
-    <p>This should take 3 minutes</p>
-    <IonLabel position="stacked" id="passwordId">Enter Password</IonLabel>
+<IonContent>
+    <div class="ion-padding">
+        <h1>BACK UP</h1>
+        <p>You will be given a list of seed words to write down on paper and keep in a safe place.</p>
+        <p>📝</p>
+        <p>The seed words together in order with your password are the only way to restore your wallet if your device is lost, broken, stolen, or upgraded.</p>
+        <p>This should take 3 minutes</p>
+        <IonLabel position="stacked" id="passwordId">Enter Password</IonLabel>
+    </div>
     <div class="@(IsShaking ? "shake" : "")">
         <IonItem>
             <IonPasswordInput aria-labelledby="passwordId" @bind-Value="Password" disabled="@ViewModel.HasNoSeedWords" />
         </IonItem>
     </div>
-    <IonButton class="neu-button" OnClick="@TryStartBackUp" expand="block" disabled="@ViewModel.HasNoSeedWords">
-        WRITE WORDS & BACK UP
-    </IonButton>
-    @if (ViewModel.HasNoSeedWords)
-    {
-        <IonCard class="ion-padding" color="warning">
-            <IonCardContent>
-                <strong>Warning:</strong> This wallet does not have seed words because it
-                is from the early Chaincase Beta. Thank you sincerely for your support as an early adopter!
+    <div class="ion-padding">
+        <IonButton class="neu-button" @onclick="Click" expand="block" disabled="@ViewModel.HasNoSeedWords">
+            WRITE WORDS & BACK UP
+        </IonButton>
+        @if (ViewModel.HasNoSeedWords)
+        {
+            <IonCard class="ion-padding" color="warning">
+                <IonCardContent>
+                    <strong>Warning:</strong> This wallet does not have seed words because it
+                    is from the early Chaincase Beta. Thank you sincerely for your support as an early adopter!
 
-                You can still back up with "Export Wallet File" but the recovery process is more complex. Please
-                move funds out of this wallet and create a new one. New wallets have all the latest recovery features.
-            </IonCardContent>
-        </IonCard>
-    }
+                    You can still back up with "Export Wallet File" but the recovery process is more complex. Please
+                    move funds out of this wallet and create a new one. New wallets have all the latest recovery features.
+                </IonCardContent>
+            </IonCard>
+        }
+    </div>
     <IonLoading @bind-Visible="@ViewModel.IsBusy" />
 </IonContent>
 
 @code {
     private string Password;
-    private bool IsBusy;
     private bool IsShaking;
 
     protected override void OnInitialized()
@@ -47,23 +50,28 @@
         UiStateService.Title = "BACK UP";
     }
 
+    private async Task Click()
+    {
+        await TryStartBackUp();
+    }
+
     private async Task TryStartBackUp()
     {
         try
         {
             IsShaking = false;
             await ViewModel.InitSeedWords(Password);
-            StackPush("/backup/words");
+            await StackPush("/backup/words");
         }
-        catch (Exception)
+        catch
         {
             IsShaking = true;
         }
     }
 
-    private void StackPush(string uri)
+    private async Task StackPush(string uri)
     {
-        StackService.PushStackState(async () =>
+        await StackService.PushStackState(async () =>
         {
             await NavigationManager.NavigateBack(null, "/backup/start");
         });
