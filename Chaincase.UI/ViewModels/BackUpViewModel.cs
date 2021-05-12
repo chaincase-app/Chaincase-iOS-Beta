@@ -49,6 +49,10 @@ namespace Chaincase.UI.ViewModels
                     wordString = await _storage.GetSeedWords(password);
                 });
             }
+            catch (ArgumentException)
+            {
+                // bad password & thus bad key derived
+            }
             catch
             {
                 // try migrate from the legacy system
@@ -63,13 +67,13 @@ namespace Chaincase.UI.ViewModels
             }
             finally
             {
-                SeedWords = wordString?.Split(' ').ToList();
-                if (string.IsNullOrEmpty(wordString))
-                {
-                    throw new Exception("No seed words");
-                }
                 IsBusy = false;
-            }
+                SeedWords = wordString?.Split(' ').ToList();
+				if (string.IsNullOrEmpty(wordString))
+				{
+					throw new Exception("No seed words");
+				}
+			}
         }
 
         public async Task<string> SetAlphaToBetaSeedWords(string password)
