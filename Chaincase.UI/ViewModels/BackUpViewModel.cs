@@ -45,6 +45,8 @@ namespace Chaincase.UI.ViewModels
                 {
                     // this next line doesn't really run async :/
                     wordString = await _storage.GetSeedWords(password);
+                    if (wordString is null)
+                        throw new KeyNotFoundException();
                 });
             }
             catch (ArgumentException e)
@@ -52,17 +54,10 @@ namespace Chaincase.UI.ViewModels
                 // bad password & thus bad key derived
                 throw e;
             }
-            catch
+            catch (KeyNotFoundException)
             {
                 // try migrate from the legacy system
-                try
-                {
-                    wordString = await SetAlphaToBetaSeedWords(password);
-                }
-                catch
-                {
-                    wordString = null;
-                }
+                wordString = await SetAlphaToBetaSeedWords(password);
             }
             finally
             {
