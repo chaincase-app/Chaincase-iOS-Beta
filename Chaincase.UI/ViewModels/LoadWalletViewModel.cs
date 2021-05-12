@@ -50,7 +50,7 @@ namespace Chaincase.UI.ViewModels
             {
                 KeyPath.TryParse(ACCOUNT_KEY_PATH, out KeyPath keyPath);
 
-                var mnemonic = new Mnemonic(SeedWords);
+                mnemonic = new Mnemonic(SeedWords);
                 var km = KeyManager.Recover(mnemonic, Password, filePath: null, keyPath, MIN_GAP_LIMIT);
                 km.SetNetwork(_config.Network);
                 km.SetFilePath(walletFilePath);
