@@ -10,16 +10,16 @@
 @inject PINViewModel PINViewModel
 @inherits ReactiveComponentBase<PINViewModel>
 
-<IonContent class="ion-padding">
-    <IonImg style="box-sizing: content-box; margin: 0 auto; padding: 10vw; width: 50vw;"
+<IonContent>
+    <IonImg class="ion-padding" style="box-sizing: content-box; margin: 0 auto; padding: 10vw; width: 50vw;"
             src='@($"_content/Chaincase.UI/img/chaincase-{(UiStateService.DarkMode ? "dark" : "light" )}-theme-mark.svg")' />
-    <IonLabel position="stacked">Enter Password</IonLabel>
+    <IonLabel id="passwordId" class="ion-padding" position="stacked">Enter Password</IonLabel>
     <div class="@(IsShaking ? "shake" : "")">
         <IonItem>
-            <IonPasswordInput @bind-Value="Password" placeholder="e.g. margaretthatcheris110%SEXY" />
+            <IonPasswordInput aria-labelledby="passwordId" @bind-Value="Password" placeholder="e.g. margaretthatcheris110%SEXY" />
         </IonItem>
     </div>
-    <IonButton class="neu-button" color="primary" @onclick="ClickSubmitPassword" expand="block">LOG IN</IonButton>
+    <IonButton class="neu-button ion-padding" color="primary" @onclick="ClickSubmitPassword" expand="block">LOG IN</IonButton>
 
     <IonLoading @bind-Visible="@ViewModel.IsBusy" />
 </IonContent>
