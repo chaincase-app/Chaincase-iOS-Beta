@@ -87,7 +87,7 @@
         }
     </IonList>
 
-    <div class="ion-padding">
+    <div>
         <IonModal @bind-Visible="IsPasswordModalVisible">
             <IonHeader>
                 <IonToolbar>
@@ -101,12 +101,11 @@
                 <IonText class="ion-padding">
                     <h1 class="ion-padding">Authorize Selected Coins to Join</h1>
                 </IonText>
-                <IonLabel position="stacked">Enter Password</IonLabel>
+                <IonLabel position="stacked" class="ion-padding">Enter Password</IonLabel>
                 <IonItem>
                     <IonPasswordInput @bind-Value="Password" placeholder="e.g. margaretthatcheris110%SEXY" />
                 </IonItem>
                 <IonButton OnClick="@CoinJoin" class="ion-padding neu-button">JOIN NOW</IonButton>
-
             </IonContent>
 
         </IonModal>

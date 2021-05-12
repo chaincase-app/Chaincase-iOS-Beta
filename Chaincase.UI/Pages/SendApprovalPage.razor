@@ -8,14 +8,17 @@
 @inject SendViewModel SendViewModel
 @inherits ReactiveComponentBase<SendViewModel>
 
-<IonContent class="ion-padding">
-    <p class="ion-text-center">₿ @ViewModel.AmountText</p>
-    <p class="ion-text-center">To @ViewModel.DestinationString</p>
+<IonContent>
+    <div class="ion-padding">
+        <p class="ion-text-center">₿ @ViewModel.AmountText</p>
+        <p class="ion-text-center">To @ViewModel.DestinationString</p>
 
-    <IonLabel position="stacked">Enter Password</IonLabel>
+        <IonLabel id="passwordId" position="stacked">Enter Password</IonLabel>
+    </div>
     <div class="@(IsShaking ? "shake" : "")">
         <IonItem>
-            <IonPasswordInput @bind-Value="Password" placeholder="e.g. margaretthatcheris110%SEXY" />
+            <IonPasswordInput @bind-Value="Password" placeholder="e.g. margaretthatcheris110%SEXY"
+                              aria-labelledby="passwordId" />
         </IonItem>
     </div>
 
