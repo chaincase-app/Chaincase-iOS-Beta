@@ -40,24 +40,34 @@ namespace Chaincase.UI.ViewModels
         public async Task InitSeedWords(string password)
         {
             IsBusy = true;
+            string wordString = null;
             try
             {
                 await Task.Run(async () =>
                 {
                     // this next line doesn't really run async :/
-                    string wordString = await _storage.GetSeedWords(password).ConfigureAwait(false);
-                    if (string.IsNullOrEmpty(wordString))
-                    {
-                        // migrate from the legacy system
-                        wordString = await SetAlphaToBetaSeedWords(password);
-                    }
-
-                    // iff still empty make list = List.Empty so we can show the warning, or just make it a bool
-                    SeedWords = wordString.Split(' ').ToList();
+                    wordString = await _storage.GetSeedWords(password);
                 });
+            }
+            catch
+            {
+                // try migrate from the legacy system
+                try
+                {
+                    wordString = await SetAlphaToBetaSeedWords(password);
+                }
+                catch
+                {
+                    wordString = null;
+                }
             }
             finally
             {
+                SeedWords = wordString?.Split(' ').ToList();
+                if (string.IsNullOrEmpty(wordString))
+                {
+                    throw new Exception("No seed words");
+                }
                 IsBusy = false;
             }
         }
