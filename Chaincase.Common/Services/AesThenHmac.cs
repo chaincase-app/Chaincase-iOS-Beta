@@ -324,7 +324,7 @@ namespace Chaincase.Common.Services
             }
         }
 
-        public static byte[] EncryptWithPassword(byte[] secretMessage, string password, byte[] nonSecretPayload = null)
+        public static byte[] EncryptWithPassword(byte[] secretMessage, string password = "", byte[] nonSecretPayload = null)
         {
             nonSecretPayload = nonSecretPayload ?? new byte[] { };
 
@@ -368,7 +368,7 @@ namespace Chaincase.Common.Services
             return Encrypt(secretMessage, cryptKey, authKey, payload);
         }
 
-        public static byte[] DecryptWithPassword(byte[] encryptedMessage, string password, int nonSecretPayloadLength = 0)
+        public static byte[] DecryptWithPassword(byte[] encryptedMessage, string password = "", int nonSecretPayloadLength = 0)
         {
             //User Error Checks
             if (encryptedMessage == null || encryptedMessage.Length == 0)
