@@ -20,7 +20,7 @@
         </IonItem>
     </div>
     <div class="ion-padding">
-        <IonButton class="neu-button" @onclick="Click" expand="block" disabled="@ViewModel.HasNoSeedWords">
+        <IonButton class="neu-button" @onclick="TryStartBackUp" expand="block" disabled="@ViewModel.HasNoSeedWords">
             WRITE WORDS & BACK UP
         </IonButton>
         @if (ViewModel.HasNoSeedWords)
@@ -48,11 +48,6 @@
     {
         ViewModel = BackUpViewModel;
         UiStateService.Title = "BACK UP";
-    }
-
-    private async Task Click()
-    {
-        await TryStartBackUp();
     }
 
     private async Task TryStartBackUp()
