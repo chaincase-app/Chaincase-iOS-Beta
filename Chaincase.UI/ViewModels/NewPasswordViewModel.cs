@@ -21,7 +21,7 @@ namespace Chaincase.UI.ViewModels
 
         public const int PasswordMinLength = 8;
 
-		[Required]
+        [Required]
         [MinLength(PasswordMinLength, ErrorMessage = "Make it 8 or more characters")]
         public string Password { get; set; }
 
