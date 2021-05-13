@@ -6,18 +6,43 @@
 @inject BackUpViewModel BackUpViewModel
 @inherits ReactiveComponentBase<BackUpViewModel>
 
-<IonContent class="ion-padding">
-    <h1>BACK UP</h1>
-    <p>You will be given a list of seed words to write down on paper and keep in a safe place.</p>
-    <p>📝</p>
-    <p>The seed words together in order with your password are the only way to restore your wallet if your device is lost, broken, stolen, or upgraded.</p>
-    <p>This should take 3 minutes</p>
+<IonContent>
+    <div class="ion-padding">
+        <p>You will be given a list of seed words to write down on paper and keep in a safe place.</p>
+        <p>📝</p>
+        <p>The seed words together in order with your password are the only way to restore your wallet if your device is lost, broken, stolen, or upgraded.</p>
+        <p>This should take 3 minutes</p>
+        <IonLabel position="stacked" id="passwordId">Enter Password</IonLabel>
+    </div>
+    <div class="@(IsShaking ? "shake" : "")">
+        <IonItem>
+            <IonPasswordInput aria-labelledby="passwordId" @bind-Value="Password" disabled="@ViewModel.HasNoSeedWords" />
+        </IonItem>
+    </div>
+    <div class="ion-padding">
+        <IonButton class="neu-button" @onclick="TryStartBackUp" expand="block" disabled="@ViewModel.HasNoSeedWords">
+            WRITE WORDS & BACK UP
+        </IonButton>
+        @if (ViewModel.HasNoSeedWords)
+        {
+            <IonCard class="ion-padding" color="warning">
+                <IonCardContent>
+                    <strong>Warning:</strong> This wallet does not have seed words because it
+                    is from the early Chaincase Beta. Thank you sincerely for your support as an early adopter!
 
-    <IonButton class="neu-button" OnClick="@TryStartBackUp" expand="block">WRITE WORDS & BACK UP</IonButton>
-
+                    You can still back up with "Export Wallet File" but the recovery process is more complex. Please
+                    move funds out of this wallet and create a new one. New wallets have all the latest recovery features.
+                </IonCardContent>
+            </IonCard>
+        }
+    </div>
+    <IonLoading @bind-Visible="@IsBusy" />
 </IonContent>
 
 @code {
+    private string Password;
+    private bool IsShaking;
+    private bool IsBusy;
 
     protected override void OnInitialized()
     {
@@ -27,15 +52,27 @@
 
     private async Task TryStartBackUp()
     {
-        if (await ViewModel.HasGotSeedWords())
+        try
         {
-            StackPush("/backup/words");
+            IsBusy = true;
+            IsShaking = false;
+            await ViewModel.InitSeedWords(Password);
+            await StackPush("/backup/words");
+        }
+        catch
+        {
+            IsShaking = true;
+        }
+        finally
+        {
+            IsBusy = false;
+            StateHasChanged();
         }
     }
 
-    private void StackPush(string uri)
+    private async Task StackPush(string uri)
     {
-        StackService.PushStackState(async () =>
+        await StackService.PushStackState(async () =>
         {
             await NavigationManager.NavigateBack(null, "/backup/start");
         });

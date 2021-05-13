@@ -99,7 +99,8 @@
                 },
                 Handler = _ =>
                 {
-                    StackPush("/backup/start");
+                    string backupLocation = ViewModel.HasSeed ? "/backup/start" : "/walletinfo";
+                    StackPush(backupLocation);
                     return Task.CompletedTask;
                 }
             },

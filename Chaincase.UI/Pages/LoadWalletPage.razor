@@ -1,37 +1,41 @@
 ﻿@page "/load"
 @using Chaincase.UI.Services
+@using WalletWasabi.Logging
 @inject LoadWalletViewModel vm
 @inject UIStateService UiStateService
 @inject NavigationManager NavigationManager
-@inject StackService StackService 
+@inject StackService StackService
 
 @inherits ReactiveComponentBase<LoadWalletViewModel>
 
-<IonContent class="ion-padding">
-    <IonLabel position="stacked">Enter 12 Seed Words</IonLabel>
+<IonContent class="ion-padding-vertical">
+    <IonLabel class="ion-padding" id="seedWords">Enter 12 Seed Words</IonLabel>
     <IonItem>
-        <IonInput type='text' @bind-Value="@ViewModel.SeedWords" />
+        <IonInput type='text' @bind-Value="@ViewModel.SeedWords" aria-labelledby="seedWords"/>
     </IonItem>
-    <p>Enter the 12 words you wrote down as a backup in order and separated by spaces.</p>
+    <p class="ion-padding">Enter the 12 words you wrote down as a backup in order and separated by spaces.</p>
 
-    <IonLabel floating>Enter Password</IonLabel>
+    <IonLabel class="ion-padding" id="passwordId">Enter Password</IonLabel>
     <IonItem>
-        <IonPasswordInput clear-on-edit="false" @bind-Value="@ViewModel.Password" placeholder="e.g. margaretthatcheris110%SEXY" />
+        <IonPasswordInput clear-on-edit="false" @bind-Value="@ViewModel.Password" placeholder="e.g. margaretthatcheris110%SEXY"
+                          aria-labelledby="passwordId"/>
     </IonItem>
-    <p>
+    <p class="ion-padding">
         If funds secured using these seed words are hidden behind a password you must enter it here.
         The password must be exactly as it was created. As it is your secret, we cannot check whether or not it is correct.
     </p>
 
-    <IonButton class="neu-button"
+    <IonButton class="neu-button ion-padding-horizontal"
                OnClick="LoadWallet"
                expand="block">
         LOAD WALLET
     </IonButton>
+    <IonLoading @bind-Visible="@IsBusy" message="Loading..." />
 </IonContent>
 
 @code {
 
+    bool IsBusy;
     bool showPassword;
 
     protected override void OnInitialized()
@@ -40,13 +44,23 @@
         UiStateService.Title = "LOAD WALLET";
     }
 
-    private void LoadWallet(MouseEventArgs _)
+    private async Task LoadWallet(MouseEventArgs _)
     {
         // TODO if password is empty, alert the user
-
-        if (ViewModel.LoadWallet()) {
-            StackService.ClearStack();
+        try
+        {
+            IsBusy = true;
+            await ViewModel.LoadWallet();
+            await StackService.ClearStack();
             NavigationManager.NavigateTo("/");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex);
+        }
+        finally
+        {
+            IsBusy = false;
         }
     }
 

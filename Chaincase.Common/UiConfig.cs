@@ -14,6 +14,7 @@ namespace Chaincase.Common
         private TransactionInfo[] _transactions = new TransactionInfo[0];
         private bool _hasSeed;
         private bool _isBackedUp;
+        private bool _hasIntermediateKey;
 
         [DefaultValue("0")]
         [JsonProperty(PropertyName = "Balance", DefaultValueHandling = DefaultValueHandling.Populate)]
@@ -46,6 +47,13 @@ namespace Chaincase.Common
         {
             get => _isBackedUp;
             set => RaiseAndSetIfChanged(ref _isBackedUp, value);
+        }
+
+        [JsonProperty(PropertyName = "HasIntermediateKey")]
+        public bool HasIntermediateKey
+        {
+            get => _hasIntermediateKey;
+            set => RaiseAndSetIfChanged(ref _hasIntermediateKey, value);
         }
 
         const string FILENAME = "UiConfig.json";

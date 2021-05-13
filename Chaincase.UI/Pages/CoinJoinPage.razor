@@ -2,6 +2,7 @@
 @using NBitcoin
 @using Chaincase.UI.Services
 @using Chaincase.Common
+@using Chaincase.Common.Models
 @using Chaincase.UI.Components;
 
 @inject UIStateService UiStateService
@@ -54,28 +55,39 @@
         </IonItem>
     </IonList>
     <IonList>
-
         <IonListHeader>
             <IonLabel>
-                My Coins
+                My Bitcoin to Join
             </IonLabel>
-        </IonListHeader>
-        <IonItem>
-            <IonLabel>Coins to Join</IonLabel>
             @if (IsReady)
             {
-                <IonChip color="primary" @onclick="NavigateToSelectCoins">
+                <div class="ion-padding-end">
+                <IonChip class="ion-padding-end" color="primary" @onclick="NavigateToSelectCoins">
                     @(HasSelectedCoins ? $"₿ {ViewModel.CoinList?.SelectedAmount}" : "Add +")
                 </IonChip>
+                </div>
             }
             else
             {
-                <IonSpinner slot="end"/>
+                <IonSpinner class="ion-padding-end" slot="end" />
             }
-        </IonItem>
+        </IonListHeader>
+        @foreach (var coin in CoinsToJoin)
+        {
+            <IonItem button>
+                <IonLabel>
+                    <h3>₿ @coin.Amount</h3>
+                    <p>@coin.Clusters</p>
+                    <p><IonBadge color="@StatusToColor(coin.Status)">@(StatusToString(coin.Status))</IonBadge></p>
+                </IonLabel>
+                <IonNote slot="end" color="@(coin.AnonymitySet > Config.DefaultPrivacyLevelSome ? "success" : "warning")">
+                    <ion-anchor @onclick="@(() => OpenCoinDetail(coin))">@coin.AnonymitySet</ion-anchor>
+                </IonNote>
+            </IonItem>
+        }
     </IonList>
 
-    <div class="ion-padding">
+    <div>
         <IonModal @bind-Visible="IsPasswordModalVisible">
             <IonHeader>
                 <IonToolbar>
@@ -89,12 +101,11 @@
                 <IonText class="ion-padding">
                     <h1 class="ion-padding">Authorize Selected Coins to Join</h1>
                 </IonText>
-                <IonLabel position="stacked">Enter Password</IonLabel>
+                <IonLabel position="stacked" class="ion-padding">Enter Password</IonLabel>
                 <IonItem>
                     <IonPasswordInput @bind-Value="Password" placeholder="e.g. margaretthatcheris110%SEXY" />
                 </IonItem>
                 <IonButton OnClick="@CoinJoin" class="ion-padding neu-button">JOIN NOW</IonButton>
-
             </IonContent>
 
         </IonModal>
@@ -105,6 +116,7 @@
 
     <IonLoading @bind-Visible="@ViewModel.IsEnqueueBusy" message="Coinjoin magic..." />
 </IonContent>
+<CoinDetailModal @bind-Visible="@IsDetailModalVisible" @bind-CoinViewModel="@CurrentCoinViewModel" />
 <IonFooter class="ion-padding">
     @if (IsQueuedToCoinJoin)
     {
@@ -126,6 +138,13 @@
     private string Password = "";
     private bool IsShaking { get; set; }
 
+    private bool IsDetailModalVisible { get; set; }
+    private CoinViewModel CurrentCoinViewModel { get; set; }
+    private IEnumerable<CoinViewModel> CoinsToJoin => SelectedCoins.Union(JoiningCoins).OrderBy(x => x.IsSelected ? 0 : 1);
+    private IEnumerable<CoinViewModel> SelectedCoins => ViewModel.CoinList.CoinList.Where(x => x.IsSelected);
+    private IEnumerable<CoinViewModel> JoiningCoins => ViewModel.CoinList.CoinList.Where(x => x.CoinJoinInProgress);
+
+
     protected override void OnInitialized()
     {
         ViewModel = CoinJoinViewModel;
@@ -146,6 +165,12 @@
         await ViewModel.ExitCoinJoinAsync();
     }
 
+    private void OpenCoinDetail(CoinViewModel coin)
+    {
+        CurrentCoinViewModel = coin;
+        IsDetailModalVisible = true;
+    }
+
     private async Task CoinJoin()
     {
         try
@@ -162,6 +187,42 @@
             ToastColor = "danger";
             IsToastVisible = true;
         }
+    }
+
+    private static string StatusToColor(SmartCoinStatus status)
+    {
+        return status switch
+        {
+            SmartCoinStatus.Confirmed => "light",
+            SmartCoinStatus.Unconfirmed => "light",
+            SmartCoinStatus.MixingOnWaitingList => "medium",
+            SmartCoinStatus.MixingBanned => "danger",
+            SmartCoinStatus.MixingInputRegistration => "primary",
+            SmartCoinStatus.MixingConnectionConfirmation => "success",
+            SmartCoinStatus.MixingOutputRegistration => "success",
+            SmartCoinStatus.MixingSigning => "success",
+            SmartCoinStatus.SpentAccordingToBackend => "danger",
+            SmartCoinStatus.MixingWaitingForConfirmation => "warning",
+            _ => throw new NotSupportedException() // Or rather not implemented?
+        };
+    }
+
+    private static string StatusToString(SmartCoinStatus status)
+    {
+        return status switch
+        {
+            SmartCoinStatus.Confirmed => "",
+            SmartCoinStatus.Unconfirmed => "",
+            SmartCoinStatus.MixingOnWaitingList => "queued",
+            SmartCoinStatus.MixingBanned => "banned",
+            SmartCoinStatus.MixingInputRegistration => "registered",
+            SmartCoinStatus.MixingConnectionConfirmation => "connection confirmed",
+            SmartCoinStatus.MixingOutputRegistration => "output registered",
+            SmartCoinStatus.MixingSigning => "signed",
+            SmartCoinStatus.SpentAccordingToBackend => "spent",
+            SmartCoinStatus.MixingWaitingForConfirmation => "waiting for confirmation",
+            _ => ""
+        };
     }
 
     private void ToggleModal() => IsPasswordModalVisible = !IsPasswordModalVisible;

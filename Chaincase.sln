@@ -22,6 +22,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.iOS.Tor.Tests", "Xa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chaincase.Tests", "Chaincase.Tests\Chaincase.Tests.csproj", "{1E635053-3D35-4CC8-84DB-5189EBFA879C}"
 EndProject
+Project("{9344BDBB-3E7F-41FC-A0DD-8665D75EE146}") = "Chaincase.Android", "Chaincase.Android\Chaincase.Android.csproj", "{9C8545C0-8867-42CA-A566-F5E8BB4FD5F0}"
+EndProject
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
