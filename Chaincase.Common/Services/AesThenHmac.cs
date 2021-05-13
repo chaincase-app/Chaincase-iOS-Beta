@@ -324,13 +324,15 @@ namespace Chaincase.Common.Services
             }
         }
 
-        public static byte[] EncryptWithPassword(byte[] secretMessage, string password = "", byte[] nonSecretPayload = null)
+        public static byte[] EncryptWithPassword(byte[] secretMessage, string password, byte[] nonSecretPayload = null)
         {
             nonSecretPayload = nonSecretPayload ?? new byte[] { };
 
             //User Error Checks
             if (secretMessage == null || secretMessage.Length == 0)
                 throw new ArgumentException("Secret Message Required!", "secretMessage");
+
+            password ??= "";
 
             var payload = new byte[((SaltBitSize / 8) * 2) + nonSecretPayload.Length];
 
@@ -368,11 +370,13 @@ namespace Chaincase.Common.Services
             return Encrypt(secretMessage, cryptKey, authKey, payload);
         }
 
-        public static byte[] DecryptWithPassword(byte[] encryptedMessage, string password = "", int nonSecretPayloadLength = 0)
+        public static byte[] DecryptWithPassword(byte[] encryptedMessage, string password, int nonSecretPayloadLength = 0)
         {
             //User Error Checks
             if (encryptedMessage == null || encryptedMessage.Length == 0)
                 throw new ArgumentException("Encrypted Message Required!", "encryptedMessage");
+
+            password ??= "";
 
             var cryptSalt = new byte[SaltBitSize / 8];
             var authSalt = new byte[SaltBitSize / 8];
