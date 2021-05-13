@@ -25,6 +25,7 @@ namespace Chaincase.Tests
             ctx.Services.AddSingleton<INotificationManager, MockNotificationManager>();
             ctx.Services.AddSingleton<ITorManager, MockTorManager>();
             ctx.Services.AddSingleton<IThemeManager, MockThemeManager>();
+            ctx.Services.AddSingleton<IHsmStorage, MockHsmStorage>();
             ctx.Services.AddSingleton<UIStateService>();
             ctx.Services.AddSingleton<StackService>();
             ctx.Services.AddScoped<ThemeSwitcher>();
