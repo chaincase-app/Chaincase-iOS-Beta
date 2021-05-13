@@ -1,24 +1,20 @@
 ﻿using System.IO;
 using Bunit;
-using NBitcoin;
-using WalletWasabi.Blockchain.Keys;
-using Xunit;
-using Chaincase.UI;
-using Chaincase.SSB;
+using Chaincase.Common;
+using Chaincase.Common.Contracts;
+using Chaincase.Common.Services.Mock;
 using Chaincase.UI.Pages;
 using Chaincase.UI.Services;
 using Chaincase.UI.ViewModels;
-using Moq;
 using Microsoft.Extensions.DependencyInjection;
-using Chaincase.Common;
-using Chaincase.Common.Contracts;
 using WalletWasabi.Helpers;
+using Xunit;
 
 namespace Chaincase.Tests
 {
-    public class UiTests
+	public class UiTests
     {
-        private TestContext ctx;
+        private readonly TestContext ctx;
         public UiTests()
         {
             ctx = new TestContext();
@@ -26,7 +22,7 @@ namespace Chaincase.Tests
 
             ctx.Services.AddCommonServices();
             ctx.Services.AddSingleton<IDataDirProvider, TestDataDirProvider>();
-            ctx.Services.AddSingleton<INotificationManager, MockServices.MockNotificationManager>();
+            ctx.Services.AddSingleton<INotificationManager, MockNotificationManager>();
             ctx.Services.AddSingleton<ITorManager, MockTorManager>();
             ctx.Services.AddSingleton<IThemeManager, MockThemeManager>();
             ctx.Services.AddSingleton<UIStateService>();
@@ -36,7 +32,7 @@ namespace Chaincase.Tests
             ctx.Services.AddSingleton<PINViewModel>();
             ctx.Services.AddSingleton<SendViewModel>();
             ctx.Services.AddSingleton<SelectCoinsViewModel>();
-
+            ctx.Services.AddSingleton<BackUpViewModel>();
 
             var dataDir = ctx.Services.GetRequiredService<IDataDirProvider>().Get();
             Directory.CreateDirectory(dataDir);
@@ -57,9 +53,9 @@ namespace Chaincase.Tests
         }
 
         [Fact]
-        public void SpendButtonIsEnabled()
+        public void BadPasswordAtBackupStopsLoading()
 		{
-            var sendViewModel = ctx.Services.GetRequiredService<SendViewModel>();
+            var sendViewModel = ctx.Services.GetRequiredService<BackUpViewModel>();
 
             var sendAmountPage = ctx.RenderComponent<SendAmountPage>();
             var spendButton = sendAmountPage.Find("ion-button");
