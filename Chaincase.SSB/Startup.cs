@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Chaincase.UI.Services;
+using Chaincase.Common.Services.Mock;
 using Splat.Microsoft.Extensions.DependencyInjection;
 
 

@@ -8,6 +8,7 @@ using ReactiveUI;
 using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Helpers;
 using WalletWasabi.Wallets;
+using System.ComponentModel.DataAnnotations;
 
 namespace Chaincase.UI.ViewModels
 {
@@ -17,6 +18,12 @@ namespace Chaincase.UI.ViewModels
         private readonly Config _config;
         private readonly UiConfig _uiConfig;
         private readonly SensitiveStorage _storage;
+
+        public const int PasswordMinLength = 8;
+
+        [Required]
+        [MinLength(PasswordMinLength, ErrorMessage = "Make it 8 or more characters")]
+        public string Password { get; set; }
 
         public NewPasswordViewModel(ChaincaseWalletManager walletManager, Config config, UiConfig uiConfig, SensitiveStorage storage)
         {

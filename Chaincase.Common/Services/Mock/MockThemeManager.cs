@@ -1,7 +1,7 @@
 ﻿using System;
 using Chaincase.Common.Contracts;
 
-namespace Chaincase.SSB
+namespace Chaincase.Common.Services.Mock
 {
     public class MockThemeManager : IThemeManager
     {

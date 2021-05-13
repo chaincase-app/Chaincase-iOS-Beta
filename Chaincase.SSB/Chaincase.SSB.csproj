@@ -6,6 +6,9 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Chaincase.UI\Chaincase.UI.csproj" />
+        <ProjectReference Include="..\Chaincase.Common\Chaincase.Common.csproj">
+          <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
+        </ProjectReference>
     </ItemGroup>
     <PropertyGroup Condition="'$(Configuration)' == 'Release' ">
         <DefineConstants>LIVESHARP_DISABLE</DefineConstants>
