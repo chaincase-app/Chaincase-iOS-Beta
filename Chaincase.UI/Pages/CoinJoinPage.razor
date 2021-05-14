@@ -69,7 +69,9 @@
             }
             else
             {
-                <IonSpinner class="ion-padding-end" slot="end" />
+                <div class="ion-padding-end">
+                    <IonSpinner/>
+                </div> 
             }
         </IonListHeader>
         @foreach (var coin in CoinsToJoin)
