@@ -35,6 +35,23 @@
                 </IonCardContent>
             </IonCard>
         }
+        else if (ViewModel.IsLegacy)
+        {
+            <IonCard class="ion-padding" color="warning">
+                <IonCardContent>
+                    <strong>Info:</strong> This wallet has seed words in a legacy format. You will be asked to authenticate with biometrics to move to the new format.
+                </IonCardContent>
+            </IonCard>
+        }
+
+        @if (BackupException != null)
+        {
+            <IonCard class="ion-padding" color="danger">
+                <IonCardContent>
+                    <strong>Error:</strong> @BackupException.Message
+                </IonCardContent>
+            </IonCard>
+        }
     </div>
     <IonLoading @bind-Visible="@IsBusy" />
 </IonContent>
@@ -43,6 +60,7 @@
     private string Password;
     private bool IsShaking;
     private bool IsBusy;
+    private Exception BackupException;
 
     protected override void OnInitialized()
     {
@@ -58,6 +76,10 @@
             IsShaking = false;
             await ViewModel.InitSeedWords(Password);
             await StackPush("/backup/words");
+        }
+        catch (InvalidOperationException e)
+        {
+            BackupException = e;
         }
         catch
         {

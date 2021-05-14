@@ -24,7 +24,7 @@ namespace Chaincase.Common.Services
 
         //Preconfigured Password Key Derivation Parameters
         public static readonly int SaltBitSize = 64;
-        public static readonly int Iterations = 600_000;
+        public static readonly int Iterations = 200_000;
 
         /// <summary>
         /// Helper that generates a random cryptKey concat authKey on each call.
