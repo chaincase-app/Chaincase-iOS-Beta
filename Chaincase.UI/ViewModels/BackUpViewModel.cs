@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Security;
 using System.Threading.Tasks;
 using Chaincase.Common;
 using Chaincase.Common.Contracts;
@@ -55,12 +56,19 @@ namespace Chaincase.UI.ViewModels
                         throw new KeyNotFoundException();
                 });
             }
-            catch (KeyNotFoundException)
+            catch (SecurityException e)
+            {
+                // toss bad password to UI
+                throw e;
+            }
+            // KeyNotFoundException || ArgumentException
+            catch (Exception)
             {
                 // try migrate from the legacy system
                 var seedWords = await _hsm.GetAsync(LegacyWordsLoc);
                 if (string.IsNullOrEmpty(seedWords))
                 {
+                    // check if corrupted and show message
                     throw new Exception("No seed words");
                 }
 

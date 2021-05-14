@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Chaincase.Common.Contracts;
 using NBitcoin;
-using Cryptor = Chaincase.Common.Services.AesThenHmac;
 
 namespace Chaincase.Common.Services
 {
@@ -24,15 +23,15 @@ namespace Chaincase.Common.Services
         public async Task SetSeedWords(string password, string seedWords)
         {
             var iKey = await GetOrGenerateIntermediateKey(password);
-            var encSeedWords = Cryptor.Encrypt(seedWords, iKey);
+            var encSeedWords = AesThenHmac.Encrypt(seedWords, iKey);
             await _hsm.SetAsync(EncSeedWordsLoc, encSeedWords);
         }
 
         public async Task<string> GetSeedWords(string password)
         {
-            var iKey = await GetOrGenerateIntermediateKey(password);
+            var iKey = await GetIntermediateKey(password);
             var encSeedWords = await _hsm.GetAsync(EncSeedWordsLoc);
-            var seedWords = Cryptor.Decrypt(encSeedWords, iKey);
+            var seedWords = AesThenHmac.Decrypt(encSeedWords, iKey);
             return seedWords;
         }
 
@@ -41,30 +40,32 @@ namespace Chaincase.Common.Services
         // for access without a static password.
         public async Task<byte[]> GetOrGenerateIntermediateKey(string password)
         {
-            byte[] iKey;
-            string encIKeyString;
-            byte[] encIKey;
-
-            if (_uiConfig.HasIntermediateKey)
-            {
-                // throws if it fails
-                encIKeyString = await _hsm.GetAsync(I_KEY_LOC);
-                encIKey = Convert.FromBase64String(encIKeyString);
-                iKey = Cryptor.DecryptWithPassword(encIKey, password);
-                return iKey;
-            }
-
-            // default one at cryptographically-secure pseudo-random
-            iKey = Cryptor.NewKey();
+            byte[] iKey = await GetIntermediateKey(password);
+            if (iKey is null)
+                // default one at cryptographically-secure pseudo-random
+                iKey = AesThenHmac.NewKey();
 
             // store it encrypted under the password
-            encIKey = Cryptor.EncryptWithPassword(iKey, password);
-            encIKeyString = Convert.ToBase64String(encIKey);
+            byte[] encIKey = AesThenHmac.EncryptWithPassword(iKey, password);
+            string encIKeyString = Convert.ToBase64String(encIKey);
             await _hsm.SetAsync(I_KEY_LOC, encIKeyString);
             _uiConfig.HasIntermediateKey = true;
             _uiConfig.ToFile();
             return iKey;
 
+        }
+
+        public async Task<byte[]> GetIntermediateKey(string password)
+        {
+            if (_uiConfig.HasIntermediateKey)
+            {
+                // throws if it fails
+                string encIKeyString = await _hsm.GetAsync(I_KEY_LOC);
+                byte[] encIKey = Convert.FromBase64String(encIKeyString);
+                byte[] iKey = AesThenHmac.DecryptWithPassword(encIKey, password);
+                return iKey;
+            }
+            return null;
         }
     }
 }
