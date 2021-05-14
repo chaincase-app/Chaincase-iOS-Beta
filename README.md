@@ -1,24 +1,24 @@
-# Chaincase - The Private way to Bitcoin
-A non-custodial iOS bitcoin wallet supporting [Chaumian CoinJoin](https://github.com/nopara73/ZeroLink/#ii-chaumian-coinjoin).
+![Chaincase Logomark](https://user-images.githubusercontent.com/8525467/118331682-e9983700-b4d6-11eb-96c8-c14fe3250742.png)
 
-The main privacy features on the network level:
-- Tor-only by default.
-- BIP 158 block filters for private light client.
+### Chaincase
+> The only private bitcoin wallet on iOS
 
-and on the blockchain level:
-- Intuitive ZeroLink CoinJoin integration.
-- Superb coin selection and labeling.
-- Dust attack protections.
+📲️ [Beta Available on TestFlight](https://testflight.apple.com/join/zCW4kvBS)
 
-special thanks to [Wasabi](https://github.com/zkSNACKs/WalletWasabi) for making this possible
+🐦️ [Follow us on Twitter](https://twitter.com/chaincaseapp)
 
-## [Download Chaincase on iOS TestFlight](https://testflight.apple.com/join/e31v3Ydj)
+💬 [Say hi on Telegram](https://t.me/joinchat/R54C370QON9L-5Xq)
 
-Chaincase is a Xamarin.Forms application built on top of the famed Wasabi Wallet privacy wallet.
+# Preserve your Privacy
 
-It binds to [Tor.framework](https://github.com/iCepa/Tor.framework) for an anonymous connection to the outside world
+### 🔀 Keep your blockchain privacy with [CoinJoin](https://en.bitcoin.it/wiki/CoinJoin)
+- Full coin selection & label support
 
-This is *experimental* beta software. Your feedback is greatly appreciated 🗽
+### 🧅 Keep your data private with [Tor](https://en.wikipedia.org/wiki/Tor_(anonymity_network)) by default
+
+### 🛰 Sync privately with [BIP 158](https://github.com/bitcoin/bips/blob/master/bip-0158.mediawiki)
+
+Chaincase is *experimental* beta software. Use at your own risk. Your feedback is greatly appreciated 🗽
 
 ## Building for iOS
 
@@ -27,7 +27,7 @@ make sure to have the Wasabi submodule installed:
 git submodule update --init --recursive
 ```
 
-pull the Tor binary:
+pull or build the Tor binary:
 ```console
 git lfs pull
 ```
