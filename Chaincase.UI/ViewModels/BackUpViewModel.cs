@@ -24,6 +24,7 @@ namespace Chaincase.UI.ViewModels
         private List<string> _seedWords;
 
         public bool HasNoSeedWords => !_uiConfig.HasSeed && !_uiConfig.HasIntermediateKey;
+        public bool IsLegacy => _uiConfig.HasSeed && !_uiConfig.HasIntermediateKey;
 
         private string LegacyWordsLoc => $"{_config.Network}-seedWords";
 
@@ -41,6 +42,11 @@ namespace Chaincase.UI.ViewModels
             string wordString = null;
             try
             {
+                // ensure correct pw
+                PasswordHelper.Guard(password);
+                string walletFilePath = Path.Combine(_walletManager.WalletDirectories.WalletsDir, $"{_config.Network}.json");
+                await Task.Run(() => KeyManager.FromFile(walletFilePath).GetMasterExtKey(password ?? ""));
+
                 await Task.Run(async () =>
                 {
                     // this next line doesn't really run async :/
@@ -49,36 +55,22 @@ namespace Chaincase.UI.ViewModels
                         throw new KeyNotFoundException();
                 });
             }
-            catch (ArgumentException e)
-            {
-                // bad password & thus bad key derived
-                throw e;
-            }
             catch (KeyNotFoundException)
             {
                 // try migrate from the legacy system
-                wordString = await SetAlphaToBetaSeedWords(password);
+                var seedWords = await _hsm.GetAsync(LegacyWordsLoc);
+                if (string.IsNullOrEmpty(seedWords))
+                {
+                    throw new Exception("No seed words");
+                }
+
+                await _storage.SetSeedWords(password, seedWords);
+                wordString = seedWords;
             }
             finally
             {
                 SeedWords = wordString?.Split(' ').ToList();
             }
-        }
-
-        public async Task<string> SetAlphaToBetaSeedWords(string password)
-        {
-            PasswordHelper.Guard(password);
-            string walletFilePath = Path.Combine(_walletManager.WalletDirectories.WalletsDir, $"{_config.Network}.json");
-            // the old one will ask you for 
-            var seedWords = await _hsm.GetAsync(LegacyWordsLoc);
-            if (string.IsNullOrEmpty(seedWords))
-            {
-                throw new Exception("No seed words");
-            }
-
-            await Task.Run(() => KeyManager.FromFile(walletFilePath).GetMasterExtKey(password ?? ""));
-            await _storage.SetSeedWords(password, seedWords);
-            return seedWords;
         }
 
         public void SetIsBackedUp()
