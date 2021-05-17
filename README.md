@@ -20,6 +20,12 @@
 
 Chaincase is *experimental* beta software. Use at your own risk. Your feedback is greatly appreciated 🗽
 
+## How does it work?
+[▶️ Watch the video](https://youtu.be/Ctl1mIvaR9I)
+
+[![Chaincase CoinJoin Tutorial Video "My Privacy Has Been Preserved!"](https://user-images.githubusercontent.com/8525467/118557826-be5e5380-b733-11eb-9115-aee38d2337f7.jpg)](https://youtu.be/Ctl1mIvaR9I)
+
+
 ## Building for iOS
 
 make sure to have the Wasabi submodule installed:
