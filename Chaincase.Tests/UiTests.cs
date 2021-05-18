@@ -54,9 +54,9 @@ namespace Chaincase.Tests
         }
 
         [Fact]
-        public void BadPasswordAtBackupStopsLoading()
+        public void SendButtonValidationWorks()
 		{
-            var sendViewModel = ctx.Services.GetRequiredService<BackUpViewModel>();
+            var sendViewModel = ctx.Services.GetRequiredService<SendViewModel>();
 
             var sendAmountPage = ctx.RenderComponent<SendAmountPage>();
             var spendButton = sendAmountPage.Find("ion-button");
