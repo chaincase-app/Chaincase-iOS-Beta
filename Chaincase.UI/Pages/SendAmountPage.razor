@@ -9,7 +9,7 @@
 <IonContent>
     <IonItem>
         <IonLabel>Amount</IonLabel>
-        <IonInput @onkeyup='ViewModel.SetAmountText' @bind-Value ="ViewModel.AmountText" min="0" slot="end" class="ion-text-end"/>
+        <IonInput @onkeyup='ViewModel.SetAmountText' @bind-Value ="ViewModel.AmountText" inputmode="decimal" type="text" slot="end" class="ion-text-end"/>
     </IonItem>
     <IonItem>
         <IonLabel>Automatic Coin Selection</IonLabel>
