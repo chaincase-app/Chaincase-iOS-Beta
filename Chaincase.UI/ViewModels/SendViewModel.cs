@@ -84,7 +84,7 @@ namespace Chaincase.UI.ViewModels
                 (amountText) =>
                 {
                     Money.TryParse(amountText.TrimStart('~', ' '), out Money outputAmount);
-                    return outputAmount;
+                    return outputAmount ?? OutputAmount;
                 }).ToProperty(this, x => x.OutputAmount);
 
             this.WhenAnyValue(x => x.IsMax)
