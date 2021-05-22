@@ -9,21 +9,48 @@
 <IonContent>
     <IonItem>
         <IonLabel>Amount</IonLabel>
-        <IonInput @bind-Value="ViewModel.AmountText" inputmode="decimal" type="text" slot="end" class="ion-text-end"/>
+        <IonInput @bind-Value="ViewModel.AmountText" inputmode="decimal" type="text" slot="end" class="ion-text-end" />
     </IonItem>
     <IonItem>
         <IonLabel>Automatic Coin Selection</IonLabel>
-        <IonToggle color="secondary" @bind-Value="IsCoinSelectionAutomatic"/>
+        <IonToggle color="primary" @bind-Value="IsCoinSelectionAutomatic" />
     </IonItem>
-    <IonItem>
+    @if (ViewModel.SelectCoinsViewModel.SelectedAmount < ViewModel.OutputAmount + ViewModel.EstimatedBtcFee)
+    {
+        <IonCard color="primary">
+            <IonCardContent>
+                <strong>INFO</strong>: Please select enough bitcoin to match the amount
+            </IonCardContent>
+        </IonCard>
+    }
+    else if (ViewModel.SelectCoinsViewModel.WarnCertainLink)
+    {
+        <IonCard color="warning">
+            <IonCardContent>
+                <strong>WARNING</strong>: The coins you selected have not been protected with CoinJoin.
+                The contacts associated with the coins and the recipient of this transaction have the capability to
+                identify historical transaction data associated with these coins.
+            </IonCardContent>
+        </IonCard>
+
+    }
+    else
+    {
+        <IonCard color="success">
+            <IonCardContent>
+                Selected coins show low risk of privacy loss 🗽
+            </IonCardContent>
+        </IonCard>
+    }
+    <IonItem button="@(!IsCoinSelectionAutomatic)" disabled="@(IsCoinSelectionAutomatic)" @onclick="NavigateToSelectCoinsPage">
         <IonLabel>Amount Selected</IonLabel>
-        <IonChip @onclick="NavigateToSelectCoinsPage" color="primary" disabled="@(IsCoinSelectionAutomatic)">
+        <IonChip color="primary">
             ₿ @ViewModel.SelectCoinsViewModel.SelectedAmount
         </IonChip>
     </IonItem>
     <IonItem>
         <IonLabel>Send Max</IonLabel>
-        <IonToggle color="secondary" @bind-Value="ViewModel.IsMax" />
+        <IonToggle color="primary" @bind-Value="ViewModel.IsMax" />
     </IonItem>
     <IonItem>
         <IonLabel>Fee</IonLabel>
@@ -37,7 +64,7 @@
 </IonContent>
 
 <FeeModal @bind-Visible="@IsFeeModalVisible"
-            SendViewModel="@ViewModel"/>
+          SendViewModel="@ViewModel" />
 
 @code {
 
@@ -70,6 +97,8 @@
 
     private void NavigateToSelectCoinsPage()
     {
+        if (IsCoinSelectionAutomatic)
+            return;
         StackService.PushStackState(async () =>
         {
             await NavigationManager.NavigateBack(null, "/send/amount");
@@ -79,9 +108,10 @@
 
     private void NavigateToSendApprovalPage()
     {
-        StackService.PushStackState(async () => {
+        StackService.PushStackState(async () =>
+        {
             await NavigationManager.NavigateBack(null, "/send/amount");
         });
         NavigationManager.NavigateTo("/send/approve");
     }
- }
+}
