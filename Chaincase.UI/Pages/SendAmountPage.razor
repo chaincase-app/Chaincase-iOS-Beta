@@ -103,7 +103,8 @@
         {
             await NavigationManager.NavigateBack(null, "/send/amount");
         });
-        NavigationManager.NavigateTo("/selectcoins");
+        var requestedInputs = ViewModel.OutputAmount + ViewModel.EstimatedBtcFee;
+        NavigationManager.NavigateTo($"/selectcoins/{requestedInputs}");
     }
 
     private void NavigateToSendApprovalPage()
