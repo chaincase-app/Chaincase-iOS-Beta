@@ -26,7 +26,7 @@
         <IonToggle color="primary" @bind-Value="IsCoinSelectionAutomatic" />
     </IonItem>
     @if (ViewModel.SelectCoinsViewModel.SelectedAmount == NBitcoin.Money.Zero
-      || ViewModel.SelectCoinsViewModel.SelectedAmount < ViewModel.OutputAmount + ViewModel.EstimatedBtcFee)
+     || ViewModel.SelectCoinsViewModel.SelectedAmount < ViewModel.OutputAmount + ViewModel.EstimatedBtcFee)
     {
         <IonCard color="primary">
             <IonCardContent>
@@ -43,7 +43,6 @@
                 identify historical transaction data associated with these coins.
             </IonCardContent>
         </IonCard>
-
     }
     else
     {
@@ -61,7 +60,7 @@
     </IonItem>
     <IonItem disabled="@(ViewModel.AllSelectedAmount == NBitcoin.Money.Zero)">
         <IonLabel>Let 'em Keep the Change</IonLabel>
-        <IonToggle color="primary" @bind-Value="ViewModel.IsMax" disabled="@(ViewModel.AllSelectedAmount == NBitcoin.Money.Zero)"/>
+        <IonToggle color="primary" @bind-Value="ViewModel.IsMax" disabled="@(ViewModel.AllSelectedAmount == NBitcoin.Money.Zero)" />
     </IonItem>
     @if (ViewModel.IsMax && ViewModel.EstimatedBtcFee >= ViewModel.AllSelectedAmount)
     {
@@ -90,20 +89,6 @@
     private bool IsSelectCoinsModalVisible;
     private bool IsFeeModalVisible;
     private bool _isCoinSelectionAutomatic;
-    public bool IsCoinSelectionAutomatic
-    {
-        get => _isCoinSelectionAutomatic;
-        set
-        {
-            if (value)
-            {
-                ViewModel.SelectCoinsViewModel.SelectPrivateCoins();
-            }
-            _isCoinSelectionAutomatic = value;
-        }
-    }
-
-    private double amount { get; set; }
 
     protected override void OnInitialized()
     {
@@ -126,13 +111,6 @@
         NavigationManager.NavigateTo($"/selectcoins/{requestedInputs}");
     }
 
-
-    private void OnBlur()
-    {
-        Console.WriteLine("blur");
-    }
-
-
     private void NavigateToSendApprovalPage()
     {
         StackService.PushStackState(async () =>
@@ -142,19 +120,16 @@
         NavigationManager.NavigateTo("/send/approve");
     }
 
-    public class InputChangeEventDetail : BaseIonicChangeEventDetail<DateTimeOffset?>
+    public bool IsCoinSelectionAutomatic
     {
-        [JsonPropertyName("value")]
-        public string Value { get; set; }
-
-        public override DateTimeOffset? GetValue()
+        get => _isCoinSelectionAutomatic;
+        set
         {
-            if (string.IsNullOrEmpty(Value) || !DateTimeOffset.TryParse(Value, out var res))
+            if (value)
             {
-                return null;
+                ViewModel.SelectCoinsViewModel.SelectPrivateCoins();
             }
-
-            return res;
+            _isCoinSelectionAutomatic = value;
         }
     }
 }
