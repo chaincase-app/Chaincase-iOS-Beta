@@ -23,6 +23,9 @@
             <IonInput @bind-Value="@ViewModel.Label" placeholder="Who are you sending to?" />
         </IonItem>
     </div>
+    <div class="ion-padding">
+        <IonButton class="neu-button" OnClick="OnContinue" color="primary" expand="block" disabled="@(!IsAddressValid || IsLabelEmpty)">Continue</IonButton>
+    </div>
     <IonCard class="ion-padding" color="primary">
         <IonCardContent>
             <strong>What's "recipient name?"</strong>
@@ -31,9 +34,6 @@
             This name is for your eyes only. It's not shared with anyone. If you are sending to a wallet of your own, write "me"
         </IonCardContent>
     </IonCard>
-    <div class="ion-padding">
-        <IonButton class="neu-button" OnClick="OnContinue" color="primary" expand="block" disabled="@(!IsAddressValid || IsLabelEmpty)">Continue</IonButton>
-    </div>
 </IonContent>
 
 @code {
