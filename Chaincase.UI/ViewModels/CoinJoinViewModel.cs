@@ -65,12 +65,12 @@ namespace Chaincase.UI.ViewModels
             Disposables = new CompositeDisposable();
 
             // Infer coordinator fee
-            var registrableRound = _walletManager.CurrentWallet?.ChaumianClient.State.GetRegistrableRoundOrDefault();
+            var registrableRound = _walletManager.CurrentWallet?.ChaumianClient?.State?.GetRegistrableRoundOrDefault();
 
             CoordinatorFeePercent = registrableRound?.State?.CoordinatorFeePercent.ToString() ?? "0.003";
 
             // Select most advanced coin join round
-            ClientRound mostAdvancedRound = _walletManager.CurrentWallet.ChaumianClient?.State?.GetMostAdvancedRoundOrDefault();
+            ClientRound mostAdvancedRound = _walletManager.CurrentWallet?.ChaumianClient?.State?.GetMostAdvancedRoundOrDefault();
             if (mostAdvancedRound != default)
             {
                 RoundPhaseState = new RoundPhaseState(mostAdvancedRound.State.Phase, _walletManager.CurrentWallet.ChaumianClient?.State.IsInErrorState ?? false);
