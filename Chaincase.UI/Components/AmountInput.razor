@@ -1,0 +1,56 @@
+﻿@using Microsoft.JSInterop
+@using System.Text.Json.Serialization
+@typeparam TItem
+@inherits BaseIonicInputComponent<TItem, IonInput<TItem>.InputChangeEventDetail>
+@namespace Blazor.Ionic
+<ion-input value="@Value" @attributes="InputAttributes" @ref=Element>@ChildContent</ion-input>
+
+@code {
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (firstRender)
+        {
+            await JsRuntime.InvokeVoidAsync("IonicBridge.registerBlazorCustomHandler", Element, "ionInput", ThisRef, nameof(HandleInput));
+        }
+    }
+
+    [JSInvokable(nameof(HandleInput))]
+    public async Task HandleInput(ChangeEventArgs data)
+    {
+        await OnInput.InvokeAsync(data);
+    }
+
+    [Parameter]
+    public EventCallback<ChangeEventArgs> OnInput { get; set; }
+
+    public class InputChangeEventDetail : BaseIonicChangeEventDetail<TItem>
+    {
+        [JsonPropertyName("value")]
+        public string Value { get; set; }
+
+        public override TItem GetValue()
+        {
+            var type = typeof(TItem);
+            if (type == typeof(string))
+            {
+                return (TItem)(object)Value;
+            }
+            if (string.IsNullOrEmpty(Value))
+            {
+                return default;
+            }
+            try
+            {
+                type = Nullable.GetUnderlyingType(type) ?? type;
+                return (TItem)Convert.ChangeType(Value, type);
+            }
+            catch (FormatException)
+            {
+                return default;
+            }
+        }
+    }
+
+}

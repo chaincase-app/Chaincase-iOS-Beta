@@ -19,14 +19,14 @@
 <IonContent>
     <IonItem>
         <IonLabel>Amount</IonLabel>
-        <IonInput @bind-Value="ViewModel.AmountText" pattern="[0-9]+([\.,][0-9]+)?" type="number" slot="end" class="ion-text-end" />
+        <IonInput @bind-Value="ViewModel.AmountText" pattern="[0-9]+([\.,][0-9]+)?" type="number" slot="end" class="ion-text-end" disabled="@ViewModel.IsMax" />
     </IonItem>
     <IonItem>
         <IonLabel>Automatic Coin Selection</IonLabel>
         <IonToggle color="primary" @bind-Value="IsCoinSelectionAutomatic" />
     </IonItem>
     @if (ViewModel.SelectCoinsViewModel.SelectedAmount == NBitcoin.Money.Zero
-        || ViewModel.SelectCoinsViewModel.SelectedAmount < ViewModel.OutputAmount + ViewModel.EstimatedBtcFee)
+      || ViewModel.SelectCoinsViewModel.SelectedAmount < ViewModel.OutputAmount + ViewModel.EstimatedBtcFee)
     {
         <IonCard color="primary">
             <IonCardContent>
@@ -49,7 +49,7 @@
     {
         <IonCard color="success">
             <IonCardContent>
-                Selected coins show low risk of privacy loss 🗽
+                The selection shows low risk of privacy loss.
             </IonCardContent>
         </IonCard>
     }
@@ -59,10 +59,18 @@
             ₿ @ViewModel.SelectCoinsViewModel.SelectedAmount
         </IonChip>
     </IonItem>
-    <IonItem>
-        <IonLabel>Send Max</IonLabel>
-        <IonToggle color="primary" @bind-Value="ViewModel.IsMax" />
+    <IonItem disabled="@(ViewModel.AllSelectedAmount == NBitcoin.Money.Zero)">
+        <IonLabel>Let 'em Keep the Change</IonLabel>
+        <IonToggle color="primary" @bind-Value="ViewModel.IsMax" disabled="@(ViewModel.AllSelectedAmount == NBitcoin.Money.Zero)"/>
     </IonItem>
+    @if (ViewModel.IsMax && ViewModel.EstimatedBtcFee >= ViewModel.AllSelectedAmount)
+    {
+        <IonCard color="danger">
+            <IonCardContent>
+                The fee is more expensive than your inputs. Select different coins or reduce the fee.
+            </IonCardContent>
+        </IonCard>
+    }
     <IonItem>
         <IonLabel>Fee</IonLabel>
         <IonChip color="primary" @onclick="ToggleSelectFeeModal">@ViewModel.FeeRate</IonChip>
@@ -100,7 +108,7 @@
     protected override void OnInitialized()
     {
         ViewModel = SendViewModel;
-        UiStateService.Title = "SEND";
+        UiStateService.Title = "Send";
     }
 
     private void ToggleSelectFeeModal() =>

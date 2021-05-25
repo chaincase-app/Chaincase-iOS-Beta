@@ -170,7 +170,7 @@ namespace Chaincase.UI.ViewModels
                 {
                     // since AmountText can be altered by hand, we set it instead
                     // of binding to a calculated ObservableAsPropertyHelper
-                    AmountText = url.Amount.ToString();
+                    //AmountText = url.Amount.ToString();
                 }
                 // we could check url.Label or url.Message for contact, but there is
                 // no convention on their use yet so it's hard to say whether they
@@ -287,6 +287,14 @@ namespace Chaincase.UI.ViewModels
             }
         }
 
+        private void SetAmountIfMax()
+        {
+            if (IsMax)
+            {
+                AmountText = $"{AllSelectedAmount.ToString(false, true)}";
+            }
+        }
+
         private void SetFeeTargetLimits()
         {
             var allFeeEstimate = _feeProviders?.AllFeeEstimate;
@@ -300,18 +308,6 @@ namespace Chaincase.UI.ViewModels
             {
                 MinimumFeeTarget = 2;
                 MaximumFeeTarget = Constants.SevenDaysConfirmationTarget;
-            }
-        }
-
-        private void SetAmountIfMax()
-        {
-            if (IsMax)
-            {
-                AmountText = AllSelectedAmount == Money.Zero
-                    ? EstimatedBtcFee >= AllSelectedAmount
-                        ? "Too high fee"
-                        : "No Coins Selected"
-                    : $"~ {AllSelectedAmount.ToString(false, true)}";
             }
         }
 
