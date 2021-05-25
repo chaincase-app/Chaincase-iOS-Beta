@@ -1,5 +1,15 @@
 ﻿@page "/send/amount"
+@using System;
+@using System.Collections.Generic;
+@using System.Linq.Expressions;
+
+@using System.Text.Json.Serialization
+@using System.Threading.Tasks;
 @using Chaincase.UI.Services
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.JSInterop
+@using Blazor.Ionic
 @inject SendViewModel SendViewModel
 @inject StackService StackService
 @inject UIStateService UiStateService
@@ -9,13 +19,14 @@
 <IonContent>
     <IonItem>
         <IonLabel>Amount</IonLabel>
-        <IonInput @bind-Value="ViewModel.AmountText" inputmode="decimal" type="text" slot="end" class="ion-text-end" />
+        <IonInput @bind-Value="ViewModel.AmountText" pattern="[0-9]+([\.,][0-9]+)?" type="number" slot="end" class="ion-text-end" />
     </IonItem>
     <IonItem>
         <IonLabel>Automatic Coin Selection</IonLabel>
         <IonToggle color="primary" @bind-Value="IsCoinSelectionAutomatic" />
     </IonItem>
-    @if (ViewModel.SelectCoinsViewModel.SelectedAmount < ViewModel.OutputAmount + ViewModel.EstimatedBtcFee)
+    @if (ViewModel.SelectCoinsViewModel.SelectedAmount == NBitcoin.Money.Zero
+        || ViewModel.SelectCoinsViewModel.SelectedAmount < ViewModel.OutputAmount + ViewModel.EstimatedBtcFee)
     {
         <IonCard color="primary">
             <IonCardContent>
@@ -107,6 +118,13 @@
         NavigationManager.NavigateTo($"/selectcoins/{requestedInputs}");
     }
 
+
+    private void OnBlur()
+    {
+        Console.WriteLine("blur");
+    }
+
+
     private void NavigateToSendApprovalPage()
     {
         StackService.PushStackState(async () =>
@@ -114,5 +132,21 @@
             await NavigationManager.NavigateBack(null, "/send/amount");
         });
         NavigationManager.NavigateTo("/send/approve");
+    }
+
+    public class InputChangeEventDetail : BaseIonicChangeEventDetail<DateTimeOffset?>
+    {
+        [JsonPropertyName("value")]
+        public string Value { get; set; }
+
+        public override DateTimeOffset? GetValue()
+        {
+            if (string.IsNullOrEmpty(Value) || !DateTimeOffset.TryParse(Value, out var res))
+            {
+                return null;
+            }
+
+            return res;
+        }
     }
 }
