@@ -1,9 +1,10 @@
 @page "/coinjoin"
 @using NBitcoin
+@using WalletWasabi.CoinJoin.Common.Models
 @using Chaincase.UI.Services
 @using Chaincase.Common
 @using Chaincase.Common.Models
-@using Chaincase.UI.Components;
+@using Chaincase.UI.Components
 
 @inject UIStateService UiStateService
 @inject NavigationManager NavigationManager
@@ -43,7 +44,7 @@
 
         <IonItem>
             <IonLabel>Current phase</IonLabel>
-            <IonBadge color="light" slot="end">@ViewModel.RoundPhaseState.Phase</IonBadge>
+            <IonBadge color="light" slot="end">@(PhaseToString(ViewModel.RoundPhaseState))</IonBadge>
         </IonItem>
         <IonItem>
             <IonLabel>Phase ends in</IonLabel>
@@ -62,16 +63,16 @@
             @if (IsReady)
             {
                 <div class="ion-padding-end">
-                <IonChip class="ion-padding-end" color="primary" @onclick="NavigateToSelectCoins">
-                    @(HasSelectedCoins ? $"₿ {ViewModel.CoinList?.SelectedAmount}" : "Add +")
-                </IonChip>
+                    <IonChip class="ion-padding-end" color="primary" @onclick="NavigateToSelectCoins">
+                        @(HasSelectedCoins ? $"₿ {ViewModel.CoinList?.SelectedAmount}" : "Add +")
+                    </IonChip>
                 </div>
             }
             else
             {
                 <div class="ion-padding-end">
-                    <IonSpinner/>
-                </div> 
+                    <IonSpinner />
+                </div>
             }
         </IonListHeader>
         @foreach (var coin in CoinsToJoin)
@@ -189,6 +190,18 @@
             ToastColor = "danger";
             IsToastVisible = true;
         }
+    }
+
+    private static string PhaseToString(RoundPhaseState state)
+    {
+        return state.Phase switch
+        {
+            RoundPhase.InputRegistration => "1/4: Register Inputs",
+            RoundPhase.ConnectionConfirmation => "2/4: Confirm Connections",
+            RoundPhase.OutputRegistration => "3/4: Register Outputs",
+            RoundPhase.Signing => "4/4: Signing CoinJoin 🪄",
+            _ => ""
+        };
     }
 
     private static string StatusToColor(SmartCoinStatus status)
