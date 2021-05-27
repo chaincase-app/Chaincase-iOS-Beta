@@ -15,6 +15,7 @@ using NBitcoin;
 using ReactiveUI;
 using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Blockchain.TransactionOutputs;
+using WalletWasabi.Blockchain.TransactionProcessing;
 using WalletWasabi.CoinJoin.Client.Clients.Queuing;
 using WalletWasabi.CoinJoin.Client.Rounds;
 using WalletWasabi.CoinJoin.Common.Models;
@@ -95,8 +96,7 @@ namespace Chaincase.UI.ViewModels
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(_ =>
                 {
-                    TimeSpan left = RoundTimesout - DateTimeOffset.UtcNow;
-                    TimeLeftTillRoundTimeout = left > TimeSpan.Zero ? left : TimeSpan.Zero; // Make sure cannot be less than zero.
+                    TimeLeftTillRoundTimeout = TimeUntilOffset(RoundTimesout);
                 });
 
             Task.Run(async () =>
@@ -107,35 +107,35 @@ namespace Chaincase.UI.ViewModels
                 }
 
                 // Update view model state on chaumian client state updates
-            Observable.FromEventPattern(_walletManager.CurrentWallet.ChaumianClient, nameof(_walletManager.CurrentWallet.ChaumianClient.CoinQueued))
-                .Merge(Observable.FromEventPattern(_walletManager.CurrentWallet.ChaumianClient, nameof(_walletManager.CurrentWallet.ChaumianClient.OnDequeue)))
-                .Merge(Observable.FromEventPattern(_walletManager.CurrentWallet.ChaumianClient, nameof(_walletManager.CurrentWallet.ChaumianClient.StateUpdated)))
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(_ => UpdateStates())
-                .DisposeWith(Disposables);
+                Observable.FromEventPattern(_walletManager.CurrentWallet.ChaumianClient, nameof(_walletManager.CurrentWallet.ChaumianClient.CoinQueued))
+                    .Merge(Observable.FromEventPattern(_walletManager.CurrentWallet.ChaumianClient, nameof(_walletManager.CurrentWallet.ChaumianClient.OnDequeue)))
+                    .Merge(Observable.FromEventPattern(_walletManager.CurrentWallet.ChaumianClient, nameof(_walletManager.CurrentWallet.ChaumianClient.StateUpdated)))
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Subscribe(_ => UpdateStates())
+                    .DisposeWith(Disposables);
 
-            // Remove notification on unconfirming status in coin join round
-            Observable.FromEventPattern(_walletManager.CurrentWallet.ChaumianClient, nameof(_walletManager.CurrentWallet.ChaumianClient.OnDequeue))
-                   .Subscribe(pattern =>
-                   {
-                       var e = (DequeueResult)pattern.EventArgs;
-                       try
+                // Remove notification on unconfirming status in coin join round
+                Observable.FromEventPattern(_walletManager.CurrentWallet.ChaumianClient, nameof(_walletManager.CurrentWallet.ChaumianClient.OnDequeue))
+                       .Subscribe(pattern =>
                        {
-                           foreach (var success in e.Successful.Where(x => x.Value.Any()))
+                           var e = (DequeueResult)pattern.EventArgs;
+                           try
                            {
-                               DequeueReason reason = success.Key;
-                               if (reason == DequeueReason.UserRequested)
+                               foreach (var success in e.Successful.Where(x => x.Value.Any()))
                                {
-                                   _notificationManager.RemoveAllPendingNotifications();
+                                   DequeueReason reason = success.Key;
+                                   if (reason == DequeueReason.UserRequested)
+                                   {
+                                       _notificationManager.RemoveAllPendingNotifications();
+                                   }
                                }
                            }
-                       }
-                       catch (Exception ex)
-                       {
-                           Logger.LogWarning(ex);
-                       }
-                   })
-                   .DisposeWith(Disposables);
+                           catch (Exception ex)
+                           {
+                               Logger.LogWarning(ex);
+                           }
+                       })
+                       .DisposeWith(Disposables);
             });
 
             // Update timeout label
@@ -143,9 +143,14 @@ namespace Chaincase.UI.ViewModels
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(_ =>
                 {
-                    TimeSpan left = RoundTimesout - DateTimeOffset.UtcNow;
-                    TimeLeftTillRoundTimeout = left > TimeSpan.Zero ? left : TimeSpan.Zero; // Make sure cannot be less than zero.
+                    TimeLeftTillRoundTimeout = TimeUntilOffset(RoundTimesout);
                 }).DisposeWith(Disposables);
+        }
+
+        private TimeSpan TimeUntilOffset(DateTimeOffset offset)
+        {
+            TimeSpan left = offset - DateTimeOffset.UtcNow;
+            return left > TimeSpan.Zero ? left : TimeSpan.Zero; // Make sure cannot be less than zero.
         }
 
         private void UpdateStates()
@@ -171,16 +176,24 @@ namespace Chaincase.UI.ViewModels
                 if (!chaumianClient.State.IsInErrorState)
                 {
                     RoundPhaseState = new RoundPhaseState(mostAdvancedRound.State.Phase, false);
+                    // what if its null? What if the time difference is too small?
+                    Logger.LogInfo($"UpdateState: {mostAdvancedRound.State.InputRegistrationTimesout.ToString()} > {RoundTimesout.ToString()}? queued: {AmountQueued}");
+                    if (mostAdvancedRound.State?.InputRegistrationTimesout > RoundTimesout &&
+                        AmountQueued > Money.Zero)
+                    {
+                        Logger.LogInfo($"QUEUE FOR NEXT ROUND in {TimeLeftTillRoundTimeout.TotalSeconds}");
+                        ScheduleConfirmNotification(this, null);
+                    }
                     RoundTimesout = mostAdvancedRound.State.Phase == RoundPhase.InputRegistration ? mostAdvancedRound.State.InputRegistrationTimesout : DateTimeOffset.UtcNow;
                 }
                 else
                 {
                     RoundPhaseState = new RoundPhaseState(RoundPhaseState.Phase, true);
                 }
+
                 this.RaisePropertyChanged(nameof(RoundPhaseState));
                 this.RaisePropertyChanged(nameof(RoundTimesout));
                 PeersRegistered = mostAdvancedRound.State.RegisteredPeerCount;
-                PeersQueued = mostAdvancedRound.State.QueuedPeerCount;
                 PeersNeeded = mostAdvancedRound.State.RequiredPeerCount;
             }
         }
