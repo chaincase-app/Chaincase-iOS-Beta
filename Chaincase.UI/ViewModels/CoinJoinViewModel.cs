@@ -181,8 +181,8 @@ namespace Chaincase.UI.ViewModels
                     if (mostAdvancedRound.State?.InputRegistrationTimesout > RoundTimesout &&
                         AmountQueued > Money.Zero)
                     {
-                        Logger.LogInfo($"QUEUE FOR NEXT ROUND in {TimeLeftTillRoundTimeout.TotalSeconds}");
-                        ScheduleConfirmNotification(this, null);
+                        Logger.LogInfo($"QUEUE FOR NEXT ROUND in {TimeUntilOffset(mostAdvancedRound.State.InputRegistrationTimesout)}");
+                        ScheduleConfirmNotification(mostAdvancedRound.State.InputRegistrationTimesout);
                     }
                     RoundTimesout = mostAdvancedRound.State.Phase == RoundPhase.InputRegistration ? mostAdvancedRound.State.InputRegistrationTimesout : DateTimeOffset.UtcNow;
                 }
@@ -323,7 +323,7 @@ namespace Chaincase.UI.ViewModels
 
                     await _walletManager.CurrentWallet.ChaumianClient.QueueCoinsToMixAsync(password, coins.ToArray());
                     _notificationManager.RequestAuthorization();
-                    ScheduleConfirmNotification(null, null);
+                    ScheduleConfirmNotification(DateTimeOffset.UtcNow + TimeLeftTillRoundTimeout);
                 }
                 catch (SecurityException ex)
                 {
@@ -349,11 +349,11 @@ namespace Chaincase.UI.ViewModels
             }
         }
 
-        void ScheduleConfirmNotification(object sender, EventArgs e)
+        void ScheduleConfirmNotification(DateTimeOffset offset)
         {
             const int NOTIFY_TIMEOUT_DELTA = 90; // seconds
 
-            var timeoutSeconds = TimeLeftTillRoundTimeout.TotalSeconds;
+            var timeoutSeconds = TimeUntilOffset(offset).TotalSeconds;
             if (timeoutSeconds < NOTIFY_TIMEOUT_DELTA)
                 // Just encourage users to keep the app open
                 // & prepare CoinJoin to background if possible.
@@ -361,7 +361,7 @@ namespace Chaincase.UI.ViewModels
 
             // Takes about 30 seconds to start Tor & connect
             var confirmTime = DateTime.Now.AddSeconds(timeoutSeconds);
-            string title = $"Go Private";
+            string title = $"Time to CoinJoin Now";
             string message = string.Format("Open Chaincase before {0:t}\n to complete the CoinJoin.", confirmTime);
 
             var timeToNotify = timeoutSeconds - NOTIFY_TIMEOUT_DELTA;
