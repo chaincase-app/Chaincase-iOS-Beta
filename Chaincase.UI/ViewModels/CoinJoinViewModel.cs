@@ -176,12 +176,9 @@ namespace Chaincase.UI.ViewModels
                 if (!chaumianClient.State.IsInErrorState)
                 {
                     RoundPhaseState = new RoundPhaseState(mostAdvancedRound.State.Phase, false);
-                    // what if its null? What if the time difference is too small?
-                    Logger.LogInfo($"UpdateState: {mostAdvancedRound.State.InputRegistrationTimesout.ToString()} > {RoundTimesout.ToString()}? queued: {AmountQueued}");
                     if (mostAdvancedRound.State?.InputRegistrationTimesout > RoundTimesout &&
                         AmountQueued > Money.Zero)
-                    {
-                        Logger.LogInfo($"QUEUE FOR NEXT ROUND in {TimeUntilOffset(mostAdvancedRound.State.InputRegistrationTimesout)}");
+                    {   // Seems like this is getting triggered twice.
                         ScheduleConfirmNotification(mostAdvancedRound.State.InputRegistrationTimesout);
                     }
                     RoundTimesout = mostAdvancedRound.State.Phase == RoundPhase.InputRegistration ? mostAdvancedRound.State.InputRegistrationTimesout : DateTimeOffset.UtcNow;
