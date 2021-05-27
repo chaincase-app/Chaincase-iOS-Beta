@@ -3,8 +3,10 @@
 /*ion-input {
     //filter: drop-shadow(1px 1px 3px rgba(0, 0, 0, 0.9));
     box-shadow: .1rem .2rem .5rem rgba(255, 255, 255, 0.09);
-    --padding-start: 1rem !important;*/
+    --padding-start: 1rem !important;
 }
+
+*/
 
 input {
     caret-color: var(--ion-color-primary);

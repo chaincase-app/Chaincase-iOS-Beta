@@ -27,7 +27,7 @@
                         <IonCheckbox slot="start"
                                      @bind-Value="coin.IsSelected" />
                         <IonLabel slot="start">
-                            <h3 class="monospace">₿ @coin.Amount</h3>
+                            <h3>₿ @coin.Amount</h3>
                             <p>@coin.Clusters</p>
                         </IonLabel>
                         <IonNote slot="end" color="@(coin.AnonymitySet > Config.DefaultPrivacyLevelSome ? "success" : "warning")">
@@ -51,7 +51,7 @@
                 <IonText color="medium">
                     <p>
                         <strong>Req. Inputs</strong>
-                        <span class="ion-float-end monospace">@ReqInputAmount() BTC</span>
+                        <span class="ion-float-end">@ReqInputAmount() BTC</span>
                     </p>
                 </IonText>
 
@@ -59,7 +59,7 @@
             <IonText color="primary">
                 <p>
                     <strong>Total Inputs</strong>
-                    <span class="ion-float-end monospace">@ViewModel.SelectedAmount BTC</span>
+                    <span class="ion-float-end">@ViewModel.SelectedAmount BTC</span>
                 </p>
             </IonText>
         </IonCardContent>
