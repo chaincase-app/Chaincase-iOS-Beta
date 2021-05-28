@@ -114,7 +114,11 @@
         </IonModal>
     </div>
 
-    <IonToast Visible="@IsQueuedToCoinJoin" position="middle" color="warning" message="Chaincase must be open to complete a CoinJoin. We'll notify you when to open back up." />
+    <IonAlert Visible="@IsAlertVisible"
+              header="Keep open to CoinJoin"
+              message="In beta, Chaincase must be open to complete a CoinJoin. You will be notified when to open back to this screen, so you can do other things with your device for now."
+              Buttons="buttons"
+              backdrop-dismiss="true"/>
     <IonToast @bind-Visible="@IsToastVisible" color="@ToastColor" message="@ToastMessage" duration="@ToastDuration" />
 
     <IonLoading @bind-Visible="@ViewModel.IsEnqueueBusy" message="Coinjoin magic..." />
@@ -132,6 +136,8 @@
 </IonFooter>
 
 @code {
+    public bool IsAlertVisible;
+    public IonAlert.IonAlertButton[] buttons;
     private bool IsPasswordModalVisible;
     private bool IsToastVisible;
     private string ToastMessage = "";
@@ -152,6 +158,22 @@
     {
         ViewModel = CoinJoinViewModel;
         UiStateService.Title = "CoinJoin";
+
+        buttons = new[]
+       {
+            new IonAlert.IonAlertButton()
+            {
+                Options = new Dictionary<string, object>()
+            {
+                    {"text", "That's cool"},
+                    {"role", "ok"}
+                },
+                Handler = _ =>
+                {
+                    return Task.CompletedTask;
+                }
+            }
+        };
     }
 
     private void NavigateToSelectCoins()
@@ -182,6 +204,7 @@
             ToastMessage = "Success! Queued to join.";
             ToastColor = "success";
             IsToastVisible = true;
+            IsAlertVisible = true;
             ToggleModal();
         }
         catch (Exception ex)
