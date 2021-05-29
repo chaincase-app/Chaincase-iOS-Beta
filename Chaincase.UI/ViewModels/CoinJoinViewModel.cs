@@ -191,6 +191,7 @@ namespace Chaincase.UI.ViewModels
                 this.RaisePropertyChanged(nameof(RoundPhaseState));
                 this.RaisePropertyChanged(nameof(RoundTimesout));
                 PeersRegistered = mostAdvancedRound.State.RegisteredPeerCount;
+                PeersQueued = mostAdvancedRound.State.QueuedPeerCount;
                 PeersNeeded = mostAdvancedRound.State.RequiredPeerCount;
             }
         }
