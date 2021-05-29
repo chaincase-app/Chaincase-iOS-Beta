@@ -1,5 +1,15 @@
 ﻿@page "/send/amount"
+@using System;
+@using System.Collections.Generic;
+@using System.Linq.Expressions;
+
+@using System.Text.Json.Serialization
+@using System.Threading.Tasks;
 @using Chaincase.UI.Services
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.JSInterop
+@using Blazor.Ionic
 @inject SendViewModel SendViewModel
 @inject StackService StackService
 @inject UIStateService UiStateService
@@ -9,22 +19,57 @@
 <IonContent>
     <IonItem>
         <IonLabel>Amount</IonLabel>
-        <IonInput @onkeyup='ViewModel.SetAmountText' @bind-Value ="ViewModel.AmountText" min="0" slot="end" class="ion-text-end"/>
+        <IonInput @bind-Value="ViewModel.AmountText" pattern="[0-9]+([\.,][0-9]+)?" type="number" slot="end" class="ion-text-end" disabled="@ViewModel.IsMax" />
     </IonItem>
     <IonItem>
         <IonLabel>Automatic Coin Selection</IonLabel>
-        <IonToggle color="secondary" @bind-Value="IsCoinSelectionAutomatic"/>
+        <IonToggle color="primary" @bind-Value="IsCoinSelectionAutomatic" />
     </IonItem>
-    <IonItem>
+    @if (ViewModel.SelectCoinsViewModel.SelectedAmount == NBitcoin.Money.Zero
+     || ViewModel.SelectCoinsViewModel.SelectedAmount < ViewModel.OutputAmount + ViewModel.EstimatedBtcFee)
+    {
+        <IonCard color="primary">
+            <IonCardContent>
+                <strong>INFO</strong>: Please select enough bitcoin to match the amount
+            </IonCardContent>
+        </IonCard>
+    }
+    else if (ViewModel.SelectCoinsViewModel.WarnCertainLink)
+    {
+        <IonCard color="warning">
+            <IonCardContent>
+                <strong>WARNING</strong>: The coins you selected have not been protected with CoinJoin.
+                The contacts associated with the coins and the recipient of this transaction have the capability to
+                identify historical transaction data associated with these coins.
+            </IonCardContent>
+        </IonCard>
+    }
+    else
+    {
+        <IonCard color="success">
+            <IonCardContent>
+                The selection shows low risk of privacy loss.
+            </IonCardContent>
+        </IonCard>
+    }
+    <IonItem button="@(!IsCoinSelectionAutomatic)" disabled="@(IsCoinSelectionAutomatic)" @onclick="NavigateToSelectCoinsPage">
         <IonLabel>Amount Selected</IonLabel>
-        <IonChip @onclick="NavigateToSelectCoinsPage" color="primary" disabled="@(IsCoinSelectionAutomatic)">
+        <IonChip color="primary">
             ₿ @ViewModel.SelectCoinsViewModel.SelectedAmount
         </IonChip>
     </IonItem>
-    <IonItem>
-        <IonLabel>Send Max</IonLabel>
-        <IonToggle color="secondary" @bind-Value="ViewModel.IsMax" />
+    <IonItem disabled="@(ViewModel.AllSelectedAmount == NBitcoin.Money.Zero)">
+        <IonLabel>Let 'em Keep the Change</IonLabel>
+        <IonToggle color="primary" @bind-Value="ViewModel.IsMax" disabled="@(ViewModel.AllSelectedAmount == NBitcoin.Money.Zero)" />
     </IonItem>
+    @if (ViewModel.IsMax && ViewModel.EstimatedBtcFee >= ViewModel.AllSelectedAmount)
+    {
+        <IonCard color="danger">
+            <IonCardContent>
+                The fee is more expensive than your inputs. Select different coins or reduce the fee.
+            </IonCardContent>
+        </IonCard>
+    }
     <IonItem>
         <IonLabel>Fee</IonLabel>
         <IonChip color="primary" @onclick="ToggleSelectFeeModal">@ViewModel.FeeRate</IonChip>
@@ -37,13 +82,44 @@
 </IonContent>
 
 <FeeModal @bind-Visible="@IsFeeModalVisible"
-            SendViewModel="@ViewModel"/>
+          SendViewModel="@ViewModel" />
 
 @code {
 
     private bool IsSelectCoinsModalVisible;
     private bool IsFeeModalVisible;
     private bool _isCoinSelectionAutomatic;
+
+    protected override void OnInitialized()
+    {
+        ViewModel = SendViewModel;
+        UiStateService.Title = "Send";
+    }
+
+    private void ToggleSelectFeeModal() =>
+        IsFeeModalVisible = !IsFeeModalVisible;
+
+    private void NavigateToSelectCoinsPage()
+    {
+        if (IsCoinSelectionAutomatic)
+            return;
+        StackService.PushStackState(async () =>
+        {
+            await NavigationManager.NavigateBack(null, "/send/amount");
+        });
+        var requestedInputs = ViewModel.OutputAmount + ViewModel.EstimatedBtcFee;
+        NavigationManager.NavigateTo($"/selectcoins/{requestedInputs}");
+    }
+
+    private void NavigateToSendApprovalPage()
+    {
+        StackService.PushStackState(async () =>
+        {
+            await NavigationManager.NavigateBack(null, "/send/amount");
+        });
+        NavigationManager.NavigateTo("/send/approve");
+    }
+
     public bool IsCoinSelectionAutomatic
     {
         get => _isCoinSelectionAutomatic;
@@ -56,32 +132,4 @@
             _isCoinSelectionAutomatic = value;
         }
     }
-
-    private double amount { get; set; }
-
-    protected override void OnInitialized()
-    {
-        ViewModel = SendViewModel;
-        UiStateService.Title = "SEND";
-    }
-
-    private void ToggleSelectFeeModal() =>
-        IsFeeModalVisible = !IsFeeModalVisible;
-
-    private void NavigateToSelectCoinsPage()
-    {
-        StackService.PushStackState(async () =>
-        {
-            await NavigationManager.NavigateBack(null, "/send/amount");
-        });
-        NavigationManager.NavigateTo("/selectcoins");
-    }
-
-    private void NavigateToSendApprovalPage()
-    {
-        StackService.PushStackState(async () => {
-            await NavigationManager.NavigateBack(null, "/send/amount");
-        });
-        NavigationManager.NavigateTo("/send/approve");
-    }
- }
+}

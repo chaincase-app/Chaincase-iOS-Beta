@@ -10,16 +10,30 @@
 @inject IClipboard Clipboard
 @inherits ReactiveComponentBase<SendViewModel>
 
-<IonContent class="ion-padding">
-
-    <IonLabel position="stacked" id="destination-label">Add Recipient</IonLabel>
-    <IonItem>
-        <IonInput @bind-Value="ViewModel.DestinationString" placeholder="address/bitcoin:uri" aria-labelledby="destination-label"/>
-        <IonIcon @onclick="OnClickPaste" size="small" slot="end" name="clipboard-outline" aria-label="paste"/>
-        <IonIcon @onclick="OnClickScan" size="small" slot="end" name="scan-outline" aria-label="scan"/>
-    </IonItem>
-
-    <IonButton class="neu-button" OnClick="OnContinue" color="primary" expand="block" disabled="@(!IsAddressValid)">NEXT</IonButton>
+<IonContent>
+    <div class="ion-padding-vertical">
+        <IonItem>
+            <IonLabel id="destination-label" position="stacked">Add Recipient Invoice *</IonLabel>
+            <IonInput @bind-Value="ViewModel.DestinationString" placeholder="address/bitcoin:uri" aria-labelledby="destination-label" />
+            <IonIcon @onclick="OnClickPaste" size="small" slot="end" name="clipboard-outline" aria-label="paste" />
+            <IonIcon @onclick="OnClickScan" size="small" slot="end" name="scan-outline" aria-label="scan" />
+        </IonItem>
+        <IonItem>
+            <IonLabel position="stacked">Name the Recipient *</IonLabel>
+            <IonInput @bind-Value="@ViewModel.Label" placeholder="Who are you sending to?" />
+        </IonItem>
+    </div>
+    <div class="ion-padding">
+        <IonButton class="neu-button" OnClick="OnContinue" color="primary" expand="block" disabled="@(!IsAddressValid || IsLabelEmpty)">Continue</IonButton>
+    </div>
+    <IonCard class="ion-padding" color="primary">
+        <IonCardContent>
+            <strong>What's "recipient name?"</strong>
+            E.g. "Apple" if you're sending them bitcoin right now. Labeling this transaction with
+            the beneficiary helps Chaincase preserve your privacy.
+            This name is for your eyes only. It's not shared with anyone. If you are sending to a wallet of your own, write "me"
+        </IonCardContent>
+    </IonCard>
 </IonContent>
 
 @code {
@@ -29,11 +43,12 @@
     private string _addressString;
 
     private bool IsAddressValid => ViewModel.DestinationUrl?.Address is not null;
+    private bool IsLabelEmpty => ViewModel.Label.IsNullOrWhiteSpace();
 
     protected override void OnInitialized()
     {
         ViewModel = SendViewModel;
-        UiStateService.Title = "SEND";
+        UiStateService.Title = "Send";
     }
 
     private async Task OnClickScan()
@@ -56,7 +71,7 @@
         {
             await NavigationManager.NavigateBack(JsRuntime, "/send/who");
         });
-        NavigationManager.NavigateTo("/send/label");
+        NavigationManager.NavigateTo("/send/amount");
     }
 
 }

@@ -27,7 +27,7 @@ namespace Chaincase.UI.ViewModels
         private CompositeDisposable Disposables { get; set; }
 
         private ReadOnlyObservableCollection<CoinViewModel> _coinViewModels;
-        private Money _selectedAmount;
+        private Money _selectedAmount = Money.Zero;
         private bool _isCoinListLoading;
         private bool _isAnyCoinSelected;
         private int _selectedCount;

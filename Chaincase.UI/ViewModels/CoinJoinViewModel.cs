@@ -15,6 +15,7 @@ using NBitcoin;
 using ReactiveUI;
 using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Blockchain.TransactionOutputs;
+using WalletWasabi.Blockchain.TransactionProcessing;
 using WalletWasabi.CoinJoin.Client.Clients.Queuing;
 using WalletWasabi.CoinJoin.Client.Rounds;
 using WalletWasabi.CoinJoin.Common.Models;
@@ -65,12 +66,12 @@ namespace Chaincase.UI.ViewModels
             Disposables = new CompositeDisposable();
 
             // Infer coordinator fee
-            var registrableRound = _walletManager.CurrentWallet?.ChaumianClient.State.GetRegistrableRoundOrDefault();
+            var registrableRound = _walletManager.CurrentWallet?.ChaumianClient?.State?.GetRegistrableRoundOrDefault();
 
             CoordinatorFeePercent = registrableRound?.State?.CoordinatorFeePercent.ToString() ?? "0.003";
 
             // Select most advanced coin join round
-            ClientRound mostAdvancedRound = _walletManager.CurrentWallet.ChaumianClient?.State?.GetMostAdvancedRoundOrDefault();
+            ClientRound mostAdvancedRound = _walletManager.CurrentWallet?.ChaumianClient?.State?.GetMostAdvancedRoundOrDefault();
             if (mostAdvancedRound != default)
             {
                 RoundPhaseState = new RoundPhaseState(mostAdvancedRound.State.Phase, _walletManager.CurrentWallet.ChaumianClient?.State.IsInErrorState ?? false);
@@ -95,8 +96,7 @@ namespace Chaincase.UI.ViewModels
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(_ =>
                 {
-                    TimeSpan left = RoundTimesout - DateTimeOffset.UtcNow;
-                    TimeLeftTillRoundTimeout = left > TimeSpan.Zero ? left : TimeSpan.Zero; // Make sure cannot be less than zero.
+                    TimeLeftTillRoundTimeout = TimeUntilOffset(RoundTimesout);
                 });
 
             Task.Run(async () =>
@@ -107,35 +107,35 @@ namespace Chaincase.UI.ViewModels
                 }
 
                 // Update view model state on chaumian client state updates
-            Observable.FromEventPattern(_walletManager.CurrentWallet.ChaumianClient, nameof(_walletManager.CurrentWallet.ChaumianClient.CoinQueued))
-                .Merge(Observable.FromEventPattern(_walletManager.CurrentWallet.ChaumianClient, nameof(_walletManager.CurrentWallet.ChaumianClient.OnDequeue)))
-                .Merge(Observable.FromEventPattern(_walletManager.CurrentWallet.ChaumianClient, nameof(_walletManager.CurrentWallet.ChaumianClient.StateUpdated)))
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(_ => UpdateStates())
-                .DisposeWith(Disposables);
+                Observable.FromEventPattern(_walletManager.CurrentWallet.ChaumianClient, nameof(_walletManager.CurrentWallet.ChaumianClient.CoinQueued))
+                    .Merge(Observable.FromEventPattern(_walletManager.CurrentWallet.ChaumianClient, nameof(_walletManager.CurrentWallet.ChaumianClient.OnDequeue)))
+                    .Merge(Observable.FromEventPattern(_walletManager.CurrentWallet.ChaumianClient, nameof(_walletManager.CurrentWallet.ChaumianClient.StateUpdated)))
+                    .ObserveOn(RxApp.MainThreadScheduler)
+                    .Subscribe(_ => UpdateStates())
+                    .DisposeWith(Disposables);
 
-            // Remove notification on unconfirming status in coin join round
-            Observable.FromEventPattern(_walletManager.CurrentWallet.ChaumianClient, nameof(_walletManager.CurrentWallet.ChaumianClient.OnDequeue))
-                   .Subscribe(pattern =>
-                   {
-                       var e = (DequeueResult)pattern.EventArgs;
-                       try
+                // Remove notification on unconfirming status in coin join round
+                Observable.FromEventPattern(_walletManager.CurrentWallet.ChaumianClient, nameof(_walletManager.CurrentWallet.ChaumianClient.OnDequeue))
+                       .Subscribe(pattern =>
                        {
-                           foreach (var success in e.Successful.Where(x => x.Value.Any()))
+                           var e = (DequeueResult)pattern.EventArgs;
+                           try
                            {
-                               DequeueReason reason = success.Key;
-                               if (reason == DequeueReason.UserRequested)
+                               foreach (var success in e.Successful.Where(x => x.Value.Any()))
                                {
-                                   _notificationManager.RemoveAllPendingNotifications();
+                                   DequeueReason reason = success.Key;
+                                   if (reason == DequeueReason.UserRequested)
+                                   {
+                                       _notificationManager.RemoveAllPendingNotifications();
+                                   }
                                }
                            }
-                       }
-                       catch (Exception ex)
-                       {
-                           Logger.LogWarning(ex);
-                       }
-                   })
-                   .DisposeWith(Disposables);
+                           catch (Exception ex)
+                           {
+                               Logger.LogWarning(ex);
+                           }
+                       })
+                       .DisposeWith(Disposables);
             });
 
             // Update timeout label
@@ -143,9 +143,14 @@ namespace Chaincase.UI.ViewModels
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(_ =>
                 {
-                    TimeSpan left = RoundTimesout - DateTimeOffset.UtcNow;
-                    TimeLeftTillRoundTimeout = left > TimeSpan.Zero ? left : TimeSpan.Zero; // Make sure cannot be less than zero.
+                    TimeLeftTillRoundTimeout = TimeUntilOffset(RoundTimesout);
                 }).DisposeWith(Disposables);
+        }
+
+        private TimeSpan TimeUntilOffset(DateTimeOffset offset)
+        {
+            TimeSpan left = offset - DateTimeOffset.UtcNow;
+            return left > TimeSpan.Zero ? left : TimeSpan.Zero; // Make sure cannot be less than zero.
         }
 
         private void UpdateStates()
@@ -171,12 +176,18 @@ namespace Chaincase.UI.ViewModels
                 if (!chaumianClient.State.IsInErrorState)
                 {
                     RoundPhaseState = new RoundPhaseState(mostAdvancedRound.State.Phase, false);
+                    if (mostAdvancedRound.State?.InputRegistrationTimesout > RoundTimesout &&
+                        AmountQueued > Money.Zero)
+                    {   // Seems like this is getting triggered twice.
+                        ScheduleConfirmNotification(mostAdvancedRound.State.InputRegistrationTimesout);
+                    }
                     RoundTimesout = mostAdvancedRound.State.Phase == RoundPhase.InputRegistration ? mostAdvancedRound.State.InputRegistrationTimesout : DateTimeOffset.UtcNow;
                 }
                 else
                 {
                     RoundPhaseState = new RoundPhaseState(RoundPhaseState.Phase, true);
                 }
+
                 this.RaisePropertyChanged(nameof(RoundPhaseState));
                 this.RaisePropertyChanged(nameof(RoundTimesout));
                 PeersRegistered = mostAdvancedRound.State.RegisteredPeerCount;
@@ -310,7 +321,7 @@ namespace Chaincase.UI.ViewModels
 
                     await _walletManager.CurrentWallet.ChaumianClient.QueueCoinsToMixAsync(password, coins.ToArray());
                     _notificationManager.RequestAuthorization();
-                    ScheduleConfirmNotification(null, null);
+                    ScheduleConfirmNotification(DateTimeOffset.UtcNow + TimeLeftTillRoundTimeout);
                 }
                 catch (SecurityException ex)
                 {
@@ -336,11 +347,11 @@ namespace Chaincase.UI.ViewModels
             }
         }
 
-        void ScheduleConfirmNotification(object sender, EventArgs e)
+        void ScheduleConfirmNotification(DateTimeOffset offset)
         {
             const int NOTIFY_TIMEOUT_DELTA = 90; // seconds
 
-            var timeoutSeconds = TimeLeftTillRoundTimeout.TotalSeconds;
+            var timeoutSeconds = TimeUntilOffset(offset).TotalSeconds;
             if (timeoutSeconds < NOTIFY_TIMEOUT_DELTA)
                 // Just encourage users to keep the app open
                 // & prepare CoinJoin to background if possible.
@@ -348,7 +359,7 @@ namespace Chaincase.UI.ViewModels
 
             // Takes about 30 seconds to start Tor & connect
             var confirmTime = DateTime.Now.AddSeconds(timeoutSeconds);
-            string title = $"Go Private";
+            string title = $"Time to CoinJoin Now";
             string message = string.Format("Open Chaincase before {0:t}\n to complete the CoinJoin.", confirmTime);
 
             var timeToNotify = timeoutSeconds - NOTIFY_TIMEOUT_DELTA;

@@ -12,7 +12,7 @@ using WalletWasabi.Wallets;
 
 namespace Chaincase.Common.Services
 {
-	public class ChaincaseWalletManager : WalletManager
+    public class ChaincaseWalletManager : WalletManager
     {
         private readonly INotificationManager _notificationManager;
 

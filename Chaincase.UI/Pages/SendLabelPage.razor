@@ -27,6 +27,7 @@
 </IonFooter>
 
 @code {
+    private bool IsLabelEmpty => ViewModel.Label.IsNullOrWhiteSpace();
 
     protected override void OnInitialized()
     {
@@ -43,6 +44,5 @@
         NavigationManager.NavigateTo("send/amount");
     }
 
-    public bool IsLabelEmpty => ViewModel.Label.IsNullOrWhiteSpace();
 
 }

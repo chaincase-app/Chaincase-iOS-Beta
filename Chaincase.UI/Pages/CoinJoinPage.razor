@@ -1,9 +1,10 @@
 @page "/coinjoin"
 @using NBitcoin
+@using WalletWasabi.CoinJoin.Common.Models
 @using Chaincase.UI.Services
 @using Chaincase.Common
 @using Chaincase.Common.Models
-@using Chaincase.UI.Components;
+@using Chaincase.UI.Components
 
 @inject UIStateService UiStateService
 @inject NavigationManager NavigationManager
@@ -43,7 +44,7 @@
 
         <IonItem>
             <IonLabel>Current phase</IonLabel>
-            <IonBadge color="light" slot="end">@ViewModel.RoundPhaseState.Phase</IonBadge>
+            <IonBadge color="light" slot="end">@(PhaseToString(ViewModel.RoundPhaseState))</IonBadge>
         </IonItem>
         <IonItem>
             <IonLabel>Phase ends in</IonLabel>
@@ -62,16 +63,16 @@
             @if (IsReady)
             {
                 <div class="ion-padding-end">
-                <IonChip class="ion-padding-end" color="primary" @onclick="NavigateToSelectCoins">
-                    @(HasSelectedCoins ? $"₿ {ViewModel.CoinList?.SelectedAmount}" : "Add +")
-                </IonChip>
+                    <IonChip class="ion-padding-end" color="primary" @onclick="NavigateToSelectCoins">
+                        @(HasSelectedCoins ? $"₿ {ViewModel.CoinList?.SelectedAmount}" : "Add +")
+                    </IonChip>
                 </div>
             }
             else
             {
                 <div class="ion-padding-end">
-                    <IonSpinner/>
-                </div> 
+                    <IonSpinner />
+                </div>
             }
         </IonListHeader>
         @foreach (var coin in CoinsToJoin)
@@ -113,7 +114,11 @@
         </IonModal>
     </div>
 
-    <IonToast Visible="@IsQueuedToCoinJoin" position="middle" color="warning" message="Chaincase must be open to complete a CoinJoin. We'll notify you when to open back up." />
+    <IonAlert Visible="@IsAlertVisible"
+              header="Keep open to CoinJoin"
+              message="In beta, Chaincase must be open to complete a CoinJoin. You will be notified when to open back to this screen, so you can do other things with your device for now."
+              Buttons="buttons"
+              backdrop-dismiss="true"/>
     <IonToast @bind-Visible="@IsToastVisible" color="@ToastColor" message="@ToastMessage" duration="@ToastDuration" />
 
     <IonLoading @bind-Visible="@ViewModel.IsEnqueueBusy" message="Coinjoin magic..." />
@@ -131,6 +136,8 @@
 </IonFooter>
 
 @code {
+    public bool IsAlertVisible;
+    public IonAlert.IonAlertButton[] buttons;
     private bool IsPasswordModalVisible;
     private bool IsToastVisible;
     private string ToastMessage = "";
@@ -142,15 +149,31 @@
 
     private bool IsDetailModalVisible { get; set; }
     private CoinViewModel CurrentCoinViewModel { get; set; }
-    private IEnumerable<CoinViewModel> CoinsToJoin => SelectedCoins.Union(JoiningCoins).OrderBy(x => x.IsSelected ? 0 : 1);
-    private IEnumerable<CoinViewModel> SelectedCoins => ViewModel.CoinList.CoinList.Where(x => x.IsSelected);
-    private IEnumerable<CoinViewModel> JoiningCoins => ViewModel.CoinList.CoinList.Where(x => x.CoinJoinInProgress);
+    private IEnumerable<CoinViewModel> CoinsToJoin => SelectedCoins?.Union(JoiningCoins)?.OrderBy(x => x.IsSelected ? 0 : 1);
+    private IEnumerable<CoinViewModel> SelectedCoins => ViewModel.CoinList?.CoinList.Where(x => x.IsSelected);
+    private IEnumerable<CoinViewModel> JoiningCoins => ViewModel.CoinList?.CoinList.Where(x => x.CoinJoinInProgress);
 
 
     protected override void OnInitialized()
     {
         ViewModel = CoinJoinViewModel;
-        UiStateService.Title = "COINJOIN";
+        UiStateService.Title = "CoinJoin";
+
+        buttons = new[]
+       {
+            new IonAlert.IonAlertButton()
+            {
+                Options = new Dictionary<string, object>()
+            {
+                    {"text", "That's cool"},
+                    {"role", "ok"}
+                },
+                Handler = _ =>
+                {
+                    return Task.CompletedTask;
+                }
+            }
+        };
     }
 
     private void NavigateToSelectCoins()
@@ -181,6 +204,7 @@
             ToastMessage = "Success! Queued to join.";
             ToastColor = "success";
             IsToastVisible = true;
+            IsAlertVisible = true;
             ToggleModal();
         }
         catch (Exception ex)
@@ -189,6 +213,18 @@
             ToastColor = "danger";
             IsToastVisible = true;
         }
+    }
+
+    private static string PhaseToString(RoundPhaseState state)
+    {
+        return state.Phase switch
+        {
+            RoundPhase.InputRegistration => "1/4: Register Inputs",
+            RoundPhase.ConnectionConfirmation => "2/4: Confirm Connections",
+            RoundPhase.OutputRegistration => "3/4: Register Outputs",
+            RoundPhase.Signing => "4/4: Signing CoinJoin 🪄",
+            _ => ""
+        };
     }
 
     private static string StatusToColor(SmartCoinStatus status)

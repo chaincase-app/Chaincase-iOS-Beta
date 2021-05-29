@@ -1,5 +1,8 @@
 @page "/selectcoins"
-
+@page "/selectcoins/{ReqInputAmountBTC}"
+@using NBitcoin
+@using ReactiveUI
+@using System.Reactive.Linq
 @using Chaincase.Common
 @using Chaincase.UI.Services
 @inject UIStateService UiStateService
@@ -41,10 +44,24 @@
 
 </IonContent>
 <IonFooter>
-    <IonCard color="primary">
+    <IonCard color="light">
         <IonCardContent>
-            <strong>Total:</strong>
-            <span class="ion-float-end">@ViewModel.SelectedAmount BTC</span>
+            @if (ReqInputAmount() is not null)
+            {
+                <IonText color="medium">
+                    <p>
+                        <strong>Req. Inputs</strong>
+                        <span class="ion-float-end">@ReqInputAmount() BTC</span>
+                    </p>
+                </IonText>
+
+            }
+            <IonText color="primary">
+                <p>
+                    <strong>Total Inputs</strong>
+                    <span class="ion-float-end">@ViewModel.SelectedAmount BTC</span>
+                </p>
+            </IonText>
         </IonCardContent>
     </IonCard>
 </IonFooter>
@@ -58,12 +75,20 @@
 
     private CoinViewModel CurrentCoinViewModel { get; set; }
 
+    [Parameter]
+    public string ReqInputAmountBTC { get; set; }
+
+    public Money ReqInputAmount()
+    {
+        Money.TryParse(ReqInputAmountBTC, out Money reqInputAmount);
+        return reqInputAmount;
+    }
+
     protected override void OnParametersSet()
     {
         ViewModel = SelectCoinsViewModel;
         base.OnParametersSet();
         UiStateService.Title = "Select Coins";
-
     }
 
     private void OpenCoinDetail(CoinViewModel coin)
