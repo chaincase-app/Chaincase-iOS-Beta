@@ -1,4 +1,5 @@
 using Chaincase.Common;
+using Chaincase.Common.Contracts;
 using Chaincase.Common.Services;
 using NBitcoin;
 using ReactiveUI;
@@ -10,22 +11,25 @@ namespace Chaincase.UI.ViewModels
     {
         private readonly ChaincaseWalletManager _walletManager;
         private readonly Config _config;
+        private readonly INotificationManager _notificationManager;
 
         public Money ProposedAmount { get; private set; }
         private string _proposedLabel;
         private bool[,] _qrCode;
         private string _requestAmount;
 
-        public ReceiveViewModel(ChaincaseWalletManager walletManager, Config config)
+        public ReceiveViewModel(ChaincaseWalletManager walletManager, Config config, INotificationManager notificationManager)
         {
             _walletManager = walletManager;
             _config = config;
+            _notificationManager = notificationManager;
         }
 
         public void InitNextReceiveKey()
         {
             ReceivePubKey = _walletManager.CurrentWallet.KeyManager.GetNextReceiveKey(ProposedLabel, out bool minGapLimitIncreased);
             ProposedLabel = "";
+            _notificationManager.RequestAuthorization();
         }
 
         public string AppliedLabel => ReceivePubKey.Label ?? "";
