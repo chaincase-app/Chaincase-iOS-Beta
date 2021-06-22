@@ -9,13 +9,14 @@ using UIKit;
 using UserNotifications;
 using Xamarin.Forms;
 using Splat;
+using WalletWasabi.Logging;
 
 namespace Chaincase.iOS
 {
-	// The UIApplicationDelegate for the application. This class is responsible for launching the
-	// User Interface of the application, as well as listening (and optionally responding) to
-	// application events from iOS.
-	[Register("AppDelegate")]
+    // The UIApplicationDelegate for the application. This class is responsible for launching the
+    // User Interface of the application, as well as listening (and optionally responding) to
+    // application events from iOS.
+    [Register("AppDelegate")]
     public partial class AppDelegate : global::Xamarin.Forms.Platform.iOS.FormsApplicationDelegate
     {
         //
@@ -47,19 +48,31 @@ namespace Chaincase.iOS
 
             formsApp.InitializeNoWallet();
 
-            UNUserNotificationCenter.Current.Delegate = 
+            UNUserNotificationCenter.Current.Delegate =
                 formsApp.ServiceProvider.GetService<iOSNotificationReceiver>();
             LoadApplication(formsApp);
             UIApplication.SharedApplication.IdleTimerDisabled = true;
             return base.FinishedLaunching(app, options);
         }
 
+
+        /// <summary>
+		///  Logs the settings the user has _granted_
+		/// </summary>
+        public void GetNotificationSettings()
+        {
+            UNUserNotificationCenter.Current.GetNotificationSettings(settings =>
+            {
+                Logger.LogInfo($"Notification settings: {settings}");
+            });
+        }
+
         private void ConfigureDi(IServiceCollection obj)
         {
-	        obj.AddSingleton<IHsmStorage, iOSHsmStorage>();
-	        obj.AddSingleton<INotificationManager, iOSNotificationManager>();
-	        obj.AddSingleton<iOSNotificationReceiver>();
-	        obj.AddSingleton<ITorManager, iOSTorManager>();
+            obj.AddSingleton<IHsmStorage, iOSHsmStorage>();
+            obj.AddSingleton<INotificationManager, iOSNotificationManager>();
+            obj.AddSingleton<iOSNotificationReceiver>();
+            obj.AddSingleton<ITorManager, iOSTorManager>();
         }
     }
 }
