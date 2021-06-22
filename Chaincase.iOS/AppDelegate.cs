@@ -59,7 +59,7 @@ namespace Chaincase.iOS
         /// <summary>
 		///  Logs the settings the user has _granted_
 		/// </summary>
-        public void GetNotificationSettings()
+        public static void GetNotificationSettings()
         {
             UNUserNotificationCenter.Current.GetNotificationSettings(settings =>
             {

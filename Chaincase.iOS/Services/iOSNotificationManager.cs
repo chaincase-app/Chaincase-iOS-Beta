@@ -17,9 +17,14 @@ namespace Chaincase.iOS.Services
         public void RequestAuthorization()
         {
             // request the permission to use local notifications
-            UNUserNotificationCenter.Current.RequestAuthorization(UNAuthorizationOptions.Alert, (approved, err) =>
+            UNUserNotificationCenter.Current.RequestAuthorization(
+                UNAuthorizationOptions.Alert, (granted, _) =>
             {
-                hasNotificationsPermission = approved;
+                hasNotificationsPermission = granted;
+
+                //important because the user can, at any time, go into the Settings app and change their notification permissions
+                if (granted)
+                    AppDelegate.GetNotificationSettings();
             });
         }
 
