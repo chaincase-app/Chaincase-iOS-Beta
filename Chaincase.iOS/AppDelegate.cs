@@ -10,6 +10,7 @@ using UserNotifications;
 using Xamarin.Forms;
 using Splat;
 using WalletWasabi.Logging;
+using CoreFoundation;
 
 namespace Chaincase.iOS
 {
@@ -55,15 +56,36 @@ namespace Chaincase.iOS
             return base.FinishedLaunching(app, options);
         }
 
+        public override void RegisteredForRemoteNotifications(UIApplication application, NSData deviceToken)
+        {
+            // hhx is conversion to unsigned char argument
+            // let tokenParts = deviceToken.map { data in String(format: "%02.2hhx", data) }
+            //var tokenParts = String.Format(deviceToken
+            Logger.LogInfo($"Device Token: {deviceToken}");
+            base.RegisteredForRemoteNotifications(application, deviceToken);
+        }
 
-        /// <summary>
+		public override void FailedToRegisterForRemoteNotifications(UIApplication application, NSError error)
+		{
+            Logger.LogError($"Failed to register: {error}");
+			base.FailedToRegisterForRemoteNotifications(application, error);
+		}
+
+		/// <summary>
 		///  Logs the settings the user has _granted_
 		/// </summary>
-        public static void GetNotificationSettings()
+		public static void GetNotificationSettings()
         {
             UNUserNotificationCenter.Current.GetNotificationSettings(settings =>
             {
                 Logger.LogInfo($"Notification settings: {settings}");
+
+                if (settings.AuthorizationStatus == UNAuthorizationStatus.Authorized)
+                {
+                    // must execute on main thread else get runtime warning
+                    DispatchQueue.MainQueue.DispatchAsync(new DispatchBlock(() =>
+                    UIApplication.SharedApplication.RegisterForRemoteNotifications()));
+                }
             });
         }
 
