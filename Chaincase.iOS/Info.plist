@@ -24,9 +24,9 @@
 	<key>CFBundleDisplayName</key>
 	<string>Chaincase</string>
 	<key>CFBundleIdentifier</key>
-	<string>cash.chaincase.chaincase</string>
+	<string>cash.chaincase.testnet</string>
 	<key>CFBundleVersion</key>
-	<string>0.5.9</string>
+	<string>0.5.10</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>CFBundleName</key>
@@ -41,18 +41,9 @@
 	<string>Your seed words are protected by Face ID</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>Tor anonymous networking connects via local network access</string>
-	<key>CFBundleURLTypes</key>
+	<key>UIBackgroundModes</key>
 	<array>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLName</key>
-			<string>bitcoin</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>bitcoin</string>
-			</array>
-		</dict>
+		<string>remote-notification</string>
 	</array>
 </dict>
 </plist>

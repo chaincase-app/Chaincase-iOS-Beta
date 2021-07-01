@@ -11,6 +11,9 @@ using Xamarin.Forms;
 using Splat;
 using WalletWasabi.Logging;
 using CoreFoundation;
+using ObjCRuntime;
+using System;
+using System.Text;
 
 namespace Chaincase.iOS
 {
@@ -20,6 +23,8 @@ namespace Chaincase.iOS
     [Register("AppDelegate")]
     public partial class AppDelegate : global::Xamarin.Forms.Platform.iOS.FormsApplicationDelegate
     {
+
+        private IServiceProvider ServiceProvider;
         //
         // This method is invoked when the application has loaded and is ready to run. In this
         // method you should instantiate the window, load the UI into it and then make the window
@@ -34,7 +39,7 @@ namespace Chaincase.iOS
             ZXing.Net.Mobile.Forms.iOS.Platform.Init();
             var formsApp = new BlazorApp(fileProvider: null, ConfigureDi);
             var serviceProvider = formsApp.ServiceProvider;
-
+            ServiceProvider = serviceProvider;
             MessagingCenter.Subscribe<InitializeNoWalletTaskMessage>(this, "InitializeNoWalletTaskMessage", async message =>
             {
                 var context = new iOSInitializeNoWalletContext(serviceProvider.GetService<Global>());
@@ -61,20 +66,36 @@ namespace Chaincase.iOS
             // hhx is conversion to unsigned char argument
             // let tokenParts = deviceToken.map { data in String(format: "%02.2hhx", data) }
             //var tokenParts = String.Format(deviceToken
-            Logger.LogInfo($"Device Token: {deviceToken}");
-            base.RegisteredForRemoteNotifications(application, deviceToken);
+            Logger.LogInfo($"Device Token: {deviceToken.ToHexString()}");
         }
 
-		public override void FailedToRegisterForRemoteNotifications(UIApplication application, NSError error)
-		{
+        public override void FailedToRegisterForRemoteNotifications(UIApplication application, NSError error)
+        {
             Logger.LogError($"Failed to register: {error}");
-			base.FailedToRegisterForRemoteNotifications(application, error);
-		}
+        }
 
-		/// <summary>
-		///  Logs the settings the user has _granted_
-		/// </summary>
-		public static void GetNotificationSettings()
+		public override void ReceivedRemoteNotification(UIApplication application, NSDictionary userInfo)
+		{
+            Logger.LogInfo("ReceivedRemoteNotification");
+
+            base.ReceivedRemoteNotification(application, userInfo);
+		}
+		public override void DidReceiveRemoteNotification(UIApplication application, NSDictionary userInfo, Action<UIBackgroundFetchResult> completionHandler)
+        {
+            Logger.LogInfo("DidReceiveRemoteNotification");
+            var global = ServiceProvider.GetService<Global>();
+            global.HandleRemoteNotification();
+            // if (hasSleepingCoins)
+            //   Resume         \
+            //   Do CoinJoin      all in 30 s
+            //   Connection confirmation should take the longest
+            //   Sleep ---------/
+        }
+
+        /// <summary>
+        ///  Logs the settings the user has _granted_
+        /// </summary>
+        public static void GetNotificationSettings()
         {
             UNUserNotificationCenter.Current.GetNotificationSettings(settings =>
             {
@@ -95,6 +116,24 @@ namespace Chaincase.iOS
             obj.AddSingleton<INotificationManager, iOSNotificationManager>();
             obj.AddSingleton<iOSNotificationReceiver>();
             obj.AddSingleton<ITorManager, iOSTorManager>();
+        }
+    }
+
+    internal static class NSDataExtensions
+    {
+        internal static string ToHexString(this NSData data)
+        {
+            var bytes = data.ToArray();
+
+            if (bytes == null)
+                return null;
+
+            StringBuilder sb = new StringBuilder(bytes.Length * 2);
+
+            foreach (byte b in bytes)
+                sb.AppendFormat("{0:x2}", b);
+
+            return sb.ToString().ToUpperInvariant();
         }
     }
 }

@@ -49,14 +49,15 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <MtouchArch>ARM64</MtouchArch>
-    <CodesignKey>Apple Distribution: Chaincase LLC (9Z72DXKVXK)</CodesignKey>
+    <CodesignKey>Apple Development: Daniel Gould (BDA534V858)</CodesignKey>
     <MtouchDebug>true</MtouchDebug>
     <MtouchLink>None</MtouchLink>
     <MtouchInterpreter>-all</MtouchInterpreter>
     <LangVersion>9.0</LangVersion>
     <MtouchExtraArgs>-v -v -v -v</MtouchExtraArgs>
     <MtouchFloat32>true</MtouchFloat32>
-    <CodesignProvision>Chaincase Ad Hoc</CodesignProvision>
+    <CodesignEntitlements>Entitlements.developer.plist</CodesignEntitlements>
+    <CodesignProvision>Chaincase Testnet Dev</CodesignProvision>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
     <BlazorLinkOnBuild>false</BlazorLinkOnBuild>
@@ -80,7 +81,7 @@
   <ItemGroup>
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
-    <None Include="Entitlements.plist" />
+    <None Include="Entitlements.developer.plist" />
     <None Include="Info.plist" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Background\iOSOnSleepingTask.cs" />
