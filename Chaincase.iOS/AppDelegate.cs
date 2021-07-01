@@ -74,22 +74,9 @@ namespace Chaincase.iOS
             Logger.LogError($"Failed to register: {error}");
         }
 
-		public override void ReceivedRemoteNotification(UIApplication application, NSDictionary userInfo)
-		{
-            Logger.LogInfo("ReceivedRemoteNotification");
-
-            base.ReceivedRemoteNotification(application, userInfo);
-		}
-		public override void DidReceiveRemoteNotification(UIApplication application, NSDictionary userInfo, Action<UIBackgroundFetchResult> completionHandler)
+        public override void ReceivedRemoteNotification(UIApplication application, NSDictionary userInfo)
         {
-            Logger.LogInfo("DidReceiveRemoteNotification");
-            var global = ServiceProvider.GetService<Global>();
-            global.HandleRemoteNotification();
-            // if (hasSleepingCoins)
-            //   Resume         \
-            //   Do CoinJoin      all in 30 s
-            //   Connection confirmation should take the longest
-            //   Sleep ---------/
+            Logger.LogInfo("ReceivedRemoteNotification");
         }
 
         /// <summary>
