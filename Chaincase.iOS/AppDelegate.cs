@@ -14,6 +14,7 @@ using CoreFoundation;
 using ObjCRuntime;
 using System;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Chaincase.iOS
 {
@@ -76,7 +77,10 @@ namespace Chaincase.iOS
 
         public override void ReceivedRemoteNotification(UIApplication application, NSDictionary userInfo)
         {
-            Logger.LogInfo("ReceivedRemoteNotification");
+            var timeRemaining = UIApplication.SharedApplication.BackgroundTimeRemaining;
+            Logger.LogInfo($"ReceivedRemoteNotificatio. timeRemaining {timeRemaining}");
+            var global = ServiceProvider.GetService<Global>();
+            global.HandleRemoteNotification();
         }
 
         /// <summary>

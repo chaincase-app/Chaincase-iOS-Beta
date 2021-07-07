@@ -199,7 +199,7 @@ namespace Chaincase.Common
 
                 #region SynchronizerInitialization
 
-                var requestInterval = TimeSpan.FromSeconds(30);
+                var requestInterval = TimeSpan.FromSeconds(5);
                 if (Network == Network.RegTest)
                 {
                     requestInterval = TimeSpan.FromSeconds(5);
@@ -343,7 +343,15 @@ namespace Chaincase.Common
         private protected CancellationTokenSource ResumeCts { get; set; } = new CancellationTokenSource();
         private protected bool IsResuming { get; set; } = false;
 
-        public async Task OnResuming()
+        public void HandleRemoteNotification()
+        {
+			if (_walletManager?.SleepingCoins is { })
+			{
+				_ = OnResuming(2);
+			}
+		}
+
+        public async Task OnResuming(int syncInterval = 30)
         {
             if (IsResuming)
             {
@@ -381,7 +389,7 @@ namespace Chaincase.Common
                     Nodes.Connect();
                     Logger.LogInfo($"{nameof(Global)}.OnResuming():Start connecting to nodes...");
 
-                    var requestInterval = (Network == Network.RegTest) ? TimeSpan.FromSeconds(5) : TimeSpan.FromSeconds(30);
+                    var requestInterval = (Network == Network.RegTest) ? TimeSpan.FromSeconds(5) : TimeSpan.FromSeconds(syncInterval);
                     int maxFiltSyncCount = Network == Network.Main ? 1000 : 10000; // On testnet, filters are empty, so it's faster to query them together
                     _synchronizer.Resume(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
                     Logger.LogInfo($"{nameof(Global)}.OnResuming():Start synchronizing filters...");

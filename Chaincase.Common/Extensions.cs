@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Chaincase.Common.Contracts;
 using Chaincase.Common.Services;
@@ -43,7 +44,7 @@ namespace Chaincase.Common
                 var bitcoinStore = x.GetRequiredService<BitcoinStore>();
 
                 if (config.UseTor)
-                    return new ChaincaseSynchronizer(network, bitcoinStore, () => config.GetCurrentBackendUri(), config.TorSocks5EndPoint);
+                    return new ChaincaseSynchronizer(network, bitcoinStore, () => new Uri("http://tgkjgdbmqellj6yfzmmwa4nqk32eezkeauqmw7tr63t7i2sdaetyrvyd.onion/"), config.TorSocks5EndPoint);
 
                 return new ChaincaseSynchronizer(network, bitcoinStore, config.GetFallbackBackendUri(), null);
             });
