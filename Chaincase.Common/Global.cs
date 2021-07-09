@@ -199,7 +199,7 @@ namespace Chaincase.Common
 
                 #region SynchronizerInitialization
 
-                var requestInterval = TimeSpan.FromSeconds(5);
+                var requestInterval = TimeSpan.FromSeconds(3);
                 if (Network == Network.RegTest)
                 {
                     requestInterval = TimeSpan.FromSeconds(5);
@@ -347,7 +347,7 @@ namespace Chaincase.Common
         {
 			if (_walletManager?.SleepingCoins is { })
 			{
-				_ = OnResuming(2);
+				_ = OnResuming(1);
 			}
 		}
 
