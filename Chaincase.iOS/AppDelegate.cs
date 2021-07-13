@@ -15,6 +15,7 @@ using ObjCRuntime;
 using System;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace Chaincase.iOS
 {
@@ -77,10 +78,14 @@ namespace Chaincase.iOS
 
         public override void ReceivedRemoteNotification(UIApplication application, NSDictionary userInfo)
         {
-            var timeRemaining = UIApplication.SharedApplication.BackgroundTimeRemaining;
-            Logger.LogInfo($"ReceivedRemoteNotificatio. timeRemaining {timeRemaining}");
+            var timeRemaining = Math.Min(UIApplication.SharedApplication.BackgroundTimeRemaining, 30);
+            Logger.LogInfo($"ReceivedRemoteNotification. timeRemaining {timeRemaining}");
             var global = ServiceProvider.GetService<Global>();
             global.HandleRemoteNotification();
+            Thread.Sleep(28 * 1000);
+            global.OnSleeping();
+
+            // else it'll timeout and system will prevent us from receiving more
         }
 
         /// <summary>
