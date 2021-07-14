@@ -82,10 +82,12 @@ namespace Chaincase.iOS
             Logger.LogInfo($"ReceivedRemoteNotification. timeRemaining {timeRemaining}");
             var global = ServiceProvider.GetService<Global>();
             global.HandleRemoteNotification();
-            Thread.Sleep(28 * 1000);
-            global.OnSleeping();
 
+            Thread.Sleep(27 * 1000);
+            if (application.ApplicationState != UIApplicationState.Active)
+                global.OnSleeping();
             // else it'll timeout and system will prevent us from receiving more
+
         }
 
         /// <summary>

@@ -345,11 +345,13 @@ namespace Chaincase.Common
 
         public void HandleRemoteNotification()
         {
-			if (_walletManager?.SleepingCoins is { })
-			{
-				_ = OnResuming(1);
-			}
-		}
+            if (_walletManager?.SleepingCoins is { } && _torManager?.State != TorState.Started && _torManager.State != TorState.Connected)
+            {
+                _ = OnResuming(1);
+                // set timer = background time limit OR CoinJoin Complete
+                // sleep
+            }
+        }
 
         public async Task OnResuming(int syncInterval = 30)
         {
