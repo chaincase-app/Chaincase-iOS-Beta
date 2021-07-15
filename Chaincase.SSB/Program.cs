@@ -34,7 +34,8 @@ namespace Chaincase.SSB
 			var uiConfig = host.Services.GetRequiredService<UiConfig>();
 			uiConfig.LoadOrCreateDefaultFile();
 
-			// TODO InitializeNoWallet
+			var global = host.Services.GetRequiredService<Global>();
+			Task.Run(async () => await global.InitializeNoWalletAsync());
 			host.Run();
 		}
 	}
