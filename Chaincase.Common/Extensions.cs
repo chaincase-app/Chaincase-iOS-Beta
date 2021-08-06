@@ -3,6 +3,7 @@ using System.IO;
 using Chaincase.Common.Contracts;
 using Chaincase.Common.Services;
 using Microsoft.Extensions.DependencyInjection;
+using NBitcoin;
 using WalletWasabi.Blockchain.Analysis.FeesEstimation;
 using WalletWasabi.Blockchain.Blocks;
 using WalletWasabi.Blockchain.Mempool;
@@ -47,14 +48,10 @@ namespace Chaincase.Common
 
                 return new ChaincaseSynchronizer(network, bitcoinStore, config.GetFallbackBackendUri(), null);
             });
-            services.AddSingleton(x =>
-            {
-                return new FeeProviders(new List<IFeeProvider>
-                {
-                    x.GetRequiredService<ChaincaseSynchronizer>()
-                });
-            });
-
+            services.AddSingleton(provider => provider.GetRequiredService<Config>().Network);
+            services.AddSingleton<IFeeProvider>(provider => provider.GetRequiredService<ChaincaseSynchronizer>());
+            services.AddSingleton<FeeProviders>();
+            services.AddHostedService(serviceProvider => serviceProvider.GetService<ITorManager>());
             return services;
         }
     }

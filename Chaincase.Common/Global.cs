@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Chaincase.Common.Contracts;
@@ -55,7 +53,9 @@ namespace Chaincase.Common
         private bool InitializationStarted { get; set; } = false;
         public event EventHandler<AppInitializedEventArgs> Initialized = delegate { };
         public bool IsInitialized { get; private set; }
-        private bool InitializationCompleted { get; set; }
+
+        /// <returns>If initialization is successful, otherwise it was interrupted which means stopping was requested.</returns>
+        public TaskCompletionSource<bool> InitializationCompleted { get; } =  new();
 
         private CancellationTokenSource StoppingCts { get; set; }
         private protected CancellationTokenSource SleepCts { get; set; } = new CancellationTokenSource();
@@ -117,7 +117,9 @@ namespace Chaincase.Common
 
                 if (_config.UseTor)
                 {
-                    await _torManager.StartAsync(ensureRunning: false, DataDir);
+	                // This is actually already called first thing as ITorManage is a HostedService, this call is only
+	                //here to wait for it to finish the init method as this might execute too soon.
+                    await _torManager.StartAsync(cancellationToken);
                     Logger.LogInfo($"{nameof(_torManager)} is initialized.");
                 }
 
@@ -234,7 +236,7 @@ namespace Chaincase.Common
             }
             finally
             {
-                InitializationCompleted = true;
+                InitializationCompleted.SetResult(true);
                 StoppingCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
                 Logger.LogDebug($"Initialization Completed");
             }
@@ -328,17 +330,6 @@ namespace Chaincase.Common
 
         }
 
-        /// <returns>If initialization is successful, otherwise it was interrupted which means stopping was requested.</returns>
-        public async Task<bool> WaitForInitializationCompletedAsync(CancellationToken cancellationToken)
-        {
-            while (!InitializationCompleted)
-            {
-                await Task.Delay(100, cancellationToken).ConfigureAwait(false);
-            }
-
-            return !StoppingCts.IsCancellationRequested;
-        }
-
         public event EventHandler Resumed;
         private protected CancellationTokenSource ResumeCts { get; set; } = new CancellationTokenSource();
         private protected bool IsResuming { get; set; } = false;
@@ -365,18 +356,15 @@ namespace Chaincase.Common
                     Logger.LogDebug($"{nameof(Global)}.OnResuming(): Entered critical section");
 
                     // don't ever cancel Init. use an ephemeral token
-                    await WaitForInitializationCompletedAsync(new CancellationToken());
+                    await InitializationCompleted.Task;
 
                     var userAgent = Constants.UserAgents.RandomElement();
                     var connectionParameters = new NodeConnectionParameters { UserAgent = userAgent };
                     var addrManTask = InitializeAddressManagerBehaviorAsync();
                     AddressManagerBehavior addressManagerBehavior = await addrManTask.ConfigureAwait(false);
                     connectionParameters.TemplateBehaviors.Add(addressManagerBehavior);
-
-                    if (_torManager?.State != TorState.Started && _torManager.State != TorState.Connected)
-                    {
-                        await _torManager.StartAsync(false, DataDir);
-                    }
+                    await _torManager.StartAsync(ResumeCts.Token);
+                    
 
                     Nodes.Connect();
                     Logger.LogInfo($"{nameof(Global)}.OnResuming():Start connecting to nodes...");
@@ -428,14 +416,10 @@ namespace Chaincase.Common
                     IsGoingToSleep = true;
 
                     // don't ever cancel Init. use an ephemeral token
-                    await WaitForInitializationCompletedAsync(new CancellationToken());
+                    await InitializationCompleted.Task;
 
-
-                    if (_torManager?.State != TorState.Stopped) // OnionBrowser && Dispose@Global
-                    {
-                        await _torManager.StopAsync();
-                        Logger.LogInfo($"{nameof(Global)}.OnSleeping():{nameof(_torManager)} is stopped.");
-                    }
+                    await _torManager.StopAsync(SleepCts.Token);
+                   
 
                     try
                     {

@@ -2,7 +2,9 @@
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
+using Chaincase.Common;
 using Chaincase.Common.Contracts;
 using CoreFoundation;
 using Foundation;
@@ -26,16 +28,28 @@ namespace Chaincase.iOS.Services
     }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "iOS is iOS")]
-    public class iOSTorManager : ITorManager
+    public class iOSTorManager : BaseTorManager
     {
+	    private NSData Cookie => NSData.FromUrl(torBaseConf.DataDirectory.Append("control_auth_cookie", false));
+        public override TorState State { get; set; }
 
-        private NSData Cookie => NSData.FromUrl(torBaseConf.DataDirectory.Append("control_auth_cookie", false));
-        public TorState State { get; set; }
+        public override async Task EnsureRunning()
+        {
+	        await Task.Delay(3000);
+	        if (!await IsTorRunningAsync(TorSocks5EndPoint))
+	        {
+		        throw new TorException("Attempted to start Tor, but it is not running.");
+	        }
+
+	        Logger.LogInfo("TorProcessManager.StartAsync(): Tor is running.");
+
+        }
+
         private DispatchBlock initRetry;
 
-        public iOSTorManager()
+        public iOSTorManager(Config config) : base(config)
         {
-            TorSocks5EndPoint = new IPEndPoint(IPAddress.Loopback, 9050);
+	        TorSocks5EndPoint = new IPEndPoint(IPAddress.Loopback, 9050);
             TorController = null;
         }
 
@@ -54,32 +68,17 @@ namespace Chaincase.iOS.Services
 
         private TORThread torThread;
 
-        public async Task StartAsync(bool ensureRunning, string dataDir)
+        public override async Task StartAsyncCore(CancellationToken token)
         {
             if (TorSocks5EndPoint is null)
             {
                 return;
             }
-
-            if (dataDir == "mock")
-            {
-                return;
-            }
-
             await StartTor(null);
             Logger.LogInfo($"TorProcessManager.StartAsync(): Started Tor process with Tor.framework");
 
-            if (ensureRunning)
-            {
-                Task.Delay(3000).ConfigureAwait(false).GetAwaiter().GetResult(); // dotnet brainfart, ConfigureAwait(false) IS NEEDED HERE otherwise (only on) Manjuro Linux fails, WTF?!!
-                if (!IsTorRunningAsync(TorSocks5EndPoint).GetAwaiter().GetResult())
-                {
-                    throw new TorException("Attempted to start Tor, but it is not running.");
-                }
-                Logger.LogInfo("TorProcessManager.StartAsync(): Tor is running.");
-            }
+            
         }
-
         // port from iOS OnionBrowser
 
 
@@ -255,31 +254,31 @@ namespace Chaincase.iOS.Services
             return true;
         }
 
-        public async Task StopAsync()
+        public override async Task StopAsyncCore(CancellationToken cancellationToken)
         {
-            Logger.LogDebug($"TorProcessManager.StopAsync(): start stopAsync");
-            using (await mutex.LockAsync())
-            {
-                try
-                {
-                    // Under the hood, TORController.Disconnect() will SIGNAL SHUTDOWN and set it's channel to null, so
-                    // we actually rely on that to stop Tor and reset the state of torController. (we can
-                    // SIGNAL SHUTDOWN here, but we can't reset the torController "isConnected" state.)
-                    TorController?.Disconnect();
-                    TorController?.Dispose();
-                    TorController = null;
+	        Logger.LogDebug($"TorProcessManager.StopAsync(): start stopAsync");
+	        using (await mutex.LockAsync())
+	        {
+		        try
+		        {
+			        // Under the hood, TORController.Disconnect() will SIGNAL SHUTDOWN and set it's channel to null, so
+			        // we actually rely on that to stop Tor and reset the state of torController. (we can
+			        // SIGNAL SHUTDOWN here, but we can't reset the torController "isConnected" state.)
+			        TorController?.Disconnect();
+			        TorController?.Dispose();
+			        TorController = null;
 
-                    torThread?.Cancel();
-                    torThread?.Dispose();
-                    torThread = null;
+			        torThread?.Cancel();
+			        torThread?.Dispose();
+			        torThread = null;
 
-                    State = TorState.Stopped;
-                }
-                catch (Exception error)
-                {
-                    Logger.LogError($"TorProcessManager.StopAsync(): Failed to stop tor thread {error}");
-                }
-            }
+			        State = TorState.Stopped;
+		        }
+		        catch (Exception error)
+		        {
+			        Logger.LogError($"TorProcessManager.StopAsync(): Failed to stop tor thread {error}");
+		        }
+	        }
         }
 
         private static string NSHomeDirectory() => Directory.GetParent(NSFileManager.DefaultManager.GetUrls(NSSearchPathDirectory.LibraryDirectory, NSSearchPathDomain.User).First().Path).FullName;
