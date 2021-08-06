@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Chaincase.Common.Contracts;
+using Microsoft.Extensions.Options;
 using NBitcoin;
 
 namespace Chaincase.Common.Services
@@ -8,16 +9,16 @@ namespace Chaincase.Common.Services
     public class SensitiveStorage
     {
         private readonly IHsmStorage _hsm;
-        private readonly Network _network;
-        private readonly UiConfig _uiConfig;
+        private readonly IOptions<Config> _config;
+        private readonly IOptions<UiConfig> _uiConfig;
         private const string I_KEY_LOC = "i_key";
-        public string EncSeedWordsLoc => $"{_network}-encSeedWords";
+        public string EncSeedWordsLoc => $"{_config.Value.Network}-encSeedWords";
 
-        public SensitiveStorage(IHsmStorage hsm, Config config, UiConfig uiConfig)
+        public SensitiveStorage(IHsmStorage hsm, IOptions<Config> config,  IOptions<UiConfig> uiConfig)
         {
-            _hsm = hsm;
-            _network = config.Network;
-            _uiConfig = uiConfig;
+	        _hsm = hsm;
+	        _config = config;
+	        _uiConfig = uiConfig;
         }
 
         public async Task SetSeedWords(string password, string seedWords)
@@ -49,15 +50,15 @@ namespace Chaincase.Common.Services
             byte[] encIKey = AesThenHmac.EncryptWithPassword(iKey, password);
             string encIKeyString = Convert.ToBase64String(encIKey);
             await _hsm.SetAsync(I_KEY_LOC, encIKeyString);
-            _uiConfig.HasIntermediateKey = true;
-            _uiConfig.ToFile();
+            _uiConfig.Value.HasIntermediateKey = true;
+            _uiConfig.Value.ToFile();
             return iKey;
 
         }
 
         public async Task<byte[]> GetIntermediateKey(string password)
         {
-            if (_uiConfig.HasIntermediateKey)
+            if (_uiConfig.Value.HasIntermediateKey)
             {
                 // throws if it fails
                 string encIKeyString = await _hsm.GetAsync(I_KEY_LOC);

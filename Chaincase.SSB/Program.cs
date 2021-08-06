@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace Chaincase.SSB
 {
@@ -37,10 +38,13 @@ namespace Chaincase.SSB
 
 			var dataDir = host.Services.GetRequiredService<IDataDirProvider>().Get();
 			Directory.CreateDirectory(dataDir); // I hope this is ok
-			var config = host.Services.GetRequiredService<Config>();
-			config.LoadOrCreateDefaultFile();
-			var uiConfig = host.Services.GetRequiredService<UiConfig>();
-			uiConfig.LoadOrCreateDefaultFile();
+			var config = host.Services.GetRequiredService<IOptions<Config>>();
+			config.Value.SetFilePath(Path.Combine(dataDir, Config.FILENAME));
+			config.Value.LoadOrCreateDefaultFile();
+			var uiConfig = host.Services.GetRequiredService<IOptions<UiConfig>>();
+			uiConfig.Value.SetFilePath(Path.Combine(dataDir, UiConfig.FILENAME));
+
+			uiConfig.Value.LoadOrCreateDefaultFile();
 
 			var global = host.Services.GetRequiredService<Global>();
 			Task.Run(async () => await global.InitializeNoWalletAsync());

@@ -16,7 +16,7 @@ namespace Chaincase.UI.ViewModels
         private readonly IShare _share;
         private readonly IDataDirProvider _dataDirProvider;
 
-        public bool HasNoSeedWords => !_uiConfig.HasSeed && !_uiConfig.HasIntermediateKey;
+        public bool HasNoSeedWords => !_uiConfig.Value.HasSeed && !_uiConfig.Value.HasIntermediateKey;
 
         public WalletInfoViewModel(ChaincaseWalletManager walletManager, IOptions<Config> config, IOptions<UiConfig> uiConfig, IShare share, IDataDirProvider dataDirProvider)
         {

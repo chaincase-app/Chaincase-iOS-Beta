@@ -52,7 +52,7 @@ namespace Chaincase.UI.ViewModels
 
                 mnemonic = new Mnemonic(SeedWords);
                 var km = KeyManager.Recover(mnemonic, Password, filePath: null, keyPath, MIN_GAP_LIMIT);
-                km.SetNetwork(_config.Network);
+                km.SetNetwork(_config.Value.Network);
                 km.SetFilePath(walletFilePath);
                 _walletManager.AddWallet(km);
             });

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Chaincase.Common;
 using Chaincase.Common.Contracts;
 using Chaincase.Common.Services;
+using Microsoft.Extensions.Options;
 using NBitcoin;
 using ReactiveUI;
 using WalletWasabi.Blockchain.Keys;
@@ -28,10 +29,10 @@ namespace Chaincase.UI.ViewModels
         private readonly string ACCOUNT_KEY_PATH = $"m/{KeyManager.DefaultAccountKeyPath}";
         private const int MIN_GAP_LIMIT = KeyManager.AbsoluteMinGapLimit * 4;
 
-        public bool HasNoSeedWords => !_uiConfig.HasSeed && !_uiConfig.HasIntermediateKey;
-        public bool IsLegacy => _uiConfig.HasSeed && !_uiConfig.HasIntermediateKey;
+        public bool HasNoSeedWords => !_uiConfig.Value.HasSeed && !_uiConfig.Value.HasIntermediateKey;
+        public bool IsLegacy => _uiConfig.Value.HasSeed && !_uiConfig.Value.HasIntermediateKey;
 
-        private string LegacyWordsLoc => $"{_config.Network}-seedWords";
+        private string LegacyWordsLoc => $"{_config.Value.Network}-seedWords";
 
         public BackUpViewModel(IOptions<Config> config, IOptions<UiConfig> uiConfig, IHsmStorage hsm, SensitiveStorage storage, ChaincaseWalletManager walletManager)
         {
@@ -105,8 +106,8 @@ namespace Chaincase.UI.ViewModels
 
         public void SetIsBackedUp()
         {
-            UiConfig.Value.IsBackedUp = true;
-            UiConfig.Value.ToFile(); // successfully backed up!
+            _uiConfig.Value.IsBackedUp = true;
+            _uiConfig.Value.ToFile(); // successfully backed up!
         }
 
         public List<string> SeedWords

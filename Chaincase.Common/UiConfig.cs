@@ -61,7 +61,7 @@ namespace Chaincase.Common
             set => RaiseAndSetIfChanged(ref _hasIntermediateKey, value);
         }
 
-        const string FILENAME = "UiConfig.json";
+        public const string FILENAME = "UiConfig.json";
 
         public UiConfig(IDataDirProvider dataDirProvider)
             : base(Path.Combine(dataDirProvider.Get(), FILENAME))

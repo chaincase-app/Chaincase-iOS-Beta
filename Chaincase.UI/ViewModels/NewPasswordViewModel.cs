@@ -42,14 +42,14 @@ namespace Chaincase.UI.ViewModels
                 // Generate wallet with password exactly as entered for compatibility.
                 PasswordHelper.Guard(password);
 
-                string walletFilePath = Path.Combine(_walletManager.WalletDirectories.WalletsDir, $"{_config.Network}.json");
+                string walletFilePath = Path.Combine(_walletManager.WalletDirectories.WalletsDir, $"{_config.Value.Network}.json");
                 KeyManager.CreateNew(out seedWords, password, walletFilePath);
             });
             await _storage.SetSeedWords(password, seedWords.ToString());
 
             // this should not be a config
-            _uiConfig.HasSeed = true;
-            _uiConfig.ToFile();
+            _uiConfig.Value.HasSeed = true;
+            _uiConfig.Value.ToFile();
         }
     }
 }

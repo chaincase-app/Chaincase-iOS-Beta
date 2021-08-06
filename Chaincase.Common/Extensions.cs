@@ -19,12 +19,12 @@ namespace Chaincase.Common
         public static IServiceCollection AddCommonServices(this IServiceCollection services)
         {
 	        services.AddOptions()
-		        .ConfigureOptions<Config>()
 		        .PostConfigure(new Action<Config>(config =>
 		        {
 			        config.MixUntilAnonymitySet = Config.GetNormalizeAnonSet(config);
 		        }))
-		        .ConfigureOptions<UiConfig>();
+		        .Configure<Config>(config => { })
+		        .Configure<Config>(UiConfig => { });
             services.AddSingleton<Global>();
 
             services.AddScoped<SensitiveStorage>();
