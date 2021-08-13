@@ -63,7 +63,7 @@
             @if (IsReady)
             {
                 <div class="ion-padding-end">
-                    <IonChip class="ion-padding-end" color="primary" @onclick="NavigateToSelectCoins">
+                    <IonChip class="ion-padding-end" color="primary" @onclick='() => NavigateTo("/selectcoins")'>
                         @(HasSelectedCoins ? $"₿ {ViewModel.CoinList?.SelectedAmount}" : "Add +")
                     </IonChip>
                 </div>
@@ -90,30 +90,6 @@
         }
     </IonList>
 
-    <div>
-        <IonModal @bind-Visible="IsPasswordModalVisible">
-            <IonHeader>
-                <IonToolbar>
-                    <IonTitle>Queue to Join</IonTitle>
-                    <IonButtons slot="start">
-                        <IonButton @onclick="@ToggleModal">Back</IonButton>
-                    </IonButtons>
-                </IonToolbar>
-            </IonHeader>
-            <IonContent>
-                <IonText class="ion-padding">
-                    <h1 class="ion-padding">Authorize Selected Coins to Join</h1>
-                </IonText>
-                <IonLabel position="stacked" class="ion-padding">Enter Password</IonLabel>
-                <IonItem>
-                    <IonPasswordInput @bind-Value="Password" placeholder="e.g. margaretthatcheris110%SEXY" />
-                </IonItem>
-                <IonButton OnClick="@CoinJoin" class="ion-padding neu-button">JOIN NOW</IonButton>
-            </IonContent>
-
-        </IonModal>
-    </div>
-
     <IonAlert Visible="@IsAlertVisible"
               header="Keep open to CoinJoin"
               message="In beta, Chaincase must be open to complete a CoinJoin. You will be notified when to open back to this screen, so you can do other things with your device for now."
@@ -131,21 +107,17 @@
     }
     else
     {
-        <IonButton class="neu-button" OnClick='@ToggleModal' color="primary" expand="block" disabled="@(!HasSelectedCoins)">COINJOIN</IonButton>
+        <IonButton class="neu-button" OnClick='() => NavigateTo("/coinjoin/authorize")' color="primary" expand="block" disabled="@(!HasSelectedCoins)">REVIEW COINJOIN</IonButton>
     }
 </IonFooter>
 
 @code {
     public bool IsAlertVisible;
     public IonAlert.IonAlertButton[] buttons;
-    private bool IsPasswordModalVisible;
     private bool IsToastVisible;
     private string ToastMessage = "";
     private const int ToastDuration = 2000; // ms
     private string ToastColor;
-
-    private string Password = "";
-    private bool IsShaking { get; set; }
 
     private bool IsDetailModalVisible { get; set; }
     private CoinViewModel CurrentCoinViewModel { get; set; }
@@ -176,13 +148,13 @@
         };
     }
 
-    private void NavigateToSelectCoins()
+    private void NavigateTo(string destination)
     {
         StackService.PushStackState(async () =>
         {
             await NavigationManager.NavigateBack(null, "/coinjoin");
         });
-        NavigationManager.NavigateTo("/selectcoins");
+        NavigationManager.NavigateTo(destination);
     }
 
     private async Task ExitCoinJoin()
@@ -194,25 +166,6 @@
     {
         CurrentCoinViewModel = coin;
         IsDetailModalVisible = true;
-    }
-
-    private async Task CoinJoin()
-    {
-        try
-        {
-            await ViewModel.DoEnqueueAsync(Password);
-            ToastMessage = "Success! Queued to join.";
-            ToastColor = "success";
-            IsToastVisible = true;
-            IsAlertVisible = true;
-            ToggleModal();
-        }
-        catch (Exception ex)
-        {
-            ToastMessage = ex.Message;
-            ToastColor = "danger";
-            IsToastVisible = true;
-        }
     }
 
     private static string PhaseToString(RoundPhaseState state)
@@ -262,8 +215,6 @@
             _ => ""
         };
     }
-
-    private void ToggleModal() => IsPasswordModalVisible = !IsPasswordModalVisible;
 
     private bool IsQueuedToCoinJoin => ViewModel.AmountQueued is not null && ViewModel.AmountQueued.CompareTo(Money.Zero) != 0;
 

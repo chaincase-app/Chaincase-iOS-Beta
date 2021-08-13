@@ -1,0 +1,77 @@
+@page "/coinjoin/authorize"
+@using NBitcoin
+@using WalletWasabi.CoinJoin.Common.Models
+@using Chaincase.UI.Services
+@using Chaincase.Common
+@using Chaincase.Common.Models
+@using Chaincase.UI.Components
+
+@inject UIStateService UiStateService
+@inject NavigationManager NavigationManager
+@inject StackService StackService
+@inject CoinJoinViewModel CoinJoinViewModel
+@inject SelectCoinsViewModel SelectCoinsViewModel 
+
+@inherits ReactiveComponentBase<CoinJoinViewModel>
+
+<IonContent>
+    <IonText class="ion-padding">
+        <h1 class="ion-padding">Join the CoinJoin Party</h1>
+    </IonText>
+    <IonCard color="light">
+        <IonCardContent>
+            <IonText color="primary">
+                <p>
+                    <strong>@SelectedCoinsCount @(SelectedCoinsCount == 1 ? "coin" : "coins") to CoinJoin</strong>
+                    <span class="ion-float-end">@ViewModel.CoinList.SelectedAmount BTC</span>
+                </p>
+            </IonText>
+        </IonCardContent>
+    </IonCard>
+    <IonLabel position="stacked" class="ion-padding">Enter Password</IonLabel>
+    <IonItem>
+        <IonPasswordInput @bind-Value="Password" />
+    </IonItem>
+    <div class="ion-padding">
+        <IonButton OnClick="@CoinJoin" color="primary" class="neu-button">COINJOIN NOW</IonButton>
+    </div>
+    <IonLoading @bind-Visible="@ViewModel.IsEnqueueBusy" message="Preparing to CoinJoin..." />
+    <IonToast @bind-Visible="@IsToastVisible" color="@ToastColor" message="@ToastMessage" duration="@ToastDuration" />
+</IonContent>
+
+@code {
+    private bool IsToastVisible;
+    private string ToastMessage = "";
+    private const int ToastDuration = 2000; // ms
+    private string ToastColor;
+
+    private string Password = "";
+    private bool IsShaking { get; set; }
+
+    private int SelectedCoinsCount => ViewModel.CoinList?.CoinList.Where(x => x.IsSelected).Count() ?? 0;
+
+
+    protected override void OnInitialized()
+    {
+        ViewModel = CoinJoinViewModel;
+        UiStateService.Title = "Approve CoinJoin";
+    }
+
+    private async Task CoinJoin()
+    {
+        try
+        {
+            await ViewModel.DoEnqueueAsync(Password);
+            ToastMessage = "Success! Queued to join.";
+            ToastColor = "success";
+            IsToastVisible = true;
+            await StackService.InvokeStackState();
+        }
+        catch (Exception ex)
+        {
+            ToastMessage = ex.Message;
+            ToastColor = "danger";
+            IsToastVisible = true;
+        }
+    }
+}
