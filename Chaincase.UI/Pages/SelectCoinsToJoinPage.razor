@@ -1,5 +1,5 @@
-@page "/selectcoins"
-@page "/selectcoins/{ReqInputAmountBTC}"
+@page "/coinjoin/selectcoins"
+@page "/coinjoin/selectcoins/{ReqInputAmountBTC}"
 @using NBitcoin
 @using ReactiveUI
 @using System.Reactive.Linq
@@ -62,15 +62,20 @@
                     <span class="ion-float-end">@ViewModel.SelectedAmount BTC</span>
                 </p>
             </IonText>
+            <IonButton class="neu-button" OnClick='() => IsAuthorizeModalVisible = true' color="primary" expand="block" disabled="@(!HasSelectedEnough)">CONTINUE</IonButton>
         </IonCardContent>
     </IonCard>
 </IonFooter>
+<AuthorizeCoinJoinModal @bind-Visible="IsAuthorizeModalVisible" />
 <CoinDetailModal @bind-Visible="@IsDetailModalVisible" @bind-CoinViewModel="@CurrentCoinViewModel" />
 
 @code {
 
+    private bool HasSelectedEnough => (ViewModel.SelectedAmount ?? Money.Zero) > ReqInputAmount();
+
     private string CoinSelectionRadios { get; set; }
 
+    private bool IsAuthorizeModalVisible { get; set; }
     private bool IsDetailModalVisible { get; set; }
 
     private CoinViewModel CurrentCoinViewModel { get; set; }

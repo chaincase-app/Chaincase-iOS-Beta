@@ -63,7 +63,7 @@
             @if (IsReady)
             {
                 <div class="ion-padding-end">
-                    <IonChip class="ion-padding-end" color="primary" @onclick='() => NavigateTo("/selectcoins")'>
+                    <IonChip class="ion-padding-end" color="primary" @onclick='() => NavigateTo($"/coinjoin/selectcoins/{ViewModel.RequiredBTC}")'>
                         @(HasSelectedCoins ? $"₿ {ViewModel.CoinList?.SelectedAmount}" : "Add +")
                     </IonChip>
                 </div>
@@ -100,6 +100,7 @@
     <IonLoading @bind-Visible="@ViewModel.IsEnqueueBusy" message="Coinjoin magic..." />
 </IonContent>
 <CoinDetailModal @bind-Visible="@IsDetailModalVisible" @bind-CoinViewModel="@CurrentCoinViewModel" />
+<AuthorizeCoinJoinModal @bind-Visible="IsAuthorizeModalVisible" />
 <IonFooter class="ion-padding">
     @if (IsQueuedToCoinJoin)
     {
@@ -107,7 +108,7 @@
     }
     else
     {
-        <IonButton class="neu-button" OnClick='() => NavigateTo("/coinjoin/authorize")' color="primary" expand="block" disabled="@(!HasSelectedCoins)">REVIEW COINJOIN</IonButton>
+        <IonButton class="neu-button" OnClick='() => IsAuthorizeModalVisible = true' color="primary" expand="block" disabled="@(!HasSelectedCoins)">REVIEW COINJOIN</IonButton>
     }
 </IonFooter>
 
@@ -120,6 +121,7 @@
     private string ToastColor;
 
     private bool IsDetailModalVisible { get; set; }
+    private bool IsAuthorizeModalVisible { get; set; }
     private CoinViewModel CurrentCoinViewModel { get; set; }
     private IEnumerable<CoinViewModel> CoinsToJoin => SelectedCoins?.Union(JoiningCoins)?.OrderBy(x => x.IsSelected ? 0 : 1);
     private IEnumerable<CoinViewModel> SelectedCoins => ViewModel.CoinList?.CoinList.Where(x => x.IsSelected);
