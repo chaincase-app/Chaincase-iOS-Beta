@@ -90,7 +90,7 @@
         }
     </IonList>
 
-    <IonAlert Visible="@IsAlertVisible"
+    <IonAlert @bind-Visible="@IsAlertVisible"
               header="Keep open to CoinJoin"
               message="In beta, Chaincase must be open to complete a CoinJoin. You will be notified when to open back to this screen, so you can do other things with your device for now."
               Buttons="buttons"
@@ -100,7 +100,7 @@
     <IonLoading @bind-Visible="@ViewModel.IsEnqueueBusy" message="Coinjoin magic..." />
 </IonContent>
 <CoinDetailModal @bind-Visible="@IsDetailModalVisible" @bind-CoinViewModel="@CurrentCoinViewModel" />
-<AuthorizeCoinJoinModal @bind-Visible="IsAuthorizeModalVisible" />
+<AuthorizeCoinJoinModal @bind-Visible="IsAuthorizeModalVisible" Authorized='@(() => IsAlertVisible = true)' />
 <IonFooter class="ion-padding">
     @if (IsQueuedToCoinJoin)
     {
@@ -113,7 +113,9 @@
 </IonFooter>
 
 @code {
-    public bool IsAlertVisible;
+    [Parameter]
+    public bool IsAlertVisible { get; set; }
+
     public IonAlert.IonAlertButton[] buttons;
     private bool IsToastVisible;
     private string ToastMessage = "";
@@ -154,7 +156,8 @@
     {
         StackService.PushStackState(async () =>
         {
-            await NavigationManager.NavigateBack(null, "/coinjoin");
+            await NavigationManager.NavigateBack(null, $"/coinjoin");
+            IsAlertVisible = ViewModel.IsQueuedToCoinJoin;
         });
         NavigationManager.NavigateTo(destination);
     }

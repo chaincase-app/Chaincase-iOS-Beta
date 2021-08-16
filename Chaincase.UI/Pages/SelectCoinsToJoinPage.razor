@@ -1,12 +1,14 @@
 @page "/coinjoin/selectcoins"
 @page "/coinjoin/selectcoins/{ReqInputAmountBTC}"
 @using NBitcoin
-@using ReactiveUI
 @using System.Reactive.Linq
 @using Chaincase.Common
 @using Chaincase.UI.Services
 @inject UIStateService UiStateService
+@inject NavigationManager NavigationManager
+@inject StackService StackService
 @inject SelectCoinsViewModel SelectCoinsViewModel
+@inject CoinJoinViewModel CoinJoinViewModel 
 @inherits ReactiveComponentBase<SelectCoinsViewModel>
 
 
@@ -66,7 +68,7 @@
         </IonCardContent>
     </IonCard>
 </IonFooter>
-<AuthorizeCoinJoinModal @bind-Visible="IsAuthorizeModalVisible" />
+<AuthorizeCoinJoinModal @bind-Visible="IsAuthorizeModalVisible" Authorized='@(() => NavigationManager.NavigateTo($"/coinjoin"))' />
 <CoinDetailModal @bind-Visible="@IsDetailModalVisible" @bind-CoinViewModel="@CurrentCoinViewModel" />
 
 @code {

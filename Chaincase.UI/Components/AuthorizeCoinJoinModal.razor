@@ -15,9 +15,6 @@
 
     <IonContent>
         <IonContent>
-            <IonText class="ion-padding">
-                <h1 class="ion-padding">Join the CoinJoin Party</h1>
-            </IonText>
             <IonCard color="light">
                 <IonCardContent>
                     <IonText color="primary">
@@ -49,6 +46,9 @@
     [Parameter]
     public EventCallback<bool> VisibleChanged { get; set; }
 
+    [Parameter]
+    public Action Authorized { get; set; }
+
     private bool IsToastVisible;
     private string ToastMessage = "";
     private const int ToastDuration = 2000; // ms
@@ -70,9 +70,12 @@
         try
         {
             await ViewModel.DoEnqueueAsync(Password);
+            Password = "";
+            Visible = false;
             ToastMessage = "Success! Queued to join.";
             ToastColor = "success";
             IsToastVisible = true;
+            Authorized?.Invoke();
         }
         catch (Exception ex)
         {
