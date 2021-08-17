@@ -378,7 +378,7 @@ namespace Chaincase.Common
 
                     if (_torManager?.State != TorState.Started && _torManager.State != TorState.Connected)
                     {
-                        _torManager.StartAsync(false, DataDir);
+                        _torManager.StartAsync(false, DataDir).ConfigureAwait(false);
                     }
 
                     var requestInterval = (Network == Network.RegTest) ? TimeSpan.FromSeconds(5) : TimeSpan.FromSeconds(1);
@@ -443,7 +443,7 @@ namespace Chaincase.Common
                     Nodes.Connect();
                     Logger.LogInfo($"{nameof(Global)}.OnResuming():Start connecting to nodes...");
 
-                    var requestInterval = (Network == Network.RegTest) ? TimeSpan.FromSeconds(5) : TimeSpan.FromSeconds(syncInterval);
+                    var requestInterval = (Network == Network.RegTest) ? TimeSpan.FromSeconds(5) : TimeSpan.FromSeconds(3);
                     int maxFiltSyncCount = Network == Network.Main ? 1000 : 10000; // On testnet, filters are empty, so it's faster to query them together
                     _synchronizer.Resume(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
                     Logger.LogInfo($"{nameof(Global)}.OnResuming():Start synchronizing filters...");
