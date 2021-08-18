@@ -25,8 +25,8 @@ namespace Chaincase.iOS
     [Register("AppDelegate")]
     public partial class AppDelegate : global::Xamarin.Forms.Platform.iOS.FormsApplicationDelegate
     {
+        private Global _global;
 
-        private IServiceProvider ServiceProvider;
         //
         // This method is invoked when the application has loaded and is ready to run. In this
         // method you should instantiate the window, load the UI into it and then make the window
@@ -40,17 +40,17 @@ namespace Chaincase.iOS
 
             ZXing.Net.Mobile.Forms.iOS.Platform.Init();
             var formsApp = new BlazorApp(fileProvider: null, ConfigureDi);
-            var serviceProvider = formsApp.ServiceProvider;
-            ServiceProvider = serviceProvider;
+            _global = formsApp.ServiceProvider.GetService<Global>();
+
             MessagingCenter.Subscribe<InitializeNoWalletTaskMessage>(this, "InitializeNoWalletTaskMessage", async message =>
             {
-                var context = new iOSInitializeNoWalletContext(serviceProvider.GetService<Global>());
+                var context = new iOSInitializeNoWalletContext(_global);
                 await context.InitializeNoWallet();
             });
 
             MessagingCenter.Subscribe<OnSleepingTaskMessage>(this, "OnSleepingTaskMessage", async message =>
             {
-                var context = new iOSOnSleepingContext(serviceProvider.GetService<Global>());
+                var context = new iOSOnSleepingContext(_global);
                 await context.OnSleeping();
             });
 
@@ -80,12 +80,11 @@ namespace Chaincase.iOS
         {
             var timeRemaining = Math.Min(UIApplication.SharedApplication.BackgroundTimeRemaining, 30);
             Logger.LogDebug($"ReceivedRemoteNotification. timeRemaining {timeRemaining}");
-            var global = ServiceProvider.GetService<Global>();
-            global.HandleRemoteNotification();
+            _global.HandleRemoteNotification();
 
             Thread.Sleep(27 * 1000);
             if (application.ApplicationState != UIApplicationState.Active)
-                global.OnSleeping();
+                _global.OnSleeping();
             // else it'll timeout and system will prevent us from receiving more
 
         }
