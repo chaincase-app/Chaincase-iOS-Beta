@@ -389,6 +389,12 @@ namespace Chaincase.UI.ViewModels
             set => this.RaiseAndSetIfChanged(ref _coordinatorFeePercent, value);
         }
 
+        public bool IsQueuedToCoinJoin
+		{
+            get => _isQueuedToCoinJoin;
+            set => this.RaiseAndSetIfChanged(ref _isQueuedToCoinJoin, value);
+		}
+
         public string Balance
         {
             get => _balance;

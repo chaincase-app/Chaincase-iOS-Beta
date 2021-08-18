@@ -1,12 +1,14 @@
-@page "/selectcoins"
-@page "/selectcoins/{ReqInputAmountBTC}"
+@page "/coinjoin/selectcoins"
+@page "/coinjoin/selectcoins/{ReqInputAmountBTC}"
 @using NBitcoin
-@using ReactiveUI
 @using System.Reactive.Linq
 @using Chaincase.Common
 @using Chaincase.UI.Services
 @inject UIStateService UiStateService
+@inject NavigationManager NavigationManager
+@inject StackService StackService
 @inject SelectCoinsViewModel SelectCoinsViewModel
+@inject CoinJoinViewModel CoinJoinViewModel 
 @inherits ReactiveComponentBase<SelectCoinsViewModel>
 
 
@@ -50,7 +52,7 @@
             {
                 <IonText color="medium">
                     <p>
-                        <strong>Select at least</strong>
+                        <strong>Req. Inputs</strong>
                         <span class="ion-float-end">@ReqInputAmount() BTC</span>
                     </p>
                 </IonText>
@@ -62,15 +64,20 @@
                     <span class="ion-float-end">@ViewModel.SelectedAmount BTC</span>
                 </p>
             </IonText>
+            <IonButton class="neu-button" OnClick='() => IsAuthorizeModalVisible = true' color="primary" expand="block" disabled="@(!HasSelectedEnough)">CONTINUE</IonButton>
         </IonCardContent>
     </IonCard>
 </IonFooter>
+<AuthorizeCoinJoinModal @bind-Visible="IsAuthorizeModalVisible" Authorized='@(() => NavigationManager.NavigateTo($"/coinjoin"))' />
 <CoinDetailModal @bind-Visible="@IsDetailModalVisible" @bind-CoinViewModel="@CurrentCoinViewModel" />
 
 @code {
 
+    private bool HasSelectedEnough => (ViewModel.SelectedAmount ?? Money.Zero) > ReqInputAmount();
+
     private string CoinSelectionRadios { get; set; }
 
+    private bool IsAuthorizeModalVisible { get; set; }
     private bool IsDetailModalVisible { get; set; }
 
     private CoinViewModel CurrentCoinViewModel { get; set; }
