@@ -348,8 +348,7 @@ namespace Chaincase.Common
             if (_walletManager?.SleepingCoins is { } && _torManager?.State != TorState.Started && _torManager.State != TorState.Connected)
             {
                 _ = ResumeToCoinJoin();
-                // set timer = background time limit OR CoinJoin Complete
-                // sleep
+                // sleep instruction happens from iOS lifecycle
             }
         }
 
@@ -511,7 +510,6 @@ namespace Chaincase.Common
 
                     var synchronizer = _synchronizer;
                     if (synchronizer is { })
-
                     {
                         await synchronizer.SleepAsync();
                         Logger.LogInfo($"{nameof(Global)}.OnSleeping():{nameof(_synchronizer)} is sleeping.");

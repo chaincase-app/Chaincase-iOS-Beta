@@ -79,7 +79,7 @@ namespace Chaincase.iOS
         public override void ReceivedRemoteNotification(UIApplication application, NSDictionary userInfo)
         {
             var timeRemaining = Math.Min(UIApplication.SharedApplication.BackgroundTimeRemaining, 30);
-            Logger.LogInfo($"ReceivedRemoteNotification. timeRemaining {timeRemaining}");
+            Logger.LogDebug($"ReceivedRemoteNotification. timeRemaining {timeRemaining}");
             var global = ServiceProvider.GetService<Global>();
             global.HandleRemoteNotification();
 
