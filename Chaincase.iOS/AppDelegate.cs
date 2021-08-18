@@ -65,10 +65,7 @@ namespace Chaincase.iOS
 
         public override void RegisteredForRemoteNotifications(UIApplication application, NSData deviceToken)
         {
-            // hhx is conversion to unsigned char argument
-            // let tokenParts = deviceToken.map { data in String(format: "%02.2hhx", data) }
-            //var tokenParts = String.Format(deviceToken
-            Logger.LogInfo($"Device Token: {deviceToken.ToHexString()}");
+            Logger.LogDebug($"Registered Remote Notifications Device Token: {deviceToken.ToHexString()}");
         }
 
         public override void FailedToRegisterForRemoteNotifications(UIApplication application, NSError error)
