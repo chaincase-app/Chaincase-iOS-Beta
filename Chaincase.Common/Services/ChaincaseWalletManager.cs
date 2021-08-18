@@ -125,7 +125,6 @@ namespace Chaincase.Common.Services
                     }
                     else if (isConfirmedSpent && e.IsLikelyOwnCoinJoin)
                     {
-                        Logger.LogInfo("CoinJoin Confirmed!");
                         _notificationManager.NotifyAndLog($"CoinJoin Confirmed!", "", NotificationType.Information, e);
                     }
                     else if (incoming > Money.Zero)
