@@ -24,8 +24,9 @@ namespace Chaincase.Common
             services.AddSingleton(x => {
                 var network = x.GetRequiredService<Config>().Network;
                 var dataDir = x.GetRequiredService<IDataDirProvider>().Get();
+                var walletDirectories = x.GetService<WalletDirectories>() ?? new WalletDirectories(dataDir);
                 var notificationManager = x.GetRequiredService<INotificationManager>();
-                return new ChaincaseWalletManager(network, new WalletDirectories(dataDir), notificationManager);
+                return new ChaincaseWalletManager(network, walletDirectories, notificationManager);
             });
             services.AddSingleton(x =>
             {

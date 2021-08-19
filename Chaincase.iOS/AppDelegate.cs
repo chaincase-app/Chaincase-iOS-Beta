@@ -16,6 +16,7 @@ using System;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
+using WalletWasabi.Wallets;
 
 namespace Chaincase.iOS
 {
@@ -110,6 +111,7 @@ namespace Chaincase.iOS
             obj.AddSingleton<INotificationManager, iOSNotificationManager>();
             obj.AddSingleton<iOSNotificationReceiver>();
             obj.AddSingleton<ITorManager, iOSTorManager>();
+            obj.AddSingleton<WalletDirectories, iOSWalletDirectories>();
         }
     }
 

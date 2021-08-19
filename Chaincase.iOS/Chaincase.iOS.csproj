@@ -91,6 +91,7 @@
     <Compile Include="Services\iOSNotificationReceiver.cs" />
     <Compile Include="Services\iOSHsmStorage.cs" />
     <Compile Include="Services\iOSTorManager.cs" />
+    <Compile Include="Services\iOSWalletDirectories.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />
