@@ -20,15 +20,18 @@ namespace Chaincase.iOS.Services
             // a new file inherits permissions of the folder it's created in
             foreach (var file in EnumerateWalletFiles())
             {
-                try
+                NSFileManager.DefaultManager.SetAttributes(
+                    new NSFileAttributes()
+                    {
+                        ProtectionKey = NSFileProtection.CompleteUntilFirstUserAuthentication
+                    },
+                    file.FullName,
+                    out NSError e);
+                if (e != null) // faux catch accomodates bound obj-c)
                 {
-                    new NSUrl(file.FullName)
-                        .SetResource(NSUrl.FileProtectionKey, NSUrl.FileProtectionCompleteUntilFirstUserAuthentication);
+                    Logger.LogWarning(e.LocalizedDescription);
                 }
-                catch
-                {
-                    Logger.LogWarning($"Could not set CompleteUntilFirstUserAuthentication Protection at {file.FullName}");
-                }
+
             }
         }
 
