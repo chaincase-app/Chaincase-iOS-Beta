@@ -207,27 +207,23 @@ namespace Chaincase.iOS.Services
         {
             get
             {
-                string homeDirectory = null;
-
-                if (Runtime.Arch == Arch.SIMULATOR)
-                {
-                    foreach (string var in new string[] { "IPHONE_SIMULATOR_HOST_HOME", "SIMULATOR_HOST_HOME" })
-                    {
-                        string val = Environment.GetEnvironmentVariable(var);
-                        if (val != null)
-                        {
-                            homeDirectory = val;
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    homeDirectory = NSHomeDirectory();
-                }
-
                 TORConfiguration configuration = new TORConfiguration();
                 configuration.CookieAuthentication = true; //@YES
+                var torDir = Path.Combine(NSFileManager.DefaultManager.GetUrls(NSSearchPathDirectory.CachesDirectory, NSSearchPathDomain.User).First().Path, "/tor");
+                try
+                {
+                    NSFileManager.DefaultManager.CreateDirectory(
+                        torDir,
+                        createIntermediates: true,
+                        new NSFileAttributes()
+                        {
+                            ProtectionKey = NSFileProtection.CompleteUntilFirstUserAuthentication
+                        });
+                }
+                catch
+                {
+                    Logger.LogWarning($"Could not set CompleteUntilFirstUserAuthentication Protection at {torDir}");
+                }
                 configuration.DataDirectory = new NSUrl(Path.GetTempPath());
                 configuration.Arguments = new string[] {
                     "--allow-missing-torrc",
@@ -282,7 +278,7 @@ namespace Chaincase.iOS.Services
             }
         }
 
-        private static string NSHomeDirectory() => Directory.GetParent(NSFileManager.DefaultManager.GetUrls(NSSearchPathDirectory.LibraryDirectory, NSSearchPathDomain.User).First().Path).FullName;
+        private static string CachesDirectory() => ;
 
         // Cancel the connection retry and fail guard.
         private void CancelInitRetry()
