@@ -63,6 +63,7 @@ namespace Chaincase
             var dataDir = ServiceProvider.GetRequiredService<IDataDirProvider>().Get();
             Directory.CreateDirectory(dataDir);
             var config = ServiceProvider.GetRequiredService<Config>();
+            config.TestNetBackendUriV3 = "http://tgkjgdbmqellj6yfzmmwa4nqk32eezkeauqmw7tr63t7i2sdaetyrvyd.onion/";
             config.LoadOrCreateDefaultFile();
             var uiConfig = ServiceProvider.GetRequiredService<UiConfig>();
             uiConfig.LoadOrCreateDefaultFile();

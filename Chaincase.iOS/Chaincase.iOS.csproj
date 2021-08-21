@@ -92,6 +92,7 @@
     <Compile Include="Services\iOSHsmStorage.cs" />
     <Compile Include="Services\iOSTorManager.cs" />
     <Compile Include="Services\iOSWalletDirectories.cs" />
+    <Compile Include="APNSEnrollmentClient.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />
@@ -144,6 +145,7 @@
     <Reference Include="System" />
     <Reference Include="Xamarin.iOS" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.MobileBlazorBindings.WebView.iOS" Version="0.5.50-preview" />

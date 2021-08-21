@@ -27,6 +27,7 @@ namespace Chaincase.iOS
     public partial class AppDelegate : global::Xamarin.Forms.Platform.iOS.FormsApplicationDelegate
     {
         private Global _global;
+        private APNSEnrollmentClient _apnsEnrollmentClient;
 
         //
         // This method is invoked when the application has loaded and is ready to run. In this
@@ -42,6 +43,7 @@ namespace Chaincase.iOS
             ZXing.Net.Mobile.Forms.iOS.Platform.Init();
             var formsApp = new BlazorApp(fileProvider: null, ConfigureDi);
             _global = formsApp.ServiceProvider.GetService<Global>();
+            _apnsEnrollmentClient = formsApp.ServiceProvider.GetService<APNSEnrollmentClient>();
 
             MessagingCenter.Subscribe<InitializeNoWalletTaskMessage>(this, "InitializeNoWalletTaskMessage", async message =>
             {
@@ -59,6 +61,7 @@ namespace Chaincase.iOS
 
             UNUserNotificationCenter.Current.Delegate =
                 formsApp.ServiceProvider.GetService<iOSNotificationReceiver>();
+            RegisterForRemoteNotifications(); // if permission already granted
             LoadApplication(formsApp);
             UIApplication.SharedApplication.IdleTimerDisabled = true;
             return base.FinishedLaunching(app, options);
@@ -67,6 +70,14 @@ namespace Chaincase.iOS
         public override void RegisteredForRemoteNotifications(UIApplication application, NSData deviceToken)
         {
             Logger.LogDebug($"Registered Remote Notifications Device Token: {deviceToken.ToHexString()}");
+            try
+            {
+                _apnsEnrollmentClient.StoreTokenAsync(deviceToken.ToHexString(), isDebug: true);
+            }
+            catch
+            {
+                Logger.LogDebug($"Failed to store token on backend");
+            }
         }
 
         public override void FailedToRegisterForRemoteNotifications(UIApplication application, NSError error)
@@ -90,17 +101,16 @@ namespace Chaincase.iOS
         /// <summary>
         ///  Logs the settings the user has _granted_
         /// </summary>
-        public static void GetNotificationSettings()
+        public static void RegisterForRemoteNotifications()
         {
             UNUserNotificationCenter.Current.GetNotificationSettings(settings =>
             {
-                Logger.LogInfo($"Notification settings: {settings}");
-
                 if (settings.AuthorizationStatus == UNAuthorizationStatus.Authorized)
                 {
                     // must execute on main thread else get runtime warning
                     DispatchQueue.MainQueue.DispatchAsync(new DispatchBlock(() =>
                     UIApplication.SharedApplication.RegisterForRemoteNotifications()));
+
                 }
             });
         }
@@ -112,6 +122,7 @@ namespace Chaincase.iOS
             obj.AddSingleton<iOSNotificationReceiver>();
             obj.AddSingleton<ITorManager, iOSTorManager>();
             obj.AddSingleton<WalletDirectories, iOSWalletDirectories>();
+            obj.AddTransient<APNSEnrollmentClient>();
         }
     }
 
