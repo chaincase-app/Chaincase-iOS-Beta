@@ -69,12 +69,12 @@ namespace Chaincase.iOS
             return base.FinishedLaunching(app, options);
         }
 
-        public override void RegisteredForRemoteNotifications(UIApplication application, NSData deviceToken)
+        public override async void RegisteredForRemoteNotifications(UIApplication application, NSData deviceToken)
         {
             Logger.LogDebug($"Registered Remote Notifications Device Token: {deviceToken.ToHexString()}");
             try
             {
-                _ = _apnsEnrollmentClient.StoreTokenAsync(deviceToken.ToHexString(), isDebug: _network != NBitcoin.Network.Main);
+                await _apnsEnrollmentClient.StoreTokenAsync(deviceToken.ToHexString(), isDebug: _network != NBitcoin.Network.Main);
             }
             catch
             {
@@ -87,15 +87,18 @@ namespace Chaincase.iOS
             Logger.LogError($"Failed to register: {error}");
         }
 
-        public override void ReceivedRemoteNotification(UIApplication application, NSDictionary userInfo)
+        // This method is only called in the background
+        // When the app is in foreground and receives a remote notification
+        // it arrives at userNotificationCenter
+        public override async void ReceivedRemoteNotification(UIApplication application, NSDictionary userInfo)
         {
             var timeRemaining = Math.Min(UIApplication.SharedApplication.BackgroundTimeRemaining, 30);
             Logger.LogDebug($"ReceivedRemoteNotification. timeRemaining {timeRemaining}");
             _global.HandleRemoteNotification();
 
-            Thread.Sleep(27 * 1000);
-            if (application.ApplicationState != UIApplicationState.Active)
-                _global.OnSleeping();
+            await Task.Delay(27 * 1000);
+            if (UIApplication.SharedApplication.ApplicationState != UIApplicationState.Active)
+                await _global.OnSleeping();
             // else it'll timeout and system will prevent us from receiving more
 
         }

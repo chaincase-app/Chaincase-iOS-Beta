@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Reactive.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Chaincase.Common.Contracts;
@@ -347,16 +348,16 @@ namespace Chaincase.Common
         {
             if (_walletManager?.SleepingCoins is { } && _torManager?.State != TorState.Started && _torManager.State != TorState.Connected)
             {
-                _ = ResumeToCoinJoin();
+                _ = BackgroundResumeToCoinJoin();
                 // sleep instruction happens from iOS lifecycle
             }
         }
 
-        public async Task ResumeToCoinJoin()
+        public async Task BackgroundResumeToCoinJoin()
 		{
             if (IsResuming)
             {
-                Logger.LogDebug($"{nameof(Global)}.ResumeToCoinJoin(): SleepCts.Cancel()");
+                Logger.LogDebug($"{MethodBase.GetCurrentMethod().Name}: SleepCts.Cancel()");
                 SleepCts.Cancel();
                 return;
             }
@@ -364,43 +365,40 @@ namespace Chaincase.Common
             try
             {
                 Resumed?.Invoke(this, null);
-                Logger.LogDebug($"{nameof(Global)}.ResumeToCoinJoin(): Waiting for a lock");
-                ResumeCts.Dispose();
-                ResumeCts = new CancellationTokenSource();
-                using (await LifeCycleMutex.LockAsync(ResumeCts.Token))
+                Logger.LogDebug($"{MethodBase.GetCurrentMethod().Name}: Waiting for a lock");
+                var backgroundCts = new CancellationTokenSource();
+                using (await LifeCycleMutex.LockAsync(backgroundCts.Token))
                 {
-                    IsResuming = true;
-                    Logger.LogDebug($"{nameof(Global)}.ResumeToCoinJoin(): Entered critical section");
+                    // IsResuming = true; // BG => Don't flag. Pass OnResume() if foregrounded.
+                    Logger.LogDebug($"{MethodBase.GetCurrentMethod().Name}: Entered critical section");
 
                     // don't ever cancel Init. use an ephemeral token
                     await WaitForInitializationCompletedAsync(new CancellationToken());
 
                     if (_torManager?.State != TorState.Started && _torManager.State != TorState.Connected)
                     {
-                        _torManager.StartAsync(false, DataDir).ConfigureAwait(false);
+                        _ = _torManager.StartAsync(false, DataDir).ConfigureAwait(false);
                     }
 
                     var requestInterval = (Network == Network.RegTest) ? TimeSpan.FromSeconds(5) : TimeSpan.FromSeconds(1);
                     int maxFiltSyncCount = Network == Network.Main ? 1000 : 10000; // On testnet, filters are empty, so it's faster to query them together
                     _synchronizer.Resume(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
-                    Logger.LogInfo($"{nameof(Global)}.ResumeToCoinJoin():Start synchronizing filters...");
+                    Logger.LogInfo($"{MethodBase.GetCurrentMethod().Name}: Start synchronizing filters...");
 
                     if (_walletManager.SleepingCoins is { })
                     {
                         await _walletManager.CurrentWallet.ChaumianClient.QueueCoinsToMixAsync(_walletManager.SleepingCoins);
                         _walletManager.SleepingCoins = null;
                     }
-
-                    IsResuming = false;
                 }
             }
             catch (OperationCanceledException ex)
             {
-                Logger.LogTrace($"{nameof(Global)}.OnResuming(): Exception OperationCanceledException risen: {ex}");
+                Logger.LogTrace($"{MethodBase.GetCurrentMethod().Name}: Exception OperationCanceledException: {ex}");
             }
             finally
             {
-                Logger.LogDebug($"{nameof(Global)}.OnResuming():Chaincase Resumed");
+                Logger.LogDebug($"{MethodBase.GetCurrentMethod().Name}: Chaincase Resumed to CoinJoin");
             }
         }
 
