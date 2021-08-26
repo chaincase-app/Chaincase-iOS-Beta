@@ -7,6 +7,8 @@ using Chaincase.Common;
 using System.Threading.Tasks;
 using System.Threading;
 using WalletWasabi.Helpers;
+using Newtonsoft.Json;
+using System.Text;
 
 namespace Chaincase.iOS
 {
@@ -21,16 +23,19 @@ namespace Chaincase.iOS
 
         public async Task StoreTokenAsync(string tokenString, bool isDebug = false, CancellationToken cancel = default)
         {
-            var request = new AppleDeviceToken
+            var request = new DeviceToken
             {
                 Token = tokenString,
-                IsDebug = isDebug
+                Type = isDebug ? TokenType.AppleDebug : TokenType.Apple
             };
+
+            var jsonRequest = JsonConvert.SerializeObject(request, Formatting.None);
+
             using var response = await TorClient.SendAndRetryAsync(
                 HttpMethod.Post,
                 HttpStatusCode.OK,
                 $"/api/v{ApiVersion}/btc/apntokens",
-                content: request.ToHttpStringContent(),
+                content: new StringContent(jsonRequest, Encoding.UTF8, "application/json"),
                 cancel: cancel);
             if (response.StatusCode == HttpStatusCode.NoContent)
             {
