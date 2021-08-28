@@ -1,10 +1,10 @@
 @page "/coinjoin"
+@using Blazor.Ionic
 @using NBitcoin
 @using WalletWasabi.CoinJoin.Common.Models
 @using Chaincase.UI.Services
 @using Chaincase.Common
 @using Chaincase.Common.Models
-@using Chaincase.UI.Components
 
 @inject UIStateService UiStateService
 @inject NavigationManager NavigationManager
@@ -58,13 +58,13 @@
     <IonList>
         <IonListHeader>
             <IonLabel>
-                My Bitcoin to Join
+                Bitcoin to Join
             </IonLabel>
             @if (IsReady)
             {
                 <div class="ion-padding-end">
-                    <IonChip class="ion-padding-end" color="primary" @onclick='() => NavigateTo($"/coinjoin/selectcoins/{ViewModel.RequiredBTC}")'>
-                        @(HasSelectedCoins ? $"₿ {ViewModel.CoinList?.SelectedAmount}" : "Add +")
+                    <IonChip class="ion-padding-end" color="primary" @onclick='() => NavigateTo($"/coinjoin/selectcoins")'>
+                        @(HasSelectedCoins ? $"{SelectedCoinsCount} {(SelectedCoinsCount == 1 ? "coin" : "coins")} ₿ {ViewModel.CoinList?.SelectedAmount}" : "Add +")
                     </IonChip>
                 </div>
             }
@@ -94,21 +94,35 @@
               header="Keep open to CoinJoin"
               message="In beta, Chaincase must be open to complete a CoinJoin. You will be notified when to open back to this screen, so you can do other things with your device for now."
               Buttons="buttons"
-              backdrop-dismiss="true"/>
+              backdrop-dismiss="true" />
     <IonToast @bind-Visible="@IsToastVisible" color="@ToastColor" message="@ToastMessage" duration="@ToastDuration" />
-
-    <IonLoading @bind-Visible="@ViewModel.IsEnqueueBusy" message="Coinjoin magic..." />
+    <IonLoading @bind-Visible="@ViewModel.IsEnqueueBusy" message="CoinJoin magic..." />
 </IonContent>
 <CoinDetailModal @bind-Visible="@IsDetailModalVisible" @bind-CoinViewModel="@CurrentCoinViewModel" />
-<AuthorizeCoinJoinModal @bind-Visible="IsAuthorizeModalVisible" Authorized='@(() => IsAlertVisible = true)' />
-<IonFooter class="ion-padding">
+<IonFooter>
     @if (IsQueuedToCoinJoin)
     {
-        <IonButton class="neu-button" OnClick='@ExitCoinJoin' expand="block">EXIT COINJOIN</IonButton>
+    <div class="ion-padding">
+        <IonButton class="neu-button ion-padding" OnClick='@ExitCoinJoin' expand="block">EXIT COINJOIN</IonButton>
+    </div>
+    }
+    else if (!ViewModel.HasSelectedEnough || ViewModel.HasTooManyInputs)
+    {
+    <div class="ion-padding">
+        <IonButton class="neu-button" color="primary" OnClick='() => NavigateTo($"/coinjoin/selectcoins")' expand="block">SELECT BITCOIN</IonButton>
+    </div>
     }
     else
     {
-        <IonButton class="neu-button" OnClick='() => IsAuthorizeModalVisible = true' color="primary" expand="block" disabled="@(!HasSelectedCoins)">REVIEW COINJOIN</IonButton>
+    <IonCard color="light">
+        <IonCardContent>
+            <IonLabel position="stacked" class="ion-padding">Enter Password</IonLabel>
+            <IonItem>
+                <IonPasswordInput @bind-Value="Password" />
+            </IonItem>
+            <IonButton OnClick="@CoinJoin" color="primary" class="neu-button">ENTER COINJOIN</IonButton>
+        </IonCardContent>
+    </IonCard>
     }
 </IonFooter>
 
@@ -117,6 +131,8 @@
     public bool IsAlertVisible { get; set; }
 
     public IonAlert.IonAlertButton[] buttons;
+
+    private string Password = "";
     private bool IsToastVisible;
     private string ToastMessage = "";
     private const int ToastDuration = 2000; // ms
@@ -127,6 +143,7 @@
     private CoinViewModel CurrentCoinViewModel { get; set; }
     private IEnumerable<CoinViewModel> CoinsToJoin => SelectedCoins?.Union(JoiningCoins)?.OrderBy(x => x.IsSelected ? 0 : 1);
     private IEnumerable<CoinViewModel> SelectedCoins => ViewModel.CoinList?.CoinList.Where(x => x.IsSelected);
+    private int SelectedCoinsCount => ViewModel.CoinList?.CoinList.Where(x => x.IsSelected).Count() ?? 0;
     private IEnumerable<CoinViewModel> JoiningCoins => ViewModel.CoinList?.CoinList.Where(x => x.CoinJoinInProgress);
 
 
@@ -140,7 +157,7 @@
             new IonAlert.IonAlertButton()
             {
                 Options = new Dictionary<string, object>()
-            {
+{
                     {"text", "That's cool"},
                     {"role", "ok"}
                 },
@@ -160,6 +177,24 @@
             IsAlertVisible = ViewModel.IsQueuedToCoinJoin;
         });
         NavigationManager.NavigateTo(destination);
+    }
+
+    private async Task CoinJoin()
+    {
+        try
+        {
+            await ViewModel.DoEnqueueAsync(Password);
+            Password = "";
+            ToastMessage = "Success! Queued to join.";
+            ToastColor = "success";
+            IsToastVisible = true;
+        }
+        catch (Exception ex)
+        {
+            ToastMessage = ex.Message;
+            ToastColor = "danger";
+            IsToastVisible = true;
+        }
     }
 
     private async Task ExitCoinJoin()

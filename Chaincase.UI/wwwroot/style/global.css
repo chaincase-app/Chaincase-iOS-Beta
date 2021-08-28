@@ -7,6 +7,9 @@
 }
 
 */
+* {
+    font-variant-numeric: tabular-nums;
+}
 
 input {
     caret-color: var(--ion-color-primary);
