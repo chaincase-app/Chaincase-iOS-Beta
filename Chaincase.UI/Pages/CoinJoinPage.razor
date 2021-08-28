@@ -100,10 +100,19 @@
 </IonContent>
 <CoinDetailModal @bind-Visible="@IsDetailModalVisible" @bind-CoinViewModel="@CurrentCoinViewModel" />
 @*<AuthorizeCoinJoinModal @bind-Visible="IsAuthorizeModalVisible" Authorized='@(() => IsAlertVisible = true)' />*@
-<IonFooter class="ion-padding">
-    @if (IsQueuedToCoinJoin)
+<IonFooter>
+    @if (SelectedCoinsCount < 1)
     {
-        <IonButton class="neu-button" OnClick='@ExitCoinJoin' expand="block">EXIT COINJOIN</IonButton>
+        <div class="ion-padding">
+            <IonButton class="neu-button" color="primary" OnClick='() => NavigateTo($"/coinjoin/selectcoins/{ViewModel.RequiredBTC}")' expand="block">SELECT BITCOIN</IonButton>
+        </div>
+    }
+    else if (IsQueuedToCoinJoin)
+    {
+        <div class="ion-padding">
+
+            <IonButton class="neu-button ion-padding" color="primary" OnClick='@ExitCoinJoin' expand="block">EXIT COINJOIN</IonButton>
+        </div>
     }
     else
     {
@@ -115,15 +124,13 @@
                         <span class="ion-float-end">@ViewModel.CoinList.SelectedAmount BTC</span>
                     </p>
                 </IonText>
+                <IonLabel position="stacked" class="ion-padding">Enter Password</IonLabel>
+                <IonItem>
+                    <IonPasswordInput @bind-Value="Password" />
+                </IonItem>
+                <IonButton OnClick="@CoinJoin" color="primary" class="neu-button">ENTER COINJOIN</IonButton>
             </IonCardContent>
         </IonCard>
-        <IonLabel position="stacked" class="ion-padding">Enter Password</IonLabel>
-        <IonItem>
-            <IonPasswordInput @bind-Value="Password" />
-        </IonItem>
-        <div class="ion-padding">
-            <IonButton OnClick="@CoinJoin" color="primary" class="neu-button">ENTER COINJOIN</IonButton>
-        </div>
     }
 </IonFooter>
 
@@ -158,7 +165,7 @@
             new IonAlert.IonAlertButton()
             {
                 Options = new Dictionary<string, object>()
-        {
+{
                     {"text", "That's cool"},
                     {"role", "ok"}
                 },
