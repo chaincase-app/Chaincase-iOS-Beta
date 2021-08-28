@@ -63,7 +63,7 @@
             @if (IsReady)
             {
                 <div class="ion-padding-end">
-                    <IonChip class="ion-padding-end" color="primary" @onclick='() => NavigateTo($"/coinjoin/selectcoins/{ViewModel.RequiredBTC}")'>
+                    <IonChip class="ion-padding-end" color="primary" @onclick='() => NavigateTo($"/coinjoin/selectcoins")'>
                         @(HasSelectedCoins ? $"₿ {ViewModel.CoinList?.SelectedAmount}" : "Add +")
                     </IonChip>
                 </div>
@@ -104,7 +104,7 @@
     @if (SelectedCoinsCount < 1)
     {
         <div class="ion-padding">
-            <IonButton class="neu-button" color="primary" OnClick='() => NavigateTo($"/coinjoin/selectcoins/{ViewModel.RequiredBTC}")' expand="block">SELECT BITCOIN</IonButton>
+            <IonButton class="neu-button" color="primary" OnClick='() => NavigateTo($"/coinjoin/selectcoins")' expand="block">SELECT BITCOIN</IonButton>
         </div>
     }
     else if (IsQueuedToCoinJoin)
