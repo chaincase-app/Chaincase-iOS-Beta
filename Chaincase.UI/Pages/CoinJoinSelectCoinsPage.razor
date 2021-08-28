@@ -64,11 +64,10 @@
                     <span class="ion-float-end">@ViewModel.SelectedAmount BTC</span>
                 </p>
             </IonText>
-            <IonButton class="neu-button" OnClick='() => IsAuthorizeModalVisible = true' color="primary" expand="block" disabled="@(!HasSelectedEnough)">CONTINUE</IonButton>
+            <IonButton class="neu-button" OnClick='@StackService.InvokeStackState' color="primary" expand="block" disabled="@(!HasSelectedEnough)">CONTINUE</IonButton>
         </IonCardContent>
     </IonCard>
 </IonFooter>
-<AuthorizeCoinJoinModal @bind-Visible="IsAuthorizeModalVisible" Authorized='@(() => NavigationManager.NavigateTo($"/coinjoin"))' />
 <CoinDetailModal @bind-Visible="@IsDetailModalVisible" @bind-CoinViewModel="@CurrentCoinViewModel" />
 
 @code {
