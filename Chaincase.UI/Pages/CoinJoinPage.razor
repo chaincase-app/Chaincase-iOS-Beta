@@ -101,7 +101,7 @@
 <CoinDetailModal @bind-Visible="@IsDetailModalVisible" @bind-CoinViewModel="@CurrentCoinViewModel" />
 @*<AuthorizeCoinJoinModal @bind-Visible="IsAuthorizeModalVisible" Authorized='@(() => IsAlertVisible = true)' />*@
 <IonFooter>
-    @if (SelectedCoinsCount < 1)
+    @if (!ViewModel.HasSelectedEnough || ViewModel.HasTooManyInputs)
     {
         <div class="ion-padding">
             <IonButton class="neu-button" color="primary" OnClick='() => NavigateTo($"/coinjoin/selectcoins")' expand="block">SELECT BITCOIN</IonButton>

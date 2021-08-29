@@ -53,7 +53,7 @@
                     <p>
                         <strong>Select at least </strong>
                         <span class="ion-float-end">
-                            @if (HasSelectedEnough)
+                            @if (CoinJoinViewModel.HasSelectedEnough)
                             {<ion-icon color="success" name="checkmark-sharp" />}@CoinJoinViewModel.RequiredBTC BTC
                         </span>
                     </p>
@@ -70,19 +70,22 @@
                     </span>
                 </p>
             </IonText>
-            @if (HasTooManyInputs)
+            @if (CoinJoinViewModel.HasTooManyInputs)
             {
                 <IonText color="danger">
                     <p>
                         <strong>
                             Too many!
                         </strong>
-                        <span class="ion-float-end">@MaxInputsAllowed Max</span>
+                        <span class="ion-float-end">@CoinJoinViewModel.MaxInputsAllowed Max</span>
                     </p>
                 </IonText>
             }
 
-            <IonButton class="neu-button" OnClick='@StackService.InvokeStackState' color="primary" expand="block" disabled="@(!HasSelectedEnough || HasTooManyInputs)">CONTINUE</IonButton>
+            <IonButton class="neu-button" OnClick='@StackService.InvokeStackState'
+                       color="primary" expand="block"
+                       disabled="@(!CoinJoinViewModel.HasSelectedEnough
+                                   || CoinJoinViewModel.HasTooManyInputs)">CONTINUE</IonButton>
         </IonCardContent>
     </IonCard>
 </IonFooter>
@@ -90,12 +93,9 @@
 
 @code {
 
-    private bool HasSelectedEnough => (ViewModel.SelectedAmount ?? Money.Zero) >= CoinJoinViewModel.RequiredBTC;
-    private bool HasTooManyInputs => ViewModel.SelectedCount > MaxInputsAllowed;
     private const int MaxInputsAllowed = 7;
     private string CoinSelectionRadios { get; set; }
 
-    private bool IsAuthorizeModalVisible { get; set; }
     private bool IsDetailModalVisible { get; set; }
 
     private CoinViewModel CurrentCoinViewModel { get; set; }
