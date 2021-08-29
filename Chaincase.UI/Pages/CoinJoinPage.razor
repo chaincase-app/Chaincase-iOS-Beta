@@ -64,7 +64,7 @@
             {
                 <div class="ion-padding-end">
                     <IonChip class="ion-padding-end" color="primary" @onclick='() => NavigateTo($"/coinjoin/selectcoins")'>
-                        @(HasSelectedCoins ? $"₿ {ViewModel.CoinList?.SelectedAmount}" : "Add +")
+                        @(HasSelectedCoins ? $"{SelectedCoinsCount} {(SelectedCoinsCount == 1 ? "coin" : "coins")} ₿ {ViewModel.CoinList?.SelectedAmount}" : "Add +")
                     </IonChip>
                 </div>
             }
@@ -99,38 +99,30 @@
     <IonLoading @bind-Visible="@ViewModel.IsEnqueueBusy" message="CoinJoin magic..." />
 </IonContent>
 <CoinDetailModal @bind-Visible="@IsDetailModalVisible" @bind-CoinViewModel="@CurrentCoinViewModel" />
-@*<AuthorizeCoinJoinModal @bind-Visible="IsAuthorizeModalVisible" Authorized='@(() => IsAlertVisible = true)' />*@
 <IonFooter>
-    @if (!ViewModel.HasSelectedEnough || ViewModel.HasTooManyInputs)
+    @if (IsQueuedToCoinJoin)
     {
-        <div class="ion-padding">
-            <IonButton class="neu-button" color="primary" OnClick='() => NavigateTo($"/coinjoin/selectcoins")' expand="block">SELECT BITCOIN</IonButton>
-        </div>
+    <div class="ion-padding">
+        <IonButton class="neu-button ion-padding" OnClick='@ExitCoinJoin' expand="block">EXIT COINJOIN</IonButton>
+    </div>
     }
-    else if (IsQueuedToCoinJoin)
+    else if (!ViewModel.HasSelectedEnough || ViewModel.HasTooManyInputs)
     {
-        <div class="ion-padding">
-
-            <IonButton class="neu-button ion-padding" color="primary" OnClick='@ExitCoinJoin' expand="block">EXIT COINJOIN</IonButton>
-        </div>
+    <div class="ion-padding">
+        <IonButton class="neu-button" color="primary" OnClick='() => NavigateTo($"/coinjoin/selectcoins")' expand="block">SELECT BITCOIN</IonButton>
+    </div>
     }
     else
     {
-        <IonCard color="light">
-            <IonCardContent>
-                <IonText color="primary">
-                    <p>
-                        <strong>@SelectedCoinsCount @(SelectedCoinsCount == 1 ? "coin" : "coins") to CoinJoin</strong>
-                        <span class="ion-float-end">@ViewModel.CoinList.SelectedAmount BTC</span>
-                    </p>
-                </IonText>
-                <IonLabel position="stacked" class="ion-padding">Enter Password</IonLabel>
-                <IonItem>
-                    <IonPasswordInput @bind-Value="Password" />
-                </IonItem>
-                <IonButton OnClick="@CoinJoin" color="primary" class="neu-button">ENTER COINJOIN</IonButton>
-            </IonCardContent>
-        </IonCard>
+    <IonCard color="light">
+        <IonCardContent>
+            <IonLabel position="stacked" class="ion-padding">Enter Password</IonLabel>
+            <IonItem>
+                <IonPasswordInput @bind-Value="Password" />
+            </IonItem>
+            <IonButton OnClick="@CoinJoin" color="primary" class="neu-button">ENTER COINJOIN</IonButton>
+        </IonCardContent>
+    </IonCard>
     }
 </IonFooter>
 
