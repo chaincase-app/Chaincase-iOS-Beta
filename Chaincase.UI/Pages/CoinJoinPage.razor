@@ -75,6 +75,14 @@
                 </div>
             }
         </IonListHeader>
+        @if (!IsReady)
+        {
+            <IonCard color="light">
+                <IonCardContent>
+                    <p>Syncing ...</p>
+                </IonCardContent>
+            </IonCard>
+        }
         @foreach (var coin in CoinsToJoin)
         {
             <IonItem button>
@@ -102,27 +110,30 @@
 <IonFooter>
     @if (IsQueuedToCoinJoin)
     {
-    <div class="ion-padding">
-        <IonButton class="neu-button ion-padding" OnClick='@ExitCoinJoin' expand="block">EXIT COINJOIN</IonButton>
-    </div>
+        <div class="ion-padding">
+            <IonButton class="neu-button ion-padding" OnClick='@ExitCoinJoin' expand="block">EXIT COINJOIN</IonButton>
+        </div>
     }
     else if (!ViewModel.HasSelectedEnough || ViewModel.HasTooManyInputs)
     {
-    <div class="ion-padding">
-        <IonButton class="neu-button" color="primary" OnClick='() => NavigateTo($"/coinjoin/selectcoins")' expand="block">SELECT BITCOIN</IonButton>
-    </div>
+        <div class="ion-padding">
+            <IonButton class="neu-button" color="primary" expand="block"
+                       OnClick='() => NavigateTo($"/coinjoin/selectcoins")' disabled="@(!IsReady)">
+                SELECT BITCOIN
+            </IonButton>
+        </div>
     }
     else
     {
-    <IonCard color="light">
-        <IonCardContent>
-            <IonLabel position="stacked" class="ion-padding">Enter Password</IonLabel>
-            <IonItem>
-                <IonPasswordInput @bind-Value="Password" />
-            </IonItem>
-            <IonButton OnClick="@CoinJoin" color="primary" class="neu-button">ENTER COINJOIN</IonButton>
-        </IonCardContent>
-    </IonCard>
+        <IonCard color="light">
+            <IonCardContent>
+                <IonLabel position="stacked" class="ion-padding">Enter Password</IonLabel>
+                <IonItem>
+                    <IonPasswordInput @bind-Value="Password" />
+                </IonItem>
+                <IonButton OnClick="@CoinJoin" color="primary" class="neu-button">ENTER COINJOIN</IonButton>
+            </IonCardContent>
+        </IonCard>
     }
 </IonFooter>
 
