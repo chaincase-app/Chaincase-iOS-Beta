@@ -27,6 +27,8 @@ namespace Chaincase.UI.ViewModels
 {
     public class CoinJoinViewModel : ReactiveObject
     {
+        public const int MaxInputsAllowed = 7; // defined in CoinJoin Controller @ Backend
+
         private readonly ChaincaseWalletManager _walletManager;
         private readonly Config _config;
         private readonly INotificationManager _notificationManager;
@@ -47,8 +49,6 @@ namespace Chaincase.UI.ViewModels
         private bool _isEnqueueBusy;
         private bool _isQueuedToCoinJoin = false;
         private string _balance;
-        private string _toastErrorMessage;
-        private bool _shouldShowErrorToast;
         private SelectCoinsViewModel _selectCoinsViewModel;
 
         public CoinJoinViewModel(ChaincaseWalletManager walletManager, Config config, INotificationManager notificationManager, SelectCoinsViewModel selectCoinsViewModel)
@@ -365,6 +365,10 @@ namespace Chaincase.UI.ViewModels
             var timeToNotify = timeoutSeconds - NOTIFY_TIMEOUT_DELTA;
             _notificationManager.ScheduleNotification(title, message, timeToNotify);
         }
+
+        public bool HasSelectedEnough => (CoinList.SelectedAmount ?? Money.Zero) >= RequiredBTC;
+
+        public bool HasTooManyInputs => CoinList.SelectedCount > MaxInputsAllowed;
 
         public SelectCoinsViewModel CoinList
         {

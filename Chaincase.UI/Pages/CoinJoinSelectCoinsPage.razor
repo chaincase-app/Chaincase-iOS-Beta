@@ -1,5 +1,4 @@
 @page "/coinjoin/selectcoins"
-@page "/coinjoin/selectcoins/{ReqInputAmountBTC}"
 @using NBitcoin
 @using System.Reactive.Linq
 @using Chaincase.Common
@@ -8,7 +7,7 @@
 @inject NavigationManager NavigationManager
 @inject StackService StackService
 @inject SelectCoinsViewModel SelectCoinsViewModel
-@inject CoinJoinViewModel CoinJoinViewModel 
+@inject CoinJoinViewModel CoinJoinViewModel
 @inherits ReactiveComponentBase<SelectCoinsViewModel>
 
 
@@ -48,48 +47,61 @@
 <IonFooter>
     <IonCard color="light">
         <IonCardContent>
-            @if (ReqInputAmount() is not null)
+            @if (CoinJoinViewModel.RequiredBTC is not null)
             {
-                <IonText color="medium">
+                <IonText color="secondary">
                     <p>
-                        <strong>Req. Inputs</strong>
-                        <span class="ion-float-end">@ReqInputAmount() BTC</span>
+                        <strong>Select at least </strong>
+                        <span class="ion-float-end">
+                            @if (CoinJoinViewModel.HasSelectedEnough)
+                            {<ion-icon color="success" name="checkmark-sharp" />}@CoinJoinViewModel.RequiredBTC BTC
+                        </span>
                     </p>
                 </IonText>
 
             }
-            <IonText color="primary">
+            <IonText>
                 <p>
-                    <strong>Total Inputs</strong>
-                    <span class="ion-float-end">@ViewModel.SelectedAmount BTC</span>
+                    <strong>
+                        Amount selected 
+                    </strong>
+                    <span class="ion-float-end">
+                        @ViewModel.SelectedAmount BTC
+                    </span>
                 </p>
             </IonText>
-            <IonButton class="neu-button" OnClick='() => IsAuthorizeModalVisible = true' color="primary" expand="block" disabled="@(!HasSelectedEnough)">CONTINUE</IonButton>
+            @if (CoinJoinViewModel.HasTooManyInputs)
+            {
+                <IonText color="danger">
+                    <p>
+                        <strong>
+                            Too many!
+                        </strong>
+                        <span class="ion-float-end">@CoinJoinViewModel.MaxInputsAllowed Max</span>
+                    </p>
+                </IonText>
+            }
+
+            <IonButton class="neu-button" OnClick='@StackService.InvokeStackState'
+                       color="primary" expand="block"
+                       disabled="@(!CoinJoinViewModel.HasSelectedEnough
+                                   || CoinJoinViewModel.HasTooManyInputs)">CONTINUE</IonButton>
         </IonCardContent>
     </IonCard>
 </IonFooter>
-<AuthorizeCoinJoinModal @bind-Visible="IsAuthorizeModalVisible" Authorized='@(() => NavigationManager.NavigateTo($"/coinjoin"))' />
 <CoinDetailModal @bind-Visible="@IsDetailModalVisible" @bind-CoinViewModel="@CurrentCoinViewModel" />
 
 @code {
 
-    private bool HasSelectedEnough => (ViewModel.SelectedAmount ?? Money.Zero) > ReqInputAmount();
-
+    private const int MaxInputsAllowed = 7;
     private string CoinSelectionRadios { get; set; }
 
-    private bool IsAuthorizeModalVisible { get; set; }
     private bool IsDetailModalVisible { get; set; }
 
     private CoinViewModel CurrentCoinViewModel { get; set; }
 
     [Parameter]
     public string ReqInputAmountBTC { get; set; }
-
-    public Money ReqInputAmount()
-    {
-        Money.TryParse(ReqInputAmountBTC, out Money reqInputAmount);
-        return reqInputAmount;
-    }
 
     protected override void OnParametersSet()
     {
