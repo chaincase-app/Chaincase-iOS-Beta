@@ -10,6 +10,7 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
@@ -23,7 +24,7 @@
 	<key>CFBundleDisplayName</key>
 	<string>Chaincase</string>
 	<key>CFBundleIdentifier</key>
-	<string>cash.chaincase.testnet</string>
+	<string>cash.chaincase.chaincase</string>
 	<key>CFBundleVersion</key>
 	<string>0.5.10</string>
 	<key>UILaunchStoryboardName</key>
@@ -40,6 +41,19 @@
 	<string>Your seed words are protected by Face ID</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>Tor anonymous networking connects via local network access</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>bitcoin</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>bitcoin</string>
+			</array>
+		</dict>
+	</array>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>

@@ -77,6 +77,7 @@
     <MtouchExtraArgs>-v -v -v -v</MtouchExtraArgs>
 <MtouchUseLlvm>false</MtouchUseLlvm>
 <MtouchInterpreter>-all</MtouchInterpreter>
+<CodesignProvision>Chaincase Distribution</CodesignProvision>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
@@ -93,6 +94,7 @@
     <Compile Include="Services\iOSTorManager.cs" />
     <Compile Include="Services\iOSWalletDirectories.cs" />
     <Compile Include="APNSEnrollmentClient.cs" />
+    <None Include="Entitlements %28copy%29.developer.plist" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />

@@ -74,7 +74,12 @@ namespace Chaincase.iOS
             Logger.LogDebug($"Registered Remote Notifications Device Token: {deviceToken.ToHexString()}");
             try
             {
-                await _apnsEnrollmentClient.StoreTokenAsync(deviceToken.ToHexString(), isDebug: _network != NBitcoin.Network.Main);
+#if DEBUG
+                var isDebug = true;
+# else
+                var isDebug = false;
+#endif
+                await _apnsEnrollmentClient.StoreTokenAsync(deviceToken.ToHexString(), isDebug);
             }
             catch
             {
