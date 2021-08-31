@@ -49,14 +49,14 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <MtouchArch>ARM64</MtouchArch>
-    <CodesignKey>Apple Distribution: Chaincase LLC (9Z72DXKVXK)</CodesignKey>
+    <CodesignKey>Apple Development: Daniel Gould (BDA534V858)</CodesignKey>
     <MtouchDebug>true</MtouchDebug>
     <MtouchLink>None</MtouchLink>
     <MtouchInterpreter>-all</MtouchInterpreter>
     <LangVersion>9.0</LangVersion>
     <MtouchExtraArgs>-v -v -v -v</MtouchExtraArgs>
     <MtouchFloat32>true</MtouchFloat32>
-    <CodesignProvision>Chaincase Ad Hoc</CodesignProvision>
+    <CodesignProvision>cash.chaincase.chaincase Development</CodesignProvision>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
     <BlazorLinkOnBuild>false</BlazorLinkOnBuild>
@@ -76,6 +76,7 @@
     <MtouchExtraArgs>-v -v -v -v</MtouchExtraArgs>
 <MtouchUseLlvm>false</MtouchUseLlvm>
 <MtouchInterpreter>-all</MtouchInterpreter>
+<CodesignProvision>Chaincase Distribution</CodesignProvision>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
