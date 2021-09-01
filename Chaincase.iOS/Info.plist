@@ -25,13 +25,13 @@
 	<key>CFBundleIdentifier</key>
 	<string>cash.chaincase.testnet</string>
 	<key>CFBundleVersion</key>
-	<string>0.5.10</string>
+	<string>0.6.1</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>CFBundleName</key>
 	<string>Chaincase</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.5</string>
+	<string>0.6</string>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/AppIcon.appiconset</string>
 	<key>NSCameraUsageDescription</key>
