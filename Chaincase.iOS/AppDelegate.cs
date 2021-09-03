@@ -76,14 +76,14 @@ namespace Chaincase.iOS
 #else
                 var isDebug = false;
 #endif
-            Logger.LogDebug($"Registered Remote Notifications Device Token: {deviceToken.ToHexString()} isDebug: {isDebug}");
+            Logger.LogInfo($"Registered Remote Notifications Device Token: {deviceToken.ToHexString()} isDebug: {isDebug}");
             try
             {
                 await _apnsEnrollmentClient.StoreTokenAsync(deviceToken.ToHexString(), isDebug);
             }
             catch
             {
-                Logger.LogDebug($"Failed to store token on backend");
+                Logger.LogInfo($"Failed to store token on backend");
             }
         }
 
@@ -97,11 +97,11 @@ namespace Chaincase.iOS
         // it arrives at userNotificationCenter
         public override async void ReceivedRemoteNotification(UIApplication application, NSDictionary userInfo)
         {
-            var timeRemaining = Math.Min(UIApplication.SharedApplication.BackgroundTimeRemaining, 30);
-            Logger.LogDebug($"ReceivedRemoteNotification. timeRemaining {timeRemaining}");
             _global.HandleRemoteNotification();
 
-            await Task.Delay(27 * 1000);
+            var timeRemaining = Math.Min(UIApplication.SharedApplication.BackgroundTimeRemaining, 30);
+            await Task.Delay(((int)timeRemaining-1) * 1000); // sleeping takes 100ms, 1s allowance > sufficient
+            Logger.LogInfo($"ReceivedRemoteNotification. timeRemaining {timeRemaining}");
             if (UIApplication.SharedApplication.ApplicationState != UIApplicationState.Active)
                 await _global.OnSleeping();
             // else it'll timeout and system will prevent us from receiving more

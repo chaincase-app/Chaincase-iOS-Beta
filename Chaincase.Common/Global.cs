@@ -377,7 +377,7 @@ namespace Chaincase.Common
 
                     if (_torManager?.State != TorState.Started && _torManager.State != TorState.Connected)
                     {
-                        _ = _torManager.StartAsync(false, DataDir).ConfigureAwait(false);
+                        await _torManager.StartAsync(false, DataDir).ConfigureAwait(false);
                     }
 
                     var requestInterval = (Network == Network.RegTest) ? TimeSpan.FromSeconds(5) : TimeSpan.FromSeconds(1);
