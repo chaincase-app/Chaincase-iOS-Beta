@@ -99,23 +99,6 @@ namespace Chaincase.iOS
         // This method is only called in the background
         // When the app is in foreground and receives a remote notification
         // it arrives at userNotificationCenter
-        public override async void ReceivedRemoteNotification(UIApplication application, NSDictionary userInfo)
-        {
-            Logger.LogInfo($"ReceivedRemoteNotification");
-            _global.HandleRemoteNotification();
-
-            await Task.Delay(29_000); // sleeping takes 100ms, 1s allowance > sufficient
-            if (UIApplication.SharedApplication.ApplicationState != UIApplicationState.Active)
-                using (BenchmarkLogger.Measure(operationName: "Sleeping after Push"))
-                {
-                    await _global.OnSleeping().ConfigureAwait(false);
-                };
-            // else it'll timeout and system will prevent us from receiving more
-        }
-
-        // This method is only called in the background
-        // When the app is in foreground and receives a remote notification
-        // it arrives at userNotificationCenter
         public override async void DidReceiveRemoteNotification(UIApplication application, NSDictionary userInfo, Action<UIBackgroundFetchResult> completionHandler)
         {
             Logger.LogInfo($"DidReceiveRemoteNotification");
