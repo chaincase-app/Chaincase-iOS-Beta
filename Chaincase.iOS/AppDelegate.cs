@@ -78,7 +78,7 @@ namespace Chaincase.iOS
 #if DEBUG
                 var isDebug = true;
 #else
-                var isDebug = false;
+            var isDebug = false;
 #endif
             Logger.LogInfo($"Registered Remote Notifications Device Token: {deviceToken.ToHexString()} isDebug: {isDebug}");
             try
@@ -101,15 +101,34 @@ namespace Chaincase.iOS
         // it arrives at userNotificationCenter
         public override async void ReceivedRemoteNotification(UIApplication application, NSDictionary userInfo)
         {
+            Logger.LogInfo($"ReceivedRemoteNotification");
             _global.HandleRemoteNotification();
 
-            var timeRemaining = Math.Min(UIApplication.SharedApplication.BackgroundTimeRemaining, 30);
-            await Task.Delay(((int)timeRemaining-1) * 1000); // sleeping takes 100ms, 1s allowance > sufficient
-            Logger.LogInfo($"ReceivedRemoteNotification. timeRemaining {timeRemaining}");
+            await Task.Delay(29_000); // sleeping takes 100ms, 1s allowance > sufficient
             if (UIApplication.SharedApplication.ApplicationState != UIApplicationState.Active)
-                await _global.OnSleeping();
+                using (BenchmarkLogger.Measure(operationName: "Sleeping after Push"))
+                {
+                    await _global.OnSleeping().ConfigureAwait(false);
+                };
             // else it'll timeout and system will prevent us from receiving more
+        }
 
+        // This method is only called in the background
+        // When the app is in foreground and receives a remote notification
+        // it arrives at userNotificationCenter
+        public override async void DidReceiveRemoteNotification(UIApplication application, NSDictionary userInfo, Action<UIBackgroundFetchResult> completionHandler)
+        {
+            Logger.LogInfo($"DidReceiveRemoteNotification");
+            _global.HandleRemoteNotification();
+
+            await Task.Delay(29_000); // sleeping takes 100ms, 1s allowance > sufficient
+            if (UIApplication.SharedApplication.ApplicationState != UIApplicationState.Active)
+                using (BenchmarkLogger.Measure(operationName: "Sleeping after Push"))
+                {
+                    await _global.OnSleeping().ConfigureAwait(false);
+                };
+            // else it'll timeout and system will prevent us from receiving more
+            completionHandler.Invoke(UIBackgroundFetchResult.NewData);
         }
 
         /// <summary>
