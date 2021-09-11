@@ -378,6 +378,12 @@ namespace Chaincase.UI.ViewModels
 
                 await _transactionBroadcaster.SendTransactionAsync(signedTransaction); // put this on non-ui theread?
 
+                // reset for the next send
+                Label = "";
+                DestinationString = "";
+                IsMax = false;
+                AmountText = "";
+
                 return true;
             }
             catch (InsufficientBalanceException ex)
