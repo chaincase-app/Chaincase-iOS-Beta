@@ -228,45 +228,6 @@ namespace Chaincase.UI.ViewModels
             }
         }
 
-        private bool IsPasswordValid(string password)
-        {
-            string walletFilePath = Path.Combine(_walletManager.WalletDirectories.WalletsDir, $"{_config.Network}.json");
-            ExtKey keyOnDisk;
-            try
-            {
-                keyOnDisk = KeyManager.FromFile(walletFilePath).GetMasterExtKey(password ?? "");
-            }
-            catch
-            {
-                // bad password
-                return false;
-            }
-            return true;
-        }
-
-        public async void JoinRound(string password)
-        {
-            try
-            {
-                var coins = CoinList.CoinList.Where(c => c.IsSelected).Select(c => c.Model);
-                // Has the user picked any coins
-                if (!coins.Any())
-                    throw new Exception("Please pick some coins to participate in the Coin Join round");
-
-                if (IsPasswordValid(password))
-                    await _walletManager.CurrentWallet.ChaumianClient.QueueCoinsToMixAsync(password, coins.ToArray());
-                else
-                    throw new Exception("Please provide a valid password");
-                _isQueuedToCoinJoin = true;
-            }
-            catch (Exception error)
-            {
-                Logger.LogError($"CoinJoinViewModel.JoinRound() ${error} ");
-                _isQueuedToCoinJoin = false;
-                throw error;
-            }
-        }
-
         public async Task ExitCoinJoinAsync()
             => await DoDequeueAsync(CoinList.RootList.Items.Where(c => c.CoinJoinInProgress).Select(c => c.Model));
 
