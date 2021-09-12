@@ -37,11 +37,6 @@
 </IonContent>
 
 @code {
-
-    private string Label { get; set; }
-
-    private string _addressString;
-
     private bool IsAddressValid => ViewModel.DestinationUrl?.Address is not null;
     private bool IsLabelEmpty => ViewModel.Label.IsNullOrWhiteSpace();
 

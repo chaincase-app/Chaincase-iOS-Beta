@@ -123,7 +123,7 @@ namespace Chaincase.UI.ViewModels
             (label, address, outputAmount, selectedAmount, feeAmount) =>
             {
                 return label.NotNullAndNotEmpty()
-                    && DestinationUrl.Address is not null
+                    && DestinationUrl?.Address is not null
                     && outputAmount > Money.Zero
                     && outputAmount + feeAmount <= selectedAmount;
 
@@ -377,6 +377,12 @@ namespace Chaincase.UI.ViewModels
                 SignedTransaction = signedTransaction;
 
                 await _transactionBroadcaster.SendTransactionAsync(signedTransaction); // put this on non-ui theread?
+
+                // reset for the next send
+                Label = "";
+                DestinationString = "";
+                IsMax = false;
+                AmountText = "";
 
                 return true;
             }
