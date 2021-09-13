@@ -77,7 +77,7 @@ namespace Chaincase.iOS
         {
 #if DEBUG
             var isDebug = true;
-# else
+#else
             var isDebug = false;
 #endif
             Logger.LogInfo($"Registered Remote Notifications Device Token: {deviceToken.ToHexString()} isDebug: {isDebug}");
