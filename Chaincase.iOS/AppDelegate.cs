@@ -28,8 +28,6 @@ namespace Chaincase.iOS
     public partial class AppDelegate : global::Xamarin.Forms.Platform.iOS.FormsApplicationDelegate
     {
         private Global _global;
-        private NBitcoin.Network _network;
-        private string _dataDir;
         private APNSEnrollmentClient _apnsEnrollmentClient;
 
         //
@@ -45,10 +43,9 @@ namespace Chaincase.iOS
 
             ZXing.Net.Mobile.Forms.iOS.Platform.Init();
             var formsApp = new BlazorApp(fileProvider: null, ConfigureDi);
-            var _dataDir = formsApp.ServiceProvider.GetService<IDataDirProvider>().Get();
-            SetLoggerPermissions(_dataDir);
+            var dataDir = formsApp.ServiceProvider.GetService<IDataDirProvider>().Get();
+            SetLoggerPermissions(dataDir);
             _global = formsApp.ServiceProvider.GetService<Global>();
-            _network = formsApp.ServiceProvider.GetService<Config>().Network;
             _apnsEnrollmentClient = formsApp.ServiceProvider.GetService<APNSEnrollmentClient>();
 
             MessagingCenter.Subscribe<InitializeNoWalletTaskMessage>(this, "InitializeNoWalletTaskMessage", async message =>
