@@ -32,9 +32,9 @@ namespace Chaincase.iOS
             var jsonRequest = JsonConvert.SerializeObject(request, Formatting.None);
 
             using var response = await TorClient.SendAndRetryAsync(
-                HttpMethod.Post,
+                HttpMethod.Put,
                 HttpStatusCode.OK,
-                $"/api/v{ApiVersion}/btc/apntokens",
+                $"/api/v{ApiVersion}/NotificationTokens",
                 content: new StringContent(jsonRequest, Encoding.UTF8, "application/json"),
                 cancel: cancel);
             if (response.StatusCode == HttpStatusCode.NoContent)

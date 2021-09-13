@@ -17,6 +17,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using WalletWasabi.Wallets;
+using System.IO;
 
 namespace Chaincase.iOS
 {
@@ -28,6 +29,7 @@ namespace Chaincase.iOS
     {
         private Global _global;
         private NBitcoin.Network _network;
+        private string _dataDir;
         private APNSEnrollmentClient _apnsEnrollmentClient;
 
         //
@@ -43,6 +45,8 @@ namespace Chaincase.iOS
 
             ZXing.Net.Mobile.Forms.iOS.Platform.Init();
             var formsApp = new BlazorApp(fileProvider: null, ConfigureDi);
+            var _dataDir = formsApp.ServiceProvider.GetService<IDataDirProvider>().Get();
+            SetLoggerPermissions(_dataDir);
             _global = formsApp.ServiceProvider.GetService<Global>();
             _network = formsApp.ServiceProvider.GetService<Config>().Network;
             _apnsEnrollmentClient = formsApp.ServiceProvider.GetService<APNSEnrollmentClient>();
@@ -71,19 +75,19 @@ namespace Chaincase.iOS
 
         public override async void RegisteredForRemoteNotifications(UIApplication application, NSData deviceToken)
         {
-            Logger.LogDebug($"Registered Remote Notifications Device Token: {deviceToken.ToHexString()}");
+#if DEBUG
+            var isDebug = true;
+# else
+            var isDebug = false;
+#endif
+            Logger.LogInfo($"Registered Remote Notifications Device Token: {deviceToken.ToHexString()} isDebug: {isDebug}");
             try
             {
-#if DEBUG
-                var isDebug = true;
-# else
-                var isDebug = false;
-#endif
                 await _apnsEnrollmentClient.StoreTokenAsync(deviceToken.ToHexString(), isDebug);
             }
             catch
             {
-                Logger.LogDebug($"Failed to store token on backend");
+                Logger.LogInfo($"Failed to store token on backend");
             }
         }
 
@@ -95,17 +99,19 @@ namespace Chaincase.iOS
         // This method is only called in the background
         // When the app is in foreground and receives a remote notification
         // it arrives at userNotificationCenter
-        public override async void ReceivedRemoteNotification(UIApplication application, NSDictionary userInfo)
+        public override async void DidReceiveRemoteNotification(UIApplication application, NSDictionary userInfo, Action<UIBackgroundFetchResult> completionHandler)
         {
-            var timeRemaining = Math.Min(UIApplication.SharedApplication.BackgroundTimeRemaining, 30);
-            Logger.LogDebug($"ReceivedRemoteNotification. timeRemaining {timeRemaining}");
+            Logger.LogInfo($"DidReceiveRemoteNotification");
             _global.HandleRemoteNotification();
 
-            await Task.Delay(27 * 1000);
+            await Task.Delay(29_000); // sleeping takes 100ms, 1s allowance > sufficient
             if (UIApplication.SharedApplication.ApplicationState != UIApplicationState.Active)
-                await _global.OnSleeping();
+                using (BenchmarkLogger.Measure(operationName: "Sleeping after Push"))
+                {
+                    await _global.OnSleeping().ConfigureAwait(false);
+                };
             // else it'll timeout and system will prevent us from receiving more
-
+            completionHandler.Invoke(UIBackgroundFetchResult.NewData);
         }
 
         /// <summary>
@@ -133,6 +139,21 @@ namespace Chaincase.iOS
             obj.AddSingleton<ITorManager, iOSTorManager>();
             obj.AddSingleton<WalletDirectories, iOSWalletDirectories>();
             obj.AddTransient<APNSEnrollmentClient>();
+        }
+
+        private bool SetLoggerPermissions(string dataDir)
+        {
+            return NSFileManager.DefaultManager.SetAttributes(
+                new NSFileAttributes()
+                {
+                    ProtectionKey = NSFileProtection.CompleteUntilFirstUserAuthentication
+                },
+                Path.Combine(dataDir, "Logs.txt"),
+                out NSError e);
+            if (e != null) // faux catch accomodates bound obj-c)
+            {
+                Logger.LogWarning(e.LocalizedDescription);
+            }
         }
     }
 

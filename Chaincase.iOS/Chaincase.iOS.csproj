@@ -39,6 +39,7 @@
     <MtouchLink>None</MtouchLink>
     <MtouchArch>x86_64</MtouchArch>
     <LangVersion>9.0</LangVersion>
+    <CodesignKey>iPhone Developer</CodesignKey>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhone' ">
     <DebugSymbols>true</DebugSymbols>
@@ -94,7 +95,7 @@
     <Compile Include="Services\iOSTorManager.cs" />
     <Compile Include="Services\iOSWalletDirectories.cs" />
     <Compile Include="APNSEnrollmentClient.cs" />
-    <None Include="Entitlements %28copy%29.developer.plist" />
+    <None Include="Entitlements.plist" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />
