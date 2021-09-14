@@ -18,7 +18,7 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1"><IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 <PrivateAssets>all</PrivateAssets>
 </PackageReference>
-    <PackageReference Include="NBitcoin" Version="5.0.77" />
+    <PackageReference Include="NBitcoin" Version="5.0.83" />
     <PackageReference Include="bunit" Version="1.1.5" />
     <PackageReference Include="Moq" Version="4.16.1" />
     <PackageReference Include="Xam.Plugins.Settings" Version="4.0.0.10-beta" />
