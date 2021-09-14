@@ -73,14 +73,14 @@ namespace Chaincase.iOS
         public override async void RegisteredForRemoteNotifications(UIApplication application, NSData deviceToken)
         {
 #if DEBUG
-                var isDebug = true;
+            var isDebug = true;
 #else
             var isDebug = false;
 #endif
-            Logger.LogInfo($"Registered Remote Notifications Device Token: {deviceToken.ToHexString()} isDebug: {isDebug}");
             try
             {
                 await _apnsEnrollmentClient.StoreTokenAsync(deviceToken.ToHexString(), isDebug);
+                Logger.LogInfo($"Registered Remote Notifications Device Token: {deviceToken.ToHexString()} isDebug: {isDebug}");
             }
             catch
             {
