@@ -43,7 +43,8 @@ namespace Chaincase.iOS.Services
                 Title = title,
                 Subtitle = "",
                 Body = message,
-                Badge = 1
+                Badge = 1,
+                Sound = UNNotificationSound.Default
             };
 
             // Local notifications can be time or location based

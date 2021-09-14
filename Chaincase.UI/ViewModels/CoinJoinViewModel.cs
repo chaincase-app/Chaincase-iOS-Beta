@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reactive.Disposables;
@@ -11,6 +12,8 @@ using Chaincase.Common;
 using Chaincase.Common.Contracts;
 using Chaincase.Common.Models;
 using Chaincase.Common.Services;
+using DynamicData;
+using DynamicData.Binding;
 using NBitcoin;
 using ReactiveUI;
 using WalletWasabi.Blockchain.Keys;
@@ -50,6 +53,9 @@ namespace Chaincase.UI.ViewModels
         private bool _isQueuedToCoinJoin = false;
         private string _balance;
         private SelectCoinsViewModel _selectCoinsViewModel;
+        private ReadOnlyObservableCollection<CoinViewModel> _coinViewModels;
+        private ObservableAsPropertyHelper<bool> _isRegistered;
+        private DateTimeOffset _notificationTimeOffset;
 
         public CoinJoinViewModel(ChaincaseWalletManager walletManager, Config config, INotificationManager notificationManager, SelectCoinsViewModel selectCoinsViewModel)
         {
@@ -57,6 +63,23 @@ namespace Chaincase.UI.ViewModels
             _config = config;
             _notificationManager = notificationManager;
             CoinList = selectCoinsViewModel;
+
+            CoinList.RootList
+                .Connect()
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Bind(out _coinViewModels)
+                .Subscribe();
+
+            _isRegistered = _coinViewModels
+                .ToObservableChangeSet()
+                .AutoRefresh(x => x.Status)
+                .ToCollection()
+                .Select(x => x.Any(coin => coin.Status == SmartCoinStatus.MixingInputRegistration))
+                .Throttle(TimeSpan.FromSeconds(2))
+                .ToProperty(this, x => x.IsRegistered, scheduler: RxApp.MainThreadScheduler);
+
+            this.WhenAnyValue(x => x.IsRegistered)
+                .Subscribe(_ => ScheduleConfirmNotification(RoundTimesout));
 
             if (Disposables != null)
             {
@@ -176,11 +199,6 @@ namespace Chaincase.UI.ViewModels
                 if (!chaumianClient.State.IsInErrorState)
                 {
                     RoundPhaseState = new RoundPhaseState(mostAdvancedRound.State.Phase, false);
-                    if (mostAdvancedRound.State?.InputRegistrationTimesout > RoundTimesout &&
-                        AmountQueued > Money.Zero)
-                    {   // Seems like this is getting triggered twice.
-                        ScheduleConfirmNotification(mostAdvancedRound.State.InputRegistrationTimesout);
-                    }
                     RoundTimesout = mostAdvancedRound.State.Phase == RoundPhase.InputRegistration ? mostAdvancedRound.State.InputRegistrationTimesout : DateTimeOffset.UtcNow;
                 }
                 else
@@ -282,7 +300,6 @@ namespace Chaincase.UI.ViewModels
 
                     await _walletManager.CurrentWallet.ChaumianClient.QueueCoinsToMixAsync(password, coins.ToArray());
                     _notificationManager.RequestAuthorization();
-                    ScheduleConfirmNotification(DateTimeOffset.UtcNow + TimeLeftTillRoundTimeout);
                 }
                 catch (SecurityException ex)
                 {
@@ -313,15 +330,22 @@ namespace Chaincase.UI.ViewModels
             const int NOTIFY_TIMEOUT_DELTA = 90; // seconds
 
             var timeoutSeconds = TimeUntilOffset(offset).TotalSeconds;
-            if (timeoutSeconds < NOTIFY_TIMEOUT_DELTA)
+            if (timeoutSeconds < NOTIFY_TIMEOUT_DELTA ||
+                RoundPhaseState.Phase != RoundPhase.InputRegistration)
                 // Just encourage users to keep the app open
                 // & prepare CoinJoin to background if possible.
                 return;
 
-            // Takes about 30 seconds to start Tor & connect
-            var confirmTime = DateTime.Now.AddSeconds(timeoutSeconds);
+            if (offset <= _notificationTimeOffset)
+                // we've already scheduled this one
+                return;
+
+            _notificationTimeOffset = offset;
+
+            // Takes about 10 seconds to start Tor & register again
+            var notificationTime = DateTime.Now.AddSeconds(timeoutSeconds);
             string title = $"Time to CoinJoin Now";
-            string message = string.Format("Open Chaincase before {0:t}\n to complete the CoinJoin.", confirmTime);
+            string message = string.Format("Open Chaincase before {0:t}\n to complete the CoinJoin.", notificationTime);
 
             var timeToNotify = timeoutSeconds - NOTIFY_TIMEOUT_DELTA;
             _notificationManager.ScheduleNotification(title, message, timeToNotify);
@@ -330,6 +354,8 @@ namespace Chaincase.UI.ViewModels
         public bool HasSelectedEnough => (CoinList.SelectedAmount ?? Money.Zero) >= RequiredBTC;
 
         public bool HasTooManyInputs => CoinList.SelectedCount > MaxInputsAllowed;
+
+        public bool IsRegistered => _isRegistered.Value;
 
         public SelectCoinsViewModel CoinList
         {
