@@ -14,7 +14,7 @@
             </IonTab>
 
             <IonTabBar slot="bottom">
-                <IonTabButton @onclick='() => StackPush("/")'>
+                <IonTabButton class="@(IsOnMenu ? "tab-bar-background-open" : "")" @onclick='() => StackPush("/")'>
                     <IonIcon name="home"></IonIcon>
                     <IonLabel>HOME</IonLabel>
                 </IonTabButton>
@@ -32,6 +32,8 @@
 </IonSplitPane>
 
 @code{
+
+    private bool IsOnMenu = true;
 
     protected override void OnInitialized()
     {

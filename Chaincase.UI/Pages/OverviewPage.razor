@@ -12,7 +12,9 @@
 @inherits ReactiveComponentBase<OverviewViewModel>
 
 <IonContent>
-
+    <ion-refresher ionRefresh={doRefresh} slot="fixed" pullFactor={0.5} pullMin={100} pullMax={200}>
+        <IonRefresherContent></IonRefresherContent>
+    </ion-refresher>
     <div class="overview-header">
         <div class="overview-header__balance">
             <IonImg class="ion-padding" style="box-sizing: content-box; margin: 0 auto; padding: 10vw; width: 20vw;"
@@ -30,9 +32,8 @@
             </IonButton>
         </div>
     </div>
-
+    <IonToast Visible="@(!ViewModel.IsBackedUp)" Buttons="toastButtons" color="danger" message="Don't forget!" />
     <Status />
-
     <IonList>
         @foreach (var transaction in ViewModel.Transactions)
         {
@@ -70,7 +71,6 @@
         <p class="ion-text-center">Your transactions will appear here</p>
     }
     <TransactionDetailModal @bind-Visible="IsDetailModalVisible" TransactionViewModel="@CurrentTransactionViewModel" />
-    <IonToast Visible="@(!ViewModel.IsBackedUp)" Buttons="toastButtons" color="danger" message="Don't forget!" />
 </IonContent>
 
 @code{
@@ -129,5 +129,9 @@
     {
         CurrentTransactionViewModel = transaction;
         IsDetailModalVisible = true;
+    }
+
+    private void DoRefresh() {
+        ViewModel.Refresh();
     }
 }

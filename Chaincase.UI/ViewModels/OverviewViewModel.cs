@@ -103,6 +103,11 @@ namespace Chaincase.UI.ViewModels
             });
         }
 
+        public async void Refresh() {
+            Balance = _walletManager.CurrentWallet.Coins.TotalAmount().ToString();
+            await TryRewriteTableAsync();
+        }
+
         private void TryWriteTableFromCache()
         {
             try

@@ -278,3 +278,7 @@ body.dark {
     --ion-card-background: #1e1e1e;
 }
 
+
+.tab-bar-background-open {
+    background: green;
+}
