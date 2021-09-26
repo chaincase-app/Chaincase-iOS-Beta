@@ -1,0 +1,50 @@
+﻿@page "/connectfullnode"
+@using Microsoft.AspNetCore.Components
+@using Chaincase.Common.Contracts
+@using Chaincase.UI.Services
+@inject UIStateService UiStateService
+@inject StackService StackService
+@inject NavigationManager NavigationManager
+@inject ConnectNodeViewModel ConnectNodeViewModel
+@inject IClipboard Clipboard
+@inherits ReactiveComponentBase<ConnectNodeViewModel>
+
+<IonContent class="ion-padding">
+    <IonLabel>When enabled, your wallet will download blocks from your Bitcoin full node</IonLabel>
+    <div class="ion-padding" style="display:flex;flex-direction:column; width: 400px">
+        <IonLabel position="stacked">Status</IonLabel>
+        <IonChip color="danger">Disconnect</IonChip>
+        <IonLabel position="stacked">@ViewModel.NodeAddress</IonLabel>
+    </div>
+    <div class="ion-padding" style="display:flex; flex-direction: row">
+        <IonInput @bind-Value="ViewModel.NodeAddress" placeholder="https://foobar.onion:38113" aria-labelledby="node-address-label" />
+        <IonIcon @onclick="OnClickPaste" size="large" slot="end" name="clipboard-outline" aria-label="paste" />
+        <IonIcon @onclick="OnClickScan" size="small" slot="end" name="scan-outline" aria-label="scan" />
+    </div>
+    <div class="ion-padding">
+        <IonButton class="neu-button" color="primary" expand="block">Check Connection</IonButton>
+        <IonButton class="neu-button" color="primary" expand="block">Save</IonButton>
+    </div>
+</IonContent>
+
+@code {
+    protected override void OnInitialized()
+    {
+        ViewModel = ConnectNodeViewModel;
+        UiStateService.Title = "Bitcoin Full Node";
+    }
+
+    private async Task OnClickPaste()
+    {
+        ViewModel.NodeAddress = await Clipboard.Paste();
+    }
+
+    private async Task OnClickScan()
+    {
+        var scanner = new ZXing.Mobile.MobileBarcodeScanner();
+        var result = await scanner.Scan();
+
+        if (result != null)
+            ViewModel.NodeAddress = result.Text;
+    }
+}

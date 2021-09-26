@@ -23,6 +23,10 @@
             <IonIcon slot="start" color="primary" name="bug" />
             <IonLabel>Share Debug Log</IonLabel>
         </IonItem>
+        <IonItem button OnClick="NavigateToConnectFullNode">
+            <IonIcon slot="start" color="primary" name="wifi-outline" />
+            <IonLabel>Connect Full Node</IonLabel>
+        </IonItem>
     </IonList>
     <ion-item-divider></ion-item-divider>
     <IonList>
@@ -78,5 +82,14 @@
             await NavigationManager.NavigateBack(null, "/walletinfo");
         });
         NavigationManager.NavigateTo("/backup/start");
+    }
+
+    private void NavigateToConnectFullNode()
+    {
+        StackService.PushStackState(async () =>
+        {
+            await NavigationManager.NavigateBack(null, "/walletinfo");
+        });
+        NavigationManager.NavigateTo("/connectfullnode");
     }
 }

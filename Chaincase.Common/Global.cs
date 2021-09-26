@@ -220,7 +220,7 @@ namespace Chaincase.Common
                 #region Blocks provider
 
                 var blockProvider = new CachedBlockProvider(
-                    new SmartBlockProvider(
+                    new SmartBlockProvider  (
                         new P2pBlockProvider(Nodes, null, _synchronizer, _config.ServiceConfiguration, Network),
                         Cache),
                     new FileSystemBlockRepository(blocksFolderPath, Network));

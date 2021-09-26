@@ -29,6 +29,7 @@ namespace Chaincase.UI.Services
 			services.AddSingleton<CoinJoinViewModel>();
 			services.AddSingleton<SelectCoinsViewModel>();
 			services.AddSingleton<StatusViewModel>();
+			services.AddSingleton<ConnectNodeViewModel>();
 
 			return services;
 		}
