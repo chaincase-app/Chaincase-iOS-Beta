@@ -42,7 +42,7 @@ namespace Chaincase.SSB
 			// typically OS specific but web specific in SSB
 			services.AddScoped<IHsmStorage, JsInteropSecureConfigProvider>();
 			services.AddSingleton<INotificationManager, MockNotificationManager>();
-			services.AddSingleton<ITorManager, MockTorManager>();
+			services.AddSingleton<ITorManager, DesktopTorManager>();
 
 			services.AddBlazorDownloadFile();
 		}
