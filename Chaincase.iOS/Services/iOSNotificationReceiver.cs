@@ -19,7 +19,7 @@ namespace Chaincase.iOS.Services
 
             // alerts are always shown for demonstration but this can be set to "None"
             // to avoid showing alerts if the app is in the foreground
-            completionHandler(UNNotificationPresentationOptions.Alert);
+            completionHandler(UNNotificationPresentationOptions.Sound);
         }
     }
 }
