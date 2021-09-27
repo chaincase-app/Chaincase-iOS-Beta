@@ -15,7 +15,7 @@ namespace Chaincase.SSB
 			_config = config;
 		}
 
-		public TorState State => _torProcessManager?.IsRunning is true ? TorState.Connected : TorState.None;
+		public TorState State => _torProcessManager?.IsRunning ? TorState.Connected : TorState.None;
 		public Task StopAsync()
 		{
 			return _torProcessManager.StopAsync();
