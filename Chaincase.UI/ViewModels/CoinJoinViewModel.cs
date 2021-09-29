@@ -83,7 +83,7 @@ namespace Chaincase.UI.ViewModels
                 .Select(x => x.Any(coin => coin.Status == SmartCoinStatus.MixingInputRegistration));
 
             _isRegistered = isAnyCoinRegisteredObservable
-                .Throttle(TimeSpan.FromSeconds(2))
+                .Throttle(TimeSpan.FromSeconds(0.5))
                 .ToProperty(this, x => x.IsRegistered, scheduler: RxApp.MainThreadScheduler);
 
             _hasMostRecentRegistrationResponse = coinSet
@@ -106,7 +106,7 @@ namespace Chaincase.UI.ViewModels
                 });
 
             this.WhenAnyValue(x => x.HasMostRecentRegisterationResponse)
-                .Throttle(TimeSpan.FromSeconds(2))
+                .Throttle(TimeSpan.FromSeconds(0.5))
                 .Subscribe(_ =>
                 {
                     if (IsRegistrationBusy)

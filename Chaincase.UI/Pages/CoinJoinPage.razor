@@ -107,42 +107,36 @@
 </IonContent>
 <CoinDetailModal @bind-Visible="@IsDetailModalVisible" @bind-CoinViewModel="@CurrentCoinViewModel" />
 <IonFooter>
-    @if (ViewModel.IsRegistrationBusy)
-    {
-        <IonCard color="light">
-            <IonCardContent class="ion-text-center">
-                <ion-spinner class="ion-padding" /> <p>@(ViewModel.IsEnqueueBusy ? "Authorizing" : "Waiting to register")</p>
+    <IonCard color="light">
+        <IonCardContent>
+            @if (ViewModel.IsRegistrationBusy)
+            {
+                <div class="ion-text-center">
+                    <ion-spinner class="ion-padding" /> <p>@(ViewModel.IsEnqueueBusy ? "Authorizing" : "Waiting to register")</p>
+                </div>
                 <IonButton OnClick="@ExitCoinJoin" class="neu-button">ABORT COINJOIN</IonButton>
-            </IonCardContent>
-        </IonCard>
-    }
-    else if (IsQueuedToCoinJoin)
-    {
-        <div class="ion-padding">
-            <IonButton class="neu-button ion-padding" OnClick='@ExitCoinJoin' expand="block">EXIT COINJOIN</IonButton>
-        </div>
-    }
-    else if (!ViewModel.HasSelectedEnough || ViewModel.HasTooManyInputs)
-    {
-        <div class="ion-padding">
-            <IonButton class="neu-button" color="primary" expand="block"
-                       OnClick='() => NavigateTo($"/coinjoin/selectcoins")' disabled="@(!IsReady)">
-                SELECT BITCOIN
-            </IonButton>
-        </div>
-    }
-    else
-    {
-        <IonCard color="light">
-            <IonCardContent>
+            }
+            else if (IsQueuedToCoinJoin)
+            {
+                <IonButton class="neu-button" OnClick='@ExitCoinJoin' expand="block">ABORT COINJOIN</IonButton>
+            }
+            else if (!ViewModel.HasSelectedEnough || ViewModel.HasTooManyInputs)
+            {
+                <IonButton class="neu-button" color="primary" expand="block"
+                           OnClick='() => NavigateTo($"/coinjoin/selectcoins")' disabled="@(!IsReady)">
+                    SELECT BITCOIN
+                </IonButton>
+            }
+            else
+            {
                 <IonLabel position="stacked" class="ion-padding">Enter Password</IonLabel>
                 <IonItem>
                     <IonPasswordInput @bind-Value="Password" />
                 </IonItem>
                 <IonButton OnClick="@CoinJoin" color="primary" class="neu-button">ENTER COINJOIN</IonButton>
-            </IonCardContent>
-        </IonCard>
-    }
+            }
+        </IonCardContent>
+    </IonCard>
 </IonFooter>
 
 @code {
