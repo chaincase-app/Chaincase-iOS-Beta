@@ -104,11 +104,19 @@
               Buttons="buttons"
               backdrop-dismiss="true" />
     <IonToast @bind-Visible="@IsToastVisible" color="@ToastColor" message="@ToastMessage" duration="@ToastDuration" />
-    <IonLoading @bind-Visible="@ViewModel.IsEnqueueBusy" message="CoinJoin magic..." />
 </IonContent>
 <CoinDetailModal @bind-Visible="@IsDetailModalVisible" @bind-CoinViewModel="@CurrentCoinViewModel" />
 <IonFooter>
-    @if (IsQueuedToCoinJoin)
+    @if (ViewModel.IsRegistrationBusy)
+    {
+        <IonCard color="light">
+            <IonCardContent class="ion-text-center">
+                <ion-spinner class="ion-padding" /> <p>@(ViewModel.IsEnqueueBusy ? "Authorizing" : "Waiting to register")</p>
+                <IonButton OnClick="@ExitCoinJoin" class="neu-button">ABORT COINJOIN</IonButton>
+            </IonCardContent>
+        </IonCard>
+    }
+    else if (IsQueuedToCoinJoin)
     {
         <div class="ion-padding">
             <IonButton class="neu-button ion-padding" OnClick='@ExitCoinJoin' expand="block">EXIT COINJOIN</IonButton>
@@ -196,9 +204,6 @@
         {
             await ViewModel.DoEnqueueAsync(Password);
             Password = "";
-            ToastMessage = "Success! Queued to join.";
-            ToastColor = "success";
-            IsToastVisible = true;
         }
         catch (Exception ex)
         {

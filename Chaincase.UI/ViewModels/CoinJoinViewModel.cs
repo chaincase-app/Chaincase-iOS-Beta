@@ -50,11 +50,15 @@ namespace Chaincase.UI.ViewModels
         private Money _amountQueued;
         private bool _isDequeueBusy;
         private bool _isEnqueueBusy;
-        private bool _isQueuedToCoinJoin = false;
+        private bool _isQueuedToCoinJoin;
+        private bool _isRegistrationBusy;
         private string _balance;
         private SelectCoinsViewModel _selectCoinsViewModel;
         private ReadOnlyObservableCollection<CoinViewModel> _coinViewModels;
         private ObservableAsPropertyHelper<bool> _isRegistered;
+        private ObservableAsPropertyHelper<bool> _hasMostRecentRegistrationResponse;
+
+
         private DateTimeOffset _notificationTimeOffset;
 
         public CoinJoinViewModel(ChaincaseWalletManager walletManager, Config config, INotificationManager notificationManager, SelectCoinsViewModel selectCoinsViewModel)
@@ -70,16 +74,47 @@ namespace Chaincase.UI.ViewModels
                 .Bind(out _coinViewModels)
                 .Subscribe();
 
-            _isRegistered = _coinViewModels
+            var coinSet = _coinViewModels
                 .ToObservableChangeSet()
                 .AutoRefresh(x => x.Status)
-                .ToCollection()
-                .Select(x => x.Any(coin => coin.Status == SmartCoinStatus.MixingInputRegistration))
+                .ToCollection();
+
+            var isAnyCoinRegisteredObservable = coinSet
+                .Select(x => x.Any(coin => coin.Status == SmartCoinStatus.MixingInputRegistration));
+
+            _isRegistered = isAnyCoinRegisteredObservable
                 .Throttle(TimeSpan.FromSeconds(2))
                 .ToProperty(this, x => x.IsRegistered, scheduler: RxApp.MainThreadScheduler);
 
+            _hasMostRecentRegistrationResponse = coinSet
+                .Select(x => x.Any(coin =>
+                {
+                    return
+                    coin.Status == SmartCoinStatus.MixingBanned ||
+                    coin.Status == SmartCoinStatus.MixingWaitingForConfirmation ||
+                    coin.Status == SmartCoinStatus.SpentAccordingToBackend ||
+                    coin.Status == SmartCoinStatus.MixingConnectionConfirmation ||
+                    coin.Status == SmartCoinStatus.MixingOutputRegistration;
+                }))
+                .Merge(isAnyCoinRegisteredObservable)
+                .ToProperty(this, x => x.HasMostRecentRegisterationResponse, scheduler: RxApp.MainThreadScheduler);
+
             this.WhenAnyValue(x => x.IsRegistered)
-                .Subscribe(_ => ScheduleConfirmNotification(RoundTimesout));
+                .Subscribe(_ =>
+                {
+                    ScheduleConfirmNotification(RoundTimesout);
+                });
+
+            this.WhenAnyValue(x => x.HasMostRecentRegisterationResponse)
+                .Throttle(TimeSpan.FromSeconds(2))
+                .Subscribe(_ =>
+                {
+                    if (IsRegistrationBusy)
+                    {
+                        // I feel like this should be an OAPH but am not sure how to
+                        IsRegistrationBusy = false;
+                    }
+                });
 
             if (Disposables != null)
             {
@@ -252,6 +287,7 @@ namespace Chaincase.UI.ViewModels
         private async Task DoDequeueAsync(IEnumerable<SmartCoin> coins)
         {
             IsDequeueBusy = true;
+            IsRegistrationBusy = false;
             try
             {
                 if (!coins.Any())
@@ -288,6 +324,7 @@ namespace Chaincase.UI.ViewModels
                 }
                 try
                 {
+                    IsRegistrationBusy = true;
                     await Task.Run(() =>
                     {
                         // If the password is incorrect this throws.
@@ -381,10 +418,18 @@ namespace Chaincase.UI.ViewModels
         }
 
         public bool IsQueuedToCoinJoin
-		{
+        {
             get => _isQueuedToCoinJoin;
             set => this.RaiseAndSetIfChanged(ref _isQueuedToCoinJoin, value);
-		}
+        }
+
+        public bool IsRegistrationBusy
+        {
+            get => _isRegistrationBusy;
+            set => this.RaiseAndSetIfChanged(ref _isRegistrationBusy, value);
+        }
+
+        public bool HasMostRecentRegisterationResponse => _hasMostRecentRegistrationResponse.Value;
 
         public string Balance
         {
