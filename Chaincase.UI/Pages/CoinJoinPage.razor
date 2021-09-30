@@ -15,44 +15,43 @@
 @inherits ReactiveComponentBase<CoinJoinViewModel>
 
 <IonContent>
-
     @* List Coin Join round info**@
     <IonList>
-
         <IonListHeader>
             <IonLabel>
                 CoinJoin Server Status
             </IonLabel>
         </IonListHeader>
-        <IonProgressBar value="@ViewModel.RegisteredPercentage" buffer="@ViewModel.QueuedPercentage" />
 
         <IonItem>
-            <IonLabel>Online</IonLabel>
-            <IonBadge>@ViewModel.PeersRegistered</IonBadge>
-            <IonLabel slot="end">Queued</IonLabel>
-            <IonBadge slot="end" color="dark">@ViewModel.PeersQueued</IonBadge>
+            <IonLabel>Registered Peers</IonLabel>
+            <IonBadge slot="end" color="primary">@ViewModel.PeersQueued</IonBadge>
         </IonItem>
-        <IonItem>
-            <IonLabel>Minimum required</IonLabel>
-            <IonBadge color="secondary" slot="end">₿ @ViewModel.RequiredBTC</IonBadge>
-        </IonItem>
-
-        <IonItem>
-            <IonLabel>Auto-join at</IonLabel>
-            <IonBadge slot="end">@ViewModel.PeersNeeded peers</IonBadge>
-        </IonItem>
-
         <IonItem>
             <IonLabel>Current phase</IonLabel>
-            <IonBadge color="light" slot="end">@(PhaseToString(ViewModel.RoundPhaseState))</IonBadge>
+            <IonBadge color="light" slot="end">
+                @(PhaseToString(ViewModel.RoundPhaseState))
+            </IonBadge>
         </IonItem>
         <IonItem>
             <IonLabel>Phase ends in</IonLabel>
-            <IonBadge color="light" slot="end">@($"{ViewModel.TimeLeftTillRoundTimeout:hh\\:mm\\:ss}")</IonBadge>
+            @if (ViewModel.TimeLeftTillRoundTimeout > TimeSpan.Zero ||
+             ViewModel.RoundPhaseState.Phase != RoundPhase.InputRegistration)
+            {
+                <IonBadge color="light" slot="end">@($"{ViewModel.TimeLeftTillRoundTimeout:hh\\:mm\\:ss}")</IonBadge>
+            }
+            else
+            {
+                <ion-spinner />
+            }
         </IonItem>
         <IonItem>
             <IonLabel>CoinJoin fee</IonLabel>
             <IonBadge color="light" slot="end">@(ViewModel.CoordinatorFeePercent)% per peer</IonBadge>
+        </IonItem>
+        <IonItem>
+            <IonLabel>Minimum required</IonLabel>
+            <IonBadge color="secondary" slot="end">₿ @ViewModel.RequiredBTC</IonBadge>
         </IonItem>
     </IonList>
     <IonList>
@@ -97,12 +96,6 @@
             </IonItem>
         }
     </IonList>
-
-    <IonAlert @bind-Visible="@IsAlertVisible"
-              header="Keep open to CoinJoin"
-              message="In beta, Chaincase must be open to complete a CoinJoin. You will be notified when to open back to this screen, so you can do other things with your device for now."
-              Buttons="buttons"
-              backdrop-dismiss="true" />
     <IonToast @bind-Visible="@IsToastVisible" color="@ToastColor" message="@ToastMessage" duration="@ToastDuration" />
 </IonContent>
 <CoinDetailModal @bind-Visible="@IsDetailModalVisible" @bind-CoinViewModel="@CurrentCoinViewModel" />
@@ -118,6 +111,25 @@
             }
             else if (IsQueuedToCoinJoin)
             {
+                if (ViewModel.TimeLeftTillRoundTimeout > TimeSpan.FromSeconds(90))
+                {
+                    <IonCardHeader>Ready to Join ✨</IonCardHeader>
+                    <p class="ion-padding">
+                        Your bitcoin is registered.<br />
+                        We'll notify you when exactly to open the app back up to finish the CoinJoin with your peers.<br />
+                    </p>
+
+                }
+                else
+                {
+                    <IonCardHeader class="ion-text-center">
+                        DON'T MOVE
+                        <br />
+                        ✳️👋🏼✳️👨🏼‍💼✳️🤚🏼✳️
+                        <br />
+                        IT'S HAPPENING
+                    </IonCardHeader>
+                }
                 <IonButton class="neu-button" OnClick='@ExitCoinJoin' expand="block">ABORT COINJOIN</IonButton>
             }
             else if (!ViewModel.HasSelectedEnough || ViewModel.HasTooManyInputs)
@@ -229,6 +241,16 @@
             _ => ""
         };
     }
+
+    private string PhaseHeading(RoundPhaseState state)
+    {
+        return state.Phase switch
+        {
+            RoundPhase.InputRegistration => ViewModel.IsRegistered ? "Locked and Loaded 🪅" : "Join the Party 🪅",
+            _ => "It's happening 🪄"
+        };
+    }
+
 
     private static string StatusToColor(SmartCoinStatus status)
     {

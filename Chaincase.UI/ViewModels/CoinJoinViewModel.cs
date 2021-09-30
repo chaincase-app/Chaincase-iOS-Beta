@@ -340,10 +340,12 @@ namespace Chaincase.UI.ViewModels
                 }
                 catch (SecurityException ex)
                 {
+                    IsRegistrationBusy = false;
                     throw ex;
                 }
                 catch (Exception ex)
                 {
+                    IsRegistrationBusy = false;
                     var builder = new StringBuilder(ex.ToTypeMessageString());
                     if (ex is AggregateException aggex)
                     {
