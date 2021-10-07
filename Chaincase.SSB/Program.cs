@@ -1,16 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using Chaincase.Common;
-using Chaincase.Common.Contracts;
-using Chaincase.Common.Services.Mock;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace Chaincase.SSB
 {
@@ -19,24 +9,16 @@ namespace Chaincase.SSB
 	// from Server Side Blazor
 	public class Program
 	{
-		public static void Main(string[] args)
+		public static async Task Main(string[] args)
 		{
 			// analagous to new BlazorApp()
-			var hostBuilder = Host.CreateDefaultBuilder(args)
+			await CreateHostBuilder(args).RunConsoleAsync();
+		}
+
+		public static IHostBuilder CreateHostBuilder(string[] args)
+		{
+			return Host.CreateDefaultBuilder(args)
 				.ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });
-
-			var host = hostBuilder.Build();
-
-			var dataDir = host.Services.GetRequiredService<IDataDirProvider>().Get();
-			Directory.CreateDirectory(dataDir); // I hope this is ok
-			var config = host.Services.GetRequiredService<Config>();
-			config.LoadOrCreateDefaultFile();
-			var uiConfig = host.Services.GetRequiredService<UiConfig>();
-			uiConfig.LoadOrCreateDefaultFile();
-
-			var global = host.Services.GetRequiredService<Global>();
-			Task.Run(async () => await global.InitializeNoWalletAsync());
-			host.Run();
 		}
 	}
 }

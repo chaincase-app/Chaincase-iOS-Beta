@@ -3,6 +3,7 @@ using Bunit;
 using Chaincase.Common;
 using Chaincase.Common.Contracts;
 using Chaincase.Common.Services.Mock;
+using Chaincase.SSB;
 using Chaincase.UI.Pages;
 using Chaincase.UI.Services;
 using Chaincase.UI.ViewModels;
@@ -66,11 +67,15 @@ namespace Chaincase.Tests
 		}
     }
 
-    public class TestDataDirProvider : IDataDirProvider
+    public class TestDataDirProvider : SSBDataDirProvider
     {
-        public string Get()
-        {
-            return EnvironmentHelpers.GetDataDir(Path.Combine("Test", "Client"));
-        }
+	    public TestDataDirProvider()
+	    {
+		    SubDirectory = Path.Combine("Test", "Client");
+	    } 
+	    public TestDataDirProvider(string dir)
+	    {
+		    SubDirectory = Path.Combine("Test", "Client", dir);
+	    } 
     }
 }
