@@ -6,12 +6,11 @@
 @inject StackService StackService
 
 <IonContent class="ion-padding">
-    <IonImg style="margin: 0 auto; padding: 1.5rem;"
-            src='@($"_content/Chaincase.UI/img/chaincase-{(UiStateService.DarkMode ? "dark" : "light" )}-theme-vertical-logomark.svg")' />
+  <SplashLogo></SplashLogo>
 </IonContent>
 <IonFooter class="ion-padding">
-    <IonButton class="neu-button" color="primary" OnClick='@(() => StackPush("/new"))' expand="block">CREATE NEW WALLET</IonButton>
-    <IonButton class="neu-button" OnClick='@(() => StackPush("/load"))' expand="block">LOAD OLD WALLET</IonButton>
+    <IonButton id="btn-create-wallet" class="neu-button" color="primary" OnClick='@(() => StackPush("/new"))' expand="block">CREATE NEW WALLET</IonButton>
+    <IonButton id="btn-load-wallet" class="neu-button" OnClick='@(() => StackPush("/load"))' expand="block">LOAD OLD WALLET</IonButton>
 </IonFooter>
 
 @code {
