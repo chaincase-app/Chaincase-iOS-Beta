@@ -251,11 +251,13 @@ namespace Chaincase.Common
         public Config(IDataDirProvider dataDirProvider)
             : base(Path.Combine(dataDirProvider.Get(), FILENAME))
         {
+	        LoadOrCreateDefaultFile();
             ServiceConfiguration = new ServiceConfiguration(MixUntilAnonymitySet.ToString(), PrivacyLevelSome, PrivacyLevelFine, PrivacyLevelStrong, GetBitcoinP2pEndPoint(), DustThreshold);
         }
 
         public Config(string filePath) : base(filePath)
         {
+	        LoadOrCreateDefaultFile();
             ServiceConfiguration = new ServiceConfiguration(MixUntilAnonymitySet.ToString(), PrivacyLevelSome, PrivacyLevelFine, PrivacyLevelStrong, GetBitcoinP2pEndPoint(), DustThreshold);
         }
 
