@@ -54,36 +54,10 @@ namespace Chaincase.Tests
 		{
 			// As the port is generated automatically, we can use IServerAddressesFeature to get the actual server URL
 			Host = CreateWebHost();
-			RunInBackgroundThread(Host.Start);
+			Host.Start();
 			return Host.Services.GetRequiredService<IServer>().Features
 				.Get<IServerAddressesFeature>()
 				.Addresses.Single();
-		}
-
-		private static void RunInBackgroundThread(Action action)
-		{
-			var isDone = new ManualResetEvent(false);
-
-			ExceptionDispatchInfo edi = null;
-			new Thread(() =>
-			{
-				try
-				{
-					action();
-				}
-				catch (Exception ex)
-				{
-					edi = ExceptionDispatchInfo.Capture(ex);
-				}
-
-				isDone.Set();
-			}).Start();
-
-			if (!isDone.WaitOne(TimeSpan.FromSeconds(10)))
-				throw new TimeoutException("Timed out waiting for: " + action);
-
-			if (edi != null)
-				throw edi.SourceException;
 		}
 	
 	}
