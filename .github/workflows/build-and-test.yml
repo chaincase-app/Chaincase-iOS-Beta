@@ -45,4 +45,4 @@ jobs:
       - name: Install Browser binaries
         run: playwright install
       - name: Test
-        run: dotnet test Chaincase.Tests --no-restore --verbosity normal
+        run: dotnet test Chaincase.Tests --no-restore
