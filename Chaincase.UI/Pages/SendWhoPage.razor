@@ -37,7 +37,7 @@
 </IonContent>
 
 @code {
-    private bool IsAddressValid => ViewModel.DestinationUrl?.Address is not null;
+    private bool IsAddressValid => ViewModel.DestinationUrl?.Address !=  null;
     private bool IsLabelEmpty => ViewModel.Label.IsNullOrWhiteSpace();
 
     protected override void OnInitialized()
