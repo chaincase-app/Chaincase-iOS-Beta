@@ -21,7 +21,7 @@ namespace Chaincase.iOS.Services
                 UNAuthorizationOptions.Alert | UNAuthorizationOptions.Sound | UNAuthorizationOptions.Provisional,
                 (granted, _) =>
             {
-                hasNotificationsPermission = approved;
+                hasNotificationsPermission = granted;
             });
         }
 
