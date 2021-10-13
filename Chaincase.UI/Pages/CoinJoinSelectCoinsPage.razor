@@ -1,6 +1,4 @@
 @page "/coinjoin/selectcoins"
-@using NBitcoin
-@using System.Reactive.Linq
 @using Chaincase.Common
 @using Chaincase.UI.Services
 @inject UIStateService UiStateService
@@ -47,7 +45,7 @@
 <IonFooter>
     <IonCard color="light">
         <IonCardContent>
-            @if (CoinJoinViewModel.RequiredBTC is not null)
+            @if (CoinJoinViewModel.RequiredBTC != null)
             {
                 <IonText color="secondary">
                     <p>

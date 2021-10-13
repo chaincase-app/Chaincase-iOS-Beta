@@ -65,6 +65,7 @@ namespace Chaincase.Common
 
         public UiConfig(string filePath) : base(filePath)
         {
+	        LoadOrCreateDefaultFile();
         }
     }
 }
