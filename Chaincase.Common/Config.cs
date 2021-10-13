@@ -25,6 +25,10 @@ namespace Chaincase.Common
         public const int DefaultPrivacyLevelStrong = 50;
         public const int DefaultMixUntilAnonymitySet = 50;
         public const int DefaultTorSock5Port = 9050;
+        public readonly string DefaultMainNetP2PHost = "http://cmekpfcgcdmaegqdsj4x4j6qkdem2jhndnboegwhf3jwr2mubafjl3id.onion/";
+        public readonly string DefaultTestNetP2PHost = "http://testwnp3fugjln6vh5vpj7mvq3lkqqwjj3c2aafyu7laxz42kgwh2rad.onion/";
+        public readonly int DefaultMainNetP2PPort = 8333;
+        public readonly int DefaultTestNetP2PPort = 18333;
         public static readonly Money DefaultDustThreshold = Money.Coins(Constants.DefaultDustThreshold);
 
         private int _mixUntilAnonymitySet;
@@ -34,7 +38,7 @@ namespace Chaincase.Common
 
         [JsonProperty(PropertyName = "Network")]
         [JsonConverter(typeof(NetworkJsonConverter))]
-        public NBitcoin.Network Network { get; internal set; } = NBitcoin.Network.Main;
+        public NBitcoin.Network Network { get; internal set; } = NBitcoin.Network.TestNet;
 
         [DefaultValue("http://cmekpfcgcdmaegqdsj4x4j6qkdem2jhndnboegwhf3jwr2mubafjl3id.onion/")]
         [JsonProperty(PropertyName = "MainNetBackendUriV3", DefaultValueHandling = DefaultValueHandling.Populate)]

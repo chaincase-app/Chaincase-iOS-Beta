@@ -2,49 +2,107 @@
 @using Microsoft.AspNetCore.Components
 @using Chaincase.Common.Contracts
 @using Chaincase.UI.Services
+@using System.Net.Sockets
 @inject UIStateService UiStateService
 @inject StackService StackService
 @inject NavigationManager NavigationManager
 @inject ConnectNodeViewModel ConnectNodeViewModel
-@inject IClipboard Clipboard
 @inherits ReactiveComponentBase<ConnectNodeViewModel>
 
 <IonContent class="ion-padding">
-    <IonLabel>When enabled, your wallet will download blocks from your Bitcoin full node</IonLabel>
-    <div class="ion-padding" style="display:flex;flex-direction:column; width: 400px">
-        <IonLabel position="stacked">Status</IonLabel>
-        <IonChip color="danger">Disconnect</IonChip>
-        <IonLabel position="stacked">@ViewModel.NodeAddress</IonLabel>
-    </div>
-    <div class="ion-padding" style="display:flex; flex-direction: row">
-        <IonInput @bind-Value="ViewModel.NodeAddress" placeholder="https://foobar.onion:38113" aria-labelledby="node-address-label" />
-        <IonIcon @onclick="OnClickPaste" size="large" slot="end" name="clipboard-outline" aria-label="paste" />
-        <IonIcon @onclick="OnClickScan" size="small" slot="end" name="scan-outline" aria-label="scan" />
+    <div style="display:flex; flex-direction:row; justify-content: space-between; padding:10px;">
+        <IonLabel style="font-weight:600;">Connect your full node</IonLabel>
+        <IonToggle @onchange="OnToggleConnectNode" color="primary" style="padding-left:15px;" @bind-Value="ConnectNodeIsToggled"/>
     </div>
     <div class="ion-padding">
-        <IonButton class="neu-button" color="primary" expand="block">Check Connection</IonButton>
-        <IonButton class="neu-button" color="primary" expand="block">Save</IonButton>
+        <IonLabel style="color:#999999;">
+            If you enable this option, Chaincase will allow you to manually connect to your own full node. If you disable, we will find peers to connect to for you.
+        </IonLabel>
     </div>
+    <div class="ion-padding"> 
+        <IonItem>
+            <IonInput @bind-Value="ViewModel.NodeAddress" placeholder="Paste or scan address" disabled="@(!ConnectNodeIsToggled)" />
+            <IonIcon @onclick="OnClickScan" size="medium" slot="end" name="qr-code-outline" aria-label="scan" />
+        </IonItem>
+    </div>
+    <div>
+        <IonLabel>Default ports: 8332 for mainnet, 18332 for Testnet, 18443 for Regtest</IonLabel>
+    </div>
+    <div>
+        <IonButton @onclick="TrySetNodeAddress" class="neu-button" color="primary" expand="block">Connect</IonButton>
+    </div>
+    <IonToast @bind-Visible="@IsToastVisible" color="@ToastColor" message="@ToastMessage" duration="@ToastDuration" />
 </IonContent>
 
 @code {
+    private bool IsToastVisible;
+    private string ToastMessage = "";
+    private const int ToastDuration = 2000; // ms
+    private string ToastColor;
+    private bool ConnectNodeIsToggled = true;
+
     protected override void OnInitialized()
     {
         ViewModel = ConnectNodeViewModel;
-        UiStateService.Title = "Bitcoin Full Node";
+        UiStateService.Title = "Bitcoin Core";
     }
 
-    private async Task OnClickPaste()
-    {
-        ViewModel.NodeAddress = await Clipboard.Paste();
+    private void OnToggleConnectNode() {
+        ConnectNodeIsToggled = !ConnectNodeIsToggled;
+    }
+
+    private void TrySetDefault() {
+        try
+        {
+            ViewModel.SetDefaultNodeAddress();
+            SetSuccessToast("Successfully reset default P2P configs");
+        }
+        catch (Exception _)
+        {
+            SetErrorToast("Failed to reset default P2P config. Resorting to fall back");
+        }
+    }
+
+    private void TrySetNodeAddress() {
+        try
+        {
+            ViewModel.SetNodeAddress();
+            SetSuccessToast("Successfully set P2P node address");
+        }
+        catch (SocketException e) {
+            SetErrorToast(e.Message);
+        }
+        catch (Exception _)
+        {
+            SetErrorToast("Failed to set node address. Please check URL format");
+        }
+    }
+
+    private void SetSuccessToast(string message) {
+        IsToastVisible = true;
+        ToastColor = "success";
+        ToastMessage = message;
+    }
+
+    private void SetErrorToast(string message){
+        IsToastVisible = true;
+        ToastColor = "danger";
+        ToastMessage = message;
     }
 
     private async Task OnClickScan()
     {
-        var scanner = new ZXing.Mobile.MobileBarcodeScanner();
-        var result = await scanner.Scan();
+        try
+        {
+            var scanner = new ZXing.Mobile.MobileBarcodeScanner();
+            var result = await scanner.Scan();
+            var uri = new Uri(result.Text);
+            ViewModel.NodeAddress = uri.ToString();
+        }
+        catch (Exception _) {
+            SetErrorToast("Failed to scan QR code");
+        }
 
-        if (result != null)
-            ViewModel.NodeAddress = result.Text;
     }
+
 }
