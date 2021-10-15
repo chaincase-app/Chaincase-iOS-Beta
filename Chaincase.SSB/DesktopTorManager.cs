@@ -1,32 +1,40 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Chaincase.Common;
 using Chaincase.Common.Contracts;
 using WalletWasabi.TorSocks5;
 
 namespace Chaincase.SSB
 {
-	public class DesktopTorManager : ITorManager
+	public class DesktopTorManager : BaseTorManager
 	{
-		private readonly Config _config;
+		private readonly IDataDirProvider _dataDirProvider;
 		private TorProcessManager _torProcessManager;
 
-		public DesktopTorManager(Config config)
+		public DesktopTorManager(Global global, Config config, IDataDirProvider dataDirProvider) : base(global, config)
 		{
-			_config = config;
+			_dataDirProvider = dataDirProvider;
 		}
 
-		public TorState State => _torProcessManager?.IsRunning is true ? TorState.Connected : TorState.None;
-		public Task StopAsync()
-		{
-			return _torProcessManager.StopAsync();
-		}
-
-		public Task StartAsync(bool ensureRunning, string dataDir)
+		public override Task StartAsyncCore(CancellationToken cancellationToken)
 		{
 			_torProcessManager ??= _config.UseTor
 				? new TorProcessManager(_config.TorSocks5EndPoint, null)
 				: TorProcessManager.Mock();
-			_torProcessManager.Start(ensureRunning, dataDir);
+			_torProcessManager.Start(false, _dataDirProvider.Get());
+			return Task.CompletedTask;
+		}
+
+		public override Task StopAsyncCore(CancellationToken cancellationToken)
+		{
+			return _torProcessManager.StopAsync();
+		}
+
+		public override TorState State => _torProcessManager?.IsRunning is true ? TorState.Connected : TorState.None;
+
+		public override Task EnsureRunning()
+		{
+			_torProcessManager.Start(true, _dataDirProvider.Get());
 			return Task.CompletedTask;
 		}
 	}

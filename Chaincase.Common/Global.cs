@@ -31,12 +31,12 @@ namespace Chaincase.Common
         private readonly UiConfig _uiConfig;
         private readonly BitcoinStore _bitcoinStore;
         private readonly ChaincaseWalletManager _walletManager;
-        private readonly ITorManager _torManager;
         private readonly IDataDirProvider _dataDirProvider;
         private string DataDir => _dataDirProvider.Get();
         private CoinJoinProcessor _coinJoinProcessor;
         private readonly ChaincaseSynchronizer _synchronizer;
         public readonly FeeProviders _feeProviders;
+
 
         public string AddressManagerFilePath { get; private set; }
         public AddressManager AddressManager { get; private set; }
@@ -58,11 +58,10 @@ namespace Chaincase.Common
         public TaskCompletionSource<bool> InitializationCompleted { get; } =  new();
 
         private CancellationTokenSource StoppingCts { get; set; }
-        private protected CancellationTokenSource SleepCts { get; set; } = new CancellationTokenSource();
+        public CancellationTokenSource SleepCts { get; set; } = new CancellationTokenSource();
         private protected bool IsGoingToSleep = false;
 
         public Global(
-            ITorManager torManager,
             IDataDirProvider dataDirProvider,
             Config config,
             UiConfig uiConfig,
@@ -72,7 +71,6 @@ namespace Chaincase.Common
             FeeProviders feeProviders
             )
         {
-            _torManager = torManager;
             _dataDirProvider = dataDirProvider;
             _config = config;
             _uiConfig = uiConfig;
@@ -112,20 +110,6 @@ namespace Chaincase.Common
                 var blocksFolderPath = Path.Combine(DataDir, $"Blocks{Network}");
                 var userAgent = Constants.UserAgents.RandomElement();
                 var connectionParameters = new NodeConnectionParameters { UserAgent = userAgent };
-
-                #region TorProcessInitialization
-
-                if (_config.UseTor)
-                {
-	                // This is actually already called first thing as ITorManage is a HostedService, this call is only
-	                //here to wait for it to finish the init method as this might execute too soon.
-                    await _torManager.StartAsync(cancellationToken);
-                    Logger.LogInfo($"{nameof(_torManager)} is initialized.");
-                }
-
-                Logger.LogInfo($"{nameof(Global)}.InitializeNoWalletAsync():{nameof(_torManager)} is initialized.");
-
-                #endregion TorProcessInitialization
 
                 #region BitcoinStoreInitialization
 
@@ -331,7 +315,8 @@ namespace Chaincase.Common
         }
 
         public event EventHandler Resumed;
-        private protected CancellationTokenSource ResumeCts { get; set; } = new CancellationTokenSource();
+        public event EventHandler Slept;
+        public CancellationTokenSource ResumeCts { get; set; } = new CancellationTokenSource();
         private protected bool IsResuming { get; set; } = false;
 
         public async Task OnResuming()
@@ -345,7 +330,7 @@ namespace Chaincase.Common
 
             try
             {
-                Resumed?.Invoke(this, null);
+                Resumed?.Invoke(this, EventArgs.Empty);
                 Logger.LogDebug($"{nameof(Global)}.OnResuming(): Waiting for a lock");
                 ResumeCts.Dispose();
                 ResumeCts = new CancellationTokenSource();
@@ -357,13 +342,12 @@ namespace Chaincase.Common
 
                     // don't ever cancel Init. use an ephemeral token
                     await InitializationCompleted.Task;
-
                     var userAgent = Constants.UserAgents.RandomElement();
                     var connectionParameters = new NodeConnectionParameters { UserAgent = userAgent };
                     var addrManTask = InitializeAddressManagerBehaviorAsync();
                     AddressManagerBehavior addressManagerBehavior = await addrManTask.ConfigureAwait(false);
                     connectionParameters.TemplateBehaviors.Add(addressManagerBehavior);
-                    await _torManager.StartAsync(ResumeCts.Token);
+                   
                     
 
                     Nodes.Connect();
@@ -406,6 +390,7 @@ namespace Chaincase.Common
             try
             {
                 Logger.LogDebug($"{nameof(Global)}.OnSleeping(): Waiting for a lock");
+				Slept?.Invoke(this, EventArgs.Empty);
                 SleepCts.Dispose();
                 SleepCts = new CancellationTokenSource();
                 using (await LifeCycleMutex.LockAsync(SleepCts.Token))
@@ -417,9 +402,6 @@ namespace Chaincase.Common
 
                     // don't ever cancel Init. use an ephemeral token
                     await InitializationCompleted.Task;
-
-                    await _torManager.StopAsync(SleepCts.Token);
-                   
 
                     try
                     {

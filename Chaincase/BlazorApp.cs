@@ -28,6 +28,7 @@ namespace Chaincase
             var hostBuilder = MobileBlazorBindingsHost.CreateDefaultBuilder()
                 .ConfigureServices((hostContext, services) =>
                 {
+	                configureDI?.Invoke(services);
                     services.AddCommonServices();
                     services.AddUIServices();
 
@@ -40,7 +41,6 @@ namespace Chaincase
                     services.AddSingleton<IShare, XamarinShare>();
                     services.AddSingleton<IThemeManager, XamarinThemeManager>();
 
-                    configureDI?.Invoke(services);
                 })
                 .UseWebRoot("wwwroot");
 

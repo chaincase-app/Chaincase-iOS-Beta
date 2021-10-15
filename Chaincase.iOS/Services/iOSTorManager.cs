@@ -47,7 +47,7 @@ namespace Chaincase.iOS.Services
 
         private DispatchBlock initRetry;
 
-        public iOSTorManager(Config config) : base(config)
+        public iOSTorManager(Global global, Config config) : base(global, config)
         {
 	        TorSocks5EndPoint = new IPEndPoint(IPAddress.Loopback, 9050);
             TorController = null;

@@ -17,6 +17,7 @@ namespace Chaincase.Common
     {
         public static IServiceCollection AddCommonServices(this IServiceCollection services)
         {
+	        services.AddHostedService((sp) => sp.GetService<ITorManager>());
             services.AddSingleton<Global>();
             services.AddSingleton<Config>();
             services.AddSingleton<UiConfig>();
