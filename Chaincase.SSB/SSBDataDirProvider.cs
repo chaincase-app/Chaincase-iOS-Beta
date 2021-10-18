@@ -6,9 +6,16 @@ namespace Chaincase.SSB
 {
 	public class SSBDataDirProvider:IDataDirProvider
 	{
+		protected string SubDirectory;
+
+		public SSBDataDirProvider()
+		{
+			SubDirectory = Path.Combine("Chaincase", "Client");
+			Directory.CreateDirectory(Get());
+		}
 		public string Get()
 		{
-			return EnvironmentHelpers.GetDataDir(Path.Combine("Chaincase", "Client"));
+			return EnvironmentHelpers.GetDataDir(SubDirectory);
 		}
 	}
 }

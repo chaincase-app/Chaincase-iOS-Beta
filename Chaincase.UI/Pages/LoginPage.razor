@@ -11,15 +11,14 @@
 @inherits ReactiveComponentBase<PINViewModel>
 
 <IonContent>
-    <IonImg class="ion-padding" style="box-sizing: content-box; margin: 0 auto; padding: 10vw; width: 50vw;"
-            src='@($"_content/Chaincase.UI/img/chaincase-{(UiStateService.DarkMode ? "dark" : "light" )}-theme-mark.svg")' />
+    <SplashLogo></SplashLogo>
     <IonLabel id="passwordId" class="ion-padding" position="stacked">Enter Password</IonLabel>
     <div class="@(IsShaking ? "shake" : "")">
         <IonItem>
             <IonPasswordInput aria-labelledby="passwordId" @bind-Value="Password" />
         </IonItem>
     </div>
-    <IonButton class="neu-button ion-padding-horizontal" color="primary" @onclick="ClickSubmitPassword" expand="block">LOG IN</IonButton>
+    <IonButton  id="btn-load-wallet" class="neu-button ion-padding-horizontal" color="primary" @onclick="ClickSubmitPassword" expand="block">LOG IN</IonButton>
 
     <IonLoading @bind-Visible="@ViewModel.IsBusy" />
 </IonContent>

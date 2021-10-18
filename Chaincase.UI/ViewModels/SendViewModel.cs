@@ -123,7 +123,7 @@ namespace Chaincase.UI.ViewModels
             (label, address, outputAmount, selectedAmount, feeAmount) =>
             {
                 return label.NotNullAndNotEmpty()
-                    && DestinationUrl?.Address is not null
+                    && DestinationUrl?.Address != null
                     && outputAmount > Money.Zero
                     && outputAmount + feeAmount <= selectedAmount;
 

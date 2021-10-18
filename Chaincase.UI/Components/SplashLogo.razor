@@ -1,0 +1,4 @@
+﻿@using Chaincase.UI.Services
+@inject UIStateService UiStateService
+<IonImg class="ion-padding" style="box-sizing: content-box; margin: 0 auto; padding: 10vw; width: 50vw;"
+            src='@($"_content/Chaincase.UI/img/chaincase-{(UiStateService.DarkMode ? "dark" : "light" )}-theme-mark.svg")' />

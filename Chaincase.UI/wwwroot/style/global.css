@@ -15,6 +15,7 @@ input {
     caret-color: var(--ion-color-primary);
 }
 
+/*MS Edge specific stuff: Remove the automatic password reveal feature as we have our own */
 input::-ms-reveal,
 input::-ms-clear {
     display: none;
