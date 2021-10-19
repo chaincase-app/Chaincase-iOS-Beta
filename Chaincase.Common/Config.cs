@@ -292,6 +292,7 @@ namespace Chaincase.Common
             {
                 throw new NotSupportedNetworkException(Network);
             }
+            base.ToFile();
         }
 
         public EndPoint GetP2PEndpoint()

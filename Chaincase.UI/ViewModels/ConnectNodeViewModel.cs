@@ -86,6 +86,7 @@ namespace Chaincase.UI.ViewModels
             {
                 throw new NotSupportedNetworkException(_config.Network);
             }
+            _hasSetCustomAddress = true;
         }
 
 
