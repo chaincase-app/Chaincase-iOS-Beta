@@ -23,6 +23,7 @@ namespace Chaincase.UI.ViewModels
 
         private string _nodeAddress;
         private bool _hasSetCustomAddress;
+        private bool? _canConnected;
 
         public ConnectNodeViewModel(Global global, ChaincaseWalletManager walletManager, Config config, ChaincaseSynchronizer synchronizer)
         {
@@ -30,23 +31,28 @@ namespace Chaincase.UI.ViewModels
             _walletManager = walletManager;
             _config = config;
             _synchronizer = synchronizer;
-            // TODO If user has not set up full node before, load some default values
-            var currentMainNetUri = new Uri($"{_config.DefaultMainNetP2PHost}:{_config.DefaultMainNetP2PPort}");
-            var currentTestNetUri = new Uri($"{_config.DefaultTestNetP2PHost}:{_config.DefaultTestNetP2PPort}");
-            if (currentMainNetUri == _config.GetCurrentBackendUri() || currentTestNetUri == _config.GetCurrentBackendUri()) {
-                // TODO 
-                //_nodeHost = "http://localhost";
+            var debug = _config.GetBitcoinP2pEndPoint().ToString();
+            _hasSetCustomAddress = _config.GetBitcoinP2pEndPoint().ToString() != "127.0.0.1:8333";
+            if (_hasSetCustomAddress) {
+                _nodeAddress = _config.GetBitcoinP2pEndPoint().ToString();
+                try
+                {
+                    SetNodeAddress();
+                }
+                catch (Exception _) {
+                    _canConnected = false;
+                }
             }
         }
 
         public void SetDefaultNodeAddress() {
             if (_config.Network == NBitcoin.Network.Main)
             {
-                _config.SetP2PEndpoint(CreateEndPoint($"{_config.DefaultMainNetP2PHost}:{_config.DefaultMainNetP2PPort}"));
+                _config.SetP2PEndpoint(CreateEndPoint(FormatHostAndPort(_config.DefaultMainNetP2PHost, _config.DefaultMainNetP2PPort)));
             }
             else if (_config.Network == NBitcoin.Network.TestNet)
             {
-                _config.SetP2PEndpoint(CreateEndPoint($"{_config.DefaultTestNetP2PHost}:{_config.DefaultTestNetP2PPort}"));
+                _config.SetP2PEndpoint(CreateEndPoint(FormatHostAndPort(_config.DefaultTestNetP2PHost, _config.DefaultTestNetP2PPort)));
             }
             else {
                 throw new NotSupportedNetworkException(_config.Network);
@@ -66,6 +72,7 @@ namespace Chaincase.UI.ViewModels
             nodeConnectionParameters.TemplateBehaviors.Add(new SocksSettingsBehavior(_synchronizer.WasabiClient.TorClient.TorSocks5EndPoint, onlyForOnionHosts: true, networkCredential: null, streamIsolation: false));
 
             Node.Connect(_config.Network, _nodeAddress, nodeConnectionParameters);
+            _canConnected = true;
             var endpoint = CreateEndPoint(_nodeAddress);
             if (_config.Network == NBitcoin.Network.Main)
             {
@@ -81,6 +88,8 @@ namespace Chaincase.UI.ViewModels
             }
         }
 
+
+        private string FormatHostAndPort(string host, int port) => $"{host}:{port}";
         
         private EndPoint CreateEndPoint(string address)
         {
@@ -107,6 +116,18 @@ namespace Chaincase.UI.ViewModels
         public string CurrentP2PAddress {
             get => _config.Network == NBitcoin.Network.Main ? _config.MainNetBitcoinP2pEndPoint.ToString() : _config.TestNetBitcoinP2pEndPoint.ToString();
         }
+
+        public bool HasSetCustomAddress {
+            get => _hasSetCustomAddress;
+            set => this.RaiseAndSetIfChanged(ref _hasSetCustomAddress, value);
+        }
+
+        public bool? CanConnect
+        {
+            get => _canConnected;
+            set => this.RaiseAndSetIfChanged(ref _canConnected, value);
+        }
+
 
     }
 }

@@ -28,8 +28,22 @@
     <div>
         <IonLabel>Default ports: 8332 for mainnet, 18332 for Testnet, 18443 for Regtest</IonLabel>
     </div>
+    @if (ViewModel.CanConnect is { })
+    {
+        <div style="width:100%;">
+            <IonBadge color="@(ViewModel.CanConnect ?? false ? "success" : "warning")">
+                @(ViewModel.CanConnect ?? false ? "Connected" : "Disconnected")
+            </IonBadge>
+        </div>
+    }
     <div>
-        <IonButton @onclick="TrySetNodeAddress" class="neu-button" color="primary" expand="block">Connect</IonButton>
+        <IonButton @onclick="TrySetNodeAddress" class="neu-button" color="primary" expand="block">
+            @if (ViewModel.HasSetCustomAddress) {
+            <span>Change</span>
+            } else {
+        <span>Connect</span>
+            }
+        </IonButton>
     </div>
     <IonToast @bind-Visible="@IsToastVisible" color="@ToastColor" message="@ToastMessage" duration="@ToastDuration" />
 </IonContent>
@@ -39,12 +53,13 @@
     private string ToastMessage = "";
     private const int ToastDuration = 2000; // ms
     private string ToastColor;
-    private bool ConnectNodeIsToggled = true;
+    private bool ConnectNodeIsToggled = false;
 
     protected override void OnInitialized()
     {
         ViewModel = ConnectNodeViewModel;
         UiStateService.Title = "Bitcoin Core";
+        ConnectNodeIsToggled = ViewModel.HasSetCustomAddress;
     }
 
     private void OnToggleConnectNode() {
@@ -57,9 +72,16 @@
             ViewModel.SetDefaultNodeAddress();
             SetSuccessToast("Successfully reset default P2P configs");
         }
-        catch (Exception _)
+        catch (Exception error)
         {
-            SetErrorToast("Failed to reset default P2P config. Resorting to fall back");
+            if (error.Message is { })
+            {
+                SetErrorToast(error.Message);
+            }
+            else
+            {
+                SetErrorToast("Failed to reset default P2P config. Resorting to fall back");
+            }
         }
     }
 
@@ -72,9 +94,16 @@
         catch (SocketException e) {
             SetErrorToast(e.Message);
         }
-        catch (Exception _)
+        catch (Exception error)
         {
-            SetErrorToast("Failed to set node address. Please check URL format");
+            if (error.Message is { })
+            {
+                SetErrorToast(error.Message);
+            }
+            else
+            {
+                SetErrorToast("Failed to set node address. Please check URL format");
+            }
         }
     }
 
