@@ -1,23 +1,24 @@
+using System;
+using System.IO;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Chaincase.Background;
 using Chaincase.Common;
 using Chaincase.Common.Contracts;
-using Chaincase.iOS.Services;
 using Chaincase.iOS.Background;
+using Chaincase.iOS.Services;
+using CoreFoundation;
 using Foundation;
 using Microsoft.Extensions.DependencyInjection;
+using Splat;
 using UIKit;
 using UserNotifications;
-using Xamarin.Forms;
-using Splat;
+using WalletWasabi.Backend.Models;
 using WalletWasabi.Logging;
-using CoreFoundation;
-using ObjCRuntime;
-using System;
-using System.Text;
-using System.Threading.Tasks;
-using System.Threading;
 using WalletWasabi.Wallets;
-using System.IO;
+using WalletWasabi.WebClients.Wasabi;
+using Xamarin.Forms;
 
 namespace Chaincase.iOS
 {
@@ -28,7 +29,7 @@ namespace Chaincase.iOS
     public partial class AppDelegate : global::Xamarin.Forms.Platform.iOS.FormsApplicationDelegate
     {
         private Global _global;
-        private APNSEnrollmentClient _apnsEnrollmentClient;
+        private WasabiClient _apnsEnrollmentClient;
 
         //
         // This method is invoked when the application has loaded and is ready to run. In this
@@ -46,7 +47,7 @@ namespace Chaincase.iOS
             var dataDir = formsApp.ServiceProvider.GetService<IDataDirProvider>().Get();
             SetLoggerPermissions(dataDir);
             _global = formsApp.ServiceProvider.GetService<Global>();
-            _apnsEnrollmentClient = formsApp.ServiceProvider.GetService<APNSEnrollmentClient>();
+            _apnsEnrollmentClient = formsApp.ServiceProvider.GetService<WasabiClient>();
 
             MessagingCenter.Subscribe<InitializeNoWalletTaskMessage>(this, "InitializeNoWalletTaskMessage", async message =>
             {
@@ -79,7 +80,12 @@ namespace Chaincase.iOS
 #endif
             try
             {
-                await _apnsEnrollmentClient.StoreTokenAsync(deviceToken.ToHexString(), isDebug);
+                await _apnsEnrollmentClient.RegisterNotificationTokenAsync(new DeviceToken()
+                {
+                    Status = TokenStatus.New,
+                    Token = deviceToken.ToHexString(),
+                    Type = isDebug ? TokenType.AppleDebug : TokenType.Apple
+                }, CancellationToken.None);
                 Logger.LogInfo($"Registered Remote Notifications Device Token: {deviceToken.ToHexString()} isDebug: {isDebug}");
             }
             catch
@@ -135,7 +141,7 @@ namespace Chaincase.iOS
             obj.AddSingleton<iOSNotificationReceiver>();
             obj.AddSingleton<ITorManager, iOSTorManager>();
             obj.AddSingleton<WalletDirectories, iOSWalletDirectories>();
-            obj.AddTransient<APNSEnrollmentClient>();
+            obj.AddTransient<WasabiClient>(); // For APNS Token Storage
         }
 
         private bool SetLoggerPermissions(string dataDir)

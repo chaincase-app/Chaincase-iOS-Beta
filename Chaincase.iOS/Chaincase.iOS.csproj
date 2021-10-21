@@ -94,7 +94,6 @@
     <Compile Include="Services\iOSHsmStorage.cs" />
     <Compile Include="Services\iOSTorManager.cs" />
     <Compile Include="Services\iOSWalletDirectories.cs" />
-    <Compile Include="APNSEnrollmentClient.cs" />
     <None Include="Entitlements.plist" />
   </ItemGroup>
   <ItemGroup>
