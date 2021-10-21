@@ -236,7 +236,6 @@ namespace Chaincase.iOS.Services
         }
 
 
-
         /// <param name="torSocks5EndPoint">Opt out Tor with null.</param>
         public static async Task<bool> IsTorRunningAsync(EndPoint torSocks5EndPoint)
         {

@@ -288,7 +288,7 @@
         };
     }
 
-    private bool IsQueuedToCoinJoin => ViewModel.AmountQueued is not null && ViewModel.AmountQueued.CompareTo(Money.Zero) != 0;
+    private bool IsQueuedToCoinJoin => ViewModel.AmountQueued != null && ViewModel.AmountQueued.CompareTo(Money.Zero) != 0;
 
     private bool IsReady => StatusViewModel.FiltersLeft == 0 &&
                              StatusViewModel.Backend == WalletWasabi.Models.BackendStatus.Connected &&

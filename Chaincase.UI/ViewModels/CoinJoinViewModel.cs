@@ -111,7 +111,9 @@ namespace Chaincase.UI.ViewModels
                 {
                     if (IsRegistrationBusy)
                     {
-                        // I feel like this should be an OAPH but am not sure how to
+                        // variable assignment inside subscribe is a code smell.   
+                        // I feel like this should be an ObservableAsPropertyHelper but am not sure how to set that
+                        // https://www.reactiveui.net/docs/handbook/observable-as-property-helper/
                         IsRegistrationBusy = false;
                     }
                 });
