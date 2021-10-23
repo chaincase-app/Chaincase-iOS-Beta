@@ -1,6 +1,5 @@
 ﻿@page "/connectfullnode"
 @using Microsoft.AspNetCore.Components
-@using Chaincase.Common.Contracts
 @using Chaincase.UI.Services
 @using System.Net.Sockets
 @inject UIStateService UiStateService
@@ -12,7 +11,7 @@
 <IonContent class="ion-padding">
     <div style="display:flex; flex-direction:row; justify-content: space-between; padding:10px;">
         <IonLabel style="font-weight:600;">Connect your full node</IonLabel>
-        <IonToggle @onchange="OnToggleConnectNode" color="primary" style="padding-left:15px;" @bind-Value="ConnectNodeIsToggled"/>
+        <IonToggle @onclick="OnToggleConnectNode" color="primary" style="padding-left:15px;" @bind-Value="ConnectNodeIsToggled"/>
     </div>
     <div class="ion-padding">
         <IonLabel style="color:#999999;">
@@ -22,7 +21,17 @@
     <div class="ion-padding"> 
         <IonItem>
             <IonInput @bind-Value="ViewModel.NodeAddress" placeholder="Paste or scan address" disabled="@(!ConnectNodeIsToggled)" />
+            @if (ViewModel.CanConnect is { })
+            {
+                <div>
+                    <IonBadge color="@(ViewModel.CanConnect ?? false ? "success" : "warning")">
+                        @(ViewModel.CanConnect ?? false ? "Connected" : "Disconnected")
+                    </IonBadge>
+                </div>
+
+            } else {
             <IonIcon @onclick="OnClickScan" size="medium" slot="end" name="qr-code-outline" aria-label="scan" />
+            }
         </IonItem>
     </div>
     <div>
@@ -30,14 +39,10 @@
     </div>
     @if (ViewModel.CanConnect is { })
     {
-        <div style="width:100%;">
-            <IonBadge color="@(ViewModel.CanConnect ?? false ? "success" : "warning")">
-                @(ViewModel.CanConnect ?? false ? "Connected" : "Disconnected")
-            </IonBadge>
-        </div>
+       
     }
     <div>
-        <IonButton @onclick="TrySetNodeAddress" class="neu-button" color="primary" expand="block">
+        <IonButton @onclick="TrySetNodeAddress" class="neu-button" color="primary" expand="block" disabled="@(!ConnectNodeIsToggled)">
             @if (ViewModel.HasSetCustomAddress) {
             <span>Change</span>
             } else {
@@ -63,14 +68,16 @@
     }
 
     private void OnToggleConnectNode() {
-        ConnectNodeIsToggled = !ConnectNodeIsToggled;
+        if (!ConnectNodeIsToggled) {
+            TrySetDefault();
+        }
     }
 
     private void TrySetDefault() {
         try
         {
             ViewModel.SetDefaultNodeAddress();
-            SetSuccessToast("Successfully reset default P2P configs");
+            SetSuccessToast("Successfully Reset Default P2P Configs");
         }
         catch (Exception error)
         {
@@ -80,7 +87,7 @@
             }
             else
             {
-                SetErrorToast("Failed to reset default P2P config. Resorting to fall back");
+                SetErrorToast("Failed To Reset Default P2P Config. Resorting To Fall Back");
             }
         }
     }
@@ -89,7 +96,7 @@
         try
         {
             ViewModel.SetNodeAddress();
-            SetSuccessToast("Successfully set P2P node address");
+            SetSuccessToast("Successfully Set P2P Node Address");
         }
         catch (SocketException e) {
             SetErrorToast(e.Message);
@@ -102,7 +109,7 @@
             }
             else
             {
-                SetErrorToast("Failed to set node address. Please check URL format");
+                SetErrorToast("Failed To Set Node Address. Please Check URL Format");
             }
         }
     }
@@ -127,9 +134,10 @@
             var result = await scanner.Scan();
             var uri = new Uri(result.Text);
             ViewModel.NodeAddress = uri.ToString();
+            TrySetNodeAddress();
         }
         catch (Exception _) {
-            SetErrorToast("Failed to scan QR code");
+            SetErrorToast("Failed To Scan QR Code");
         }
 
     }

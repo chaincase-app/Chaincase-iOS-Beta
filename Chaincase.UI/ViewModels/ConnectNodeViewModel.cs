@@ -31,7 +31,6 @@ namespace Chaincase.UI.ViewModels
             _walletManager = walletManager;
             _config = config;
             _synchronizer = synchronizer;
-            var debug = _config.GetBitcoinP2pEndPoint().ToString();
             _hasSetCustomAddress = _config.GetBitcoinP2pEndPoint().ToString() != "127.0.0.1:8333";
             if (_hasSetCustomAddress) {
                 _nodeAddress = _config.GetBitcoinP2pEndPoint().ToString();
@@ -57,6 +56,9 @@ namespace Chaincase.UI.ViewModels
             else {
                 throw new NotSupportedNetworkException(_config.Network);
             }
+
+            _hasSetCustomAddress = false;
+            _canConnected = false;
         }
 
         public void SetNodeAddress() {
@@ -99,7 +101,7 @@ namespace Chaincase.UI.ViewModels
             IPAddress ip;
             if (!IPAddress.TryParse(ep[0], out ip))
             {
-                throw new FormatException("Invalid ip-adress");
+                throw new FormatException("Invalid host");
             }
             int port;
             if (!int.TryParse(ep[1], NumberStyles.None, NumberFormatInfo.CurrentInfo, out port))
