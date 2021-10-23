@@ -24,8 +24,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-        with:
-          lfs: true
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
@@ -34,10 +32,6 @@ jobs:
         run: git submodule update --init --recursive
       - name: Install dependencies
         run: dotnet restore     
-#      - name: Checkout LFS objects
-#        run: git lfs checkout
-#      - name: LFS Pull
-#        run: git lfs pull
       - name: Build
         run: dotnet build Chaincase.Tests --configuration Release --no-restore
       - name: Install E2E Tools
