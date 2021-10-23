@@ -141,7 +141,10 @@ namespace Chaincase.iOS
             obj.AddSingleton<iOSNotificationReceiver>();
             obj.AddSingleton<ITorManager, iOSTorManager>();
             obj.AddSingleton<WalletDirectories, iOSWalletDirectories>();
-            obj.AddTransient<WasabiClient>(); // For APNS Token Storage
+            obj.AddTransient<WasabiClient>(x => {
+                var config = x.GetRequiredService<Config>();
+                return new WasabiClient(config.GetCurrentBackendUri(), config.TorSocks5EndPoint);
+            }); // For APNS Token Storage
         }
 
         private bool SetLoggerPermissions(string dataDir)
