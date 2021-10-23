@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -16,19 +15,16 @@ using DynamicData;
 using DynamicData.Binding;
 using NBitcoin;
 using ReactiveUI;
-using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Blockchain.TransactionOutputs;
-using WalletWasabi.Blockchain.TransactionProcessing;
 using WalletWasabi.CoinJoin.Client.Clients.Queuing;
 using WalletWasabi.CoinJoin.Client.Rounds;
 using WalletWasabi.CoinJoin.Common.Models;
 using WalletWasabi.Helpers;
 using WalletWasabi.Logging;
-using WalletWasabi.Wallets;
 
 namespace Chaincase.UI.ViewModels
 {
-    public class CoinJoinViewModel : ReactiveObject
+	public class CoinJoinViewModel : ReactiveObject
     {
         public const int MaxInputsAllowed = 7; // defined in CoinJoin Controller @ Backend
 
@@ -111,8 +107,9 @@ namespace Chaincase.UI.ViewModels
                 {
                     if (IsRegistrationBusy)
                     {
-                        // variable assignment inside subscribe is a code smell.   
-                        // I feel like this should be an ObservableAsPropertyHelper but am not sure how to set that
+                        // variable assignment inside Subscribe() is code smell
+                        // I feel like this should be an ObservableAsPropertyHelper
+                        // but I'm not sure how to make that fit here with the throttle
                         // https://www.reactiveui.net/docs/handbook/observable-as-property-helper/
                         IsRegistrationBusy = false;
                     }
