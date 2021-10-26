@@ -26,7 +26,7 @@ namespace WalletWasabi.CoinJoin.Coordinator.Rounds
 		private RoundPhase _phase;
 		private CoordinatorRoundStatus _status;
 
-		public CoordinatorRound(IRPCClient rpc, UtxoReferee utxoReferee, CoordinatorRoundConfig config, int adjustedConfirmationTarget, int configuredConfirmationTarget, double configuredConfirmationTargetReductionRate)
+		public CoordinatorRound(IRPCClient rpc, UtxoReferee utxoReferee, CoordinatorRoundConfig config, int adjustedConfirmationTarget, int configuredConfirmationTarget, double configuredConfirmationTargetReductionRate, TimeSpan inputRegistrationTimeOut)
 		{
 			try
 			{
@@ -41,7 +41,7 @@ namespace WalletWasabi.CoinJoin.Coordinator.Rounds
 				ConfiguredConfirmationTargetReductionRate = configuredConfirmationTargetReductionRate;
 				CoordinatorFeePercent = config.CoordinatorFeePercent;
 				AnonymitySet = config.AnonymitySet;
-				InputRegistrationTimeout = TimeSpan.FromSeconds(config.InputRegistrationTimeout);
+				InputRegistrationTimeout = inputRegistrationTimeOut;
 				SetInputRegistrationTimesout();
 				ConnectionConfirmationTimeout = TimeSpan.FromSeconds(config.ConnectionConfirmationTimeout);
 				OutputRegistrationTimeout = TimeSpan.FromSeconds(config.OutputRegistrationTimeout);
@@ -191,7 +191,23 @@ namespace WalletWasabi.CoinJoin.Coordinator.Rounds
 		public TimeSpan AliceRegistrationTimeout => ConnectionConfirmationTimeout;
 
 		public TimeSpan InputRegistrationTimeout { get; }
-		public DateTimeOffset InputRegistrationTimesout { get; set; }
+		public DateTimeOffset InputRegistrationTimesout { get; private set; }
+
+		public TimeSpan RemainingInputRegistrationTime
+		{
+			get
+			{
+				var remaining = InputRegistrationTimesout - DateTimeOffset.UtcNow;
+				if (Phase == RoundPhase.InputRegistration && remaining > TimeSpan.Zero)
+				{
+					return remaining;
+				}
+				else
+				{
+					return TimeSpan.Zero;
+				}
+			}
+		}
 
 		public TimeSpan ConnectionConfirmationTimeout { get; }
 
@@ -209,7 +225,7 @@ namespace WalletWasabi.CoinJoin.Coordinator.Rounds
 			InputRegistrationTimesout = DateTimeOffset.UtcNow + InputRegistrationTimeout;
 		}
 
-		public async Task ExecuteNextPhaseAsync(RoundPhase expectedPhase, Money feePerInputs = null, Money feePerOutputs = null)
+		public async Task ExecuteNextPhaseAsync(RoundPhase expectedPhase)
 		{
 			using (await RoundSynchronizerLock.LockAsync().ConfigureAwait(false))
 			{
@@ -224,7 +240,7 @@ namespace WalletWasabi.CoinJoin.Coordinator.Rounds
 							return;
 						}
 
-						await MoveToInputRegistrationAsync(feePerInputs, feePerOutputs).ConfigureAwait(false);
+						await MoveToInputRegistrationAsync().ConfigureAwait(false);
 					}
 					else if (Status != CoordinatorRoundStatus.Running) // Aborted or succeeded, swallow.
 					{
@@ -578,20 +594,12 @@ namespace WalletWasabi.CoinJoin.Coordinator.Rounds
 			Phase = RoundPhase.ConnectionConfirmation;
 		}
 
-		private async Task MoveToInputRegistrationAsync(Money feePerInputs, Money feePerOutputs)
+		private async Task MoveToInputRegistrationAsync()
 		{
 			// Calculate fees.
-			if (feePerInputs is null || feePerOutputs is null)
-			{
-				(Money feePerInputs, Money feePerOutputs) fees = await CalculateFeesAsync(RpcClient, AdjustedConfirmationTarget).ConfigureAwait(false);
-				FeePerInputs = feePerInputs ?? fees.feePerInputs;
-				FeePerOutputs = feePerOutputs ?? fees.feePerOutputs;
-			}
-			else
-			{
-				FeePerInputs = feePerInputs;
-				FeePerOutputs = feePerOutputs;
-			}
+			(Money feePerInputs, Money feePerOutputs) fees = await CalculateFeesAsync(RpcClient, AdjustedConfirmationTarget).ConfigureAwait(false);
+			FeePerInputs = fees.feePerInputs;
+			FeePerOutputs = fees.feePerOutputs;
 
 			Status = CoordinatorRoundStatus.Running;
 		}
@@ -1194,6 +1202,16 @@ namespace WalletWasabi.CoinJoin.Coordinator.Rounds
 			Logger.LogInfo($"Round ({RoundId}): {nameof(AnonymitySet)} updated: {AnonymitySet}.");
 		}
 
+		public void DequeueAnyFamiliarAlice(IEnumerable<InputProofModel> inputProofs)
+		{
+			foreach (var inputProof in inputProofs)
+			{
+				var outpoint = inputProof.Input;
+				QueuedAlices.RemoveAll(
+					alice => alice.Inputs.Any(input => input.Outpoint == outpoint));
+			}
+		}
+
 		public void AddAlice(Alice alice)
 		{
 			using (RoundSynchronizerLock.Lock())
@@ -1359,7 +1377,8 @@ namespace WalletWasabi.CoinJoin.Coordinator.Rounds
 				}
 				foreach (var id in ids)
 				{
-					numberOfRemovedAlices = Alices.RemoveAll(x => x.UniqueId == id);
+					QueuedAlices.RemoveAll(x => x.UniqueId == id);
+					numberOfRemovedAlices = Alices.RemoveAll(x => x.UniqueId == id && x.State < AliceState.ConnectionConfirmed);
 				}
 			}
 

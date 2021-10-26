@@ -85,7 +85,7 @@ namespace WalletWasabi.Tests.RegressionTests
 			var cjfile = Path.Combine(folder, $"CoinJoins{network}.txt");
 			File.WriteAllLines(cjfile, new[] { coinbaseTxId.ToString(), offchainTxId.ToString(), mempoolTxId.ToString() });
 
-			using (var coordinatorToTest = new Coordinator(network, global.HostedServices.FirstOrDefault<BlockNotifier>(), folder, rpc, coordinator.RoundConfig))
+			using (var coordinatorToTest = new Coordinator(network, global.HostedServices.FirstOrDefault<BlockNotifier>(), folder, rpc, coordinator.RoundConfig, () => { }))
 			{
 				var txIds = await File.ReadAllLinesAsync(cjfile);
 
@@ -97,7 +97,7 @@ namespace WalletWasabi.Tests.RegressionTests
 				Directory.CreateDirectory(folder);
 				File.WriteAllLines(cjfile, new[] { coinbaseTxId.ToString(), "This line is invalid (the file is corrupted)", offchainTxId.ToString() });
 
-				var coordinatorToTest2 = new Coordinator(network, global.HostedServices.FirstOrDefault<BlockNotifier>(), folder, rpc, coordinatorToTest.RoundConfig);
+				var coordinatorToTest2 = new Coordinator(network, global.HostedServices.FirstOrDefault<BlockNotifier>(), folder, rpc, coordinatorToTest.RoundConfig, () => { });
 				coordinatorToTest2?.Dispose();
 				txIds = await File.ReadAllLinesAsync(cjfile);
 				Assert.Single(txIds);
@@ -132,7 +132,7 @@ namespace WalletWasabi.Tests.RegressionTests
 			// <-------------------------->
 
 			var states = await satoshiClient.GetAllRoundStatesAsync();
-			Assert.Equal(2, states.Count());
+			Assert.Single(states);
 			foreach (var rs in states)
 			{
 				// Never changes.
@@ -305,7 +305,7 @@ namespace WalletWasabi.Tests.RegressionTests
 
 				roundState = await satoshiClient.GetRoundStateAsync(aliceClient.RoundId);
 				Assert.Equal(0, roundState.RegisteredPeerCount);
-				Assert.Equal(1, roundState.QueuedPeerCount);
+				Assert.Equal(0, roundState.QueuedPeerCount); // unconfirm => Queued--
 			}
 
 			round = coordinator.GetCurrentInputRegisterableRoundOrDefault();
@@ -384,6 +384,7 @@ namespace WalletWasabi.Tests.RegressionTests
 				var roundState = await satoshiClient.GetRoundStateAsync(aliceClient.RoundId);
 				Assert.Equal(RoundPhase.ConnectionConfirmation, roundState.Phase);
 				Assert.Equal(2, roundState.RegisteredPeerCount);
+				Assert.Equal(2, roundState.QueuedPeerCount);
 				var inputRegistrableRoundState = await satoshiClient.GetRegistrableRoundStateAsync();
 				Assert.Equal(0, inputRegistrableRoundState.RegisteredPeerCount);
 

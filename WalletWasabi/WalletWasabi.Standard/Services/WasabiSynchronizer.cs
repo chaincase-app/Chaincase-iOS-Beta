@@ -163,7 +163,7 @@ namespace WalletWasabi.Services
 						{
 							while (AreRequestsBlocked())
 							{
-								await Task.Delay(3000, Cancel.Token);
+								await Task.Delay(800, Cancel.Token);
 							}
 
 							EstimateSmartFeeMode? estimateMode = null;
@@ -184,7 +184,6 @@ namespace WalletWasabi.Services
 								}
 
 								response = await WasabiClient.GetSynchronizeAsync(hashChain.TipHash, maxFiltersToSyncAtInitialization, estimateMode, Cancel.Token).WithAwaitCancellationAsync(Cancel.Token, 300);
-
 								// NOT GenSocksServErr
 								BackendStatus = BackendStatus.Connected;
 								TorStatus = TorStatus.Running;
@@ -344,6 +343,7 @@ namespace WalletWasabi.Services
 							{
 								try
 								{
+									Logger.LogInfo($"Delay = MIN(requestInterval: {requestInterval.TotalMilliseconds}ms MaxRequestIntervalForMixing: {MaxRequestIntervalForMixing.TotalMilliseconds}ms)");
 									int delay = (int)Math.Min(requestInterval.TotalMilliseconds, MaxRequestIntervalForMixing.TotalMilliseconds);
 									await Task.Delay(delay, Cancel.Token); // Ask for new index in every requestInterval.
 								}

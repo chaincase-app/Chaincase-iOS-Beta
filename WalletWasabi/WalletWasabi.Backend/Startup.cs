@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -12,7 +13,11 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Internal;
+using NicolasDorier.RateLimits;
 using WalletWasabi.Backend.Middlewares;
+using WalletWasabi.Backend.Data;
+using WalletWasabi.Backend.Polyfills;
 using WalletWasabi.Helpers;
 using WalletWasabi.Interfaces;
 using WalletWasabi.Logging;
@@ -32,6 +37,7 @@ namespace WalletWasabi.Backend
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
+			services.AddRateLimits();
 			services.AddMemoryCache();
 
 			services.AddMvc(options => options.ModelMetadataDetailsProviders.Add(new SuppressChildValidationMetadataProvider(typeof(BitcoinAddress))))
@@ -62,16 +68,30 @@ namespace WalletWasabi.Backend
 
 			services.AddLogging(logging => logging.AddFilter((s, level) => level >= Microsoft.Extensions.Logging.LogLevel.Warning));
 
+
+			services.AddDbContextFactory<WasabiBackendContext>((builder, sp) =>
+			{
+				var connString = sp.GetService<Global>().Config.DatabaseConnectionStringName;
+				if (string.IsNullOrEmpty(connString))
+				{
+					throw new ArgumentNullException("Database", "Connection string not set");
+				}
+				builder.UseNpgsql(connString, optionsBuilder => { optionsBuilder.EnableRetryOnFailure(10); });
+			});
+
 			services.AddSingleton<IExchangeRateProvider>(new ExchangeRateProvider());
 			services.AddSingleton(new Global(Configuration["datadir"]));
+			services.AddSingleton<SendPushService>();
+			services.AddSingleton(provider => new WebsiteTorifier(provider.GetRequiredService<IWebHostEnvironment>().WebRootPath));
 			services.AddStartupTask<InitConfigStartupTask>();
+			services.AddStartupTask<MigrationStartupTask>();
 			services.AddResponseCompression();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 #pragma warning disable IDE0060 // Remove unused parameter
 
-		public void Configure(IApplicationBuilder app, IWebHostEnvironment env, Global global)
+		public void Configure(IApplicationBuilder app, IWebHostEnvironment env, Global global, RateLimitService rates)
 #pragma warning restore IDE0060 // Remove unused parameter
 		{
 			app.UseStaticFiles();
@@ -90,7 +110,7 @@ namespace WalletWasabi.Backend
 			app.UseMiddleware<HeadMethodMiddleware>();
 
 			app.UseResponseCompression();
-
+			rates.SetZone($"zone={ZoneLimits.NotificationTokens} rate=10r/m burst=3 nodelay");
 			app.UseEndpoints(endpoints => endpoints.MapControllers());
 
 			var applicationLifetime = app.ApplicationServices.GetRequiredService<IHostApplicationLifetime>();
