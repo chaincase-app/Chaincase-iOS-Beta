@@ -8,6 +8,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chaincase.iOS", "Chaincase.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chaincase.Common", "Chaincase.Common\Chaincase.Common.csproj", "{96670874-0C12-47C2-94A3-4B7CA7DBCED4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chaincase.UI", "Chaincase.UI\Chaincase.UI.csproj", "{15DF9C65-C954-4264-8B87-EF1D07B26D3B}"
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chaincase.UI", "Chaincase.UI\Chaincase.UI.csproj", "{15DF9C65-C954-4264-8B87-EF1D07B26D3B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chaincase.SSB", "Chaincase.SSB\Chaincase.SSB.csproj", "{396B25F5-ACC6-4718-A5F8-DADC52FCFC2E}"
