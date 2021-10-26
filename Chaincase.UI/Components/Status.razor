@@ -1,34 +1,33 @@
 ﻿@inject StatusViewModel StatusViewModel
-@using WalletWasabi.Stores
+@using WalletWasabi.Models
+
 @inherits ReactiveComponentBase<StatusViewModel>
 
 <IonList>
-    <IonItem>
-        <IonLabel>Numbers of Peers: @ViewModel.Peers</IonLabel>
-    </IonItem>
-    <IonItem>
-        <IonLabel>Backend Status: @Backendlabel()</IonLabel>
-    </IonItem>
-    <IonItem>
-        <IonLabel>Tor Status: @TorLabel()</IonLabel>
-    </IonItem>
-    <IonItem>
-        @if (ViewModel.FiltersLeft == 0)
-        {
-            <IonLabel>Your wallet is sync'd</IonLabel>
-        }
-        else
-        {
-            <IonLabel>Filters left: @ViewModel.FiltersLeft</IonLabel>
-        }
-    </IonItem>
-    @if (ViewModel.FiltersLeft != 0)
+    @if (ViewModel.Tor == TorStatus.NotRunning)
     {
         <IonItem>
-            <IonProgressBar value="@ViewModel.ProgressPercent"/>
+            <IonLabel>Making private Tor connection...</IonLabel> <ion-spinner slot="end" />
         </IonItem>
     }
-
+    else if (ViewModel.Backend == BackendStatus.NotConnected)
+    {
+        <IonItem>
+            <IonLabel>Connecting to Chaincase...</IonLabel> <ion-spinner slot="end" />
+        </IonItem>
+    }
+    else if (ViewModel.FiltersLeft > 0)
+    {
+        <IonItem>
+            <IonLabel>Fetching @ViewModel.FiltersLeft private sync filters...</IonLabel> <ion-spinner slot="end" />
+        </IonItem>
+    }
+    else if (ViewModel.Peers <= 0)
+    {
+        <IonItem>
+            <IonLabel>Finding bitcoin peers...</IonLabel> <ion-spinner slot="end" />
+        </IonItem>
+    }
 </IonList>
 
 @code{
@@ -38,8 +37,14 @@
         ViewModel = StatusViewModel;
     }
 
-    public string Backendlabel() {
-        switch (ViewModel.Backend) {
+    private bool IsSynchronized => ViewModel.FiltersLeft == 0
+        && ViewModel.Backend == BackendStatus.Connected
+        && ViewModel.Tor != TorStatus.NotRunning;
+
+    public string Backendlabel()
+    {
+        switch (ViewModel.Backend)
+        {
             case WalletWasabi.Models.BackendStatus.NotConnected:
                 return "⌛";
             case WalletWasabi.Models.BackendStatus.Connected:
@@ -49,7 +54,8 @@
         }
     }
 
-    public string TorLabel() {
+    public string TorLabel()
+    {
         switch (ViewModel.Tor)
         {
             case WalletWasabi.Models.TorStatus.NotRunning:
