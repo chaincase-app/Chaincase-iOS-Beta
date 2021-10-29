@@ -1,5 +1,7 @@
 ﻿@inject StatusViewModel StatusViewModel
+@inject BitcoinStore BitcoinStore
 
+@using WalletWasabi.Stores
 @inherits ReactiveComponentBase<StatusViewModel>
 
 <IonList>
@@ -12,6 +14,16 @@
     <IonItem>
         <IonLabel>Tor Status: @TorLabel()</IonLabel>
     </IonItem>
+    <IonItem>
+        <IonLabel>HashesLeft: @BitcoinStore.SmartHeaderChain.HashesLeft</IonLabel>
+    </IonItem>
+    <IonItem>
+        <IonLabel>TipHeight: @BitcoinStore.SmartHeaderChain.TipHeight</IonLabel>
+    </IonItem>
+    <IonItem>
+        <IonLabel>ServerTipHeight: @BitcoinStore.SmartHeaderChain.ServerTipHeight</IonLabel>
+    </IonItem>
+    
     <IonItem>
         @if (ViewModel.FiltersLeft == 0)
         {

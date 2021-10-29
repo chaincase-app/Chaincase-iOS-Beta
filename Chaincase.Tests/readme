@@ -1,2 +1,10 @@
+To run the tests:
+`docker compose -f WalletWasabi/WalletWasabi.Backend/docker-compose.yml up -d`
 `dotnet tool install --global Microsoft.Playwright.CLI`
 `playwright install`
+
+
+To assist with test creation:
+* Run chaincase ssb
+* playwright codegen --target csharp https://localhost:5001
+

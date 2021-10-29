@@ -15,7 +15,7 @@
     <IonLabel id="passwordId" class="ion-padding" position="stacked">Enter Password</IonLabel>
     <div class="@(IsShaking ? "shake" : "")">
         <IonItem>
-            <IonPasswordInput aria-labelledby="passwordId" @bind-Value="Password" />
+            <IonPasswordInput id="txt-password" aria-labelledby="passwordId" @bind-Value="Password" />
         </IonItem>
     </div>
     <IonButton  id="btn-load-wallet" class="neu-button ion-padding-horizontal" color="primary" @onclick="ClickSubmitPassword" expand="block">LOG IN</IonButton>
