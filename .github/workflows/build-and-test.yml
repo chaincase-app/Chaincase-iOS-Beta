@@ -2,11 +2,11 @@
 
 on:
   push:
+    branches:
+      - master
   pull_request:
-    branches: [ main ]
-    paths:
-      - '**.cs'
-      - '**.csproj'
+    branches:
+      - master
 
 env:
   DOTNET_VERSION: '3.1.413' # The .NET SDK version to use
@@ -14,7 +14,6 @@ env:
 
 jobs:
   build-and-test:
-
     name: build-and-test-${{matrix.os}}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -40,9 +39,13 @@ jobs:
 #        run: git lfs pull
       - name: Build
         run: dotnet build Chaincase.Tests --configuration Release --no-restore
+      - name: Build Backend Docker Image
+        run: cd WalletWasabi && docker build . && cd ../
       - name: Install E2E Tools
         run: dotnet tool install --global Microsoft.Playwright.CLI
       - name: Install Browser binaries
         run: playwright install
+      - name: Run Docker Compose for tests
+        run: docker-compose -f WalletWasabi/WalletWasabi.Backend/docker-compose.yml up -d
       - name: Test
         run: dotnet test Chaincase.Tests --no-restore
