@@ -1,13 +1,5 @@
 ﻿name: build and test
-
-on:
-  push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
-
+on: [push, pull_request]
 env:
   DOTNET_VERSION: '3.1.413' # The .NET SDK version to use
   IN_CI: 'true'
@@ -23,8 +15,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-        with:
-          lfs: true
+        # with:
+        #   lfs: true
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
