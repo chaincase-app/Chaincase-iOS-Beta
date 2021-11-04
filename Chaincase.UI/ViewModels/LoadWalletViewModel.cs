@@ -64,9 +64,7 @@ namespace Chaincase.UI.ViewModels
             var km = KeyManager.Recover(mnemonic, Password, filePath: null, keyPath, MIN_GAP_LIMIT);
             km.SetNetwork(_config.Network);
             km.SetFilePath(walletFilePath);
-                
-                
-                
+
             if (BlockHeight != null && _bitcoinStore.IndexStore.StartingHeight < BlockHeight)
             {
 	            //no need to do anything, we have all the filters necessary
@@ -79,15 +77,11 @@ namespace Chaincase.UI.ViewModels
 	            //ideally, we also just download the difference between current start height and specified block height
 	            
 	            //for now, we ignore the height and sync from start filter
-	            await _synchronizer.StopAsync();
-	            await _bitcoinStore.IndexStore.ResetFromHeaderAsync(StartingFilters.GetStartingFilter(_config.Network).Header);
-	            _synchronizer.Restart();
+	            await SyncFromScratch();
             }
             else
             {
-	            await _synchronizer.StopAsync();
-	            await _bitcoinStore.IndexStore.ResetFromHeaderAsync(StartingFilters.GetStartingFilter(_config.Network).Header);
-	            _synchronizer.Restart();
+	            await SyncFromScratch();
             }
                 
             var wallet = _walletManager.AddWallet(km);
@@ -95,6 +89,20 @@ namespace Chaincase.UI.ViewModels
             await _storage.SetSeedWords(Password, mnemonic.ToString());
             _uiConfig.HasSeed = true;
             _uiConfig.ToFile();
+        }
+
+        private async Task SyncFromScratch()
+        {
+	        var statingFilter = StartingFilters.GetStartingFilter(_config.Network).Header;
+	        if (_bitcoinStore.IndexStore.StartingHeight == statingFilter.Height)
+	        {
+		        //no need to make user go through pain: their filters are already set to download from the start!
+		        return;
+	        }
+	        
+	        await _synchronizer.StopAsync();
+	        await _bitcoinStore.IndexStore.ResetFromHeaderAsync(statingFilter);
+	        _synchronizer.Restart();
         }
 
         public string Password
