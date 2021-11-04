@@ -10,7 +10,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest]
+        os: [ubuntu-latest]
 #        os: [ubuntu-latest, windows-latest, macOS-latest]
 
     steps:
@@ -23,6 +23,8 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
       - name: Init Submodules
         run: git submodule update --init --recursive
+      - name: Build Backend Docker Image
+        run: cd WalletWasabi && dotnet clean && docker build . && cd ../
       - name: Install dependencies
         run: dotnet restore     
 #      - name: Checkout LFS objects
@@ -31,8 +33,6 @@ jobs:
 #        run: git lfs pull
       - name: Build
         run: dotnet build Chaincase.Tests --configuration Release --no-restore
-      - name: Build Backend Docker Image
-        run: cd WalletWasabi && docker build . && cd ../
       - name: Install E2E Tools
         run: dotnet tool install --global Microsoft.Playwright.CLI
       - name: Install Browser binaries
