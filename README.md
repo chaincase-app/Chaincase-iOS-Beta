@@ -28,12 +28,7 @@ Chaincase is *experimental* beta software. Use at your own risk. Your feedback i
 
 ## Building for iOS
 
-make sure to have the Wasabi submodule installed:
-```console
-git submodule update --init --recursive
-```
-
-pull or build the Tor binary:
+don't forget to pull (or build) the Tor binary before you build:
 ```console
 git lfs pull
 ```
