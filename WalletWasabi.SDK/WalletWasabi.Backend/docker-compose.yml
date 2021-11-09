@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 version: "3"
+services:
+
+
+        
 services:
 
   bitcoind:
@@ -39,4 +44,3 @@ services:
 volumes:
   postgres_datadir:
   bitcoin_datadir:
-

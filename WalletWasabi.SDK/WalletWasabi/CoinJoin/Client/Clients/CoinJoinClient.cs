@@ -39,6 +39,9 @@ namespace WalletWasabi.CoinJoin.Client.Clients
 
 		private long _statusProcessing;
 
+		private double _twosh = 0.333;
+		private double _sevensh = 1.166;
+
 		public CoinJoinClient(
 			WasabiSynchronizer synchronizer,
 			Network network,
@@ -107,7 +110,7 @@ namespace WalletWasabi.CoinJoin.Client.Clients
 
 		public bool IsDestinationSame => KeyManager.ExtPubKey == DestinationKeyManager.ExtPubKey;
 
-		private async void Synchronizer_ResponseArrivedAsync(object sender, SynchronizeResponse e)
+		public async void Synchronizer_ResponseArrivedAsync(object sender, SynchronizeResponse e)
 		{
 			
 			await TryProcessStatusAsync(e?.CcjRoundStates).ConfigureAwait(false);
@@ -213,10 +216,6 @@ namespace WalletWasabi.CoinJoin.Client.Clients
 
 			try
 			{
-
-				using (BenchmarkLogger.Measure(operationName:"TryProcessStatusAsync"))
-				{
-
 				Synchronizer.BlockRequests();
 
 				Interlocked.Exchange(ref _statusProcessing, 1);
@@ -306,6 +305,8 @@ namespace WalletWasabi.CoinJoin.Client.Clients
 							}
 						}
 					}
+
+				}
 
 				}
 
