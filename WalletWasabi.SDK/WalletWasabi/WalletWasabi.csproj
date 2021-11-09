@@ -33,7 +33,6 @@
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="3.1.20" />
     <PackageReference Include="System.Collections.Immutable" Version="1.7.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.18" />
-<<<<<<< HEAD:WalletWasabi/WalletWasabi.csproj
   </ItemGroup>
 
   <ItemGroup>

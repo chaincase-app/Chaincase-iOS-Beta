@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/chaincase-app/WalletWasabi.Standard
 	branch = sdk-remote-notifs
-	commit = 416ee0b80c90b8d15453bdf52851d5e4bfb480ee
-	parent = dc444c39d683f997aa2b1ee5f17b2a8d2f25da1f
+	commit = 73bbca9ec69574bd6fb8b0bfcdd0728f152c34bd
+	parent = ff9ea0e226afb99f6bc935ea9b2a269658036e8b
 	method = merge
 	cmdver = 0.4.3

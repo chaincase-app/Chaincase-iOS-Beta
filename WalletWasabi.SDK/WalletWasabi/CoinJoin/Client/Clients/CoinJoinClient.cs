@@ -112,7 +112,6 @@ namespace WalletWasabi.CoinJoin.Client.Clients
 
 		public async void Synchronizer_ResponseArrivedAsync(object sender, SynchronizeResponse e)
 		{
-			
 			await TryProcessStatusAsync(e?.CcjRoundStates).ConfigureAwait(false);
 		}
 
@@ -142,10 +141,8 @@ namespace WalletWasabi.CoinJoin.Client.Clients
 					{
 						try
 						{
-							Logger.LogInfo("await MixLock RunLoop");
 							using (await MixLock.LockAsync().ConfigureAwait(false))
 							{
-								Logger.LogInfo("got MixLock RunLoop");
 								await DequeueSpentCoinsFromMixNoLockAsync().ConfigureAwait(false);
 
 								// If stop was requested return.
@@ -216,84 +213,79 @@ namespace WalletWasabi.CoinJoin.Client.Clients
 
 			try
 			{
-				using (BenchmarkLogger.Measure(operationName: "TryProcessStatusAsync"))
+				using (BenchmarkLogger.Measure(operationName:"TryProcessStatusAsync"))
 				{
 
-					Synchronizer.BlockRequests();
-					Interlocked.Exchange(ref _statusProcessing, 1);
+				Synchronizer.BlockRequests();
 
-					Logger.LogInfo("await MixLock TryProcessStatusAsync:A");
-					using (await MixLock.LockAsync().ConfigureAwait(false))
+				Interlocked.Exchange(ref _statusProcessing, 1);
+				using (await MixLock.LockAsync().ConfigureAwait(false))
+				{
+					// First, if there's ayed round registration update based on the state.
+					if (DelayedRoundRegistration != null)
 					{
-						Logger.LogInfo("got MixLock TryProcessStatusAsync:A");
-						// First, if there's ayed round registration update based on the state.
-						if (DelayedRoundRegistration != null)
+						ClientRound roundRegistered = State.GetSingleOrDefaultRound(DelayedRoundRegistration.AliceClient.RoundId);
+						roundRegistered.Registration = DelayedRoundRegistration;
+						DelayedRoundRegistration = null; // Do not dispose.
+					}
+
+					await DequeueSpentCoinsFromMixNoLockAsync().ConfigureAwait(false);
+
+					State.UpdateRoundsByStates(ExposedLinks, states.ToArray());
+
+					// If we do not have enough coin queued to register a round, then dequeue all.
+					ClientRound registrableRound = State.GetRegistrableRoundOrDefault();
+					if (registrableRound is { })
+					{
+						DequeueReason? reason = null;
+						// If the coordinator increases fees, do not register. Let the users register manually again.
+						if (CoordinatorFeepercentToCheck is { } && registrableRound.State.CoordinatorFeePercent > CoordinatorFeepercentToCheck)
 						{
-							ClientRound roundRegistered = State.GetSingleOrDefaultRound(DelayedRoundRegistration.AliceClient.RoundId);
-							roundRegistered.Registration = DelayedRoundRegistration;
-							DelayedRoundRegistration = null; // Do not dispose.
+							reason = DequeueReason.CoordinatorFeeChanged;
 						}
-						Logger.LogInfo("DequeueSpentCoinsFromMixNoLockAsync");
-						await DequeueSpentCoinsFromMixNoLockAsync().ConfigureAwait(false);
-
-						Logger.LogInfo("UpdateRoundsByStates");
-						State.UpdateRoundsByStates(ExposedLinks, states.ToArray());
-
-						// If we do not have enough coin queued to register a round, then dequeue all.
-						Logger.LogInfo("GetRegistrableRoundOrDefault");
-						ClientRound registrableRound = State.GetRegistrableRoundOrDefault();
-						if (registrableRound is { })
+						else if (!registrableRound.State.HaveEnoughQueued(State.GetAllQueuedCoinAmounts()))
 						{
-							DequeueReason? reason = null;
-							// If the coordinator increases fees, do not register. Let the users register manually again.
-							if (CoordinatorFeepercentToCheck is { } && registrableRound.State.CoordinatorFeePercent > CoordinatorFeepercentToCheck)
-							{
-								reason = DequeueReason.CoordinatorFeeChanged;
-							}
-							else if (!registrableRound.State.HaveEnoughQueued(State.GetAllQueuedCoinAmounts()))
-							{
-								reason = DequeueReason.NotEnoughFundsEnqueued;
-							}
-
-							if (reason.HasValue)
-							{
-								Logger.LogInfo("GetRegistrableRoundOrDefault");
-								await DequeueAllCoinsFromMixNoLockAsync(reason.Value).ConfigureAwait(false);
-							}
-						}
-						StateUpdated?.Invoke(this, null);
-						double delaySeconds = new Random().NextDouble() * 0.8167; // delay the response to defend timing attack privacy.
-
-						if (Network == Network.RegTest)
-						{
-							delaySeconds = 0;
+							reason = DequeueReason.NotEnoughFundsEnqueued;
 						}
 
-						Logger.LogInfo($"Delay {delaySeconds}");
-						await Task.Delay(TimeSpan.FromSeconds(delaySeconds), Cancel.Token).ConfigureAwait(false);
-
-						foreach (var ongoingRound in State.GetActivelyMixingRounds())
+						if (reason.HasValue)
 						{
-							Logger.LogInfo($"TryProcessRoundStateAsync:B");
-							await TryProcessRoundStateAsync(ongoingRound).ConfigureAwait(false);
-						}
-
-						Logger.LogInfo($"DequeueSpentCoinsFromMixNoLockAsync");
-						await DequeueSpentCoinsFromMixNoLockAsync().ConfigureAwait(false);
-						ClientRound inputRegistrableRound = State.GetRegistrableRoundOrDefault();
-						if (inputRegistrableRound != null)
-						{
-							if (inputRegistrableRound.Registration is null) // If did not register already, check what can we register.
-							{
-								Logger.LogInfo($"TryRegisterCoinsAsync");
-								await TryRegisterCoinsAsync(inputRegistrableRound).ConfigureAwait(false);
-							}
-							else // We registered, let's confirm we're online.
-							{
-								await TryConfirmConnectionAsync(inputRegistrableRound).ConfigureAwait(false);
-							}
+							await DequeueAllCoinsFromMixNoLockAsync(reason.Value).ConfigureAwait(false);
 						}
 					}
+				}
+				StateUpdated?.Invoke(this, null);
+				// TODO instead of 7 make it a fraction of the phase time (is 7/60 now)
+				int delaySeconds = new Random().Next(0, 1); // delay the response to defend timing attack privacy.
+
+				if (Network == Network.RegTest)
+				{
+					delaySeconds = 0;
+				}
+
+				await Task.Delay(TimeSpan.FromSeconds(delaySeconds), Cancel.Token).ConfigureAwait(false);
+
+				using (await MixLock.LockAsync().ConfigureAwait(false))
+				{
+					foreach (var ongoingRound in State.GetActivelyMixingRounds())
+					{
+						await TryProcessRoundStateAsync(ongoingRound).ConfigureAwait(false);
+					}
+
+					await DequeueSpentCoinsFromMixNoLockAsync().ConfigureAwait(false);
+					ClientRound inputRegistrableRound = State.GetRegistrableRoundOrDefault();
+					if (inputRegistrableRound != null)
+					{
+						if (inputRegistrableRound.Registration is null) // If did not register already, check what can we register.
+						{
+							await TryRegisterCoinsAsync(inputRegistrableRound).ConfigureAwait(false);
+						}
+						else // We registered, let's confirm we're online.
+						{
+							await TryConfirmConnectionAsync(inputRegistrableRound).ConfigureAwait(false);
+						}
+					}
+				}
 
 				}
 			}
@@ -740,11 +732,8 @@ namespace WalletWasabi.CoinJoin.Client.Clients
 			}
 
 			var successful = new List<SmartCoin>();
-
-			Logger.LogInfo("await MixLock QueueCoinsToMixAsync");
 			using (await MixLock.LockAsync().ConfigureAwait(false))
 			{
-				Logger.LogInfo("got MixLock QueueCoinsToMixAsync");
 				await DequeueSpentCoinsFromMixNoLockAsync().ConfigureAwait(false);
 
 				// Every time the user enqueues (intentionally writes in password) then the coordinator fee percent must be noted and dequeue later if changes.
@@ -808,10 +797,8 @@ namespace WalletWasabi.CoinJoin.Client.Clients
 			using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(3));
 			try
 			{
-				Logger.LogInfo("await MixLock DequeueCoinsFromMixAsync IEnumerable<SmartCoin>");
 				using (await MixLock.LockAsync(cts.Token).ConfigureAwait(false))
 				{
-					Logger.LogInfo("got MixLock DequeueCoinsFromMixAsync IEnumerable<SmartCoin>");
 					await DequeueSpentCoinsFromMixNoLockAsync().ConfigureAwait(false);
 
 					await DequeueCoinsFromMixNoLockAsync(coins.Select(x => x.OutPoint).ToArray(), reason).ConfigureAwait(false);
@@ -835,10 +822,8 @@ namespace WalletWasabi.CoinJoin.Client.Clients
 			using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(3));
 			try
 			{
-				Logger.LogInfo("await MixLock DequeueCoinsFromMixAsync OutPoint[]");
 				using (await MixLock.LockAsync(cts.Token).ConfigureAwait(false))
 				{
-					Logger.LogInfo("got MixLock OutPoint[]");
 					await DequeueSpentCoinsFromMixNoLockAsync().ConfigureAwait(false);
 
 					await DequeueCoinsFromMixNoLockAsync(coins, reason).ConfigureAwait(false);
@@ -861,10 +846,8 @@ namespace WalletWasabi.CoinJoin.Client.Clients
 			using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(3));
 			try
 			{
-				Logger.LogInfo("await MixLock OutPoint[]");
 				using (await MixLock.LockAsync(cts.Token).ConfigureAwait(false))
 				{
-					Logger.LogInfo("got MixLock OutPoint[]");
 					await DequeueAllCoinsFromMixNoLockAsync(reason).ConfigureAwait(false);
 				}
 			}
@@ -1021,10 +1004,9 @@ namespace WalletWasabi.CoinJoin.Client.Clients
 
 			Cancel?.Dispose();
 			Cancel = null;
-			Logger.LogInfo("await MixLock StopAsync");
+
 			using (await MixLock.LockAsync(cancel).ConfigureAwait(false))
 			{
-				Logger.LogInfo("got MixLock StopAsync");
 				State.DisposeAllAliceClients();
 
 				IEnumerable<OutPoint> allCoins = State.GetAllQueuedCoins();
