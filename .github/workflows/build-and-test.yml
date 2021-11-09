@@ -21,10 +21,8 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
-      - name: Init Submodules
-        run: git submodule update --init --recursive
       - name: Build Backend Docker Image
-        run: cd WalletWasabi && dotnet clean && docker build . && cd ../
+        run: cd WalletWasabi.SDK && dotnet clean && docker build . && cd ../
       - name: Install dependencies
         run: dotnet restore     
 #      - name: Checkout LFS objects
@@ -38,6 +36,6 @@ jobs:
       - name: Install Browser binaries
         run: playwright install
       - name: Run Docker Compose for tests
-        run: docker-compose -f WalletWasabi/WalletWasabi.Backend/docker-compose.yml up -d
+        run: docker-compose -f WalletWasabi.SDK/WalletWasabi.Backend/docker-compose.yml up -d
       - name: Test
         run: dotnet test Chaincase.Tests --no-restore
