@@ -32,11 +32,5 @@ namespace WalletWasabi.Blockchain.BlockFilters
 				throw new NotSupportedNetworkException(network);
 			}
 		}
-
-		public static FilterModel GetStartingFilter(SmartHeader startingHeader)
-		{
-			GolombRiceFilter filter = IndexBuilderService.CreateDummyEmptyFilter(startingHeader.BlockHash);
-			return FilterModel.FromLine($"{startingHeader.Height}:{startingHeader.BlockHash}:{filter}:{startingHeader.PrevHash}:{startingHeader.BlockTime.ToUnixTimeSeconds()}");
-		}
 	}
 }

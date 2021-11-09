@@ -24,7 +24,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Directory.Build.props = Directory.Build.props
 		README.md = README.md
 		Settings.StyleCop = Settings.StyleCop
-		Dockerfile = Dockerfile
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WalletWasabi.Gui", "WalletWasabi.Gui\WalletWasabi.Gui.csproj", "{B007DC0F-8C86-439D-BE3C-283218D8308B}"
@@ -57,6 +56,7 @@ Global
 		{50BDFA09-7575-4EEE-B733-D41B65B06D00}.Release|Any CPU.Build.0 = Release|Any CPU
 		{50BDFA09-7575-4EEE-B733-D41B65B06D00}.Release|x64.ActiveCfg = Debug|Any CPU
 		{50BDFA09-7575-4EEE-B733-D41B65B06D00}.Release|x64.Build.0 = Debug|Any CPU
+<<<<<<< HEAD
 		{526AC796-6CC0-4ADA-9A7E-C12267719A1A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{526AC796-6CC0-4ADA-9A7E-C12267719A1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{526AC796-6CC0-4ADA-9A7E-C12267719A1A}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -86,6 +86,25 @@ Global
 		{54654468-4F58-4253-84BD-6F53A8D3D2C4}.Release|Any CPU.ActiveCfg = Release|x64
 		{54654468-4F58-4253-84BD-6F53A8D3D2C4}.Release|x64.ActiveCfg = Release|x64
 		{54654468-4F58-4253-84BD-6F53A8D3D2C4}.Release|x64.Build.0 = Debug|x64
+||||||| parent of 9e3f9ec55 (define AppleDeviceToken model)
+		{B8FF38C0-810F-44F0-9F60-92769EC265CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8FF38C0-810F-44F0-9F60-92769EC265CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8FF38C0-810F-44F0-9F60-92769EC265CC}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B8FF38C0-810F-44F0-9F60-92769EC265CC}.Debug|x64.Build.0 = Debug|Any CPU
+		{B8FF38C0-810F-44F0-9F60-92769EC265CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8FF38C0-810F-44F0-9F60-92769EC265CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8FF38C0-810F-44F0-9F60-92769EC265CC}.Release|x64.ActiveCfg = Release|Any CPU
+		{B8FF38C0-810F-44F0-9F60-92769EC265CC}.Release|x64.Build.0 = Release|Any CPU
+=======
+		{7AFB67EC-5D7D-4E08-BE39-46A072D3F296}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7AFB67EC-5D7D-4E08-BE39-46A072D3F296}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7AFB67EC-5D7D-4E08-BE39-46A072D3F296}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7AFB67EC-5D7D-4E08-BE39-46A072D3F296}.Debug|x64.Build.0 = Debug|Any CPU
+		{7AFB67EC-5D7D-4E08-BE39-46A072D3F296}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7AFB67EC-5D7D-4E08-BE39-46A072D3F296}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7AFB67EC-5D7D-4E08-BE39-46A072D3F296}.Release|x64.ActiveCfg = Release|Any CPU
+		{7AFB67EC-5D7D-4E08-BE39-46A072D3F296}.Release|x64.Build.0 = Release|Any CPU
+>>>>>>> 9e3f9ec55 (define AppleDeviceToken model)
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

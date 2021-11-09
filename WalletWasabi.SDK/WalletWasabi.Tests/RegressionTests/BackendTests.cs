@@ -272,5 +272,43 @@ namespace WalletWasabi.Tests.RegressionTests
 
 #pragma warning restore IDE0059 // Value assigned to symbol is never used
 
+		#region Chaincase Backend Tests
+
+		[Fact]
+		public async Task HashcashTests()
+		{
+			var challenge = HashCashUtils.GenerateChallenge("chocolate", DateTimeOffset.UtcNow.AddMinutes(5), 20);
+			var stamp = HashCashUtils.ComputeFromChallenge(challenge);
+			Assert.True(HashCashUtils.Verify(stamp));
+		}
+
+		[Fact]
+		public async Task NotificationsTests()
+		{
+			var jobj = JObject.FromObject(RegTestFixture.Global.Config);
+			Assert.Equal(0, jobj["HashCashDifficulty"].Value<int>());
+			jobj["HashCashDifficulty"] = 10;
+			JsonConvert.PopulateObject(jobj.ToString(), RegTestFixture.Global.Config);
+			Assert.Equal(10, RegTestFixture.Global.Config.HashCashDifficulty);
+			using var client = new WasabiClient(new Uri(RegTestFixture.BackendEndPoint), null);
+			_ = await client.RegisterNotificationTokenAsync(new DeviceToken()
+			{
+				Status = TokenStatus.New,
+				Token = "123456",
+				Type = TokenType.AppleDebug
+			}, CancellationToken.None);
+
+			var factory = RegTestFixture.BackendHost.Services.GetService<IDbContextFactory<WasabiBackendContext>>();
+			await using var context = factory.CreateDbContext();
+			Assert.NotNull(await context.FindAsync<DeviceToken>("123456"));
+			await using var context2 = factory.CreateDbContext();
+			_ = await client.RemoveNotificationTokenAsync("123456", CancellationToken.None);
+			Assert.Null(await context2.FindAsync<DeviceToken>("123456"));
+			_ = await client.RemoveNotificationTokenAsync("123456", CancellationToken.None);
+
+		}
+
+		#endregion
+
 	}
 }

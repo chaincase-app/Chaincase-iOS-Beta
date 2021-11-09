@@ -16,7 +16,7 @@ namespace WalletWasabi.BitcoinCore
 
 		public Network Network => Rpc.Network;
 
-		public RPCClient Rpc { get; }
+		private RPCClient Rpc { get; }
 
 		public RPCCredentialString CredentialString => Rpc.CredentialString;
 

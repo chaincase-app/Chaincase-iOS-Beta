@@ -36,8 +36,7 @@ namespace WalletWasabi.Backend
 			EndPoint regTestBitcoinP2pEndPoint,
 			EndPoint mainNetBitcoinCoreRpcEndPoint,
 			EndPoint testNetBitcoinCoreRpcEndPoint,
-			EndPoint regTestBitcoinCoreRpcEndPoint,
-			string databaseConnectionStringName)
+			EndPoint regTestBitcoinCoreRpcEndPoint)
 			: base()
 		{
 			Network = Guard.NotNull(nameof(network), network);
@@ -50,7 +49,6 @@ namespace WalletWasabi.Backend
 			MainNetBitcoinCoreRpcEndPoint = Guard.NotNull(nameof(mainNetBitcoinCoreRpcEndPoint), mainNetBitcoinCoreRpcEndPoint);
 			TestNetBitcoinCoreRpcEndPoint = Guard.NotNull(nameof(testNetBitcoinCoreRpcEndPoint), testNetBitcoinCoreRpcEndPoint);
 			RegTestBitcoinCoreRpcEndPoint = Guard.NotNull(nameof(regTestBitcoinCoreRpcEndPoint), regTestBitcoinCoreRpcEndPoint);
-			DatabaseConnectionStringName = Guard.NotNull(nameof(databaseConnectionStringName), databaseConnectionStringName);
 		}
 
 		[JsonProperty(PropertyName = "Network")]

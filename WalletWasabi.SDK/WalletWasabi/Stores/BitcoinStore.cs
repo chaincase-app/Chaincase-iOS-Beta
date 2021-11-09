@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using WalletWasabi.Backend.Models;
 using WalletWasabi.Blockchain.Blocks;
 using WalletWasabi.Blockchain.Mempool;
 using WalletWasabi.Blockchain.P2p;
@@ -44,7 +43,7 @@ namespace WalletWasabi.Stores
 			TransactionStore = new AllTransactionStoreMock();
 		}
 
-		public bool IsInitialized { get; protected set; }
+		public bool IsInitialized { get; private set; }
 		private string WorkFolderPath { get; }
 		public Network Network { get; }
 
@@ -59,7 +58,7 @@ namespace WalletWasabi.Stores
 		/// </summary>
 		public UntrustedP2pBehavior CreateUntrustedP2pBehavior() => new UntrustedP2pBehavior(MempoolService);
 
-		public virtual async Task InitializeAsync()
+		public async Task InitializeAsync()
 		{
 			using (BenchmarkLogger.Measure())
 			{

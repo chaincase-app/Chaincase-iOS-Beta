@@ -45,8 +45,7 @@ namespace WalletWasabi.Tests.XunitConfiguration
 				BackendRegTestNode.P2pEndPoint,
 				new IPEndPoint(IPAddress.Loopback, Network.Main.RPCPort),
 				new IPEndPoint(IPAddress.Loopback, Network.TestNet.RPCPort),
-				BackendRegTestNode.RpcEndPoint,
-				"User ID=postgres;Host=127.0.0.1;Port=65466;Database=wasabibackend;");
+				BackendRegTestNode.RpcEndPoint);
 			var configFilePath = Path.Combine(testnetBackendDir, "Config.json");
 			config.SetFilePath(configFilePath);
 			config.ToFile();
