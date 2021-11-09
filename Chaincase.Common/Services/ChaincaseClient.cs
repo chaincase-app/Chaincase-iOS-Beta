@@ -65,22 +65,5 @@ namespace Chaincase.Common.Services
 			var ret = await content.ReadAsStringAsync().ConfigureAwait(false);
 			return ret;
 		}
-
-		public async Task<string> RemoveNotificationTokenAsync(string deviceToken, CancellationToken cancel)
-		{
-			using var response = await TorClient.SendAndRetryAsync(
-				HttpMethod.Delete,
-				HttpStatusCode.OK,
-				$"/api/v{ApiVersion}/notificationTokens/{deviceToken}",
-				2,null, cancel).ConfigureAwait(false);
-
-			if (response.StatusCode != HttpStatusCode.OK)
-			{
-				await response.ThrowRequestExceptionFromContentAsync();
-			}
-			using HttpContent content = response.Content;
-			var ret = await content.ReadAsStringAsync().ConfigureAwait(false);
-			return ret;
-		}
 	}
 }

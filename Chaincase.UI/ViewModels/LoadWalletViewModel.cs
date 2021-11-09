@@ -31,9 +31,7 @@ namespace Chaincase.UI.ViewModels
         private string _seedWords;
 
         private readonly string ACCOUNT_KEY_PATH = $"m/{KeyManager.DefaultAccountKeyPath}";
-        private uint? _blockHeight;
         private const int MIN_GAP_LIMIT = KeyManager.AbsoluteMinGapLimit * 4;
-        public  readonly Lazy<uint> MinBirthdayWallet;
         public LoadWalletViewModel(ChaincaseWalletManager walletManager, 
 	        Config config, 
 	        UiConfig uiConfig, 
@@ -47,7 +45,6 @@ namespace Chaincase.UI.ViewModels
             _storage = storage;
             _bitcoinStore = chaincaseBitcoinStore;
             _synchronizer = synchronizer;
-            MinBirthdayWallet = new Lazy<uint>(() => StartingFilters.GetStartingFilter(_config.Network).Header.Height);
         }
 
         public async Task LoadWallet()
@@ -65,26 +62,8 @@ namespace Chaincase.UI.ViewModels
             km.SetNetwork(_config.Network);
             km.SetFilePath(walletFilePath);
 
-            if (BlockHeight != null && _bitcoinStore.IndexStore.StartingHeight < BlockHeight)
-            {
-	            //no need to do anything, we have all the filters necessary
-            }
-            else if (BlockHeight != null && _bitcoinStore.IndexStore.StartingHeight < BlockHeight)
-            {
-	            
-	            //we should find a way to fetch the data we need to construct the header at specified block height
-	            
-	            //ideally, we also just download the difference between current start height and specified block height
-	            
-	            //for now, we ignore the height and sync from start filter
-	            await SyncFromScratch();
-            }
-            else
-            {
-	            await SyncFromScratch();
-            }
-                
-            var wallet = _walletManager.AddWallet(km);
+            await SyncFromScratch();   
+            _ = _walletManager.AddWallet(km);
             
             await _storage.SetSeedWords(Password, mnemonic.ToString());
             _uiConfig.HasSeed = true;
@@ -110,13 +89,6 @@ namespace Chaincase.UI.ViewModels
             get => _password;
             set => this.RaiseAndSetIfChanged(ref _password, value);
         }
-        
-        public uint? BlockHeight
-        {
-	        get => _blockHeight;
-	        set => this.RaiseAndSetIfChanged(ref _blockHeight, value);
-        }
-
         public string SeedWords
         {
             get => _seedWords;
