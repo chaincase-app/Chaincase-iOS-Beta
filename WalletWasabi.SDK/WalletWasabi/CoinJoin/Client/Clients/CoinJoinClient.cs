@@ -39,6 +39,9 @@ namespace WalletWasabi.CoinJoin.Client.Clients
 
 		private long _statusProcessing;
 
+		private double _twosh = 0.333;
+		private double _sevensh = 1.166;
+
 		public CoinJoinClient(
 			WasabiSynchronizer synchronizer,
 			Network network,
@@ -107,7 +110,7 @@ namespace WalletWasabi.CoinJoin.Client.Clients
 
 		public bool IsDestinationSame => KeyManager.ExtPubKey == DestinationKeyManager.ExtPubKey;
 
-		private async void Synchronizer_ResponseArrivedAsync(object sender, SynchronizeResponse e)
+		public async void Synchronizer_ResponseArrivedAsync(object sender, SynchronizeResponse e)
 		{
 			await TryProcessStatusAsync(e?.CcjRoundStates).ConfigureAwait(false);
 		}
@@ -119,6 +122,7 @@ namespace WalletWasabi.CoinJoin.Client.Clients
 				return;
 			}
 
+			// TODO Fraction from roundtime
 			// The client is asking for status periodically, randomly between every 0.2 * connConfTimeout and 0.7 * connConfTimeout.
 			// - if the GUI is at the mixer tab -Activate(), DeactivateIfNotMixing().
 			// - if coins are queued to mix.
@@ -147,17 +151,22 @@ namespace WalletWasabi.CoinJoin.Client.Clients
 									return;
 								}
 
-								// if mixing >= connConf
+								// if mixing >= connConf delay should be less
+								// i.e. we want to make requests more frequenly than normal
 								if (State.GetActivelyMixingRounds().Any())
 								{
-									int delaySeconds = new Random().Next(2, 7);
-									Synchronizer.MaxRequestIntervalForMixing = TimeSpan.FromSeconds(delaySeconds);
+									//TODO Instead of 2, 7 use fraction of round time. this is where 7 would kill us.
+									//double delaySeconds = new Random().Next(2, 7) * (1.0 / 6.0);
+									Synchronizer.MaxRequestIntervalForMixing = TimeSpan.FromSeconds(1);
 								}
+								// if we're Queued
 								else if (Interlocked.Read(ref _frequentStatusProcessingIfNotMixing) == 1 || State.GetPassivelyMixingRounds().Any() || State.GetWaitingListCount() > 0)
 								{
+									// TODO Instead of 2, 7 use fraction of round time this TODOTODO input is wrong
 									double rand = double.Parse($"0.{new Random().Next(2, 6)}"); // randomly between every 0.2 * connConfTimeout - 7 and 0.6 * connConfTimeout
-									int delaySeconds = Math.Max(0, (int)((rand * State.GetSmallestRegistrationTimeout()) - 7));
-
+									// TODO ITS AN INT //int delaySeconds = Math.Max(0, (int)((rand * State.GetSmallestRegistrationTimeout()) - _sevensh)); // TODO instead of 7 use round time
+									int delaySeconds = 5;
+									// This formula is not gonna put you even in the ballpark for the right amount of time
 									Synchronizer.MaxRequestIntervalForMixing = TimeSpan.FromSeconds(delaySeconds);
 								}
 								else // dormant
@@ -174,7 +183,10 @@ namespace WalletWasabi.CoinJoin.Client.Clients
 						{
 							try
 							{
-								await Task.Delay(1000, Cancel.Token).ConfigureAwait(false);
+								// this is the interval at which the CoinJoinClient
+								// observes its state in relation to
+								// synchronization and the round
+								await Task.Delay(500, Cancel.Token).ConfigureAwait(false);
 							}
 							catch (TaskCanceledException ex)
 							{
@@ -201,12 +213,15 @@ namespace WalletWasabi.CoinJoin.Client.Clients
 
 			try
 			{
+				using (BenchmarkLogger.Measure(operationName:"TryProcessStatusAsync"))
+				{
+
 				Synchronizer.BlockRequests();
 
 				Interlocked.Exchange(ref _statusProcessing, 1);
 				using (await MixLock.LockAsync().ConfigureAwait(false))
 				{
-					// First, if there's delayed round registration update based on the state.
+					// First, if there's ayed round registration update based on the state.
 					if (DelayedRoundRegistration != null)
 					{
 						ClientRound roundRegistered = State.GetSingleOrDefaultRound(DelayedRoundRegistration.AliceClient.RoundId);
@@ -240,8 +255,8 @@ namespace WalletWasabi.CoinJoin.Client.Clients
 					}
 				}
 				StateUpdated?.Invoke(this, null);
-
-				int delaySeconds = new Random().Next(0, 7); // delay the response to defend timing attack privacy.
+				// TODO instead of 7 make it a fraction of the phase time (is 7/60 now)
+				int delaySeconds = new Random().Next(0, 1); // delay the response to defend timing attack privacy.
 
 				if (Network == Network.RegTest)
 				{
@@ -270,6 +285,8 @@ namespace WalletWasabi.CoinJoin.Client.Clients
 							await TryConfirmConnectionAsync(inputRegistrableRound).ConfigureAwait(false);
 						}
 					}
+				}
+
 				}
 			}
 			catch (TaskCanceledException ex)
