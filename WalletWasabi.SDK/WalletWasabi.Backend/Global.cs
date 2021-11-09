@@ -1,16 +1,15 @@
-using NBitcoin;
-using NBitcoin.Protocol;
-using NBitcoin.RPC;
 using System;
 using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using NBitcoin;
+using NBitcoin.RPC;
 using WalletWasabi.BitcoinCore;
 using WalletWasabi.Blockchain.BlockFilters;
 using WalletWasabi.Blockchain.Blocks;
 using WalletWasabi.Blockchain.Mempool;
-using WalletWasabi.Blockchain.P2p;
 using WalletWasabi.CoinJoin.Coordinator;
 using WalletWasabi.CoinJoin.Coordinator.Rounds;
 using WalletWasabi.Helpers;
@@ -39,6 +38,8 @@ namespace WalletWasabi.Backend
 
 		public HostedServices HostedServices { get; set; }
 
+		public SendPushService SendPushService { get; set; }
+
 		public IndexBuilderService IndexBuilderService { get; private set; }
 
 		public Coordinator Coordinator { get; private set; }
@@ -47,7 +48,7 @@ namespace WalletWasabi.Backend
 
 		public CoordinatorRoundConfig RoundConfig { get; private set; }
 
-		public async Task InitializeAsync(Config config, CoordinatorRoundConfig roundConfig, IRPCClient rpc, CancellationToken cancel)
+		public async Task InitializeAsync(Config config, CoordinatorRoundConfig roundConfig, IRPCClient rpc, IServiceProvider serviceProvider, CancellationToken cancel)
 		{
 			Config = Guard.NotNull(nameof(config), config);
 			RoundConfig = Guard.NotNull(nameof(roundConfig), roundConfig);
@@ -88,11 +89,12 @@ namespace WalletWasabi.Backend
 			var indexFilePath = Path.Combine(indexBuilderServiceDir, $"Index{RpcClient.Network}.dat");
 			var blockNotifier = HostedServices.FirstOrDefault<BlockNotifier>();
 			IndexBuilderService = new IndexBuilderService(RpcClient, blockNotifier, indexFilePath);
-			Coordinator = new Coordinator(RpcClient.Network, blockNotifier, Path.Combine(DataDir, "CcjCoordinator"), RpcClient, roundConfig);
+			Coordinator = new Coordinator(RpcClient.Network, blockNotifier, Path.Combine(DataDir, "CcjCoordinator"), RpcClient, roundConfig,
+				() => _ = serviceProvider.GetRequiredService<SendPushService>().SendNotificationsAsync(roundConfig.IsDebug));
 			IndexBuilderService.Synchronize();
 			Logger.LogInfo($"{nameof(IndexBuilderService)} is successfully initialized and started synchronization.");
 
-			await Coordinator.MakeSureTwoRunningRoundsAsync();
+			await Coordinator.MakeSureInputregistrableRoundRunningAsync();
 			Logger.LogInfo("Chaumian CoinJoin Coordinator is successfully initialized and started two new rounds.");
 		}
 
@@ -144,7 +146,22 @@ namespace WalletWasabi.Backend
 				{
 					if (blocks < 101)
 					{
-						var generateBlocksResponse = await RpcClient.GenerateAsync(101);
+						uint256[] generateBlocksResponse = null;
+						try
+						{
+							generateBlocksResponse = await RpcClient.GenerateAsync(101);
+						}
+						catch (RPCException exception)
+						{
+							//Bitcoin knots does not create a wallet by default, so let's create it to reduce manual setup on dev env
+							if (exception.RPCCode == RPCErrorCode.RPC_WALLET_NOT_FOUND)
+							{
+								await ((RpcClientBase)RpcClient).Rpc.SendCommandAsync("createwallet" ,"default");
+
+								generateBlocksResponse = await RpcClient.GenerateAsync(101);
+							}
+						}
+
 						if (generateBlocksResponse is null)
 						{
 							throw new NotSupportedException($"Bitcoin Core cannot generate blocks on the {Network.RegTest}.");
@@ -158,6 +175,15 @@ namespace WalletWasabi.Backend
 						}
 						Logger.LogInfo($"Generated 101 block on {Network.RegTest}. Number of blocks {blocks}.");
 					}
+					//101 blocks is fine, but let's spice things up in regtest for better sync tests
+					_ = Task.Run(async () =>
+					{
+						while (true)
+						{
+							await Task.Delay(TimeSpan.FromMinutes(1));
+							await RpcClient.GenerateAsync(101);
+						}
+					});
 				}
 			}
 			catch (WebException)

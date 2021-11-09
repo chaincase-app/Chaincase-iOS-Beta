@@ -16,10 +16,15 @@ using System.Security;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using WalletWasabi.Backend;
 using WalletWasabi.Backend.Controllers;
+using WalletWasabi.Backend.Data;
 using WalletWasabi.Backend.Models;
 using WalletWasabi.Backend.Models.Responses;
+using WalletWasabi.Backend.Polyfills;
 using WalletWasabi.BitcoinCore;
 using WalletWasabi.Blockchain.Analysis.Clustering;
 using WalletWasabi.Blockchain.BlockFilters;
@@ -266,5 +271,6 @@ namespace WalletWasabi.Tests.RegressionTests
 		#endregion BackendTests
 
 #pragma warning restore IDE0059 // Value assigned to symbol is never used
+
 	}
 }

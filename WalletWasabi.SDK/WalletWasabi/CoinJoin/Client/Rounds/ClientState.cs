@@ -424,7 +424,7 @@ namespace WalletWasabi.CoinJoin.Client.Rounds
 					{
 						if (round.Registration.IsPhaseActionsComleted(RoundPhase.Signing))
 						{
-							var delayRegistration = TimeSpan.FromSeconds(60);
+							var delayRegistration = TimeSpan.FromSeconds(0);
 							WaitingList.Add(coin, DateTimeOffset.UtcNow + delayRegistration);
 							Logger.LogInfo($"Coin added to the waiting list: {coin.Index}:{coin.TransactionId}, but its registration is not allowed till {delayRegistration.TotalSeconds} seconds, because this coin might already be spent.");
 
