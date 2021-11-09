@@ -26,7 +26,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\WalletWasabi.SDK\WalletWasabi.Backend\WalletWasabi.Backend.csproj" />
+    <ProjectReference Include="..\WalletWasabi.SDK\WalletWasabi.Tests\WalletWasabi.Tests.csproj" />
+    <ProjectReference Include="..\Chaincase.Common\Chaincase.Common.csproj" />
     <ProjectReference Include="..\Chaincase.SSB\Chaincase.SSB.csproj" />
-    <ProjectReference Include="..\WalletWasabi\WalletWasabi.Tests\WalletWasabi.Tests.csproj" />
+    <ProjectReference Include="..\Chaincase.UI\Chaincase.UI.csproj" />
   </ItemGroup>
 </Project>
