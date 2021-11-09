@@ -28,7 +28,7 @@
     <MtouchDebug>true</MtouchDebug>
     <LangVersion>9.0</LangVersion>
     <CodesignKey>iPhone Developer</CodesignKey>
-    <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
+    <CodesignEntitlements>Entitlements.developer.plist</CodesignEntitlements>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
     <DebugType>none</DebugType>
@@ -39,6 +39,7 @@
     <MtouchLink>None</MtouchLink>
     <MtouchArch>x86_64</MtouchArch>
     <LangVersion>9.0</LangVersion>
+    <CodesignKey>iPhone Developer</CodesignKey>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhone' ">
     <DebugSymbols>true</DebugSymbols>
@@ -56,7 +57,8 @@
     <LangVersion>9.0</LangVersion>
     <MtouchExtraArgs>-v -v -v -v</MtouchExtraArgs>
     <MtouchFloat32>true</MtouchFloat32>
-    <CodesignProvision>cash.chaincase.chaincase Development</CodesignProvision>
+    <CodesignEntitlements>Entitlements.developer.plist</CodesignEntitlements>
+    <CodesignProvision>Chaincase Testnet Dev</CodesignProvision>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
     <BlazorLinkOnBuild>false</BlazorLinkOnBuild>
@@ -81,7 +83,7 @@
   <ItemGroup>
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
-    <None Include="Entitlements.plist" />
+    <None Include="Entitlements.developer.plist" />
     <None Include="Info.plist" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Background\iOSOnSleepingTask.cs" />
@@ -91,6 +93,8 @@
     <Compile Include="Services\iOSNotificationReceiver.cs" />
     <Compile Include="Services\iOSHsmStorage.cs" />
     <Compile Include="Services\iOSTorManager.cs" />
+    <Compile Include="Services\iOSWalletDirectories.cs" />
+    <None Include="Entitlements.plist" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />
@@ -143,6 +147,7 @@
     <Reference Include="System" />
     <Reference Include="Xamarin.iOS" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.MobileBlazorBindings.WebView.iOS" Version="0.5.50-preview" />

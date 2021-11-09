@@ -293,5 +293,48 @@ namespace WalletWasabi.WebClients.Wasabi
 		}
 
 		#endregion wasabi
+
+		#region Chaincase
+
+		public async Task<string> RegisterNotificationTokenAsync(DeviceToken deviceToken, CancellationToken cancel)
+		{
+			using var response = await TorClient.SendAndRetryAsync(
+				HttpMethod.Put,
+				HttpStatusCode.OK,
+				$"/api/v{ApiVersion}/notificationTokens",
+				2,
+				new StringContent(JObject.FromObject(deviceToken).ToString(), Encoding.UTF8,
+					"application/json")
+				, cancel).ConfigureAwait(false);
+
+			if (response.StatusCode != HttpStatusCode.OK)
+			{
+				await response.ThrowRequestExceptionFromContentAsync();
+			}
+
+			using HttpContent content = response.Content;
+			var ret = await content.ReadAsStringAsync().ConfigureAwait(false);
+			return ret;
+		}
+
+		public async Task<string> RemoveNotificationTokenAsync(string deviceToken, CancellationToken cancel)
+		{
+			using var response = await TorClient.SendAndRetryAsync(
+				HttpMethod.Delete,
+				HttpStatusCode.OK,
+				$"/api/v{ApiVersion}/notificationTokens/{deviceToken}",
+				2,null, cancel).ConfigureAwait(false);
+
+			if (response.StatusCode != HttpStatusCode.OK)
+			{
+				await response.ThrowRequestExceptionFromContentAsync();
+			}
+			using HttpContent content = response.Content;
+			var ret = await content.ReadAsStringAsync().ConfigureAwait(false);
+			return ret;
+		}
+
+
+		#endregion
 	}
 }

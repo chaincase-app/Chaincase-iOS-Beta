@@ -45,7 +45,7 @@ namespace Chaincase.Common
         [JsonProperty(PropertyName = "MainNetBackendUriV3", DefaultValueHandling = DefaultValueHandling.Populate)]
         public string MainNetBackendUriV3 { get; set; }
 
-        [DefaultValue("http://testwnp3fugjln6vh5vpj7mvq3lkqqwjj3c2aafyu7laxz42kgwh2rad.onion/")]
+        [DefaultValue("http://tgkjgdbmqellj6yfzmmwa4nqk32eezkeauqmw7tr63t7i2sdaetyrvyd.onion/")]
         [JsonProperty(PropertyName = "TestNetBackendUriV3", DefaultValueHandling = DefaultValueHandling.Populate)]
         public string TestNetBackendUriV3 { get; set; }
 

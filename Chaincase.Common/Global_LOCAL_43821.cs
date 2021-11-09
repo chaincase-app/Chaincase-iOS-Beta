@@ -5,7 +5,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Reactive.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Chaincase.Common.Contracts;
@@ -199,31 +198,7 @@ namespace Chaincase.Common
                 #endregion P2PInitialization
 
                 #region SynchronizerInitialization
-<<<<<<< HEAD
                 _synchronizer.Start();
-||||||| d45e09c0f
-
-                var requestInterval = TimeSpan.FromSeconds(30);
-                if (Network == Network.RegTest)
-                {
-                    requestInterval = TimeSpan.FromSeconds(5);
-                }
-
-                int maxFiltSyncCount = Network == Network.Main ? 1000 : 10000; // On testnet, filters are empty, so it's faster to query them together
-
-                _synchronizer.Start(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
-=======
-
-                var requestInterval = TimeSpan.FromSeconds(3);
-                if (Network == Network.RegTest)
-                {
-                    requestInterval = TimeSpan.FromSeconds(5);
-                }
-
-                int maxFiltSyncCount = Network == Network.Main ? 1000 : 10000; // On testnet, filters are empty, so it's faster to query them together
-
-                _synchronizer.Start(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
->>>>>>> master
                 Logger.LogInfo($"{nameof(Global)}.InitializeNoWalletAsync(): Start synchronizing filters...");
 
                 #endregion SynchronizerInitialization
@@ -359,65 +334,7 @@ namespace Chaincase.Common
         private protected CancellationTokenSource ResumeCts { get; set; } = new CancellationTokenSource();
         private protected bool IsResuming { get; set; } = false;
 
-        public void HandleRemoteNotification()
-        {
-            if (_walletManager?.SleepingCoins is { } && _torManager?.State != TorState.Started && _torManager.State != TorState.Connected)
-            {
-                _ = BackgroundResumeToCoinJoin();
-                // sleep instruction happens from iOS lifecycle
-            }
-        }
-
-        public async Task BackgroundResumeToCoinJoin()
-		{
-            if (IsResuming)
-            {
-                Logger.LogDebug($"{MethodBase.GetCurrentMethod().Name}: SleepCts.Cancel()");
-                SleepCts.Cancel();
-                return;
-            }
-
-            try
-            {
-                Resumed?.Invoke(this, null);
-                Logger.LogDebug($"{MethodBase.GetCurrentMethod().Name}: Waiting for a lock");
-                var backgroundCts = new CancellationTokenSource();
-                using (await LifeCycleMutex.LockAsync(backgroundCts.Token))
-                {
-                    // IsResuming = true; // BG => Don't flag. Pass OnResume() if foregrounded.
-                    Logger.LogDebug($"{MethodBase.GetCurrentMethod().Name}: Entered critical section");
-
-                    // don't ever cancel Init. use an ephemeral token
-                    await WaitForInitializationCompletedAsync(new CancellationToken());
-
-                    if (_torManager?.State != TorState.Started && _torManager.State != TorState.Connected)
-                    {
-                        await _torManager.StartAsync(false, DataDir).ConfigureAwait(false);
-                    }
-
-                    var requestInterval = (Network == Network.RegTest) ? TimeSpan.FromSeconds(5) : TimeSpan.FromSeconds(1);
-                    int maxFiltSyncCount = Network == Network.Main ? 1000 : 10000; // On testnet, filters are empty, so it's faster to query them together
-                    _synchronizer.Resume(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
-                    Logger.LogInfo($"{MethodBase.GetCurrentMethod().Name}: Start synchronizing filters...");
-
-                    if (_walletManager.SleepingCoins is { })
-                    {
-                        await _walletManager.CurrentWallet.ChaumianClient.QueueCoinsToMixAsync(_walletManager.SleepingCoins);
-                        _walletManager.SleepingCoins = null;
-                    }
-                }
-            }
-            catch (OperationCanceledException ex)
-            {
-                Logger.LogTrace($"{MethodBase.GetCurrentMethod().Name}: Exception OperationCanceledException: {ex}");
-            }
-            finally
-            {
-                Logger.LogDebug($"{MethodBase.GetCurrentMethod().Name}: Chaincase Resumed to CoinJoin");
-            }
-        }
-
-        public async Task OnResuming(int syncInterval = 30)
+        public async Task OnResuming()
         {
             if (IsResuming)
             {
@@ -455,17 +372,7 @@ namespace Chaincase.Common
                     Nodes.Connect();
                     Logger.LogInfo($"{nameof(Global)}.OnResuming():Start connecting to nodes...");
 
-<<<<<<< HEAD
                     _synchronizer.Resume();
-||||||| d45e09c0f
-                    var requestInterval = (Network == Network.RegTest) ? TimeSpan.FromSeconds(5) : TimeSpan.FromSeconds(30);
-                    int maxFiltSyncCount = Network == Network.Main ? 1000 : 10000; // On testnet, filters are empty, so it's faster to query them together
-                    _synchronizer.Resume(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
-=======
-                    var requestInterval = (Network == Network.RegTest) ? TimeSpan.FromSeconds(5) : TimeSpan.FromSeconds(3);
-                    int maxFiltSyncCount = Network == Network.Main ? 1000 : 10000; // On testnet, filters are empty, so it's faster to query them together
-                    _synchronizer.Resume(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
->>>>>>> master
                     Logger.LogInfo($"{nameof(Global)}.OnResuming():Start synchronizing filters...");
 
                     if (_walletManager.SleepingCoins is { })
@@ -531,6 +438,7 @@ namespace Chaincase.Common
 
                     var synchronizer = _synchronizer;
                     if (synchronizer is { })
+
                     {
                         await synchronizer.SleepAsync();
                         Logger.LogInfo($"{nameof(Global)}.OnSleeping():{nameof(_synchronizer)} is sleeping.");

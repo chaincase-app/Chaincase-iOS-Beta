@@ -199,20 +199,6 @@ namespace Chaincase.Common
                 #endregion P2PInitialization
 
                 #region SynchronizerInitialization
-<<<<<<< HEAD
-                _synchronizer.Start();
-||||||| d45e09c0f
-
-                var requestInterval = TimeSpan.FromSeconds(30);
-                if (Network == Network.RegTest)
-                {
-                    requestInterval = TimeSpan.FromSeconds(5);
-                }
-
-                int maxFiltSyncCount = Network == Network.Main ? 1000 : 10000; // On testnet, filters are empty, so it's faster to query them together
-
-                _synchronizer.Start(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
-=======
 
                 var requestInterval = TimeSpan.FromSeconds(3);
                 if (Network == Network.RegTest)
@@ -223,7 +209,6 @@ namespace Chaincase.Common
                 int maxFiltSyncCount = Network == Network.Main ? 1000 : 10000; // On testnet, filters are empty, so it's faster to query them together
 
                 _synchronizer.Start(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
->>>>>>> master
                 Logger.LogInfo($"{nameof(Global)}.InitializeNoWalletAsync(): Start synchronizing filters...");
 
                 #endregion SynchronizerInitialization
@@ -455,17 +440,9 @@ namespace Chaincase.Common
                     Nodes.Connect();
                     Logger.LogInfo($"{nameof(Global)}.OnResuming():Start connecting to nodes...");
 
-<<<<<<< HEAD
-                    _synchronizer.Resume();
-||||||| d45e09c0f
-                    var requestInterval = (Network == Network.RegTest) ? TimeSpan.FromSeconds(5) : TimeSpan.FromSeconds(30);
-                    int maxFiltSyncCount = Network == Network.Main ? 1000 : 10000; // On testnet, filters are empty, so it's faster to query them together
-                    _synchronizer.Resume(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
-=======
                     var requestInterval = (Network == Network.RegTest) ? TimeSpan.FromSeconds(5) : TimeSpan.FromSeconds(3);
                     int maxFiltSyncCount = Network == Network.Main ? 1000 : 10000; // On testnet, filters are empty, so it's faster to query them together
                     _synchronizer.Resume(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
->>>>>>> master
                     Logger.LogInfo($"{nameof(Global)}.OnResuming():Start synchronizing filters...");
 
                     if (_walletManager.SleepingCoins is { })

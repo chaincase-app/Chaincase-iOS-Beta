@@ -155,7 +155,7 @@ namespace Chaincase.iOS.Services
                             }
                         }); // TorController.addObserver
 
-                            NSObject progressObs = null;
+                        NSObject progressObs = null;
                         progressObs = TorController?.AddObserverForStatusEvents(
                             (NSString type, NSString severity, NSString action, NSDictionary<NSString, NSString> arguments) =>
                             {
@@ -176,8 +176,8 @@ namespace Chaincase.iOS.Services
 
                                 return false;
                             }); // TorController.addObserver
-                        } // if success (authenticate)
-                        else
+                    } // if success (authenticate)
+                    else
                     {
                         Logger.LogInfo("Didn't connect to control port.");
                     }
@@ -193,8 +193,8 @@ namespace Chaincase.iOS.Services
                    TorController?.SetConfForKey("DisableNetwork", "1", null);
                    TorController?.SetConfForKey("DisableNetwork", "0", null);
 
-                    // Hint user that they might need to use a bridge.
-                    managerDelegate?.TorConnDifficulties();
+                   // Hint user that they might need to use a bridge.
+                   managerDelegate?.TorConnDifficulties();
                }
            });
 
@@ -207,28 +207,24 @@ namespace Chaincase.iOS.Services
         {
             get
             {
-                string homeDirectory = null;
-
-                if (Runtime.Arch == Arch.SIMULATOR)
-                {
-                    foreach (string var in new string[] { "IPHONE_SIMULATOR_HOST_HOME", "SIMULATOR_HOST_HOME" })
-                    {
-                        string val = Environment.GetEnvironmentVariable(var);
-                        if (val != null)
-                        {
-                            homeDirectory = val;
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    homeDirectory = NSHomeDirectory();
-                }
-
                 TORConfiguration configuration = new TORConfiguration();
                 configuration.CookieAuthentication = true; //@YES
-                configuration.DataDirectory = new NSUrl(Path.GetTempPath());
+                var torDir = Path.Combine(NSFileManager.DefaultManager.GetUrls(NSSearchPathDirectory.CachesDirectory, NSSearchPathDomain.User).First().Path, "tor");
+                try
+                {
+                    NSFileManager.DefaultManager.CreateDirectory(
+                        torDir,
+                        createIntermediates: true,
+                        new NSFileAttributes()
+                        {
+                            ProtectionKey = NSFileProtection.CompleteUntilFirstUserAuthentication
+                        });
+                }
+                catch
+                {
+                    Logger.LogWarning($"Could not set CompleteUntilFirstUserAuthentication Protection at {torDir}");
+                }
+                configuration.DataDirectory = new (torDir);
                 configuration.Arguments = new string[] {
                     "--allow-missing-torrc",
                     "--ignore-missing-torrc",
@@ -238,6 +234,7 @@ namespace Chaincase.iOS.Services
                 return configuration;
             }
         }
+
 
         /// <param name="torSocks5EndPoint">Opt out Tor with null.</param>
         public static async Task<bool> IsTorRunningAsync(EndPoint torSocks5EndPoint)
@@ -281,8 +278,6 @@ namespace Chaincase.iOS.Services
                 }
             }
         }
-
-        private static string NSHomeDirectory() => Directory.GetParent(NSFileManager.DefaultManager.GetUrls(NSSearchPathDirectory.LibraryDirectory, NSSearchPathDomain.User).First().Path).FullName;
 
         // Cancel the connection retry and fail guard.
         private void CancelInitRetry()

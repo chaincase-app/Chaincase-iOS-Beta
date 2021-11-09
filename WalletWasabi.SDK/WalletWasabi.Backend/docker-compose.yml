@@ -39,3 +39,4 @@ services:
 volumes:
   postgres_datadir:
   bitcoin_datadir:
+

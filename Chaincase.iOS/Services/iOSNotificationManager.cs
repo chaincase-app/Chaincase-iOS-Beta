@@ -22,6 +22,10 @@ namespace Chaincase.iOS.Services
                 (granted, _) =>
             {
                 hasNotificationsPermission = granted;
+
+                //important because the user can, at any time, go into the Settings app and change their notification permissions
+                if (granted)
+                    AppDelegate.RegisterForRemoteNotifications();
             });
         }
 

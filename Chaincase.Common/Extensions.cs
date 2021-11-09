@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Chaincase.Common.Contracts;
 using Chaincase.Common.Services;
@@ -23,8 +24,9 @@ namespace Chaincase.Common
             services.AddSingleton(x => {
                 var network = x.GetRequiredService<Config>().Network;
                 var dataDir = x.GetRequiredService<IDataDirProvider>().Get();
+                var walletDirectories = x.GetService<WalletDirectories>() ?? new WalletDirectories(dataDir);
                 var notificationManager = x.GetRequiredService<INotificationManager>();
-                return new ChaincaseWalletManager(network, new WalletDirectories(dataDir), notificationManager);
+                return new ChaincaseWalletManager(network, walletDirectories, notificationManager);
             });
             services.AddSingleton(x =>
             {
