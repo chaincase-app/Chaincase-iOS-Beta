@@ -78,7 +78,7 @@
     <MtouchExtraArgs>-v -v -v -v</MtouchExtraArgs>
 <MtouchUseLlvm>false</MtouchUseLlvm>
 <MtouchInterpreter>-all</MtouchInterpreter>
-<CodesignProvision>cash.chaincase.testnet Ad Hoc</CodesignProvision>
+<CodesignProvision>Chaincase Distribution</CodesignProvision>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
