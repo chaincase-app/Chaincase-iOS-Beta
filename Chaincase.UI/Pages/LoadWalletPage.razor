@@ -24,15 +24,6 @@
         If funds secured using these seed words are hidden behind a password you must enter it here.
         The password must be exactly as it was created. As it is your secret, we cannot check whether or not it is correct.
     </p>
-    <IonLabel class="ion-padding" id="blockheight">Optional: Block Height</IonLabel>
-    <IonItem>
-        <IonInput type="number" @bind-Value="@ViewModel.BlockHeight" 
-                  aria-labelledby="blockheight" min="@vm.MinBirthdayWallet.Value" />
-    </IonItem>
-     <p class="ion-padding">
-        If you know the block height of when this wallet was created, we will optimize the restoration to start from it.       
-     </p>
-
     <IonButton class="neu-button ion-padding-horizontal"
                OnClick="LoadWallet"
                expand="block">

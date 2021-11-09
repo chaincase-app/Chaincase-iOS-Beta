@@ -43,7 +43,7 @@ namespace Chaincase.UI.ViewModels
             _chaincaseClient = chaincaseClient;
         }
 
-        public async Task SetPasswordAsync(string password)
+        public async Task InitNewWallet(string password)
         {
             Mnemonic seedWords = null;
             LatestMatureHeaderResponse res = null;
