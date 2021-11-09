@@ -112,7 +112,7 @@ namespace WalletWasabi.Wallets
 			NodesGroup nodes,
 			ServiceConfiguration serviceConfiguration,
 			IFeeProvider feeProvider,
-			IBlockProvider blockProvider)
+			IBlockProvider blockProvider,)
 		{
 			if (State > WalletState.WaitingForInit)
 			{

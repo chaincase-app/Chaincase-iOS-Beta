@@ -87,14 +87,6 @@ namespace WalletWasabi.Backend
 			services.AddSingleton(x=> x.GetRequiredService<Global>().Config);
 			services.AddSingleton<SendPushService>();
 			services.AddSingleton(provider => new WebsiteTorifier(provider.GetRequiredService<IWebHostEnvironment>().WebRootPath));
-			services.AddSingleton(provider =>
-			{
-				var network = provider.GetRequiredService<Config>().Network;
-				var settings = JsonSerializerSettingsProvider.CreateSerializerSettings();
-				Serializer.RegisterFrontConverters(settings, network);
-				return settings;
-
-			});
 			services.AddStartupTask<InitConfigStartupTask>();
 			services.AddStartupTask<MigrationStartupTask>();
 			services.AddSingleton<MempoolIndexBuilderService>();

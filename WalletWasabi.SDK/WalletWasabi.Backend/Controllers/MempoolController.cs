@@ -14,12 +14,10 @@ namespace WalletWasabi.Backend.Controllers
 	public class MempoolController : Controller
 	{
 		private readonly MempoolIndexBuilderService _mempoolIndexBuilderService;
-		private readonly JsonSerializerSettings _jsonSerializerSettings;
 
-		public MempoolController(MempoolIndexBuilderService mempoolIndexBuilderService, JsonSerializerSettings jsonSerializerSettings)
+		public MempoolController(MempoolIndexBuilderService mempoolIndexBuilderService)
 		{
 			_mempoolIndexBuilderService = mempoolIndexBuilderService;
-			_jsonSerializerSettings = jsonSerializerSettings;
 		}
 
 		[HttpGet("root")]
@@ -56,7 +54,7 @@ namespace WalletWasabi.Backend.Controllers
 			}
 
 			return Json(_mempoolIndexBuilderService.Buckets.Where(pair => keys.Contains(pair.Key))
-				.SelectMany(pair => pair.Value), _jsonSerializerSettings);
+				.SelectMany(pair => pair.Value.Select(transaction => transaction.ToHex())));
 		}
 	}
 }
