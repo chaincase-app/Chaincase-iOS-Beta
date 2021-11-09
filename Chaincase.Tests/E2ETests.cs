@@ -130,13 +130,8 @@ namespace Chaincase.Tests
 			await page.RunAndWaitForNavigationAsync(async () =>
 				await page.ClickAsync("#btn-load-wallet"));
 			Assert.EndsWith("/overview", page.Url);
-			while (true)
-			{
-				Console.WriteLine("filters left:  "  + factory.Host.Services.GetService<StatusViewModel>().FiltersLeft);
-				Assert.Equal(0, factory.Host.Services.GetService<StatusViewModel>().FiltersLeft);
-			}
-			
-			
+			Assert.Equal(0, factory.Host.Services.GetService<StatusViewModel>().FiltersLeft);
+
 		}
 	}
 }
