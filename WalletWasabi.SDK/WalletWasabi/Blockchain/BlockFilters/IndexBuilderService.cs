@@ -5,9 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
+using NBitcoin.Crypto;
+using NBitcoin.DataEncoders;
 using WalletWasabi.Backend.Models;
+using WalletWasabi.Bases;
 using WalletWasabi.BitcoinCore;
 using WalletWasabi.BitcoinCore.RpcModels;
 using WalletWasabi.Blockchain.Blocks;
@@ -17,6 +22,109 @@ using WalletWasabi.Models;
 
 namespace WalletWasabi.Blockchain.BlockFilters
 {
+	public class MempoolIndexBuilderService : PeriodicRunner
+	{
+		private Dictionary<uint256, Transaction> Mempool { get; } = new();
+		private const int BatchSize = 1000;
+
+		public MempoolIndexBuilderService(TimeSpan period) : base(period)
+		{
+		}
+
+		protected override Task ActionAsync(CancellationToken cancel)
+		{
+			BuildFilters();
+			return Task.CompletedTask;
+		}
+
+		private void BuildFilters()
+		{
+			var currentTime = DateTimeOffset.UtcNow;
+			var timestamp = currentTime.ToUnixTimeSeconds().ToString();
+			var orderedtxs = Mempool.OrderBy(pair => pair.Key).ToDictionary(pair => pair.Key, pair => pair.Value);
+			var keyStr = $"{timestamp}_root";
+			var key = Hashes.DoubleSHA256(Encoding.UTF8.GetBytes(keyStr));
+
+			string rootFilterKey = Encoders.Hex.EncodeData(key.ToBytes()[..16]);
+			var scriptsForTxs =
+				orderedtxs.ToDictionary(pair => pair.Key, pair => FetchScripts(new[] { pair.Value }));
+			var allScripts = scriptsForTxs.SelectMany(list => list.Value.Select(script => script.ToCompressedBytes()));
+
+			var rootFilter = new GolombRiceFilterBuilder()
+					.SetKey(key)
+					.SetP(20)
+					.SetM(1 << 20)
+					.AddEntries(allScripts)
+					.Build();
+
+			var buckets = new Dictionary<string, Transaction[]>()
+			{
+				{ rootFilterKey, orderedtxs.Values.ToArray() }
+			};
+			var  subFilters = new Dictionary<string, GolombRiceFilter>();
+			for (int i = 0; i < orderedtxs.Count; i+=BatchSize)
+			{
+				var bucketTxs = orderedtxs.Skip(i).Take(BatchSize).ToDictionary(pair => pair.Key, pair => pair.Value);
+				var txKeys = bucketTxs.Keys;
+				var txValues = bucketTxs.Values;
+				var scripts = scriptsForTxs.Where(pair => txKeys.Contains(pair.Key)).SelectMany(pair => pair.Value.Select(script => script.ToCompressedBytes()));
+
+				keyStr = $"{timestamp}_{i}";
+				key = Hashes.DoubleSHA256(Encoding.UTF8.GetBytes(keyStr));
+				var filterKey = Encoders.Hex.EncodeData(key.ToBytes()[..16]);
+				GolombRiceFilter filter = new GolombRiceFilterBuilder()
+					.SetKey(key)
+					.SetP(20)
+					.SetM(1 << 20)
+					.AddEntries(scripts)
+					.Build();
+				buckets.Add(filterKey,  txValues.ToArray());
+				subFilters.Add(filterKey,filter);
+			}
+
+			RootFilter = rootFilter;
+			RootFilterKey = rootFilterKey;
+			SubFilters = subFilters;
+			Buckets = buckets;
+			LastBuilt = currentTime;
+
+		}
+
+		public DateTimeOffset? LastBuilt { get; private set; }
+
+		public GolombRiceFilter RootFilter { get; private set; }
+		public Dictionary<string, GolombRiceFilter> SubFilters { get; private set; }
+		public Dictionary<string, Transaction[]> Buckets { get; private set; }
+		public string RootFilterKey { get; private set; }
+
+		private List<Script> FetchScripts(IEnumerable<Transaction> txs)
+		{
+			var scripts = new List<Script>();
+
+			foreach (var tx in txs)
+			{
+				foreach (var input in tx.Inputs)
+				{
+					var signer = input.GetSigner();
+					if (signer.ScriptPubKey.IsScriptType(ScriptType.Witness))
+					{
+						scripts.Add(signer.ScriptPubKey);
+					}
+				}
+
+				foreach (var output in tx.Outputs)
+				{
+					if (output.ScriptPubKey.IsScriptType(ScriptType.Witness))
+					{
+						scripts.Add(output.ScriptPubKey);
+					}
+				}
+			}
+
+			return scripts;
+		}
+	}
+
 	public class IndexBuilderService
 	{
 		private const long NotStarted = 0;

@@ -13,11 +13,14 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 using Microsoft.EntityFrameworkCore.Internal;
+using NBitcoin.JsonConverters;
 using NicolasDorier.RateLimits;
 using WalletWasabi.Backend.Middlewares;
 using WalletWasabi.Backend.Data;
 using WalletWasabi.Backend.Polyfills;
+using WalletWasabi.Blockchain.BlockFilters;
 using WalletWasabi.Helpers;
 using WalletWasabi.Interfaces;
 using WalletWasabi.Logging;
@@ -84,8 +87,18 @@ namespace WalletWasabi.Backend
 			services.AddSingleton(x=> x.GetRequiredService<Global>().Config);
 			services.AddSingleton<SendPushService>();
 			services.AddSingleton(provider => new WebsiteTorifier(provider.GetRequiredService<IWebHostEnvironment>().WebRootPath));
+			services.AddSingleton(provider =>
+			{
+				var network = provider.GetRequiredService<Config>().Network;
+				var settings = JsonSerializerSettingsProvider.CreateSerializerSettings();
+				Serializer.RegisterFrontConverters(settings, network);
+				return settings;
+
+			});
 			services.AddStartupTask<InitConfigStartupTask>();
 			services.AddStartupTask<MigrationStartupTask>();
+			services.AddSingleton<MempoolIndexBuilderService>();
+			services.AddHostedService(provider => provider.GetRequiredService<MempoolIndexBuilderService>());
 			services.AddResponseCompression();
 		}
 
