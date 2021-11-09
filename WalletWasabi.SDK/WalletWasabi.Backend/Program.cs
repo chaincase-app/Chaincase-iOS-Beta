@@ -22,7 +22,7 @@ namespace WalletWasabi.Backend
 		{
 			try
 			{
-				var endPoint = "http://localhost:37127/";
+				var endPoint = Environment.GetEnvironmentVariable("WASABI_BIND")?? "http://localhost:37127/";
 
 				using var host = Host.CreateDefaultBuilder(args)
 					.ConfigureWebHostDefaults(webBuilder => webBuilder

@@ -85,6 +85,10 @@ namespace WalletWasabi.CoinJoin.Coordinator.Rounds
 		[JsonProperty(PropertyName = "CoordinatorExtPubKeyCurrentDepth", DefaultValueHandling = DefaultValueHandling.Populate)]
 		public int CoordinatorExtPubKeyCurrentDepth { get; private set; }
 
+		[DefaultValue(true)]
+		[JsonProperty(PropertyName = "IsDebug", DefaultValueHandling = DefaultValueHandling.Populate)]
+		public bool IsDebug { get; internal set; }
+
 		public Script GetNextCleanCoordinatorScript() => DeriveCoordinatorScript(CoordinatorExtPubKeyCurrentDepth);
 
 		public Script DeriveCoordinatorScript(int index) => CoordinatorExtPubKey.Derive(0, false).Derive(index, false).PubKey.WitHash.ScriptPubKey;
