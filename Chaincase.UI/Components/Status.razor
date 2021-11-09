@@ -22,7 +22,7 @@
             <IonLabel>Filters left: @ViewModel.FiltersLeft</IonLabel>
         }
     </IonItem>
-    @if (ViewModel.ProgressPercent != 100)
+    @if (ViewModel.FiltersLeft != 0)
     {
         <IonItem>
             <IonProgressBar value="@ViewModel.ProgressPercent"/>

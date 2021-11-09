@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/chaincase-app/WalletWasabi.Standard
+	branch = sdk
+	commit = e566815becc5ce2eeb03c9d3969cf344a43d6718
+	parent = ca9d6dcde92de4425544e2d7ec219c7afdc4e04b
+	method = merge
+	cmdver = 0.4.3
