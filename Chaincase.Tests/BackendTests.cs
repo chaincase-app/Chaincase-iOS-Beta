@@ -46,10 +46,6 @@ namespace Chaincase.Tests
 			var factory = regtestFixture.BackendHost.Services.GetService<IDbContextFactory<WasabiBackendContext>>();
 			await using var context = factory.CreateDbContext();
 			Assert.NotNull(await context.FindAsync<DeviceToken>("123456"));
-			await using var context2 = factory.CreateDbContext();
-			_ = await client.RemoveNotificationTokenAsync("123456", CancellationToken.None);
-			Assert.Null(await context2.FindAsync<DeviceToken>("123456"));
-			_ = await client.RemoveNotificationTokenAsync("123456", CancellationToken.None);
 		}
 
 		#endregion
