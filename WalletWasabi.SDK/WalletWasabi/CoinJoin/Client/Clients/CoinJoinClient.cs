@@ -307,10 +307,6 @@ namespace WalletWasabi.CoinJoin.Client.Clients
 					}
 
 				}
-
-				}
-
-				}
 			}
 			catch (TaskCanceledException ex)
 			{

@@ -56,7 +56,7 @@ namespace Chaincase.UI.ViewModels
 	            //note: on regtest, 101 blocks is what you would most likely have. 100 is good to test this sync from height feature.
 	             if ((_bitcoinStore.IndexStore.SmartHeaderChain.TipHeight - res.MatureHeight) > _synchronizer.GetMaxFilterFetch())
 	            {
-		            await _synchronizer.StopAsync();
+		            await _synchronizer.SleepAsync();
 		            await _bitcoinStore.IndexStore.ResetFromHeaderAsync(header);
 		           _synchronizer.Restart();
 	            }

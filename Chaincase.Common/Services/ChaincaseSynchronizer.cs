@@ -60,16 +60,23 @@ namespace Chaincase.Common.Services
 			Cancel = null;
 		}
 
-		public void Resume( )
+		public void Resume()
 		{
 			Interlocked.CompareExchange(ref _running, 0, 3); // If stopped, make it not started
 			Cancel = new CancellationTokenSource();
 			Start();
 		}
 
+		public void Resume(TimeSpan requestInterval)
+		{
+			Interlocked.CompareExchange(ref _running, 0, 3); // If stopped, make it not started
+			Cancel = new CancellationTokenSource();
+			base.Start(requestInterval, TimeSpan.FromMinutes(5), GetMaxFilterFetch());
+		}
+
 		public void Start()
 		{
-			base.Start(GetRequestInterval(), TimeSpan.FromMinutes(5),GetMaxFilterFetch());
+			base.Start(GetRequestInterval(), TimeSpan.FromMinutes(5), GetMaxFilterFetch());
 		}
 		
 		public void Restart()

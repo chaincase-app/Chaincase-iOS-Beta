@@ -19,4 +19,7 @@
       <Folder Include="Models\" />
       <Folder Include="Services\Mock\" />
     </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\WalletWasabi.SDK\WalletWasabi\WalletWasabi.csproj" />
+    </ItemGroup>
 </Project>

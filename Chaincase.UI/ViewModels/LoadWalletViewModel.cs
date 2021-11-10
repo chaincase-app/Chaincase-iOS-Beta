@@ -32,12 +32,12 @@ namespace Chaincase.UI.ViewModels
 
         private readonly string ACCOUNT_KEY_PATH = $"m/{KeyManager.DefaultAccountKeyPath}";
         private const int MIN_GAP_LIMIT = KeyManager.AbsoluteMinGapLimit * 4;
-        public LoadWalletViewModel(ChaincaseWalletManager walletManager, 
-	        Config config, 
-	        UiConfig uiConfig, 
-	        SensitiveStorage storage, 
-	        ChaincaseBitcoinStore chaincaseBitcoinStore,
-	        ChaincaseSynchronizer synchronizer)
+        public LoadWalletViewModel(ChaincaseWalletManager walletManager,
+            Config config,
+            UiConfig uiConfig,
+            SensitiveStorage storage,
+            ChaincaseBitcoinStore chaincaseBitcoinStore,
+            ChaincaseSynchronizer synchronizer)
         {
             _walletManager = walletManager;
             _config = config;
@@ -62,9 +62,9 @@ namespace Chaincase.UI.ViewModels
             km.SetNetwork(_config.Network);
             km.SetFilePath(walletFilePath);
 
-            await SyncFromScratch();   
+            await SyncFromScratch();
             _ = _walletManager.AddWallet(km);
-            
+
             await _storage.SetSeedWords(Password, mnemonic.ToString());
             _uiConfig.HasSeed = true;
             _uiConfig.ToFile();
@@ -72,16 +72,16 @@ namespace Chaincase.UI.ViewModels
 
         private async Task SyncFromScratch()
         {
-	        var statingFilter = StartingFilters.GetStartingFilter(_config.Network).Header;
-	        if (_bitcoinStore.IndexStore.StartingHeight == statingFilter.Height)
-	        {
-		        //no need to make user go through pain: their filters are already set to download from the start!
-		        return;
-	        }
-	        
-	        await _synchronizer.StopAsync();
-	        await _bitcoinStore.IndexStore.ResetFromHeaderAsync(statingFilter);
-	        _synchronizer.Restart();
+            var statingFilter = StartingFilters.GetStartingFilter(_config.Network).Header;
+            if (_bitcoinStore.IndexStore.StartingHeight == statingFilter.Height)
+            {
+                //no need to make user go through pain: their filters are already set to download from the start!
+                return;
+            }
+
+            await _synchronizer.SleepAsync();
+            await _bitcoinStore.IndexStore.ResetFromHeaderAsync(statingFilter);
+            _synchronizer.Restart();
         }
 
         public string Password

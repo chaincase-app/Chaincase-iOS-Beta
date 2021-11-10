@@ -54,7 +54,7 @@ namespace Chaincase.Common
             services.AddSingleton(x =>
             {
                 return new FeeProviders(new List<IFeeProvider>
-                {
+				{
                     x.GetRequiredService<ChaincaseSynchronizer>()
                 });
             });
