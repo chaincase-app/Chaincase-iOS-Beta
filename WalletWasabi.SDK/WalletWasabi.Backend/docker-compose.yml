@@ -1,9 +1,4 @@
-<<<<<<< HEAD
 version: "3"
-services:
-
-
-        
 services:
 
   bitcoind:
