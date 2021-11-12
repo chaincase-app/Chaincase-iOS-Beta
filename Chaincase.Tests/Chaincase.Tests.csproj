@@ -32,4 +32,7 @@
     <ProjectReference Include="..\Chaincase.SSB\Chaincase.SSB.csproj" />
     <ProjectReference Include="..\Chaincase.UI\Chaincase.UI.csproj" />
   </ItemGroup>
+  <Target Name="Restore Local Tools" AfterTargets="BeforeBuild" >
+    <Exec Command="dotnet tool restore" />
+  </Target>
 </Project>

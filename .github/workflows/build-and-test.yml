@@ -30,12 +30,10 @@ jobs:
 #      - name: LFS Pull
 #        run: git lfs pull
       - name: Build
-        run: dotnet build Chaincase.Tests --configuration Release --no-restore
-      - name: Install E2E Tools
-        run: dotnet tool install --global Microsoft.Playwright.CLI
+        run: dotnet build Chaincase.Tests
       - name: Install Browser binaries
-        run: playwright install
+        run: dotnet playwright install chromium
       - name: Run Docker Compose for tests
         run: docker-compose -f WalletWasabi.SDK/WalletWasabi.Backend/docker-compose.yml up -d
       - name: Test
-        run: dotnet test Chaincase.Tests --no-restore
+        run: dotnet test Chaincase.Tests

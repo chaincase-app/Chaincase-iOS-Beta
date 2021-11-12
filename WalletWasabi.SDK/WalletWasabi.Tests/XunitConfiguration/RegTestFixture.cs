@@ -25,12 +25,12 @@ namespace WalletWasabi.Tests.XunitConfiguration
 	{
 		private volatile bool _disposedValue = false; // To detect redundant calls
 
-		public RegTestFixture()
+		public RegTestFixture(CoreNode coreNode = null)
 		{
 			RuntimeParams.SetDataDir(Path.Combine(Tests.Global.Instance.DataDir, "RegTests", "Backend"));
 			RuntimeParams.LoadAsync().GetAwaiter().GetResult();
 			var hostedServices = new HostedServices();
-			BackendRegTestNode = TestNodeBuilder.CreateAsync(hostedServices, callerFilePath: "RegTests", callerMemberName: "BitcoinCoreData").GetAwaiter().GetResult();
+			BackendRegTestNode = coreNode?? TestNodeBuilder.CreateAsync(hostedServices, callerFilePath: "RegTests", callerMemberName: "BitcoinCoreData").GetAwaiter().GetResult();
 
 			var testnetBackendDir = EnvironmentHelpers.GetDataDir(Path.Combine("WalletWasabi", "Tests", "RegTests", "Backend"));
 			IoHelpers.DeleteRecursivelyWithMagicDustAsync(testnetBackendDir).GetAwaiter().GetResult();
