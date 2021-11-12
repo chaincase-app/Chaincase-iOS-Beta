@@ -34,5 +34,6 @@
   </ItemGroup>
   <Target Name="Restore Local Tools" AfterTargets="BeforeBuild">
     <Exec Command="dotnet tool restore" />
+    <Exec Command="dotnet playwright install" />
   </Target>
 </Project>

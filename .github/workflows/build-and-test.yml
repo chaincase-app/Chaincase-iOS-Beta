@@ -29,10 +29,6 @@ jobs:
 #        run: git lfs checkout
 #      - name: LFS Pull
 #        run: git lfs pull
-      - name: Build
-        run: dotnet build Chaincase.Tests --configuration Release --no-restore
-      - name: Install Browser binaries
-        run: dotnet playwright install
       - name: Run Docker Compose for tests
         run: docker-compose -f WalletWasabi.SDK/WalletWasabi.Backend/docker-compose.yml up -d
       - name: Test

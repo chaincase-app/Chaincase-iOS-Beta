@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq.Expressions;
+using System.Net;
+using System.Reflection;
 using System.Threading.Tasks;
 using Chaincase.Common;
 using Chaincase.Common.Contracts;
@@ -12,7 +15,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Playwright;
+using Moq;
 using NBitcoin;
+using NBitcoin.RPC;
+using WalletWasabi.BitcoinCore;
+using WalletWasabi.Blockchain.Mempool;
 using WalletWasabi.Tests.XunitConfiguration;
 using Xunit;
 
@@ -71,13 +78,49 @@ namespace Chaincase.Tests
 			//fresh run = landing page default
 			Assert.EndsWith("/landing", page.Url);
 		}
-		
-		
+		private static string GetMemberName(Expression expression)
+		{
+			switch(expression.NodeType)
+			{
+				case ExpressionType.MemberAccess:
+					return ((MemberExpression)expression).Member.Name;
+				case ExpressionType.Convert:
+					return GetMemberName(((UnaryExpression)expression).Operand);
+				case ExpressionType.Lambda:
+					return GetMemberName(((LambdaExpression)expression).Body);
+				default:
+					throw new NotSupportedException(expression.NodeType.ToString());
+			}
+		}
+		private void SetPrivateValue<T,TY>(T obj, Expression<Func<T, TY>> expression, TY value)
+		{
+			var I = obj.GetType().GetProperty(GetMemberName(expression), BindingFlags.Public | BindingFlags.Instance);
+			I!.SetValue(obj, value);
+		}		
 
 		[Fact]
 		public async Task SyncWalletFromRecentBlock()
 		{
-			using var regTestFixture = new RegTestFixture();
+			//We cannot use Moq here due to the props not being set virtual and we cannot just create a pure object and set normally because they have internal setters
+			var coreNode = new CoreNode();
+			SetPrivateValue(coreNode, node => node.Network, Network.RegTest);
+			SetPrivateValue(coreNode,node => node.Network, Network.RegTest);
+			SetPrivateValue(coreNode,node => node.RpcEndPoint, new IPEndPoint(IPAddress.Loopback, 18443));
+			SetPrivateValue(coreNode,node => node.P2pEndPoint, new IPEndPoint(IPAddress.Loopback, 18444));
+			SetPrivateValue(coreNode,node => node.RpcClient, new RpcClientBase(
+					new RPCClient(RPCCredentialString.Parse($"ceiwHEbqWI83:DwubwWsoo3"), new Uri("http://localhost:18443"), Network.RegTest)));
+			
+			// var coreNode = new Mock<CoreNode>(MockBehavior.Strict);
+			//
+			// coreNode.Object
+			//
+			// coreNode.SetupProperty(node => node.Network, Network.RegTest);
+			// coreNode.SetupProperty(node => node.RpcEndPoint, new IPEndPoint(IPAddress.Loopback, 18443));
+			// coreNode.SetupProperty(node => node.P2pEndPoint, new IPEndPoint(IPAddress.Loopback, 18444));
+			// coreNode.SetupProperty(node => node.RpcClient, new RpcClientBase(
+			// 		new RPCClient(RPCCredentialString.Parse($"ceiwHEbqWI83:DwubwWsoo3"), new Uri("http://localhost:18443"), Network.RegTest)));
+			
+			using var regTestFixture = new RegTestFixture(coreNode);
 			using var factory = Create(new Dictionary<string, string>(), collection =>
 			{
 				collection.Replace(ServiceDescriptor.Singleton<Config>(provider =>
