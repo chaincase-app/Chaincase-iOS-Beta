@@ -2,12 +2,12 @@
 using Android.Content.PM;
 using Android.Runtime;
 using Android.OS;
-using Chaincase.Common;
 using Chaincase.Common.Contracts;
-using Chaincase.Common.Xamarin;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.MobileBlazorBindings.WebView.Android;
 using Android.Views;
+using Chaincase.Common.Services.Mock;
+using Chaincase.Services;
 
 namespace Chaincase.Droid
 {

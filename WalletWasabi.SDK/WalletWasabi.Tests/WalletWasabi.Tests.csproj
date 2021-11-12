@@ -27,7 +27,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\WalletWasabi.Backend\WalletWasabi.Backend.csproj" />
-    <ProjectReference Include="..\WalletWasabi.Gui\WalletWasabi.Gui.csproj" />
+<!--    <ProjectReference Include="..\WalletWasabi.Gui\WalletWasabi.Gui.csproj" />-->
     <ProjectReference Include="..\WalletWasabi\WalletWasabi.csproj" />
   </ItemGroup>
 
@@ -35,9 +35,17 @@
     <None Update="xunit.runner.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Remove="UnitTests\GUI\**" />
   </ItemGroup>
   <ItemGroup>
     <RuntimeHostConfigurationOption Include="System.Globalization.Invariant" Value="true" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="UnitTests\GUI\**" />
+    <Compile Remove="TestableRpcService.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Remove="UnitTests\GUI\**" />
   </ItemGroup>
 
 </Project>
