@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Chaincase.Background;
 using Chaincase.Common;
 using Chaincase.Common.Contracts;
+using Chaincase.Common.Services;
 using Chaincase.iOS.Background;
 using Chaincase.iOS.Services;
 using CoreFoundation;
@@ -29,7 +30,7 @@ namespace Chaincase.iOS
     public partial class AppDelegate : global::Xamarin.Forms.Platform.iOS.FormsApplicationDelegate
     {
         private Global _global;
-        private WasabiClient _apnsEnrollmentClient;
+        private ChaincaseClient _apnsEnrollmentClient;
 
         //
         // This method is invoked when the application has loaded and is ready to run. In this
@@ -47,7 +48,7 @@ namespace Chaincase.iOS
             var dataDir = formsApp.ServiceProvider.GetService<IDataDirProvider>().Get();
             SetLoggerPermissions(dataDir);
             _global = formsApp.ServiceProvider.GetService<Global>();
-            _apnsEnrollmentClient = formsApp.ServiceProvider.GetService<WasabiClient>();
+            _apnsEnrollmentClient = formsApp.ServiceProvider.GetService<ChaincaseClient>();
 
             MessagingCenter.Subscribe<InitializeNoWalletTaskMessage>(this, "InitializeNoWalletTaskMessage", async message =>
             {
@@ -141,10 +142,6 @@ namespace Chaincase.iOS
             obj.AddSingleton<iOSNotificationReceiver>();
             obj.AddSingleton<ITorManager, iOSTorManager>();
             obj.AddSingleton<WalletDirectories, iOSWalletDirectories>();
-            obj.AddTransient<WasabiClient>(x => {
-                var config = x.GetRequiredService<Config>();
-                return new WasabiClient(config.GetCurrentBackendUri(), config.TorSocks5EndPoint);
-            }); // For APNS Token Storage
         }
 
         private bool SetLoggerPermissions(string dataDir)
