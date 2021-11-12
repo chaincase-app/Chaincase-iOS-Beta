@@ -1,5 +1,5 @@
 To run the tests:
-`docker compose -f WalletWasabi/WalletWasabi.Backend/docker-compose.yml up -d`
+`docker compose -f WalletWasabi.SDK/WalletWasabi.Backend/docker-compose.yml up -d`
 `dotnet tool install --global Microsoft.Playwright.CLI`
 `playwright install`
 

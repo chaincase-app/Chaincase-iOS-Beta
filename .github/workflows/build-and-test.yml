@@ -1,39 +1,13 @@
 ﻿name: build and test
 on: [push, pull_request]
-env:
-  DOTNET_VERSION: '3.1.413' # The .NET SDK version to use
-  IN_CI: 'true'
 
 jobs:
   build-and-test:
     name: build-and-test-${{matrix.os}}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-#        os: [ubuntu-latest, windows-latest, macOS-latest]
-
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-        # with:
-        #   lfs: true
-      - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
       - name: Build Backend Docker Image
         run: cd WalletWasabi.SDK && dotnet clean && docker build . && cd ../
-      - name: Install dependencies
-        run: dotnet restore     
-#      - name: Checkout LFS objects
-#        run: git lfs checkout
-#      - name: LFS Pull
-#        run: git lfs pull
-      - name: Build
-        run: dotnet build Chaincase.Tests
-      - name: Install Browser binaries
-        run: dotnet playwright install chromium
-      - name: Run Docker Compose for tests
-        run: docker-compose -f WalletWasabi.SDK/WalletWasabi.Backend/docker-compose.yml up -d
-      - name: Test
-        run: dotnet test Chaincase.Tests
+      - name: Build And Run Tests
+        run: cd Chaincase.Tests && ./run-tests.sh

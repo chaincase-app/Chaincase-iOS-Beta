@@ -1,0 +1,14 @@
+version: "3"
+services:
+
+  tests:
+    build:
+      context: ..
+      dockerfile: Chaincase.Tests/Dockerfile
+    links:
+      - bitcoind
+      - postgres
+        
+volumes:
+  postgres_datadir:
+  bitcoin_datadir:

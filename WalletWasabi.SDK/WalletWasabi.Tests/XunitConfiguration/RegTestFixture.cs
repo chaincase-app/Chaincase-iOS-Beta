@@ -25,7 +25,9 @@ namespace WalletWasabi.Tests.XunitConfiguration
 	{
 		private volatile bool _disposedValue = false; // To detect redundant calls
 
-		public RegTestFixture(CoreNode coreNode = null)
+		public RegTestFixture(CoreNode coreNode = null,
+			string connString = null,
+			string url = null)
 		{
 			RuntimeParams.SetDataDir(Path.Combine(Tests.Global.Instance.DataDir, "RegTests", "Backend"));
 			RuntimeParams.LoadAsync().GetAwaiter().GetResult();
@@ -46,7 +48,7 @@ namespace WalletWasabi.Tests.XunitConfiguration
 				new IPEndPoint(IPAddress.Loopback, Network.Main.RPCPort),
 				new IPEndPoint(IPAddress.Loopback, Network.TestNet.RPCPort),
 				BackendRegTestNode.RpcEndPoint,
-				"User ID=postgres;Host=127.0.0.1;Port=65466;Database=wasabibackend;");
+				connString ?? "User ID=postgres;Host=127.0.0.1;Port=65466;Database=wasabibackend;");
 			var configFilePath = Path.Combine(testnetBackendDir, "Config.json");
 			config.SetFilePath(configFilePath);
 			config.ToFile();
@@ -59,7 +61,7 @@ namespace WalletWasabi.Tests.XunitConfiguration
 			var conf = new ConfigurationBuilder()
 				.AddInMemoryCollection(new[] { new KeyValuePair<string, string>("datadir", testnetBackendDir) })
 				.Build();
-			BackendEndPoint = $"http://localhost:{new Random().Next(37130, 38000)}/";
+			BackendEndPoint = url ?? $"http://localhost:{new Random().Next(37130, 38000)}/";
 
 			BackendHost = Host.CreateDefaultBuilder()
 					.ConfigureWebHostDefaults(webBuilder => webBuilder

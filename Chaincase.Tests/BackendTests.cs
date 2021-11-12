@@ -29,11 +29,9 @@ namespace Chaincase.Tests
 		[Fact]
 		public async Task NotificationsTests()
 		{
-			var regtestFixture = new RegTestFixture();
-			var jobj = JObject.FromObject(regtestFixture.Global.Config);
-			Assert.Equal(0, jobj["HashCashDifficulty"].Value<int>());
-			jobj["HashCashDifficulty"] = 10;
-			JsonConvert.PopulateObject(jobj.ToString(), regtestFixture.Global.Config);
+			var regtestFixture = TestUtils.CreateRegtestFixture(true);
+			Assert.Equal(0, regtestFixture.Global.Config.HashCashDifficulty);
+			TestUtils.SetPrivateValue(regtestFixture.Global.Config, config => config.HashCashDifficulty, 10);
 			Assert.Equal(10, regtestFixture.Global.Config.HashCashDifficulty);
 			using var client = new ChaincaseClient(() => new Uri(regtestFixture.BackendEndPoint), null);
 			_ = await client.RegisterNotificationTokenAsync(new DeviceToken()
@@ -45,7 +43,8 @@ namespace Chaincase.Tests
 
 			var factory = regtestFixture.BackendHost.Services.GetService<IDbContextFactory<WasabiBackendContext>>();
 			await using var context = factory.CreateDbContext();
-			Assert.NotNull(await context.FindAsync<DeviceToken>("123456"));
+			Assert.NotNull(await context.Tokens.FindAsync("123456"));
+
 		}
 
 		#endregion

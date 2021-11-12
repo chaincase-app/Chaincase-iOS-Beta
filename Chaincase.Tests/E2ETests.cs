@@ -52,9 +52,8 @@ namespace Chaincase.Tests
 			using var factory = Create(new Dictionary<string, string>());
 			using var playwright = await Playwright.CreateAsync();
 
-			var inCi = Environment.GetEnvironmentVariable("IN_CI");
 
-			await using var browser = await playwright.Chromium.LaunchAsync(inCi?.Equals("true") is true
+			await using var browser = await playwright.Chromium.LaunchAsync(TestUtils.InCi
 				? new BrowserTypeLaunchOptions()
 				: new BrowserTypeLaunchOptions
 				{
@@ -78,49 +77,12 @@ namespace Chaincase.Tests
 			//fresh run = landing page default
 			Assert.EndsWith("/landing", page.Url);
 		}
-		private static string GetMemberName(Expression expression)
-		{
-			switch(expression.NodeType)
-			{
-				case ExpressionType.MemberAccess:
-					return ((MemberExpression)expression).Member.Name;
-				case ExpressionType.Convert:
-					return GetMemberName(((UnaryExpression)expression).Operand);
-				case ExpressionType.Lambda:
-					return GetMemberName(((LambdaExpression)expression).Body);
-				default:
-					throw new NotSupportedException(expression.NodeType.ToString());
-			}
-		}
-		private void SetPrivateValue<T,TY>(T obj, Expression<Func<T, TY>> expression, TY value)
-		{
-			var I = obj.GetType().GetProperty(GetMemberName(expression), BindingFlags.Public | BindingFlags.Instance);
-			I!.SetValue(obj, value);
-		}		
+		
 
 		[Fact]
 		public async Task SyncWalletFromRecentBlock()
 		{
-			//We cannot use Moq here due to the props not being set virtual and we cannot just create a pure object and set normally because they have internal setters
-			var coreNode = new CoreNode();
-			SetPrivateValue(coreNode, node => node.Network, Network.RegTest);
-			SetPrivateValue(coreNode,node => node.Network, Network.RegTest);
-			SetPrivateValue(coreNode,node => node.RpcEndPoint, new IPEndPoint(IPAddress.Loopback, 18443));
-			SetPrivateValue(coreNode,node => node.P2pEndPoint, new IPEndPoint(IPAddress.Loopback, 18444));
-			SetPrivateValue(coreNode,node => node.RpcClient, new RpcClientBase(
-					new RPCClient(RPCCredentialString.Parse($"ceiwHEbqWI83:DwubwWsoo3"), new Uri("http://localhost:18443"), Network.RegTest)));
-			
-			// var coreNode = new Mock<CoreNode>(MockBehavior.Strict);
-			//
-			// coreNode.Object
-			//
-			// coreNode.SetupProperty(node => node.Network, Network.RegTest);
-			// coreNode.SetupProperty(node => node.RpcEndPoint, new IPEndPoint(IPAddress.Loopback, 18443));
-			// coreNode.SetupProperty(node => node.P2pEndPoint, new IPEndPoint(IPAddress.Loopback, 18444));
-			// coreNode.SetupProperty(node => node.RpcClient, new RpcClientBase(
-			// 		new RPCClient(RPCCredentialString.Parse($"ceiwHEbqWI83:DwubwWsoo3"), new Uri("http://localhost:18443"), Network.RegTest)));
-			
-			using var regTestFixture = new RegTestFixture(coreNode);
+			var regTestFixture = TestUtils.CreateRegtestFixture(true);
 			using var factory = Create(new Dictionary<string, string>(), collection =>
 			{
 				collection.Replace(ServiceDescriptor.Singleton<Config>(provider =>
@@ -137,9 +99,9 @@ namespace Chaincase.Tests
 				}));
 			});
 			using var playwright = await Playwright.CreateAsync();
-
+		
 			var inCi = Environment.GetEnvironmentVariable("IN_CI");
-
+		
 			await using var browser = await playwright.Chromium.LaunchAsync(inCi?.Equals("true") is true
 				? new BrowserTypeLaunchOptions()
 				: new BrowserTypeLaunchOptions
@@ -153,12 +115,11 @@ namespace Chaincase.Tests
 			{
 				await page.GotoAsync(factory.RootUri.ToString());
 			});
-
+		
 			var info = await regTestFixture.BackendRegTestNode.RpcClient.GetBlockCountAsync();
 			var client = factory.Host.Services.GetRequiredService<ChaincaseClient>();
 			var matureHeader = await client.GetLatestMatureHeader();
 			Assert.Equal((uint)info, matureHeader.BestHeight);
-			Assert.Equal((uint)1, matureHeader.MatureHeight);
 			var bStore = factory.Host.Services.GetService<ChaincaseBitcoinStore>();
 			
 			Assert.Equal(matureHeader.MatureHeight, bStore.IndexStore.StartingHeight);
@@ -174,7 +135,7 @@ namespace Chaincase.Tests
 				await page.ClickAsync("#btn-load-wallet"));
 			Assert.EndsWith("/overview", page.Url);
 			Assert.Equal(0, factory.Host.Services.GetService<StatusViewModel>().FiltersLeft);
-
+		
 		}
 	}
 }

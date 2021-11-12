@@ -81,6 +81,7 @@ namespace WalletWasabi.Backend
 
 			services.AddSingleton<IExchangeRateProvider>(new ExchangeRateProvider());
 			services.AddSingleton(new Global(Configuration["datadir"]));
+			services.AddSingleton(x=> x.GetRequiredService<Global>().Config);
 			services.AddSingleton<SendPushService>();
 			services.AddSingleton(provider => new WebsiteTorifier(provider.GetRequiredService<IWebHostEnvironment>().WebRootPath));
 			services.AddStartupTask<InitConfigStartupTask>();

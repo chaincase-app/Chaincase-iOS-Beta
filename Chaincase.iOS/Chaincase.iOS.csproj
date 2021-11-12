@@ -76,9 +76,9 @@
     <MtouchLink>SdkOnly</MtouchLink>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <MtouchExtraArgs>-v -v -v -v</MtouchExtraArgs>
-<MtouchUseLlvm>false</MtouchUseLlvm>
-<MtouchInterpreter>-all</MtouchInterpreter>
-<CodesignProvision>Chaincase Distribution</CodesignProvision>
+    <MtouchUseLlvm>false</MtouchUseLlvm>
+    <MtouchInterpreter>-all</MtouchInterpreter>
+    <CodesignProvision>Chaincase Distribution</CodesignProvision>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
@@ -140,8 +140,12 @@
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Icon20.png">
       <Visible>false</Visible>
     </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\logo_vertical.imageset\logo_vertical.png" />
-    <ImageAsset Include="Assets.xcassets\logo_vertical.imageset\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\logo_vertical.imageset\logo_vertical.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\logo_vertical.imageset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -162,12 +166,11 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' != 'Release'">
-      <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.1.12" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.1.12" />
   </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release' ">
     <DefineConstants>LIVESHARP_DISABLE</DefineConstants>
   </PropertyGroup>
-
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <ItemGroup>
     <ProjectReference Include="..\Chaincase\Chaincase.csproj">
@@ -185,15 +188,14 @@
     <ProjectReference Include="..\Xamarin.iOS.Tor\Xamarin.iOS.Tor.csproj">
       <Project>{4B9C81E8-049C-425D-BD7A-BFBF586A7F64}</Project>
       <Name>Xamarin.iOS.Tor</Name>
+      <IsAppExtension>false</IsAppExtension>
+      <IsWatchApp>false</IsWatchApp>
     </ProjectReference>
     <ProjectReference Include="..\WalletWasabi.SDK\WalletWasabi\WalletWasabi.csproj">
       <Name>WalletWasabi</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Background\" />
-    <Folder Include="Services\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="Resources\wwwroot\index.html" />
   </ItemGroup>
