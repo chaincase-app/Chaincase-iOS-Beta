@@ -36,4 +36,4 @@ jobs:
       - name: Run Docker Compose for tests
         run: docker-compose -f WalletWasabi.SDK/WalletWasabi.Backend/docker-compose.yml up -d
       - name: Test
-        run: dotnet test Chaincase.Tests --no-restore
+        run: dotnet test Chaincase.Tests
