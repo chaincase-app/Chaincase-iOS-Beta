@@ -28,8 +28,6 @@ namespace WalletWasabi.Backend.Controllers
 					case "PUT":
 						var dt = context.ActionArguments.Values.SingleOrDefault(pair => pair is DeviceToken) as DeviceToken;
 						return dt?.Token;
-					case "DELETE":
-						return context.RouteData.Values.TryGetValue("tokenString", out var tokenString) ? $"{tokenString}_delete" : null;
 				}
 				return base.GetResource(context);
 			}
@@ -66,29 +64,6 @@ namespace WalletWasabi.Backend.Controllers
 			}
 			await context.SaveChangesAsync();
 			return Ok("Device token stored.");
-		}
-
-		/// <summary>
-		/// Removes a device token so that device stops receiving notifications.
-		/// </summary>
-		/// <param name="tokenString">An Apple device token</param>
-		/// <response code="200">Always return Ok, we should not confirm whether a token is in the db or not here</response>
-		[HttpDelete("{tokenString}")]
-		[ProducesResponseType(200)]
-		[DeviceTokenHashCashFilter]
-		[RateLimitsFilter(ZoneLimits.NotificationTokens, Scope = RateLimitsScope.RouteData, DataKey = "tokenString")]
-		public async Task<IActionResult> DeleteTokenAsync([FromRoute] string tokenString)
-		{
-			await using var context = ContextFactory.CreateDbContext();
-			var token = await context.Tokens.FindAsync(tokenString);
-			if (token == null)
-			{
-				return Ok();
-			}
-
-			context.Tokens.Remove(token);
-			await context.SaveChangesAsync();
-			return Ok();
 		}
 	}
 }

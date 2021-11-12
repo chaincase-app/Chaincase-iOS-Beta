@@ -54,7 +54,6 @@ namespace WalletWasabi.Backend
 
 			if (!context.HttpContext.Request.Headers.TryGetValue("X-Hashcash", out var xhashcashValue))
 			{
-
 				context.HttpContext.Response.Headers.Add("X-Hashcash-Error", "hashcash-not-provided");
 				context.Result = new BadRequestObjectResult("Missing X-Hashcash header");
 				CreateChallenge(resource, pow, memoryCache, context);
@@ -62,7 +61,7 @@ namespace WalletWasabi.Backend
 			}
 
 			var fValue = xhashcashValue.First();
-			var challenge = fValue.Substring(0, fValue.LastIndexOf(":", StringComparison.InvariantCultureIgnoreCase) + 1);
+			var challenge = fValue.Substring(0, fValue.LastIndexOf(":", StringComparison.InvariantCultureIgnoreCase));
 			var cacheKey = $"{nameof(HashCashFilter)}_challenge_{challenge}";
 			if(!memoryCache.TryGetValue(cacheKey, out _))
 			{
