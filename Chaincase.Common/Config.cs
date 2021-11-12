@@ -34,12 +34,7 @@ namespace Chaincase.Common
 
         [JsonProperty(PropertyName = "Network")]
         [JsonConverter(typeof(NetworkJsonConverter))]
-        #if DEBUG
-			public NBitcoin.Network Network { get; set; } = NBitcoin.Network.RegTest;
-        #else
         public NBitcoin.Network Network { get; set; } = NBitcoin.Network.Main;
-        #endif
-        
 
         [DefaultValue("http://cmekpfcgcdmaegqdsj4x4j6qkdem2jhndnboegwhf3jwr2mubafjl3id.onion/")]
         [JsonProperty(PropertyName = "MainNetBackendUriV3", DefaultValueHandling = DefaultValueHandling.Populate)]
