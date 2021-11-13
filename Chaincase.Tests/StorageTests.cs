@@ -31,14 +31,14 @@ namespace Chaincase.Tests
             Assert.True(gotSeedWords == mnemonic.ToString());
         }
 
-        // [Fact]
-        // public void CanDecryptCiphertextFromPython()
-        // {
-        //     // generated with python
-        //     string password = "password";
-        //     string b64CipherText = "Gup4moWGF4RRcyPUErUuctQE2MlgH7hHIiy0+gxNT3Mc+Ktax/t25W47Lk4jOJt0QT8W2LhkwH8qg28qZ2bM0XozLEIPZe/mi9BuryrMJX8=";
-        //     var plaintext = Cryptor.DecryptWithPassword(b64CipherText, password);
-        //     Assert.True(plaintext == "poops");
-        // }
-    }
+		[Fact] 
+		 public void CanDecryptCiphertextFromPython()
+		{
+			// generated with python
+			string password = "password";
+			string b64CipherText = "5KQS4z/+0xWVGrWXwYtG6BDuQp1k+H+YXxcgIJ2A700uljkJlmmw6sH9//y12f0y2Hxd6AmXKOLPn7Lozfak5RARmv/OmzGt9VvCaHHnFYQ=";
+			var plaintext = Cryptor.DecryptWithPassword(b64CipherText, password);
+			Assert.True(plaintext == "poops");
+		}
+	}
 }
