@@ -5,22 +5,36 @@
 @inject UIStateService UiStateService
 @inject NavigationManager NavigationManager
 @inject ReceiveViewModel ReceiveViewModel
+@inject StackService StackService
 @inherits ReactiveComponentBase<ReceiveViewModel>
 
-<IonContent>
-    <IonItem class="ion-padding">
+
+<IonContent class="ion-padding-vertical">
+    <EditForm Model="ViewModel" OnValidSubmit="ApplyLabel">
+        <DataAnnotationsValidator/>
         <IonLabel position="stacked">Add Label</IonLabel>
-        <IonInput @bind-Value="@ViewModel.ProposedLabel" placeholder="Who are you receiving from?" />
-    </IonItem>
-    <IonCard color="primary">
-        <IonCardContent>
-            <strong>Info:</strong>
-            Contact labels help keep your activity private and organized. This information is not shared.
-        </IonCardContent>
-    </IonCard>
+        <IonItem ValidationField="() => ViewModel.ProposedLabel">
+            <IonInput @bind-Value="@ViewModel.ProposedLabel" placeholder="Who are you receiving from?"/>
+        </IonItem>
+        <div class="ion-padding">
+            <IonValidationMessage ValidationField="() => ViewModel.ProposedLabel"/>
+        </div>
+        <IonCard color="primary">
+            <IonCardContent>
+                <strong>Info:</strong>
+                Contact labels help keep your activity private and organized. This information is not shared.
+            </IonCardContent>
+        </IonCard>
+        @* This hack is so that we can have a button outside of the form triggering the submission*@
+        <input type="submit" id="btn-next" style="display: none"/>
+    </EditForm>
+
 </IonContent>
 <IonFooter class="ion-padding">
-    <IonButton class="neu-button" color="primary" @onclick="ApplyLabel" disabled="@IsContinueDisabled" expand="block">Continue</IonButton>
+    <IonButton button class="neu-button" color="primary" disabled="@IsContinueDisabled" expand="block"
+               OnClick='() => JS.InvokeVoidAsync("IonicBridge.executeFunctionByName", "btn-next", "click")'>
+        Continue
+    </IonButton>
 </IonFooter>
 
 @code {
@@ -35,7 +49,20 @@
 
     private void ApplyLabel()
     {
-        ViewModel.InitNextReceiveKey();
+        if (ViewModel.ReceivePubKey == null)
+        {
+            ViewModel.InitNextReceiveKey();
+        }
+        else if (!ViewModel.ReceivePubKey.Label.Equals(ViewModel.ProposedLabel))
+        {
+            ViewModel.UpdateKeyLabel();
+        }
+        ViewModel.ProposedLabel = "";
+        StackService.PushStackState(async () =>
+        {
+            ViewModel.ProposedLabel = ViewModel.ReceivePubKey.Label;
+            await NavigationManager.NavigateBack(null, "/receive");
+        });
         NavigationManager.NavigateTo("receive/address");
     }
 

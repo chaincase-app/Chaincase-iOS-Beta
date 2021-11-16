@@ -5,6 +5,7 @@
 @inject NavigationManager NavigationManager
 @inject ReceiveViewModel ReceiveViewModel
 @inject IClipboard Clipboard 
+@inject StackService StackService 
 @inject IShare Share
 @inherits ReactiveComponentBase<ReceiveViewModel>
 
@@ -47,7 +48,7 @@
 
         }
     </IonList>
-    <IonButton class="neu-button" href="/overview" expand="block">DONE</IonButton>
+    <IonButton class="neu-button" OnClick="Done" expand="block">DONE</IonButton>
 </IonFooter>
 
 @code {
@@ -68,4 +69,12 @@
         await Clipboard.Copy(toCopy);
         IsToastVisible = true;
     }
+
+    private void Done()
+    {
+        StackService.ClearStack();
+        ReceiveViewModel.ReceivePubKey = null;
+        NavigationManager.NavigateTo("/overview");
+    }
+
 }

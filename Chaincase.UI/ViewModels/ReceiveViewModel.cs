@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Chaincase.Common;
 using Chaincase.Common.Contracts;
 using Chaincase.Common.Services;
@@ -28,19 +29,24 @@ namespace Chaincase.UI.ViewModels
         public void InitNextReceiveKey()
         {
             ReceivePubKey = _walletManager.CurrentWallet.KeyManager.GetNextReceiveKey(ProposedLabel, out bool minGapLimitIncreased);
-            ProposedLabel = "";
             _notificationManager.RequestAuthorization();
         }
 
-        public string AppliedLabel => ReceivePubKey.Label ?? "";
-        public string Address => ReceivePubKey.GetP2wpkhAddress(_config.Network).ToString();
-        public string Pubkey => ReceivePubKey.PubKey.ToString();
-        public string KeyPath => ReceivePubKey.FullKeyPath.ToString();
+        public void UpdateKeyLabel()
+        {
+	        ReceivePubKey!.SetLabel(ProposedLabel, _walletManager.CurrentWallet.KeyManager);
+        }
 
-        public HdPubKey ReceivePubKey { get; set; }
+        public string AppliedLabel => ReceivePubKey?.Label ?? "";
+        public string Address => ReceivePubKey?.GetP2wpkhAddress(_config.Network).ToString();
+        public string Pubkey => ReceivePubKey?.PubKey.ToString();
+        public string KeyPath => ReceivePubKey?.FullKeyPath.ToString();
+
+        public HdPubKey? ReceivePubKey { get; set; }
 
         public string BitcoinUri => $"bitcoin:{Address}";
 
+        [Required(ErrorMessage = "A label is required")]
         public string ProposedLabel
         {
             get => _proposedLabel;

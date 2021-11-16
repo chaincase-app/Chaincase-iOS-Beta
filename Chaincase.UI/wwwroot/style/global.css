@@ -20,7 +20,7 @@ input::-ms-reveal,
 input::-ms-clear {
     display: none;
 }
-
+/* end edge specific stuff */
 .neu-button:not(.in-toolbar) {
     font-weight: bold;
     --background: linear-gradient(180deg, var(--ion-color-step-50) -60%, var(--ion-background-color) 100%);
