@@ -4,31 +4,85 @@
 @inherits ReactiveComponentBase<StatusViewModel>
 
 <IonList>
-    @if (ViewModel.Tor == TorStatus.NotRunning)
-    {
-        <IonItem>
-            <IonLabel>Making private Tor connection...</IonLabel> <ion-spinner slot="end" />
-        </IonItem>
-    }
-    else if (ViewModel.Backend == BackendStatus.NotConnected)
-    {
-        <IonItem>
-            <IonLabel>Connecting to Chaincase...</IonLabel> <ion-spinner slot="end" />
-        </IonItem>
-    }
-    else if (ViewModel.FiltersLeft > 0)
-    {
-        <IonItem>
-            <IonLabel>Fetching @ViewModel.FiltersLeft private sync filters...</IonLabel> <ion-spinner slot="end" />
-        </IonItem>
-    }
-    else if (ViewModel.Peers <= 0)
-    {
-        <IonItem>
-            <IonLabel>Finding bitcoin peers...</IonLabel> <ion-spinner slot="end" />
-        </IonItem>
-    }
+    <IonItem button OnClick="() => DetailsShown = true">
+        @if (ViewModel.Tor == TorStatus.NotRunning)
+        {
+            <IonLabel>Making private Tor connection...</IonLabel>
+            <ion-spinner slot="end"/>
+        }
+        else if (ViewModel.Backend == BackendStatus.NotConnected)
+        {
+            <IonLabel>Connecting to Chaincase...</IonLabel>
+            <ion-spinner slot="end"/>
+        }
+        else if (ViewModel.FiltersLeft > 0)
+        {
+            <IonLabel>Fetching @ViewModel.FiltersLeft private sync filters...</IonLabel>
+            <ion-spinner slot="end"/>
+        }
+        else if (ViewModel.Peers <= 0)
+        {
+            <IonLabel>Finding bitcoin peers...</IonLabel>
+            <ion-spinner slot="end"/>
+        }
+        else if (ViewModel.DownloadingBlock)
+        {
+            <IonLabel>Downloading blocks...</IonLabel>
+            <ion-spinner slot="end"/>
+        }
+    </IonItem>
 </IonList>
+
+<IonModal @bind-Visible="DetailsShown">
+    <IonHeader>
+        <IonToolbar>
+            <IonTitle>Wallet status</IonTitle>
+            <IonButtons slot="start">
+                <IonButton @onclick="() => DetailsShown = false">
+                    <IonIcon name="close"></IonIcon>
+                </IonButton>
+            </IonButtons>
+        </IonToolbar>
+    </IonHeader>
+
+    <IonContent>
+        <IonList>
+            <IonItem>
+                <IonLabel>Numbers of Peers: @ViewModel.Peers</IonLabel>
+            </IonItem>
+            <IonItem>
+                <IonLabel>Backend Status: @Backendlabel()</IonLabel>
+            </IonItem>
+            <IonItem>
+                <IonLabel>Tor Status: @TorLabel()</IonLabel>
+            </IonItem>
+            <IonItem>
+                @if (ViewModel.FiltersLeft == 0)
+                {
+                    <IonLabel>Filters caught up ✅</IonLabel>
+                }
+                else
+                {
+                    <IonLabel>Filters left: @ViewModel.FiltersLeft</IonLabel>
+                }
+            </IonItem>
+            @if (ViewModel.FiltersLeft != 0)
+            {
+                <IonItem>
+                    <IonProgressBar value="@ViewModel.ProgressPercent"/>
+                </IonItem>
+            }
+            @if (ViewModel.DownloadingBlock)
+            {
+                <IonItem>
+                    <IonLabel>Downloading blocks...</IonLabel>
+                    <ion-spinner slot="end"/>
+                </IonItem>
+            }
+
+        </IonList>
+    </IonContent>
+</IonModal>
 
 @code{
 
@@ -68,4 +122,7 @@
                 return "⌛";
         }
     }
+
+    public bool DetailsShown { get; set; }
+
 }
