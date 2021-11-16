@@ -271,5 +271,6 @@ namespace WalletWasabi.Tests.RegressionTests
 		#endregion BackendTests
 
 #pragma warning restore IDE0059 // Value assigned to symbol is never used
+
 	}
 }

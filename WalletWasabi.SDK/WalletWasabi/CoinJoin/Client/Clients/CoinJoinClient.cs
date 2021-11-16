@@ -216,6 +216,9 @@ namespace WalletWasabi.CoinJoin.Client.Clients
 
 			try
 			{
+				using (BenchmarkLogger.Measure(operationName:"TryProcessStatusAsync"))
+				{
+
 				Synchronizer.BlockRequests();
 
 				Interlocked.Exchange(ref _statusProcessing, 1);
@@ -305,6 +308,8 @@ namespace WalletWasabi.CoinJoin.Client.Clients
 							}
 						}
 					}
+
+				}
 
 				}
 			}
