@@ -106,13 +106,13 @@ namespace WalletWasabi.Wallets
 		private static Random Random { get; } = new Random();
 		private AsyncLock HandleFiltersLock { get; }
 
-		public void RegisterServices(
+		public virtual void RegisterServices(
 			BitcoinStore bitcoinStore,
 			WasabiSynchronizer syncer,
 			NodesGroup nodes,
 			ServiceConfiguration serviceConfiguration,
 			IFeeProvider feeProvider,
-			IBlockProvider blockProvider,)
+			IBlockProvider blockProvider)
 		{
 			if (State > WalletState.WaitingForInit)
 			{
@@ -255,7 +255,7 @@ namespace WalletWasabi.Wallets
 		}
 
 		/// <inheritdoc/>
-		public async override Task StopAsync(CancellationToken cancel)
+		public override async Task StopAsync(CancellationToken cancel)
 		{
 			try
 			{

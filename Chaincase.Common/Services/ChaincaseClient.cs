@@ -24,6 +24,12 @@ namespace Chaincase.Common.Services
 		/// <inheritdoc/>
 		public ChaincaseClient(Func<Uri> baseUriAction, EndPoint torSocks5EndPoint, Config config) : base(baseUriAction, torSocks5EndPoint)
 		{
+			
+			_config = config;
+		}
+		public ChaincaseClient(Config config) : base(config.GetCurrentBackendUri, config.TorSocks5EndPoint)
+		{
+			
 			_config = config;
 		}
 
@@ -72,6 +78,60 @@ namespace Chaincase.Common.Services
 			using HttpContent content = response.Content;
 			var ret = await content.ReadAsStringAsync().ConfigureAwait(false);
 			return ret;
+		}
+
+		public async Task<KeyValuePair<string, string>> GetMempoolRootFilter(CancellationToken cancel = default)
+		{
+			using var response = await TorClient.SendAndRetryAsync(
+				HttpMethod.Get,
+				HttpStatusCode.OK,
+				$"/api/v{ApiVersion}/btc/mempool/root",
+				cancel: cancel);
+
+			if (response.StatusCode != HttpStatusCode.OK)
+			{
+				await response.ThrowRequestExceptionFromContentAsync();
+			}
+
+			using HttpContent content = response.Content;
+			var ret = await content.ReadAsJsonAsync<Dictionary<string,string>>();
+			return ret.First();
+		}
+
+		public async Task<Dictionary<string, string>> GetMempoolSubFilters(CancellationToken cancel = default)
+		{
+			using var response = await TorClient.SendAndRetryAsync(
+				HttpMethod.Get,
+				HttpStatusCode.OK,
+				$"/api/v{ApiVersion}/btc/mempool/sub",
+				cancel: cancel);
+
+			if (response.StatusCode != HttpStatusCode.OK)
+			{
+				await response.ThrowRequestExceptionFromContentAsync();
+			}
+
+			using HttpContent content = response.Content;
+			var ret = await content.ReadAsJsonAsync<Dictionary<string,string>>();
+			return ret;
+		}
+
+		public async Task<Dictionary<string, Transaction[]>> GetMempoolTransactionBuckets(string[] keys, CancellationToken cancel = default)
+		{
+			using var response = await TorClient.SendAndRetryAsync(
+				HttpMethod.Get,
+				HttpStatusCode.OK,
+				$"/api/v{ApiVersion}/btc/mempool/sub?keys={string.Join("&keys=", keys)}",
+				cancel: cancel);
+
+			if (response.StatusCode != HttpStatusCode.OK)
+			{
+				await response.ThrowRequestExceptionFromContentAsync();
+			}
+
+			using HttpContent content = response.Content;
+			var ret = await content.ReadAsJsonAsync<Dictionary<string, string[]>>();
+			return ret.ToDictionary(s=> s.Key,s => s.Value.Select(s1 => Transaction.Parse(s1, _config.Network)).ToArray());
 		}
 	}
 }

@@ -1,50 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using NBitcoin;
-using WalletWasabi.Bases;
+using WalletWasabi.Blockchain.Mempool;
 using WalletWasabi.Services;
 using WalletWasabi.Stores;
-using WalletWasabi.Wallets;
 using WalletWasabi.WebClients.Wasabi;
 
 namespace Chaincase.Common.Services
 {
-	public class MempoolSynchronizer: PeriodicRunner
-	{
-		private readonly ChaincaseClient _client;
-		private readonly ChaincaseBitcoinStore _chaincaseBitcoinStore;
-		private string lastRootFilterKey = null; 
-		protected override async Task ActionAsync(CancellationToken cancel)
-		{
-			if (_chaincaseBitcoinStore.SmartHeaderChain.HashesLeft > 100)
-			{
-				return;
-			}
-
-			Wallet x;
-			var rootFilter = await _client.GetMempoolRootFilter();
-			if (lastRootFilterKey == rootFilter.filterKey)
-			{
-				return;
-			}
-			
-			x.TransactionProcessor.Process()
-			
-			
-		}
-		
-		public event 
-
-		public MempoolSynchronizer(TimeSpan period, ChaincaseClient client,ChaincaseBitcoinStore chaincaseBitcoinStore) : base(period)
-		{
-			_client = client;
-			_chaincaseBitcoinStore = chaincaseBitcoinStore;
-		}
-	}
-	
 	public class ChaincaseSynchronizer : WasabiSynchronizer
 	{
 		public int GetMaxFilterFetch()

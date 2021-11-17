@@ -21,12 +21,15 @@ namespace Chaincase.Common
             services.AddSingleton<Config>();
             services.AddSingleton<UiConfig>();
             services.AddScoped<SensitiveStorage>();
+            services.AddSingleton<MempoolSynchronizer>();
+            services.AddHostedService(provider => provider.GetRequiredService<MempoolSynchronizer>());
             services.AddSingleton(x => {
                 var network = x.GetRequiredService<Config>().Network;
                 var dataDir = x.GetRequiredService<IDataDirProvider>().Get();
                 var walletDirectories = x.GetService<WalletDirectories>() ?? new WalletDirectories(dataDir);
                 var notificationManager = x.GetRequiredService<INotificationManager>();
-                return new ChaincaseWalletManager(network, walletDirectories, notificationManager);
+                var mempoolSynchronizer = x.GetRequiredService<MempoolSynchronizer>();
+                return new ChaincaseWalletManager(network, walletDirectories, notificationManager, mempoolSynchronizer);
             });
             services.AddSingleton(x =>
             {
@@ -51,18 +54,9 @@ namespace Chaincase.Common
 
                 return new ChaincaseSynchronizer(network, bitcoinStore, config.GetFallbackBackendUri(), null);
             });
-            services.AddSingleton(x =>
-            {
-                return new FeeProviders(new List<IFeeProvider>
-				{
-                    x.GetRequiredService<ChaincaseSynchronizer>()
-                });
-            });
-            services.AddSingleton(x =>
-            {
-	            var config = x.GetRequiredService<Config>();
-	            return new ChaincaseClient(config.GetCurrentBackendUri, config.TorSocks5EndPoint);
-            });
+            services.AddSingleton<ChaincaseClient>();
+            services.AddSingleton<IFeeProvider, ChaincaseSynchronizer>();
+            services.AddSingleton<FeeProviders>();
             
 
             return services;

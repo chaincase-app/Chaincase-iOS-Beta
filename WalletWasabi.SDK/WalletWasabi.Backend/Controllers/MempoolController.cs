@@ -54,7 +54,7 @@ namespace WalletWasabi.Backend.Controllers
 			}
 
 			return Json(_mempoolIndexBuilderService.Buckets.Where(pair => keys.Contains(pair.Key))
-				.SelectMany(pair => pair.Value.Select(transaction => transaction.ToHex())));
+				.ToDictionary(pair=> pair.Key, pair => pair.Value.Select(transaction => transaction.ToHex())));
 		}
 	}
 }

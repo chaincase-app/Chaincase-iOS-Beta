@@ -223,9 +223,19 @@ namespace WalletWasabi.Wallets
 
 		public Wallet AddWallet(KeyManager keyManager)
 		{
-			Wallet wallet = new Wallet(WalletDirectories.WorkDir, Network, keyManager);
+			Wallet wallet = InitWallet(keyManager);
 			AddWallet(wallet);
 			return wallet;
+		}
+
+		protected virtual Wallet InitWallet(KeyManager keyManager = null, string walletFullPath = null)
+		{
+			if (walletFullPath != null)
+			{
+				return new Wallet(WalletDirectories.WorkDir, Network, walletFullPath);
+			}
+
+			return new Wallet(WalletDirectories.WorkDir, Network, keyManager);
 		}
 
 		private Wallet AddWallet(string walletName)
@@ -234,7 +244,7 @@ namespace WalletWasabi.Wallets
 			Wallet wallet;
 			try
 			{
-				wallet = new Wallet(WalletDirectories.WorkDir, Network, walletFullPath);
+				wallet = InitWallet(walletFullPath: walletFullPath);
 			}
 			catch (Exception ex)
 			{
@@ -261,7 +271,7 @@ namespace WalletWasabi.Wallets
 				}
 				File.Copy(walletBackupFullPath, walletFullPath);
 
-				wallet = new Wallet(WalletDirectories.WorkDir, Network, walletFullPath);
+				wallet = InitWallet(walletFullPath: walletFullPath);
 			}
 
 			AddWallet(wallet);
@@ -431,7 +441,6 @@ namespace WalletWasabi.Wallets
 			ServiceConfiguration = serviceConfiguration;
 			FeeProvider = feeProvider;
 			BlockProvider = blockProvider;
-
 			foreach (var wallet in GetWallets().Where(w => w.State == WalletState.WaitingForInit))
 			{
 				wallet.RegisterServices(BitcoinStore, Synchronizer, Nodes, ServiceConfiguration, FeeProvider, BlockProvider);

@@ -2,12 +2,20 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Chaincase.Common.Contracts;
 using NBitcoin;
+using NBitcoin.Protocol;
+using WalletWasabi.Blockchain.Analysis.FeesEstimation;
+using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Blockchain.TransactionOutputs;
 using WalletWasabi.Blockchain.TransactionProcessing;
 using WalletWasabi.CoinJoin.Client.Clients.Queuing;
 using WalletWasabi.Logging;
+using WalletWasabi.Models;
+using WalletWasabi.Services;
+using WalletWasabi.Stores;
 using WalletWasabi.Wallets;
 
 namespace Chaincase.Common.Services
@@ -15,15 +23,16 @@ namespace Chaincase.Common.Services
     public class ChaincaseWalletManager : WalletManager
     {
         private readonly INotificationManager _notificationManager;
+        private readonly MempoolSynchronizer _mempoolSynchronizer;
 
         public Wallet CurrentWallet { get; set; }
         public IEnumerable<SmartCoin> SleepingCoins;
 
-        public ChaincaseWalletManager(Network network, WalletDirectories walletDirectories, INotificationManager notificationManager)
+        public ChaincaseWalletManager(Network network, WalletDirectories walletDirectories, INotificationManager notificationManager, MempoolSynchronizer mempoolSynchronizer)
             : base(network, walletDirectories)
         {
             _notificationManager = notificationManager;
-
+            _mempoolSynchronizer = mempoolSynchronizer;
             OnDequeue += WalletManager_OnDequeue;
             WalletRelevantTransactionProcessed += WalletManager_WalletRelevantTransactionProcessed;
         }
@@ -155,5 +164,44 @@ namespace Chaincase.Common.Services
             (string walletFullPath, _) = WalletDirectories.GetWalletFilePaths(walletName);
             return File.Exists(walletFullPath);
         }
+
+        protected override Wallet InitWallet(KeyManager keyManager = null, string walletFullPath = null)
+        {
+	        if (walletFullPath != null)
+	        {
+		        return new ChaincaseWallet(WalletDirectories.WorkDir, Network, walletFullPath, _mempoolSynchronizer);
+	        }
+
+	        return new ChaincaseWallet(WalletDirectories.WorkDir, Network, keyManager, _mempoolSynchronizer);
+        }
+    }
+
+    public class ChaincaseWallet : Wallet
+    {
+	    private readonly MempoolSynchronizer _mempoolSynchronizer;
+
+	    public ChaincaseWallet(string dataDir, Network network, string filePath,MempoolSynchronizer mempoolSynchronizer) : base(dataDir, network, filePath)
+	    {
+		    _mempoolSynchronizer = mempoolSynchronizer;
+	    }
+
+	    public ChaincaseWallet(string dataDir, Network network, KeyManager keyManager,
+		    MempoolSynchronizer mempoolSynchronizer) : base(dataDir, network, keyManager)
+	    {
+		    _mempoolSynchronizer = mempoolSynchronizer;
+	    }
+
+	    public override void RegisterServices(BitcoinStore bitcoinStore, WasabiSynchronizer syncer, NodesGroup nodes,
+		    ServiceConfiguration serviceConfiguration, IFeeProvider feeProvider, IBlockProvider blockProvider)
+	    {
+		    base.RegisterServices(bitcoinStore, syncer, nodes, serviceConfiguration, feeProvider, blockProvider);
+		    _mempoolSynchronizer.Register(this);
+	    }
+
+	    public override async Task StopAsync(CancellationToken cancel)
+	    {
+		    _mempoolSynchronizer.UnRegister(this);
+		    await base.StopAsync(cancel);
+	    }
     }
 }
