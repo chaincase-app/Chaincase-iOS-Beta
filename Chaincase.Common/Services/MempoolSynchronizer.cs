@@ -107,7 +107,7 @@ namespace Chaincase.Common.Services
 		
 		
 
-		public MempoolSynchronizer(TimeSpan period, ChaincaseClient client,ChaincaseBitcoinStore chaincaseBitcoinStore) : base(period)
+		public MempoolSynchronizer(ChaincaseClient client,ChaincaseBitcoinStore chaincaseBitcoinStore) : base(TimeSpan.FromSeconds(30))
 		{
 			_client = client;
 			_chaincaseBitcoinStore = chaincaseBitcoinStore;
