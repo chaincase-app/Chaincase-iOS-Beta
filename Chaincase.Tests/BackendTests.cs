@@ -33,7 +33,7 @@ namespace Chaincase.Tests
 			Assert.Equal(0, regtestFixture.Global.Config.HashCashDifficulty);
 			TestUtils.SetPrivateValue(regtestFixture.Global.Config, config => config.HashCashDifficulty, 10);
 			Assert.Equal(10, regtestFixture.Global.Config.HashCashDifficulty);
-			using var client = new ChaincaseClient(() => new Uri(regtestFixture.BackendEndPoint), null);
+			using var client = new ChaincaseClient(() => new Uri(regtestFixture.BackendEndPoint), null, null);
 			_ = await client.RegisterNotificationTokenAsync(new DeviceToken()
 			{
 				Status = TokenStatus.New,
