@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using BlazorTransitionableRoute;
-using Chaincase.Common;
 using Chaincase.UI.ViewModels;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
