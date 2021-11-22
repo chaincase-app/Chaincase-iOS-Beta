@@ -1,6 +1,5 @@
 ﻿@layout FullPageLayout
 @page "/"
-@using WalletWasabi.Wallets
 @using Chaincase.UI.Services
 @using Chaincase.Common.Services
 
@@ -10,26 +9,37 @@
 @inject PINViewModel PINViewModel
 @inherits ReactiveComponentBase<PINViewModel>
 
-<IonContent>
-    <SplashLogo></SplashLogo>
-    <IonLabel id="passwordId" class="ion-padding" position="stacked">Enter Password</IonLabel>
-    <div class="@(IsShaking ? "shake" : "")">
-        <IonItem>
-            <IonPasswordInput id="txt-password" aria-labelledby="passwordId" @bind-Value="Password" />
+<IonContent class="ion-padding-vertical">
+    <EditForm EditContext="_editContext" OnSubmit="SubmitPassword">
+        <SplashLogo></SplashLogo>
+        <DataAnnotationsValidator/>
+        <IonLabel id="passwordId" class="ion-padding" position="stacked">Enter Password</IonLabel>
+        <IonItem ValidationField="() => Password" class="ion-invalid-shake">
+            <IonPasswordInput ValidationField="() => Password" id="txt-password" IsNew="true" clear-on-edit="false" @bind-Value="Password" placeholder="e.g. margaretthatcheris110%SEXY" aria-labelledby="passwordId"/>
         </IonItem>
-    </div>
-    <IonButton  id="btn-load-wallet" class="neu-button ion-padding-horizontal" color="primary" @onclick="ClickSubmitPassword" expand="block">LOG IN</IonButton>
-
-    <IonLoading @bind-Visible="@ViewModel.IsBusy" />
+        <IonButton id="btn-load-wallet" class="neu-button ion-padding-horizontal" color="primary" type="submit" expand="block" disabled="@FormInvalid">LOG IN</IonButton>
+    </EditForm>
+    <IonLoading @bind-Visible="@ViewModel.IsBusy"/>
 </IonContent>
 
 @code {
     private string Password { get; set; }
-    private bool IsShaking { get; set; }
+
+    ValidationMessageStore _validationMessageStore;
+    private EditContext _editContext;
+    private bool FormInvalid => _editContext.GetValidationMessages().Any();
 
     protected override void OnInitialized()
     {
         ViewModel = PINViewModel;
+        _editContext = new EditContext(this);
+        _validationMessageStore = new ValidationMessageStore(_editContext);
+        _editContext.OnValidationRequested += (sender, args) => _validationMessageStore.Clear();
+        _editContext.OnFieldChanged += (sender, args) =>
+        {
+            _validationMessageStore.Clear(args.FieldIdentifier);
+            _editContext.NotifyValidationStateChanged();
+        };
 
         if (!(WalletManager).HasDefaultWalletFile())
             NavigationManager.NavigateTo("/landing");
@@ -38,20 +48,18 @@
         base.OnInitialized();
     }
 
-    private async Task ClickSubmitPassword(MouseEventArgs _)
-    {
-        await SubmitPassword(Password);
-    }
-
-    private async Task SubmitPassword(string password)
+    private async Task SubmitPassword()
     {
         try
         {
-            IsShaking = false;
-            await ViewModel.IsPasswordValidAsync(password ?? "");
+            await ViewModel.IsPasswordValidAsync(Password ?? "");
             NavigationManager.NavigateTo("/overview");
-        } catch {
-            IsShaking = true;
+        }
+        catch (Exception e)
+        {
+            _validationMessageStore.Add(() => Password, e.Message);
+            _editContext.NotifyValidationStateChanged();
         }
     }
+
 }

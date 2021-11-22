@@ -56,7 +56,7 @@ body.dark neu-button.ion-activated {
     --border-width: .1rem;
     --border-color: var(--ion-color-step-200);
 }
-
+.ion-invalid.ion-invalid-shake,
 .shake {
     animation: shake 0.5s;
 }
