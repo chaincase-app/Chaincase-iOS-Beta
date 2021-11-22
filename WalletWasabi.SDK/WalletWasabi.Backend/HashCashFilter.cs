@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
@@ -14,11 +14,11 @@ namespace WalletWasabi.Backend
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
 	public class HashCashFilter : Attribute, IActionFilter
 	{
-		private readonly string _resource;
+		private readonly string Resource;
 
 		public virtual string GetResource(ActionExecutingContext context)
 		{
-			return _resource;
+			return Resource;
 		}
 
 		public virtual TimeSpan ChallengeValidFor { get; }
@@ -30,7 +30,7 @@ namespace WalletWasabi.Backend
 
 		public HashCashFilter(string resource, TimeSpan maxDifference, int? minPow)
 		{
-			_resource = resource;
+			Resource = resource;
 			ChallengeValidFor = maxDifference;
 			MinPow = minPow;
 		}
@@ -54,7 +54,6 @@ namespace WalletWasabi.Backend
 
 			if (!context.HttpContext.Request.Headers.TryGetValue("X-Hashcash", out var xhashcashValue))
 			{
-
 				context.HttpContext.Response.Headers.Add("X-Hashcash-Error", "hashcash-not-provided");
 				context.Result = new BadRequestObjectResult("Missing X-Hashcash header");
 				CreateChallenge(resource, pow, memoryCache, context);
@@ -62,7 +61,7 @@ namespace WalletWasabi.Backend
 			}
 
 			var fValue = xhashcashValue.First();
-			var challenge = fValue.Substring(0, fValue.LastIndexOf(":", StringComparison.InvariantCultureIgnoreCase) + 1);
+			var challenge = fValue[..fValue.LastIndexOf(":", StringComparison.InvariantCultureIgnoreCase)];
 			var cacheKey = $"{nameof(HashCashFilter)}_challenge_{challenge}";
 			if(!memoryCache.TryGetValue(cacheKey, out _))
 			{
@@ -91,7 +90,13 @@ namespace WalletWasabi.Backend
 			var challenge = HashCashUtils.GenerateChallenge(resource, expiry, pow);
 
 			var cacheKey = $"{nameof(HashCashFilter)}_challenge_{challenge}";
-			memoryCache.CreateEntry(cacheKey).AbsoluteExpiration = expiry;
+
+			using (ICacheEntry cacheEntry = memoryCache.CreateEntry(cacheKey))
+			{
+				cacheEntry.Value = challenge;
+				cacheEntry.SetAbsoluteExpiration(expiry);
+			}
+
 			context.HttpContext.Response.Headers.Add("X-Hashcash-Challenge", new StringValues(challenge));
 		}
 	}

@@ -146,7 +146,22 @@ namespace WalletWasabi.Backend
 				{
 					if (blocks < 101)
 					{
-						var generateBlocksResponse = await RpcClient.GenerateAsync(101);
+						uint256[] generateBlocksResponse = null;
+						try
+						{
+							generateBlocksResponse = await RpcClient.GenerateAsync(101);
+						}
+						catch (RPCException exception)
+						{
+							//Bitcoin knots does not create a wallet by default, so let's create it to reduce manual setup on dev env
+							if (exception.RPCCode == RPCErrorCode.RPC_WALLET_NOT_FOUND)
+							{
+								await ((RpcClientBase)RpcClient).Rpc.SendCommandAsync("createwallet" ,"default");
+
+								generateBlocksResponse = await RpcClient.GenerateAsync(101);
+							}
+						}
+
 						if (generateBlocksResponse is null)
 						{
 							throw new NotSupportedException($"Bitcoin Core cannot generate blocks on the {Network.RegTest}.");
@@ -160,6 +175,15 @@ namespace WalletWasabi.Backend
 						}
 						Logger.LogInfo($"Generated 101 block on {Network.RegTest}. Number of blocks {blocks}.");
 					}
+					//101 blocks is fine, but let's spice things up in regtest for better sync tests
+					_ = Task.Run(async () =>
+					{
+						while (true)
+						{
+							await Task.Delay(TimeSpan.FromMinutes(1));
+							await RpcClient.GenerateAsync(101);
+						}
+					});
 				}
 			}
 			catch (WebException)

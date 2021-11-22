@@ -12,11 +12,8 @@ namespace Chaincase.Common.Services.Mock
 
         public Task<string> GetAsync(string key)
         {
-            var tcs = new TaskCompletionSource<string>();
-            if (!keyStore.TryGetValue(key, out var value))
-                throw new Exception();
-            tcs.SetResult(value);
-            return tcs.Task;
+	        keyStore.TryGetValue(key, out var value);
+	        return Task.FromResult(value);
         }
 
         public bool Remove(string key)

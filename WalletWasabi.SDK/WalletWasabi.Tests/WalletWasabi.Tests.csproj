@@ -16,7 +16,7 @@
 
   <ItemGroup>
     <PackageReference Include="AltCover" Version="6.7.750" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1">
       <PrivateAssets>all</PrivateAssets>
@@ -27,7 +27,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\WalletWasabi.Backend\WalletWasabi.Backend.csproj" />
-    <ProjectReference Include="..\WalletWasabi.Gui\WalletWasabi.Gui.csproj" />
+<!--    <ProjectReference Include="..\WalletWasabi.Gui\WalletWasabi.Gui.csproj" />-->
     <ProjectReference Include="..\WalletWasabi\WalletWasabi.csproj" />
   </ItemGroup>
 
@@ -35,9 +35,17 @@
     <None Update="xunit.runner.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Remove="UnitTests\GUI\**" />
   </ItemGroup>
   <ItemGroup>
     <RuntimeHostConfigurationOption Include="System.Globalization.Invariant" Value="true" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="UnitTests\GUI\**" />
+    <Compile Remove="TestableRpcService.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Remove="UnitTests\GUI\**" />
   </ItemGroup>
 
 </Project>

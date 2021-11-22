@@ -31,13 +31,15 @@ namespace Chaincase.Common
             services.AddSingleton(x =>
             {
                 var network = x.GetRequiredService<Config>().Network;
+                var client = x.GetRequiredService<ChaincaseClient>();
                 var dataDir = x.GetRequiredService<IDataDirProvider>().Get();
                 var indexStore = new IndexStore(network, new SmartHeaderChain());
 
-                return new BitcoinStore(Path.Combine(dataDir, "BitcoinStore"), network,
-                    indexStore, new AllTransactionStore(), new MempoolService()
+                return new ChaincaseBitcoinStore(Path.Combine(dataDir, "BitcoinStore"), network,
+                    indexStore, new AllTransactionStore(), new MempoolService(),client
                 );
             });
+            services.AddSingleton<BitcoinStore>(provider => provider.GetRequiredService<ChaincaseBitcoinStore>());
             services.AddSingleton(x =>
             {
                 var config = x.GetRequiredService<Config>();
@@ -52,10 +54,16 @@ namespace Chaincase.Common
             services.AddSingleton(x =>
             {
                 return new FeeProviders(new List<IFeeProvider>
-                {
+				{
                     x.GetRequiredService<ChaincaseSynchronizer>()
                 });
             });
+            services.AddSingleton(x =>
+            {
+	            var config = x.GetRequiredService<Config>();
+	            return new ChaincaseClient(config.GetCurrentBackendUri, config.TorSocks5EndPoint);
+            });
+            
 
             return services;
         }

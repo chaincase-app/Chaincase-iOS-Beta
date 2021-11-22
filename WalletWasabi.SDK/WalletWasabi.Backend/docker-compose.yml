@@ -1,14 +1,41 @@
 version: "3"
 services:
+
+  bitcoind:
+    restart: unless-stopped
+    image: btcpayserver/bitcoinknots:0.21.1-1
+    environment:
+      BITCOIN_NETWORK: regtest
+      BITCOIN_EXTRA_ARGS: |-
+        rpcuser=ceiwHEbqWI83
+        rpcpassword=DwubwWsoo3
+        rpcport=18443
+        rpcbind=0.0.0.0:18443
+        rpcallowip=0.0.0.0/0
+        port=18444
+        whitelist=0.0.0.0/0
+        zmqpubrawblock=tcp://0.0.0.0:18445
+        zmqpubrawtx=tcp://0.0.0.0:18446
+        deprecatedrpc=signrawtransaction
+        fallbackfee=0.0002
+        mempoolreplacement=fee,optin
+    ports:
+      - "18443:18443"
+      - "18444:18444"
+    volumes:
+      - "bitcoin_datadir:/data"
+  
   postgres:
-    image: postgres:13.1
+    restart: unless-stopped
+    image: btcpayserver/postgres:13.4-4
     environment:
       POSTGRES_HOST_AUTH_METHOD: trust
     volumes:
       - "postgres_datadir:/var/lib/postgresql/data"
     ports:
-      - "65466:5432"
-    expose:
-      - "5432"
+      - "65466:5432"       
+
+        
 volumes:
   postgres_datadir:
+  bitcoin_datadir:

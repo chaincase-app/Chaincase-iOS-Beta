@@ -25,12 +25,14 @@ namespace WalletWasabi.Tests.XunitConfiguration
 	{
 		private volatile bool _disposedValue = false; // To detect redundant calls
 
-		public RegTestFixture()
+		public RegTestFixture(CoreNode coreNode = null,
+			string connString = null,
+			string url = null)
 		{
 			RuntimeParams.SetDataDir(Path.Combine(Tests.Global.Instance.DataDir, "RegTests", "Backend"));
 			RuntimeParams.LoadAsync().GetAwaiter().GetResult();
 			var hostedServices = new HostedServices();
-			BackendRegTestNode = TestNodeBuilder.CreateAsync(hostedServices, callerFilePath: "RegTests", callerMemberName: "BitcoinCoreData").GetAwaiter().GetResult();
+			BackendRegTestNode = coreNode?? TestNodeBuilder.CreateAsync(hostedServices, callerFilePath: "RegTests", callerMemberName: "BitcoinCoreData").GetAwaiter().GetResult();
 
 			var testnetBackendDir = EnvironmentHelpers.GetDataDir(Path.Combine("WalletWasabi", "Tests", "RegTests", "Backend"));
 			IoHelpers.DeleteRecursivelyWithMagicDustAsync(testnetBackendDir).GetAwaiter().GetResult();
@@ -45,7 +47,8 @@ namespace WalletWasabi.Tests.XunitConfiguration
 				BackendRegTestNode.P2pEndPoint,
 				new IPEndPoint(IPAddress.Loopback, Network.Main.RPCPort),
 				new IPEndPoint(IPAddress.Loopback, Network.TestNet.RPCPort),
-				BackendRegTestNode.RpcEndPoint);
+				BackendRegTestNode.RpcEndPoint,
+				connString ?? "User ID=postgres;Host=127.0.0.1;Port=65466;Database=wasabibackend;");
 			var configFilePath = Path.Combine(testnetBackendDir, "Config.json");
 			config.SetFilePath(configFilePath);
 			config.ToFile();
@@ -58,7 +61,7 @@ namespace WalletWasabi.Tests.XunitConfiguration
 			var conf = new ConfigurationBuilder()
 				.AddInMemoryCollection(new[] { new KeyValuePair<string, string>("datadir", testnetBackendDir) })
 				.Build();
-			BackendEndPoint = $"http://localhost:{new Random().Next(37130, 38000)}/";
+			BackendEndPoint = url ?? $"http://localhost:{new Random().Next(37130, 38000)}/";
 
 			BackendHost = Host.CreateDefaultBuilder()
 					.ConfigureWebHostDefaults(webBuilder => webBuilder

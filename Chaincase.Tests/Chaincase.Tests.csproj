@@ -15,7 +15,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="3.1.19" />
     <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="3.1.19" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
     <PackageReference Include="Microsoft.Playwright" Version="1.15.3" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1"><IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -26,6 +26,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\WalletWasabi.SDK\WalletWasabi.Backend\WalletWasabi.Backend.csproj" />
+    <ProjectReference Include="..\WalletWasabi.SDK\WalletWasabi.Tests\WalletWasabi.Tests.csproj" />
+    <ProjectReference Include="..\Chaincase.Common\Chaincase.Common.csproj" />
     <ProjectReference Include="..\Chaincase.SSB\Chaincase.SSB.csproj" />
+    <ProjectReference Include="..\Chaincase.UI\Chaincase.UI.csproj" />
   </ItemGroup>
+  <Target Name="Restore Local Tools" AfterTargets="BeforeBuild">
+    <Exec Command="dotnet tool restore" />
+  </Target>
+  <Target Name="Restore Local Tools2" AfterTargets="Restore Local Tools" Condition="$(IN_CI) == ''">
+
+    <Exec Command="dotnet playwright install chromium" />
+    <Exec Command="dotnet playwright install-deps chromium" />
+  </Target>
 </Project>

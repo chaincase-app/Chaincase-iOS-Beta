@@ -61,6 +61,11 @@ namespace Chaincase.Common.Services
             {
                 // throws if it fails
                 string encIKeyString = await _hsm.GetAsync(I_KEY_LOC);
+                if (encIKeyString is null)
+                {
+	                _uiConfig.HasIntermediateKey = false;
+	                return null;
+                }
                 byte[] encIKey = Convert.FromBase64String(encIKeyString);
                 byte[] iKey = AesThenHmac.DecryptWithPassword(encIKey, password);
                 return iKey;

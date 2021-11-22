@@ -17,14 +17,13 @@
 
     <IonLabel class="ion-padding" id="passwordId">Enter Password</IonLabel>
     <IonItem>
-        <IonPasswordInput clear-on-edit="false" @bind-Value="@ViewModel.Password" placeholder="e.g. margaretthatcheris110%SEXY"
+        <IonPasswordInput id="txt-password" clear-on-edit="false" @bind-Value="@ViewModel.Password" placeholder="e.g. margaretthatcheris110%SEXY"
                           aria-labelledby="passwordId"/>
     </IonItem>
     <p class="ion-padding">
         If funds secured using these seed words are hidden behind a password you must enter it here.
         The password must be exactly as it was created. As it is your secret, we cannot check whether or not it is correct.
     </p>
-
     <IonButton class="neu-button ion-padding-horizontal"
                OnClick="LoadWallet"
                expand="block">
@@ -36,7 +35,6 @@
 @code {
 
     bool IsBusy;
-    bool showPassword;
 
     protected override void OnInitialized()
     {
@@ -62,10 +60,5 @@
         {
             IsBusy = false;
         }
-    }
-
-    private void HideShowPassword()
-    {
-        showPassword = !showPassword;
     }
 }

@@ -231,60 +231,70 @@ namespace WalletWasabi.CoinJoin.Client.Clients
 
 					await DequeueSpentCoinsFromMixNoLockAsync().ConfigureAwait(false);
 
-					State.UpdateRoundsByStates(ExposedLinks, states.ToArray());
-
-					// If we do not have enough coin queued to register a round, then dequeue all.
-					ClientRound registrableRound = State.GetRegistrableRoundOrDefault();
-					if (registrableRound is { })
+					Synchronizer.BlockRequests();
+					Interlocked.Exchange(ref _statusProcessing, 1);
+					using (await MixLock.LockAsync().ConfigureAwait(false))
 					{
-						DequeueReason? reason = null;
-						// If the coordinator increases fees, do not register. Let the users register manually again.
-						if (CoordinatorFeepercentToCheck is { } && registrableRound.State.CoordinatorFeePercent > CoordinatorFeepercentToCheck)
+						// First, if there's ayed round registration update based on the state.
+						if (DelayedRoundRegistration != null)
 						{
-							reason = DequeueReason.CoordinatorFeeChanged;
+							ClientRound roundRegistered = State.GetSingleOrDefaultRound(DelayedRoundRegistration.AliceClient.RoundId);
+							roundRegistered.Registration = DelayedRoundRegistration;
+							DelayedRoundRegistration = null; // Do not dispose.
 						}
-						else if (!registrableRound.State.HaveEnoughQueued(State.GetAllQueuedCoinAmounts()))
+						await DequeueSpentCoinsFromMixNoLockAsync().ConfigureAwait(false);
+
+						State.UpdateRoundsByStates(ExposedLinks, states.ToArray());
+
+						// If we do not have enough coin queued to register a round, then dequeue all.
+						ClientRound registrableRound = State.GetRegistrableRoundOrDefault();
+						if (registrableRound is { })
 						{
-							reason = DequeueReason.NotEnoughFundsEnqueued;
+							DequeueReason? reason = null;
+							// If the coordinator increases fees, do not register. Let the users register manually again.
+							if (CoordinatorFeepercentToCheck is { } && registrableRound.State.CoordinatorFeePercent > CoordinatorFeepercentToCheck)
+							{
+								reason = DequeueReason.CoordinatorFeeChanged;
+							}
+							else if (!registrableRound.State.HaveEnoughQueued(State.GetAllQueuedCoinAmounts()))
+							{
+								reason = DequeueReason.NotEnoughFundsEnqueued;
+							}
+
+							if (reason.HasValue)
+							{
+								await DequeueAllCoinsFromMixNoLockAsync(reason.Value).ConfigureAwait(false);
+							}
+						}
+						StateUpdated?.Invoke(this, null);
+						double delaySeconds = new Random().NextDouble() * 0.8167; // delay the response to defend timing attack privacy.
+
+						if (Network == Network.RegTest)
+						{
+							delaySeconds = 0;
 						}
 
-						if (reason.HasValue)
+						await Task.Delay(TimeSpan.FromSeconds(delaySeconds), Cancel.Token).ConfigureAwait(false);
+
+						foreach (var ongoingRound in State.GetActivelyMixingRounds())
 						{
-							await DequeueAllCoinsFromMixNoLockAsync(reason.Value).ConfigureAwait(false);
+							await TryProcessRoundStateAsync(ongoingRound).ConfigureAwait(false);
+						}
+						await DequeueSpentCoinsFromMixNoLockAsync().ConfigureAwait(false);
+						ClientRound inputRegistrableRound = State.GetRegistrableRoundOrDefault();
+						if (inputRegistrableRound != null)
+						{
+							if (inputRegistrableRound.Registration is null) // If did not register already, check what can we register.
+							{
+								await TryRegisterCoinsAsync(inputRegistrableRound).ConfigureAwait(false);
+							}
+							else // We registered, let's confirm we're online.
+							{
+								await TryConfirmConnectionAsync(inputRegistrableRound).ConfigureAwait(false);
+							}
 						}
 					}
-				}
-				StateUpdated?.Invoke(this, null);
-				// TODO instead of 7 make it a fraction of the phase time (is 7/60 now)
-				int delaySeconds = new Random().Next(0, 1); // delay the response to defend timing attack privacy.
 
-				if (Network == Network.RegTest)
-				{
-					delaySeconds = 0;
-				}
-
-				await Task.Delay(TimeSpan.FromSeconds(delaySeconds), Cancel.Token).ConfigureAwait(false);
-
-				using (await MixLock.LockAsync().ConfigureAwait(false))
-				{
-					foreach (var ongoingRound in State.GetActivelyMixingRounds())
-					{
-						await TryProcessRoundStateAsync(ongoingRound).ConfigureAwait(false);
-					}
-
-					await DequeueSpentCoinsFromMixNoLockAsync().ConfigureAwait(false);
-					ClientRound inputRegistrableRound = State.GetRegistrableRoundOrDefault();
-					if (inputRegistrableRound != null)
-					{
-						if (inputRegistrableRound.Registration is null) // If did not register already, check what can we register.
-						{
-							await TryRegisterCoinsAsync(inputRegistrableRound).ConfigureAwait(false);
-						}
-						else // We registered, let's confirm we're online.
-						{
-							await TryConfirmConnectionAsync(inputRegistrableRound).ConfigureAwait(false);
-						}
-					}
 				}
 
 				}

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,6 +12,27 @@ namespace Chaincase.Common.Services
 {
 	public class ChaincaseSynchronizer : WasabiSynchronizer
 	{
+		public int GetMaxFilterFetch()
+		{
+			switch (Network.ChainName)
+			{
+				case { } chainName when chainName == ChainName.Mainnet:
+					return 1000;
+
+				case { } chainName when chainName == ChainName.Regtest:
+					return 10;
+
+				case { } chainName when chainName == ChainName.Testnet:
+				default:
+					return 10000;
+			}
+		}
+
+		private TimeSpan GetRequestInterval()
+		{
+			return TimeSpan.FromSeconds(Network == Network.RegTest ? 5 : 30);
+		}
+
 		public ChaincaseSynchronizer(Network network, BitcoinStore bitcoinStore, WasabiClient client)
 			: base(network, bitcoinStore, client)
 		{
@@ -38,11 +60,29 @@ namespace Chaincase.Common.Services
 			Cancel = null;
 		}
 
-		public void Resume(TimeSpan requestInterval, TimeSpan feeQueryRequestInterval, int maxFiltersToSyncAtInitialization)
+		public void Resume()
 		{
 			Interlocked.CompareExchange(ref _running, 0, 3); // If stopped, make it not started
 			Cancel = new CancellationTokenSource();
-			Start(requestInterval, feeQueryRequestInterval, maxFiltersToSyncAtInitialization);
+			Start();
+		}
+
+		public void Resume(TimeSpan requestInterval)
+		{
+			Interlocked.CompareExchange(ref _running, 0, 3); // If stopped, make it not started
+			Cancel = new CancellationTokenSource();
+			base.Start(requestInterval, TimeSpan.FromMinutes(5), GetMaxFilterFetch());
+		}
+
+		public void Start()
+		{
+			base.Start(GetRequestInterval(), TimeSpan.FromMinutes(5), GetMaxFilterFetch());
+		}
+		
+		public void Restart()
+		{
+			CreateNew(Network, BitcoinStore, WasabiClient);
+			Start();
 		}
 	}
 }

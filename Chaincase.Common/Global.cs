@@ -200,6 +200,7 @@ namespace Chaincase.Common
 
                 #region SynchronizerInitialization
 
+
                 var requestInterval = TimeSpan.FromSeconds(3);
                 if (Network == Network.RegTest)
                 {
@@ -380,9 +381,8 @@ namespace Chaincase.Common
                         await _torManager.StartAsync(false, DataDir).ConfigureAwait(false);
                     }
 
-                    var requestInterval = (Network == Network.RegTest) ? TimeSpan.FromSeconds(5) : TimeSpan.FromSeconds(1);
-                    int maxFiltSyncCount = Network == Network.Main ? 1000 : 10000; // On testnet, filters are empty, so it's faster to query them together
-                    _synchronizer.Resume(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
+                    var requestInterval = TimeSpan.FromSeconds(1);
+                    _synchronizer.Resume(requestInterval);
                     Logger.LogInfo($"{MethodBase.GetCurrentMethod().Name}: Start synchronizing filters...");
 
                     if (_walletManager.SleepingCoins is { })
@@ -440,9 +440,8 @@ namespace Chaincase.Common
                     Nodes.Connect();
                     Logger.LogInfo($"{nameof(Global)}.OnResuming():Start connecting to nodes...");
 
-                    var requestInterval = (Network == Network.RegTest) ? TimeSpan.FromSeconds(5) : TimeSpan.FromSeconds(3);
-                    int maxFiltSyncCount = Network == Network.Main ? 1000 : 10000; // On testnet, filters are empty, so it's faster to query them together
-                    _synchronizer.Resume(requestInterval, TimeSpan.FromMinutes(5), maxFiltSyncCount);
+                    _synchronizer.Resume();
+
                     Logger.LogInfo($"{nameof(Global)}.OnResuming():Start synchronizing filters...");
 
                     if (_walletManager.SleepingCoins is { })

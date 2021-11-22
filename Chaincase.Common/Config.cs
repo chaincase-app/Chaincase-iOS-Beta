@@ -34,7 +34,7 @@ namespace Chaincase.Common
 
         [JsonProperty(PropertyName = "Network")]
         [JsonConverter(typeof(NetworkJsonConverter))]
-        public NBitcoin.Network Network { get; internal set; } = NBitcoin.Network.Main;
+        public NBitcoin.Network Network { get; set; } = NBitcoin.Network.Main;
 
         [DefaultValue("http://cmekpfcgcdmaegqdsj4x4j6qkdem2jhndnboegwhf3jwr2mubafjl3id.onion/")]
         [JsonProperty(PropertyName = "MainNetBackendUriV3", DefaultValueHandling = DefaultValueHandling.Populate)]
@@ -46,15 +46,15 @@ namespace Chaincase.Common
 
         [DefaultValue("https://wasabiwallet.io/")]
         [JsonProperty(PropertyName = "MainNetFallbackBackendUri", DefaultValueHandling = DefaultValueHandling.Populate)]
-        public string MainNetFallbackBackendUri { get; private set; }
+        public string MainNetFallbackBackendUri { get; set; }
 
         [DefaultValue("https://wasabiwallet.co/")]
         [JsonProperty(PropertyName = "TestNetFallbackBackendUri", DefaultValueHandling = DefaultValueHandling.Populate)]
-        public string TestNetFallbackBackendUri { get; private set; }
+        public string TestNetFallbackBackendUri { get; set; }
 
         [DefaultValue("http://localhost:37127/")]
         [JsonProperty(PropertyName = "RegTestBackendUriV3", DefaultValueHandling = DefaultValueHandling.Populate)]
-        public string RegTestBackendUriV3 { get; private set; }
+        public string RegTestBackendUriV3 { get; set; }
 
         [DefaultValue(true)]
         [JsonProperty(PropertyName = "UseTor", DefaultValueHandling = DefaultValueHandling.Populate)]
@@ -165,7 +165,7 @@ namespace Chaincase.Common
         private Uri _backendUri = null;
         private Uri _fallbackBackendUri;
 
-        public ServiceConfiguration ServiceConfiguration { get; private set; }
+        public ServiceConfiguration ServiceConfiguration { get; set; }
 
         public Uri GetCurrentBackendUri()
         {

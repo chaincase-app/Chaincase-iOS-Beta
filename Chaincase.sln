@@ -1,32 +1,37 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.0.0
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 16.0.0.0
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chaincase", "Chaincase\Chaincase.csproj", "{BAC5541F-A9DA-4195-AF14-78D5EDC7F0CF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chaincase.iOS", "Chaincase.iOS\Chaincase.iOS.csproj", "{44322233-08F3-4611-9ED1-FDCF0AEB1317}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chaincase.Common", "Chaincase.Common\Chaincase.Common.csproj", "{96670874-0C12-47C2-94A3-4B7CA7DBCED4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chaincase.Common", "Chaincase.Common\Chaincase.Common.csproj", "{96670874-0C12-47C2-94A3-4B7CA7DBCED4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chaincase.UI", "Chaincase.UI\Chaincase.UI.csproj", "{15DF9C65-C954-4264-8B87-EF1D07B26D3B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chaincase.UI", "Chaincase.UI\Chaincase.UI.csproj", "{15DF9C65-C954-4264-8B87-EF1D07B26D3B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chaincase.SSB", "Chaincase.SSB\Chaincase.SSB.csproj", "{396B25F5-ACC6-4718-A5F8-DADC52FCFC2E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chaincase.SSB", "Chaincase.SSB\Chaincase.SSB.csproj", "{396B25F5-ACC6-4718-A5F8-DADC52FCFC2E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.iOS.Tor", "Xamarin.iOS.Tor\Xamarin.iOS.Tor.csproj", "{4B9C81E8-049C-425D-BD7A-BFBF586A7F64}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.iOS.Tor.Tests", "Xamarin.iOS.Tor.Tests\Xamarin.iOS.Tor.Tests.csproj", "{AB0BE8BB-12F5-438B-A850-F5409B78654F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chaincase.Tests", "Chaincase.Tests\Chaincase.Tests.csproj", "{1E635053-3D35-4CC8-84DB-5189EBFA879C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chaincase.Tests", "Chaincase.Tests\Chaincase.Tests.csproj", "{1E635053-3D35-4CC8-84DB-5189EBFA879C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chaincase.Android", "Chaincase.Android\Chaincase.Android.csproj", "{DEE5F322-CA7E-40A6-A727-821A1EE262EE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WalletWasabi.SDK", "WalletWasabi.SDK", "{FE5185EE-490B-4C5B-87E9-06D6F4939772}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WalletWasabi", "WalletWasabi.SDK\WalletWasabi\WalletWasabi.csproj", "{DD97F0DB-D0D8-4F70-ACD5-1D1EC6FA3C9D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WalletWasabi", "WalletWasabi.SDK\WalletWasabi\WalletWasabi.csproj", "{DD97F0DB-D0D8-4F70-ACD5-1D1EC6FA3C9D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WalletWasabi.Tests", "WalletWasabi.SDK\WalletWasabi.Tests\WalletWasabi.Tests.csproj", "{E6063C73-2460-4C2C-858A-358F34B2700C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WalletWasabi.Tests", "WalletWasabi.SDK\WalletWasabi.Tests\WalletWasabi.Tests.csproj", "{E6063C73-2460-4C2C-858A-358F34B2700C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WalletWasabi.Backend", "WalletWasabi.SDK\WalletWasabi.Backend\WalletWasabi.Backend.csproj", "{E91831F7-BF1F-424C-B85F-60CA121568E8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WalletWasabi.Backend", "WalletWasabi.SDK\WalletWasabi.Backend\WalletWasabi.Backend.csproj", "{E91831F7-BF1F-424C-B85F-60CA121568E8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Additional Files", "Additional Files", "{AE4B804F-E227-4778-9D67-92481B21E7D0}"
+ProjectSection(SolutionItems) = preProject
+	WalletWasabi.SDK\.gitrepo = WalletWasabi.SDK\.gitrepo
+EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +68,7 @@ Global
 		{BAC5541F-A9DA-4195-AF14-78D5EDC7F0CF}.Release|x86.ActiveCfg = Release|Any CPU
 		{BAC5541F-A9DA-4195-AF14-78D5EDC7F0CF}.Release|x86.Build.0 = Release|Any CPU
 		{44322233-08F3-4611-9ED1-FDCF0AEB1317}.Debug|Any CPU.ActiveCfg = Debug|iPhone
+		{44322233-08F3-4611-9ED1-FDCF0AEB1317}.Debug|Any CPU.Build.0 = Debug|iPhone
 		{44322233-08F3-4611-9ED1-FDCF0AEB1317}.Debug|iPhone.ActiveCfg = Debug|iPhone
 		{44322233-08F3-4611-9ED1-FDCF0AEB1317}.Debug|iPhone.Build.0 = Debug|iPhone
 		{44322233-08F3-4611-9ED1-FDCF0AEB1317}.Debug|iPhoneSimulator.ActiveCfg = Debug|iPhoneSimulator
@@ -76,7 +82,6 @@ Global
 		{44322233-08F3-4611-9ED1-FDCF0AEB1317}.Release|iPhoneSimulator.Build.0 = Release|iPhoneSimulator
 		{44322233-08F3-4611-9ED1-FDCF0AEB1317}.Release|x64.ActiveCfg = Release|iPhone
 		{44322233-08F3-4611-9ED1-FDCF0AEB1317}.Release|x86.ActiveCfg = Release|iPhone
-		{44322233-08F3-4611-9ED1-FDCF0AEB1317}.Debug|Any CPU.Build.0 = Debug|iPhone
 		{96670874-0C12-47C2-94A3-4B7CA7DBCED4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{96670874-0C12-47C2-94A3-4B7CA7DBCED4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{96670874-0C12-47C2-94A3-4B7CA7DBCED4}.Debug|iPhone.ActiveCfg = Debug|Any CPU
@@ -199,6 +204,33 @@ Global
 		{1E635053-3D35-4CC8-84DB-5189EBFA879C}.Release|x86.Build.0 = Release|Any CPU
 		{DEE5F322-CA7E-40A6-A727-821A1EE262EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DEE5F322-CA7E-40A6-A727-821A1EE262EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEE5F322-CA7E-40A6-A727-821A1EE262EE}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{DEE5F322-CA7E-40A6-A727-821A1EE262EE}.Debug|iPhone.Build.0 = Debug|Any CPU
+		{DEE5F322-CA7E-40A6-A727-821A1EE262EE}.Debug|iPhone.Deploy.0 = Debug|Any CPU
+		{DEE5F322-CA7E-40A6-A727-821A1EE262EE}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{DEE5F322-CA7E-40A6-A727-821A1EE262EE}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
+		{DEE5F322-CA7E-40A6-A727-821A1EE262EE}.Debug|iPhoneSimulator.Deploy.0 = Debug|Any CPU
+		{DEE5F322-CA7E-40A6-A727-821A1EE262EE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{DEE5F322-CA7E-40A6-A727-821A1EE262EE}.Debug|x64.Build.0 = Debug|Any CPU
+		{DEE5F322-CA7E-40A6-A727-821A1EE262EE}.Debug|x64.Deploy.0 = Debug|Any CPU
+		{DEE5F322-CA7E-40A6-A727-821A1EE262EE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DEE5F322-CA7E-40A6-A727-821A1EE262EE}.Debug|x86.Build.0 = Debug|Any CPU
+		{DEE5F322-CA7E-40A6-A727-821A1EE262EE}.Debug|x86.Deploy.0 = Debug|Any CPU
+		{DEE5F322-CA7E-40A6-A727-821A1EE262EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEE5F322-CA7E-40A6-A727-821A1EE262EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DEE5F322-CA7E-40A6-A727-821A1EE262EE}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{DEE5F322-CA7E-40A6-A727-821A1EE262EE}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{DEE5F322-CA7E-40A6-A727-821A1EE262EE}.Release|iPhone.Build.0 = Release|Any CPU
+		{DEE5F322-CA7E-40A6-A727-821A1EE262EE}.Release|iPhone.Deploy.0 = Release|Any CPU
+		{DEE5F322-CA7E-40A6-A727-821A1EE262EE}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{DEE5F322-CA7E-40A6-A727-821A1EE262EE}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
+		{DEE5F322-CA7E-40A6-A727-821A1EE262EE}.Release|iPhoneSimulator.Deploy.0 = Release|Any CPU
+		{DEE5F322-CA7E-40A6-A727-821A1EE262EE}.Release|x64.ActiveCfg = Release|Any CPU
+		{DEE5F322-CA7E-40A6-A727-821A1EE262EE}.Release|x64.Build.0 = Release|Any CPU
+		{DEE5F322-CA7E-40A6-A727-821A1EE262EE}.Release|x64.Deploy.0 = Release|Any CPU
+		{DEE5F322-CA7E-40A6-A727-821A1EE262EE}.Release|x86.ActiveCfg = Release|Any CPU
+		{DEE5F322-CA7E-40A6-A727-821A1EE262EE}.Release|x86.Build.0 = Release|Any CPU
+		{DEE5F322-CA7E-40A6-A727-821A1EE262EE}.Release|x86.Deploy.0 = Release|Any CPU
 		{DD97F0DB-D0D8-4F70-ACD5-1D1EC6FA3C9D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DD97F0DB-D0D8-4F70-ACD5-1D1EC6FA3C9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DD97F0DB-D0D8-4F70-ACD5-1D1EC6FA3C9D}.Debug|iPhone.ActiveCfg = Debug|Any CPU
@@ -263,12 +295,12 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {ED7051B0-F135-4F5F-A3AD-CEBBF9EE44B1}
-	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{DD97F0DB-D0D8-4F70-ACD5-1D1EC6FA3C9D} = {FE5185EE-490B-4C5B-87E9-06D6F4939772}
 		{E6063C73-2460-4C2C-858A-358F34B2700C} = {FE5185EE-490B-4C5B-87E9-06D6F4939772}
 		{E91831F7-BF1F-424C-B85F-60CA121568E8} = {FE5185EE-490B-4C5B-87E9-06D6F4939772}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {ED7051B0-F135-4F5F-A3AD-CEBBF9EE44B1}
 	EndGlobalSection
 EndGlobal

@@ -1,14 +1,13 @@
-using NBitcoin;
-using NBitcoin.RPC;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using NBitcoin;
+using NBitcoin.RPC;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using WalletWasabi.Backend.Models;
@@ -293,48 +292,5 @@ namespace WalletWasabi.WebClients.Wasabi
 		}
 
 		#endregion wasabi
-
-		#region Chaincase
-
-		public async Task<string> RegisterNotificationTokenAsync(DeviceToken deviceToken, CancellationToken cancel)
-		{
-			using var response = await TorClient.SendAndRetryAsync(
-				HttpMethod.Put,
-				HttpStatusCode.OK,
-				$"/api/v{ApiVersion}/notificationTokens",
-				2,
-				new StringContent(JObject.FromObject(deviceToken).ToString(), Encoding.UTF8,
-					"application/json")
-				, cancel).ConfigureAwait(false);
-
-			if (response.StatusCode != HttpStatusCode.OK)
-			{
-				await response.ThrowRequestExceptionFromContentAsync();
-			}
-
-			using HttpContent content = response.Content;
-			var ret = await content.ReadAsStringAsync().ConfigureAwait(false);
-			return ret;
-		}
-
-		public async Task<string> RemoveNotificationTokenAsync(string deviceToken, CancellationToken cancel)
-		{
-			using var response = await TorClient.SendAndRetryAsync(
-				HttpMethod.Delete,
-				HttpStatusCode.OK,
-				$"/api/v{ApiVersion}/notificationTokens/{deviceToken}",
-				2,null, cancel).ConfigureAwait(false);
-
-			if (response.StatusCode != HttpStatusCode.OK)
-			{
-				await response.ThrowRequestExceptionFromContentAsync();
-			}
-			using HttpContent content = response.Content;
-			var ret = await content.ReadAsStringAsync().ConfigureAwait(false);
-			return ret;
-		}
-
-
-		#endregion
 	}
 }
