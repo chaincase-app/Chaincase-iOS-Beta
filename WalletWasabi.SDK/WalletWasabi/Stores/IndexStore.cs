@@ -49,7 +49,7 @@ namespace WalletWasabi.Stores
 		private List<FilterModel> ImmatureFilters { get; set; }
 		private AsyncLock IndexLock { get; set; }
 
-		public async Task InitializeAsync(string workFolderPath, Task<FilterModel> startingHeader = null)
+		public async Task InitializeAsync(Task<FilterModel> startingHeader = null)
 		{
 			using (BenchmarkLogger.Measure())
 			{
@@ -107,7 +107,7 @@ namespace WalletWasabi.Stores
 				MatureIndexFileManager.DeleteMe();
 				ImmatureIndexFileManager.DeleteMe();
 				SmartHeaderChain = new SmartHeaderChain();
-				await InitializeAsync(WorkFolderPath, Task.FromResult(StartingFilters.GetStartingFilter(startingHeader)));
+				await InitializeAsync(Task.FromResult(StartingFilters.GetStartingFilter(startingHeader)));
 			}
 		}
 

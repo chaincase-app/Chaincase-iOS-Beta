@@ -63,7 +63,7 @@ namespace Chaincase.UI.ViewModels
 				.Subscribe(_ => this.RaisePropertyChanged(nameof(ToolTip)));
 
 			_cluster = Model
-				.WhenAnyValue(x => x.Clusters, x => x.Clusters.Labels)
+				.WhenAnyValue(x => x.Cluster, x => x.Cluster.Labels)
 				.Select(x => x.Item2.ToString())
 				.ToProperty(this, x => x.Clusters, scheduler: RxApp.MainThreadScheduler)
 				.DisposeWith(Disposables);

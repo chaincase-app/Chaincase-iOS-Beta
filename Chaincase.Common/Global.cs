@@ -221,15 +221,16 @@ namespace Chaincase.Common
 
                 #region Blocks provider
 
-                var blockProvider = new CachedBlockProvider(
+                BlockRepository = new FileSystemBlockRepository(blocksFolderPath, Network);
+                BlockProvider = new CachedBlockProvider(
                     new SmartBlockProvider(
                         new P2pBlockProvider(Nodes, null, _synchronizer, _config.ServiceConfiguration, Network),
                         Cache),
-                    new FileSystemBlockRepository(blocksFolderPath, Network));
+                    BlockRepository);
 
                 #endregion Blocks provider
 
-                _walletManager.RegisterServices(_bitcoinStore, _synchronizer, Nodes, _config.ServiceConfiguration, _feeProviders, blockProvider);
+                _walletManager.RegisterServices(_bitcoinStore, _synchronizer, Nodes, _config.ServiceConfiguration, _feeProviders, BlockProvider);
 
                 Initialized(this, new AppInitializedEventArgs(this));
                 IsInitialized = true;
@@ -241,6 +242,10 @@ namespace Chaincase.Common
                 Logger.LogDebug($"Initialization Completed");
             }
         }
+
+        public IRepository<uint256, Block> BlockRepository { get; set; }
+
+        public IBlockProvider BlockProvider { get; set; }
 
         public async Task<AddressManagerBehavior> InitializeAddressManagerBehaviorAsync()
         {

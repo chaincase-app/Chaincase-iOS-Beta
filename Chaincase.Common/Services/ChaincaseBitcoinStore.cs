@@ -9,17 +9,17 @@ using WalletWasabi.Blockchain.Mempool;
 using WalletWasabi.Blockchain.Transactions;
 using WalletWasabi.Logging;
 using WalletWasabi.Stores;
+using WalletWasabi.Wallets;
 
 namespace Chaincase.Common.Services
 {
 	public class ChaincaseBitcoinStore: BitcoinStore
 	{
-		private readonly string _workFolderPath;
 		private readonly ChaincaseClient _chaincaseClient;
 
-		public ChaincaseBitcoinStore(string workFolderPath, Network network, IndexStore indexStore, AllTransactionStore transactionStore, MempoolService mempoolService, ChaincaseClient chaincaseClient) : base(workFolderPath, network, indexStore, transactionStore, mempoolService)
+		public ChaincaseBitcoinStore(IndexStore indexStore, AllTransactionStore transactionStore,
+			MempoolService mempoolService, ChaincaseClient chaincaseClient) : base(indexStore, transactionStore, mempoolService)
 		{
-			_workFolderPath = workFolderPath;
 			_chaincaseClient = chaincaseClient;
 		}
 
@@ -27,8 +27,6 @@ namespace Chaincase.Common.Services
 		{
 			using (BenchmarkLogger.Measure())
 			{
-				var networkWorkFolderPath = Path.Combine(_workFolderPath, Network.ToString());
-				var indexStoreFolderPath = Path.Combine(networkWorkFolderPath, "IndexStore");
 
 
 				async Task<FilterModel> GetHeader()
@@ -53,8 +51,8 @@ namespace Chaincase.Common.Services
 				var initTasks = new[]
 				{
 					//chaincase: ideally, we fetch the latest mature block filter and pass it here as the starting filter
-					IndexStore.InitializeAsync(indexStoreFolderPath, GetHeader()),
-					TransactionStore.InitializeAsync(networkWorkFolderPath, Network)
+					IndexStore.InitializeAsync(GetHeader()),
+					TransactionStore.InitializeAsync()
 				};
 
 				await Task.WhenAll(initTasks).ConfigureAwait(false);
