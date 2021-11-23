@@ -4,6 +4,7 @@ using System.IO;
 using Chaincase.Common.Contracts;
 using Chaincase.Common.Services;
 using Microsoft.Extensions.DependencyInjection;
+using NBitcoin;
 using WalletWasabi.Blockchain.Analysis.FeesEstimation;
 using WalletWasabi.Blockchain.Blocks;
 using WalletWasabi.Blockchain.Mempool;
@@ -31,15 +32,22 @@ namespace Chaincase.Common
             services.AddSingleton(x =>
             {
                 var network = x.GetRequiredService<Config>().Network;
+                
+                
                 var client = x.GetRequiredService<ChaincaseClient>();
                 var dataDir = x.GetRequiredService<IDataDirProvider>().Get();
-                var indexStore = new IndexStore(network, new SmartHeaderChain());
+                
+                var networkWorkFolderPath = Path.Combine(dataDir, network.ToString());
+                var indexStoreFolderPath = Path.Combine(networkWorkFolderPath, "IndexStore");
+                var bitcoinStoreFolderPath = Path.Combine(dataDir, "BitcoinStore");
+                var txStorepath = Path.Combine(bitcoinStoreFolderPath, "IndexStore");
+                var indexStore = new IndexStore(indexStoreFolderPath,network, new SmartHeaderChain());
 
-                return new ChaincaseBitcoinStore(Path.Combine(dataDir, "BitcoinStore"), network,
-                    indexStore, new AllTransactionStore(), new MempoolService(),client
-                );
+                return new ChaincaseBitcoinStore(indexStore, new AllTransactionStore(txStorepath, network), new MempoolService(),client);
             });
             services.AddSingleton<BitcoinStore>(provider => provider.GetRequiredService<ChaincaseBitcoinStore>());
+            services.AddSingleton(provider => provider.GetRequiredService<Global>().BlockProvider);
+            services.AddSingleton(provider => provider.GetRequiredService<Global>().BlockRepository);
             services.AddSingleton(x =>
             {
                 var config = x.GetRequiredService<Config>();

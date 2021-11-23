@@ -19,32 +19,20 @@ namespace WalletWasabi.Stores
 		public BitcoinStore(
 			IndexStore indexStore,
 			AllTransactionStore transactionStore,
-			MempoolService mempoolService,
-			IRepository<uint256, Block> blockRepository)
+			MempoolService mempoolService)
 		{
 			IndexStore = indexStore;
 			TransactionStore = transactionStore;
 			MempoolService = mempoolService;
-			BlockRepository = blockRepository;
-		}
-
-		/// <summary>
-		/// Special constructor used by the mock version.
-		/// </summary>
-		internal BitcoinStore()
-		{
-			TransactionStore = new AllTransactionStoreMock();
 		}
 
 		public bool IsInitialized { get; protected set; }
-		private string WorkFolderPath { get; }
 		public Network Network { get; }
 
 		public IndexStore IndexStore { get; }
 		public AllTransactionStore TransactionStore { get; }
 		public SmartHeaderChain SmartHeaderChain => IndexStore.SmartHeaderChain;
 		public MempoolService MempoolService { get; }
-		public IRepository<uint256, Block> BlockRepository { get; }
 
 		/// <summary>
 		/// This should not be a property, but a creator function, because it'll be cloned left and right by NBitcoin later.
