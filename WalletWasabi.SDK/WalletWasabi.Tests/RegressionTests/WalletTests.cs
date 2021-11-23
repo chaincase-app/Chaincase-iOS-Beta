@@ -82,7 +82,7 @@ namespace WalletWasabi.Tests.RegressionTests
 		[Fact]
 		public async Task FilterDownloaderTestAsync()
 		{
-			(string password, IRPCClient rpc, Network network, Coordinator coordinator, ServiceConfiguration serviceConfiguration, BitcoinStore bitcoinStore, Backend.Global global) = await Common.InitializeTestEnvironmentAsync(RegTestFixture, 1);
+			var (password, rpc, network, coordinator, serviceConfiguration, bitcoinStore, global, fileSystemBlockRepository) = await Common.InitializeTestEnvironmentAsync(RegTestFixture, 1);
 
 			var synchronizer = new WasabiSynchronizer(rpc.Network, bitcoinStore, new Uri(RegTestFixture.BackendEndPoint), null);
 			try
@@ -151,7 +151,7 @@ namespace WalletWasabi.Tests.RegressionTests
 		[Fact]
 		public async Task ReorgTestAsync()
 		{
-			(string password, IRPCClient rpc, Network network, Coordinator coordinator, ServiceConfiguration serviceConfiguration, BitcoinStore bitcoinStore, Backend.Global global) = await Common.InitializeTestEnvironmentAsync(RegTestFixture, 1);
+			var (password, rpc, network, coordinator, serviceConfiguration, bitcoinStore, global, fileSystemBlockRepository) = await Common.InitializeTestEnvironmentAsync(RegTestFixture, 1);
 
 			var keyManager = KeyManager.CreateNew(out _, password);
 
@@ -262,7 +262,7 @@ namespace WalletWasabi.Tests.RegressionTests
 		[Fact]
 		public async Task WalletTestsAsync()
 		{
-			(string password, IRPCClient rpc, Network network, Coordinator coordinator, ServiceConfiguration serviceConfiguration, BitcoinStore bitcoinStore, Backend.Global global) = await Common.InitializeTestEnvironmentAsync(RegTestFixture, 1);
+			var (password, rpc, network, coordinator, serviceConfiguration, bitcoinStore, global, fileSystemBlockRepository) = await Common.InitializeTestEnvironmentAsync(RegTestFixture, 1);
 
 			// Create the services.
 			// 1. Create connection service.
@@ -283,7 +283,7 @@ namespace WalletWasabi.Tests.RegressionTests
 
 			CachedBlockProvider blockProvider = new CachedBlockProvider(
 				new P2pBlockProvider(nodes, null, synchronizer, serviceConfiguration, network),
-				bitcoinStore.BlockRepository);
+				fileSystemBlockRepository);
 
 			using var wallet = Wallet.CreateAndRegisterServices(network, bitcoinStore, keyManager, synchronizer, nodes, workDir, serviceConfiguration, synchronizer, blockProvider);
 			wallet.NewFilterProcessed += Common.Wallet_NewFilterProcessed;

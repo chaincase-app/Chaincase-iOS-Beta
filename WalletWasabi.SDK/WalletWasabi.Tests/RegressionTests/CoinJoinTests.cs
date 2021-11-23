@@ -68,7 +68,7 @@ namespace WalletWasabi.Tests.RegressionTests
 		[Fact]
 		public async Task CoordinatorCtorTestsAsync()
 		{
-			(string password, IRPCClient rpc, Network network, Coordinator coordinator, ServiceConfiguration serviceConfiguration, BitcoinStore bitcoinStore, Backend.Global global) = await Common.InitializeTestEnvironmentAsync(RegTestFixture, 1);
+			var (password, rpc, network, coordinator, serviceConfiguration, bitcoinStore, global, fileSystemBlockRepository) = await Common.InitializeTestEnvironmentAsync(RegTestFixture, 1);
 
 			Logger.TurnOff(); // turn off at the end, otherwise, the tests logs would have of warnings
 
@@ -111,7 +111,7 @@ namespace WalletWasabi.Tests.RegressionTests
 		[Fact]
 		public async Task CcjTestsAsync()
 		{
-			(string password, IRPCClient rpc, Network network, Coordinator coordinator, ServiceConfiguration serviceConfiguration, BitcoinStore bitcoinStore, Backend.Global global) = await Common.InitializeTestEnvironmentAsync(RegTestFixture, 1);
+			var (password, rpc, network, coordinator, serviceConfiguration, bitcoinStore, global, fileSystemBlockRepository) = await Common.InitializeTestEnvironmentAsync(RegTestFixture, 1);
 
 			Money denomination = Money.Coins(0.2m);
 			decimal coordinatorFeePercent = 0.2m;
@@ -716,7 +716,7 @@ namespace WalletWasabi.Tests.RegressionTests
 		[Fact]
 		public async Task CcjEqualInputTestsAsync()
 		{
-			(string password, IRPCClient rpc, Network network, Coordinator coordinator, ServiceConfiguration serviceConfiguration, BitcoinStore bitcoinStore, Backend.Global global) = await Common.InitializeTestEnvironmentAsync(RegTestFixture, 1);
+			var (password, rpc, network, coordinator, serviceConfiguration, bitcoinStore, global, fileSystemBlockRepository) = await Common.InitializeTestEnvironmentAsync(RegTestFixture, 1);
 
 			Money denomination = Money.Coins(0.1m);
 			decimal coordinatorFeePercent = 0.0002m;
@@ -867,7 +867,7 @@ namespace WalletWasabi.Tests.RegressionTests
 		[Fact]
 		public async Task Ccj100ParticipantsTestsAsync()
 		{
-			(string password, IRPCClient rpc, Network network, Coordinator coordinator, ServiceConfiguration serviceConfiguration, BitcoinStore bitcoinStore, Backend.Global global) = await Common.InitializeTestEnvironmentAsync(RegTestFixture, 1);
+			var (password, rpc, network, coordinator, serviceConfiguration, bitcoinStore, global, fileSystemBlockRepository) = await Common.InitializeTestEnvironmentAsync(RegTestFixture, 1);
 
 			Money denomination = Money.Coins(0.1m);
 			decimal coordinatorFeePercent = 0.003m;
@@ -1099,7 +1099,7 @@ namespace WalletWasabi.Tests.RegressionTests
 		[Fact]
 		public async Task CcjFeeTestsAsync()
 		{
-			(string password, IRPCClient rpc, Network network, Coordinator coordinator, ServiceConfiguration serviceConfiguration, BitcoinStore bitcoinStore, Backend.Global global) = await Common.InitializeTestEnvironmentAsync(RegTestFixture, 1);
+			var (password, rpc, network, coordinator, serviceConfiguration, bitcoinStore, global, fileSystemBlockRepository) = await Common.InitializeTestEnvironmentAsync(RegTestFixture, 1);
 
 			var synchronizer = new WasabiSynchronizer(network, bitcoinStore, new Uri(RegTestFixture.BackendEndPoint), null);
 			synchronizer.Start(requestInterval: TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(5), 10000); // Start wasabi synchronizer service.
@@ -1202,7 +1202,7 @@ namespace WalletWasabi.Tests.RegressionTests
 		[Fact]
 		public async Task CoinJoinClientTestsAsync()
 		{
-			(string password, IRPCClient rpc, Network network, Coordinator coordinator, ServiceConfiguration serviceConfiguration, BitcoinStore bitcoinStore, Backend.Global global) = await Common.InitializeTestEnvironmentAsync(RegTestFixture, 1);
+			var (password, rpc, network, coordinator, serviceConfiguration, bitcoinStore, global, fileSystemBlockRepository) = await Common.InitializeTestEnvironmentAsync(RegTestFixture, 1);
 
 			var synchronizer = new WasabiSynchronizer(network, bitcoinStore, new Uri(RegTestFixture.BackendEndPoint), null);
 			synchronizer.Start(requestInterval: TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(5), 10000); // Start wasabi synchronizer service.
@@ -1358,7 +1358,7 @@ namespace WalletWasabi.Tests.RegressionTests
 		[Fact]
 		public async Task CoinJoinMultipleRoundTestsAsync()
 		{
-			(string password, IRPCClient rpc, Network network, Coordinator coordinator, ServiceConfiguration serviceConfiguration, BitcoinStore bitcoinStore, Backend.Global global) = await Common.InitializeTestEnvironmentAsync(RegTestFixture, 3);
+			var (password, rpc, network, coordinator, serviceConfiguration, bitcoinStore, global, fileSystemBlockRepository) = await Common.InitializeTestEnvironmentAsync(RegTestFixture, 1);
 
 			Money denomination = Money.Coins(0.1m);
 			decimal coordinatorFeePercent = 0.1m;
@@ -1400,11 +1400,11 @@ namespace WalletWasabi.Tests.RegressionTests
 
 			CachedBlockProvider blockProvider = new CachedBlockProvider(
 				new P2pBlockProvider(nodes, null, synchronizer, serviceConfiguration, network),
-				bitcoinStore.BlockRepository);
+				fileSystemBlockRepository);
 
 			CachedBlockProvider blockProvider2 = new CachedBlockProvider(
 				new P2pBlockProvider(nodes2, null, synchronizer, serviceConfiguration, network),
-				bitcoinStore.BlockRepository);
+				fileSystemBlockRepository);
 
 			using var wallet = Wallet.CreateAndRegisterServices(network, bitcoinStore, keyManager, synchronizer, nodes, workDir, serviceConfiguration, synchronizer, blockProvider);
 			wallet.NewFilterProcessed += Common.Wallet_NewFilterProcessed;

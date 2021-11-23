@@ -62,7 +62,7 @@ namespace WalletWasabi.Tests.IntegrationTests
 			var transactionStore = new AllTransactionStore(Path.Combine(dir, "transactionStore"), network);
 			var mempoolService = new MempoolService();
 			var blocks = new FileSystemBlockRepository(Path.Combine(dir, "blocks"), network);
-			BitcoinStore bitcoinStore = new BitcoinStore(indexStore, transactionStore, mempoolService, blocks);
+			BitcoinStore bitcoinStore = new BitcoinStore(indexStore, transactionStore, mempoolService);
 			await bitcoinStore.InitializeAsync();
 
 			var addressManagerFolderPath = Path.Combine(dataDir, "AddressManager");
@@ -103,7 +103,7 @@ namespace WalletWasabi.Tests.IntegrationTests
 			ServiceConfiguration serviceConfig = new ServiceConfiguration(MixUntilAnonymitySet.PrivacyLevelStrong.ToString(), 2, 21, 50, new IPEndPoint(IPAddress.Loopback, network.DefaultPort), Money.Coins(Constants.DefaultDustThreshold));
 			CachedBlockProvider blockProvider = new CachedBlockProvider(
 				new P2pBlockProvider(nodes, null, syncer, serviceConfig, network),
-				bitcoinStore.BlockRepository);
+				blocks);
 
 			using Wallet wallet = Wallet.CreateAndRegisterServices(
 				network,

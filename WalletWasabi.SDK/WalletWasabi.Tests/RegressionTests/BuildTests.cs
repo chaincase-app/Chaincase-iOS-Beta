@@ -42,7 +42,7 @@ namespace WalletWasabi.Tests.RegressionTests
 		[Fact]
 		public async Task BuildTransactionValidationsTestAsync()
 		{
-			(string password, IRPCClient rpc, Network network, Coordinator coordinator, ServiceConfiguration serviceConfiguration, BitcoinStore bitcoinStore, Backend.Global global) = await Common.InitializeTestEnvironmentAsync(RegTestFixture, 1);
+			var (password, rpc, network, coordinator, serviceConfiguration, bitcoinStore, global, fileSystemBlockRepository) = await Common.InitializeTestEnvironmentAsync(RegTestFixture, 1);
 
 			// Create the services.
 			// 1. Create connection service.
@@ -64,7 +64,7 @@ namespace WalletWasabi.Tests.RegressionTests
 			var workDir = Common.GetWorkDir();
 			CachedBlockProvider blockProvider = new CachedBlockProvider(
 				new P2pBlockProvider(nodes, null, synchronizer, serviceConfiguration, network),
-				bitcoinStore.BlockRepository);
+				fileSystemBlockRepository);
 
 			using var wallet = Wallet.CreateAndRegisterServices(network, bitcoinStore, keyManager, synchronizer, nodes, workDir, serviceConfiguration, synchronizer, blockProvider);
 			wallet.NewFilterProcessed += Common.Wallet_NewFilterProcessed;
@@ -205,7 +205,7 @@ namespace WalletWasabi.Tests.RegressionTests
 		[Fact]
 		public async Task BuildTransactionReorgsTestAsync()
 		{
-			(string password, IRPCClient rpc, Network network, Coordinator coordinator, ServiceConfiguration serviceConfiguration, BitcoinStore bitcoinStore, Backend.Global global) = await Common.InitializeTestEnvironmentAsync(RegTestFixture, 1);
+			var (password, rpc, network, coordinator, serviceConfiguration, bitcoinStore, global, fileSystemBlockRepository) = await Common.InitializeTestEnvironmentAsync(RegTestFixture, 1);
 			bitcoinStore.IndexStore.NewFilter += Common.Wallet_NewFilterProcessed;
 			// Create the services.
 			// 1. Create connection service.
@@ -227,7 +227,7 @@ namespace WalletWasabi.Tests.RegressionTests
 			var workDir = Common.GetWorkDir();
 			CachedBlockProvider blockProvider = new CachedBlockProvider(
 				new P2pBlockProvider(nodes, null, synchronizer, serviceConfiguration, network),
-				bitcoinStore.BlockRepository);
+				fileSystemBlockRepository);
 			var walletManager = new WalletManager(network, new WalletDirectories(workDir));
 			walletManager.RegisterServices(bitcoinStore, synchronizer, nodes, serviceConfiguration, synchronizer, blockProvider);
 

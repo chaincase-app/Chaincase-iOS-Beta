@@ -75,7 +75,7 @@ namespace WalletWasabi.Tests.RegressionTests
 			}
 		}
 
-		public static async Task<(string password, IRPCClient rpc, Network network, Coordinator coordinator, ServiceConfiguration serviceConfiguration, BitcoinStore bitcoinStore, Backend.Global global)> InitializeTestEnvironmentAsync(
+		public static async Task<(string password, IRPCClient rpc, Network network, Coordinator coordinator, ServiceConfiguration serviceConfiguration, BitcoinStore bitcoinStore, Backend.Global global, FileSystemBlockRepository)> InitializeTestEnvironmentAsync(
 			RegTestFixture regTestFixture,
 			int numberOfBlocksToGenerate,
 			[CallerFilePath] string callerFilePath = null,
@@ -97,9 +97,9 @@ namespace WalletWasabi.Tests.RegressionTests
 			var transactionStore = new AllTransactionStore(Path.Combine(dir, "transactionStore"), network);
 			var mempoolService = new MempoolService();
 			var blocks = new FileSystemBlockRepository(Path.Combine(dir, "blocks"), network);
-			var bitcoinStore = new BitcoinStore(indexStore, transactionStore, mempoolService, blocks);
+			var bitcoinStore = new BitcoinStore(indexStore, transactionStore, mempoolService);
 			await bitcoinStore.InitializeAsync();
-			return ("password", global.RpcClient, network, global.Coordinator, serviceConfiguration, bitcoinStore, global);
+			return ("password", global.RpcClient, network, global.Coordinator, serviceConfiguration, bitcoinStore, global, blocks);
 		}
 	}
 }
