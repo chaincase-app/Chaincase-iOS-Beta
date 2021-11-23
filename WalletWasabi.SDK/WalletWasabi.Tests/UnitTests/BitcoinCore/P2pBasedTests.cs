@@ -41,7 +41,7 @@ namespace WalletWasabi.Tests.UnitTests.BitcoinCore
 				var transactionStore = new AllTransactionStore(Path.Combine(dir, "transactionStore"), network);
 				var mempoolService = new MempoolService();
 				var blocks = new FileSystemBlockRepository(Path.Combine(dir, "blocks"), network);
-				var bitcoinStore = new BitcoinStore(indexStore, transactionStore, mempoolService, blocks);
+				var bitcoinStore = new BitcoinStore(indexStore, transactionStore, mempoolService);
 				await bitcoinStore.InitializeAsync();
 
 				await rpc.GenerateAsync(101);
