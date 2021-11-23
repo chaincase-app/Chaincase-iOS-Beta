@@ -17,9 +17,12 @@ namespace WalletWasabi.Hwi.Models
 		KeepKey,
 		KeepKey_Simulator,
 		Ledger_Nano_S,
+		Ledger_Nano_X,
 		Trezor_1,
 		Trezor_1_Simulator,
 		Trezor_T,
-		Trezor_T_Simulator
+		Trezor_T_Simulator,
+		BitBox02_BTCOnly,
+		BitBox02_Multi,
 	}
 }

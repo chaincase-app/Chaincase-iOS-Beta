@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using NBitcoin;
 using WalletWasabi.Blockchain.Analysis.Clustering;
@@ -73,7 +74,7 @@ namespace WalletWasabi.Blockchain.TransactionOutputs
 			}
 		}
 
-		public SmartCoin GetByOutPoint(OutPoint outpoint) => AsCoinsView().GetByOutPoint(outpoint);
+		public bool TryGetByOutPoint(OutPoint outpoint, [NotNullWhen(true)] out SmartCoin? coin) => AsCoinsView().TryGetByOutPoint(outpoint, out coin);
 
 		public bool TryAdd(SmartCoin coin)
 		{
@@ -87,11 +88,11 @@ namespace WalletWasabi.Blockchain.TransactionOutputs
 					{
 						if (ClustersByScriptPubKey.TryGetValue(coin.ScriptPubKey, out var cluster))
 						{
-							coin.Clusters = cluster;
+							coin.Cluster = cluster;
 						}
 						else
 						{
-							ClustersByScriptPubKey.Add(coin.ScriptPubKey, coin.Clusters);
+							ClustersByScriptPubKey.Add(coin.ScriptPubKey, coin.Cluster);
 						}
 
 						foreach (var spentOutPoint in coin.SpentOutputs)
@@ -175,9 +176,9 @@ namespace WalletWasabi.Blockchain.TransactionOutputs
 					{
 						if (newCoin.AnonymitySet < PrivacyLevelThreshold)
 						{
-							spentCoin.Clusters.Merge(newCoin.Clusters);
-							newCoin.Clusters = spentCoin.Clusters;
-							ClustersByScriptPubKey.AddOrReplace(newCoin.ScriptPubKey, newCoin.Clusters);
+							spentCoin.Cluster.Merge(newCoin.Cluster);
+							newCoin.Cluster = spentCoin.Cluster;
+							ClustersByScriptPubKey.AddOrReplace(newCoin.ScriptPubKey, newCoin.Cluster);
 						}
 					}
 				}

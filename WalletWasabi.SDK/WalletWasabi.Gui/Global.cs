@@ -102,12 +102,13 @@ namespace WalletWasabi.Gui
 				WalletManager.OnDequeue += WalletManager_OnDequeue;
 				WalletManager.WalletRelevantTransactionProcessed += WalletManager_WalletRelevantTransactionProcessed;
 
-				var indexStore = new IndexStore(Network, new SmartHeaderChain());
+				var networkWorkFolderPath = Path.Combine(DataDir, "BitcoinStore", Network.ToString());
+				var transactionStore = new AllTransactionStore(networkWorkFolderPath, Network);
+				var indexStore = new IndexStore(Path.Combine(networkWorkFolderPath, "IndexStore"), Network, new SmartHeaderChain());
+				var mempoolService = new MempoolService();
+				var blocks = new FileSystemBlockRepository(Path.Combine(networkWorkFolderPath, "Blocks"), Network);
 
-				BitcoinStore = new BitcoinStore(
-					Path.Combine(DataDir, "BitcoinStore"), Network,
-					indexStore, new AllTransactionStore(), new MempoolService()
-				);
+				BitcoinStore = new BitcoinStore(indexStore, transactionStore, mempoolService, blocks);
 
 				SingleInstanceChecker = new SingleInstanceChecker(Network);
 			}
@@ -144,7 +145,6 @@ namespace WalletWasabi.Gui
 				AddressManagerFilePath = Path.Combine(addressManagerFolderPath, $"AddressManager{Network}.dat");
 				var addrManTask = InitializeAddressManagerBehaviorAsync();
 
-				var blocksFolderPath = Path.Combine(DataDir, $"Blocks{Network}");
 				var userAgent = Constants.UserAgents.RandomElement();
 				var connectionParameters = new NodeConnectionParameters { UserAgent = userAgent };
 
@@ -196,10 +196,19 @@ namespace WalletWasabi.Gui
 
 				#region BitcoinStoreInitialization
 
-				await bstoreInitTask.ConfigureAwait(false);
+				try
+				{
+					await bstoreInitTask.ConfigureAwait(false);
 
-				// Make sure that the height of the wallets will not be better than the current height of the filters.
-				WalletManager.SetMaxBestHeight(BitcoinStore.IndexStore.SmartHeaderChain.TipHeight);
+					// Make sure that the height of the wallets will not be better than the current height of the filters.
+					WalletManager.SetMaxBestHeight(BitcoinStore.IndexStore.SmartHeaderChain.TipHeight);
+				}
+				catch (Exception ex) when (!(ex is OperationCanceledException))
+				{
+					// If our internal data structures in the Bitcoin Store gets corrupted, then it's better to rescan all the wallets.
+					WalletManager.SetMaxBestHeight(SmartHeader.GetStartingHeader(Network).Height);
+					throw;
+				}
 
 				#endregion BitcoinStoreInitialization
 
@@ -297,18 +306,7 @@ namespace WalletWasabi.Gui
 				}
 				else
 				{
-					if (Config.UseTor)
-					{
-						// onlyForOnionHosts: false - Connect to clearnet IPs through Tor, too.
-						connectionParameters.TemplateBehaviors.Add(new SocksSettingsBehavior(Config.TorSocks5EndPoint, onlyForOnionHosts: false, networkCredential: null, streamIsolation: true));
-						// allowOnlyTorEndpoints: true - Connect only to onions and do not connect to clearnet IPs at all.
-						// This of course makes the first setting unnecessary, but it's better if that's around, in case someone wants to tinker here.
-						connectionParameters.EndpointConnector = new DefaultEndpointConnector(allowOnlyTorEndpoints: Network == Network.Main);
-
-						await AddKnownBitcoinFullNodeAsHiddenServiceAsync(AddressManager).ConfigureAwait(false);
-					}
-					Nodes = new NodesGroup(Network, connectionParameters, requirements: Constants.NodeRequirements);
-					Nodes.MaximumNodeConnection = 12;
+					Nodes = CreateAndConfigureNodesGroup(connectionParameters);
 					RegTestMempoolServingNode = null;
 				}
 
@@ -371,7 +369,7 @@ namespace WalletWasabi.Gui
 					new SmartBlockProvider(
 						new P2pBlockProvider(Nodes, BitcoinCoreNode, Synchronizer, Config.ServiceConfiguration, Network),
 						Cache),
-					new FileSystemBlockRepository(blocksFolderPath, Network));
+					BitcoinStore.BlockRepository);
 
 				#endregion Blocks provider
 
@@ -381,6 +379,22 @@ namespace WalletWasabi.Gui
 			{
 				InitializationCompleted = true;
 			}
+		}
+
+		private NodesGroup CreateAndConfigureNodesGroup(NodeConnectionParameters connectionParameters)
+		{
+			var maximumNodeConnection = 12;
+			var bestEffortEndpointConnector = new BestEffortEndpointConnector(maximumNodeConnection / 2);
+			connectionParameters.EndpointConnector = bestEffortEndpointConnector;
+			if (Config.UseTor)
+			{
+				connectionParameters.TemplateBehaviors.Add(new SocksSettingsBehavior(Config.TorSocks5EndPoint, onlyForOnionHosts: false, networkCredential: null, streamIsolation: true));
+			}
+			var nodes = new NodesGroup(Network, connectionParameters, requirements: Constants.NodeRequirements);
+			nodes.ConnectedNodes.Added += ConnectedNodes_OnAddedOrRemoved;
+			nodes.ConnectedNodes.Removed += ConnectedNodes_OnAddedOrRemoved;
+			nodes.MaximumNodeConnection = maximumNodeConnection;
+			return nodes;
 		}
 
 		private async Task<AddressManagerBehavior> InitializeAddressManagerBehaviorAsync()
@@ -447,25 +461,13 @@ namespace WalletWasabi.Gui
 			return addressManagerBehavior;
 		}
 
-		private async Task AddKnownBitcoinFullNodeAsHiddenServiceAsync(AddressManager addressManager)
+		private void ConnectedNodes_OnAddedOrRemoved(object? sender, NodeEventArgs e)
 		{
-			if (Network == Network.RegTest)
+			if (Nodes.NodeConnectionParameters.EndpointConnector is BestEffortEndpointConnector bestEffortEndPointConnector)
 			{
-				return;
-			}
-
-			// curl -s https://bitnodes.21.co/api/v1/snapshots/latest/ | egrep -o '[a-z0-9]{16}\.onion:?[0-9]*' | sort -ru
-			// Then filtered to include only /Satoshi:0.17.x
-			var fullBaseDirectory = EnvironmentHelpers.GetFullBaseDirectory();
-
-			var onions = await File.ReadAllLinesAsync(Path.Combine(fullBaseDirectory, "OnionSeeds", $"{Network}OnionSeeds.txt")).ConfigureAwait(false);
-
-			onions.Shuffle();
-			foreach (var onion in onions.Take(60))
-			{
-				if (EndPointParser.TryParse(onion, Network.DefaultPort, out var endpoint))
+				if (sender is NodesCollection nodesCollection)
 				{
-					await addressManager.AddAsync(endpoint).ConfigureAwait(false);
+					bestEffortEndPointConnector.UpdateConnectedNodesCounter(nodesCollection.Count);
 				}
 			}
 		}
@@ -734,9 +736,10 @@ namespace WalletWasabi.Gui
 					}
 				}
 
-				var nodes = Nodes;
-				if (nodes is { })
+				if (Nodes is { } nodes)
 				{
+					nodes.ConnectedNodes.Added -= ConnectedNodes_OnAddedOrRemoved;
+					nodes.ConnectedNodes.Removed -= ConnectedNodes_OnAddedOrRemoved;
 					nodes.Disconnect();
 					while (nodes.ConnectedNodes.Any(x => x.IsConnected))
 					{

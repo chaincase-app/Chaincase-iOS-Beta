@@ -2,6 +2,7 @@ using NBitcoin;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Security;
@@ -425,7 +426,7 @@ namespace WalletWasabi.Blockchain.Keys
 		{
 			if (label.IsEmpty)
 			{
-				throw new InvalidOperationException("Known By is required.");
+				throw new InvalidOperationException("Label is required.");
 			}
 
 			minGapLimitIncreased = false;
@@ -530,7 +531,7 @@ namespace WalletWasabi.Blockchain.Keys
 		{
 			lock (HdPubKeyScriptBytesLock)
 			{
-				return HdPubKeyScriptBytes;
+				return HdPubKeyScriptBytes.ToImmutableArray();
 			}
 		}
 

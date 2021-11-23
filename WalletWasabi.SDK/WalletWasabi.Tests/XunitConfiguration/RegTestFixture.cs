@@ -34,6 +34,9 @@ namespace WalletWasabi.Tests.XunitConfiguration
 			var hostedServices = new HostedServices();
 			BackendRegTestNode = coreNode?? TestNodeBuilder.CreateAsync(hostedServices, callerFilePath: "RegTests", callerMemberName: "BitcoinCoreData").GetAwaiter().GetResult();
 
+			var walletName = "wallet.dat";
+			BackendRegTestNode.RpcClient.CreateWalletAsync(walletName).GetAwaiter().GetResult();
+
 			var testnetBackendDir = EnvironmentHelpers.GetDataDir(Path.Combine("WalletWasabi", "Tests", "RegTests", "Backend"));
 			IoHelpers.DeleteRecursivelyWithMagicDustAsync(testnetBackendDir).GetAwaiter().GetResult();
 			Thread.Sleep(100);

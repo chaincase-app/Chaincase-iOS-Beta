@@ -106,17 +106,17 @@
       },
       "NBitcoin": {
         "type": "Transitive",
-        "resolved": "5.0.47",
-        "contentHash": "fjEOFg2syu1AC2Q6NCeZ8GmwpDGtUeRTvbgiRyVQflm8NVSR/6X2mrFRu+KG/Q+77eq9c5K5ip081cnpuK9d4w==",
+        "resolved": "5.0.81",
+        "contentHash": "sBOvupELGlaw5mr4sNW0q8kwc6ALlYaG6telvebDLU7+9DYYYaPiHS1L8gPIa4BKpSO/9STQkMRbKmW7DcAUfQ==",
         "dependencies": {
           "Microsoft.Extensions.Logging.Abstractions": "1.0.0",
-          "Newtonsoft.Json": "11.0.1"
+          "Newtonsoft.Json": "11.0.2"
         }
       },
       "NBitcoin.Secp256k1": {
         "type": "Transitive",
-        "resolved": "1.0.3",
-        "contentHash": "TCRUf7C44H/Hy42Ad1g0Dt83EfEH0l+4OuDhnWrzVsPBNiM6s6YRHnHYT+0dxGZKxD0CgdCTZ5f9Z2Ml1RRGbw=="
+        "resolved": "1.0.10",
+        "contentHash": "+CbOOtba1tv4p0G8uKRmwH4he5LXNtqfxdIrDi0RcVViR7HRTbaoDE7tJ7cAkg7pxuiNHGkpvtn+rFgkPxYgYw=="
       },
       "Newtonsoft.Json": {
         "type": "Transitive",
@@ -164,8 +164,8 @@
           "Microsoft.Extensions.Caching.Memory": "3.1.20",
           "Microsoft.Extensions.Hosting.Abstractions": "3.1.6",
           "Microsoft.Win32.Registry": "4.7.0",
-          "NBitcoin": "5.0.47",
-          "NBitcoin.Secp256k1": "1.0.3",
+          "NBitcoin": "5.0.81",
+          "NBitcoin.Secp256k1": "1.0.10",
           "System.Collections.Immutable": "1.7.1",
           "System.ComponentModel.Annotations": "4.7.0"
         }

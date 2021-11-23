@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Runtime.InteropServices;
@@ -39,6 +40,7 @@ namespace WalletWasabi.TorSocks5
 		public string LogFile { get; }
 
 		public static bool RequestFallbackAddressUsage { get; private set; } = false;
+		private DateTimeOffset? RequestFallbackSince { get; set; } = null;
 
 		public Process TorProcess { get; private set; }
 
@@ -78,23 +80,20 @@ namespace WalletWasabi.TorSocks5
 						var torDir = Path.Combine(dataDir, "tor");
 						var torDataDir = Path.Combine(dataDir, "tordata");
 						var torPath = "";
-						var hashSourcePath = "";
+						byte[] hashSourceBytes = null;
 						var geoIpPath = "";
 						var geoIp6Path = "";
 						var fullBaseDirectory = EnvironmentHelpers.GetFullBaseDirectory();
+
 						if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 						{
 							torPath = $@"{torDir}/Tor/tor";
-							hashSourcePath = RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
-								? $@"{torDir}/Tor/tor.real"
-								: $@"{torDir}/Tor/tor";
 							geoIpPath = $@"{torDir}/Data/Tor/geoip";
 							geoIp6Path = $@"{torDir}/Data/Tor/geoip6";
 						}
 						else // If Windows
 						{
 							torPath = $@"{torDir}\Tor\tor.exe";
-							hashSourcePath = $@"{torDir}\Tor\tor.exe";
 							geoIpPath = $@"{torDir}\Data\Tor\geoip";
 							geoIp6Path = $@"{torDir}\Data\Tor\geoip6";
 						}
@@ -104,7 +103,14 @@ namespace WalletWasabi.TorSocks5
 							Logger.LogInfo($"Tor instance NOT found at '{torPath}'. Attempting to acquire it ...");
 							InstallTor(torDir);
 						}
-						else if (!IoHelpers.CheckExpectedHash(hashSourcePath, Path.Combine(fullBaseDirectory, "TorDaemons")))
+
+						hashSourceBytes = File.ReadAllBytes(torPath);
+						if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+						{
+							hashSourceBytes = hashSourceBytes.Concat(File.ReadAllBytes($@"{torDir}/Tor/tor.real")).ToArray();
+						}
+
+						if (!IoHelpers.CheckExpectedHash(hashSourceBytes, Path.Combine(fullBaseDirectory, "TorDaemons")))
 						{
 							Logger.LogInfo($"Updating Tor...");
 
@@ -266,10 +272,14 @@ namespace WalletWasabi.TorSocks5
 											}
 
 											// Check if it changed in the meantime...
-											if (TorHttpClient.LatestTorException is TorSocks5FailureResponseException torEx2 && torEx2.RepField == RepField.HostUnreachable)
+											if (TorHttpClient.LatestTorException is TorSocks5FailureResponseException torEx2
+												&& torEx2.RepField == RepField.HostUnreachable
+												&& !RequestFallbackAddressUsage)
 											{
 												// Fallback here...
 												RequestFallbackAddressUsage = true;
+												RequestFallbackSince = DateTimeOffset.UtcNow;
+												Logger.LogInfo($"Backend onion unreachable - using fallback mechanism.");
 											}
 										}
 									}
@@ -279,6 +289,17 @@ namespace WalletWasabi.TorSocks5
 										Start(true, dataDirToStartWith); // Try starting Tor, if it does not work it'll be another issue.
 										await Task.Delay(14000, Stop.Token).ConfigureAwait(false);
 									}
+								}
+							}
+							else
+							{
+								if (RequestFallbackAddressUsage
+									&& !(RequestFallbackSince is null)
+									&& DateTimeOffset.UtcNow - RequestFallbackSince > TimeSpan.FromHours(24))
+								{
+									Logger.LogInfo($"Disabling fallback mechanism, using backend's onion address.");
+									RequestFallbackAddressUsage = false;
+									RequestFallbackSince = null;
 								}
 							}
 						}

@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/chaincase-app/WalletWasabi.Standard
 	branch = sdk
-	commit = 7c2ebfacdfaac63bad4e2f3a2cc49f2486943e47
+	commit = 58c3a5e80d3230bb0ea8d3f62d333caff4360861
 	parent = ca9d6dcde92de4425544e2d7ec219c7afdc4e04b
 	method = merge
 	cmdver = 0.4.3
