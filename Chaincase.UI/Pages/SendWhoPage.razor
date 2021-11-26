@@ -8,6 +8,7 @@
 @inject StackService StackService
 @inject IJSRuntime JsRuntime
 @inject IClipboard Clipboard
+@inject ICameraScanner CameraScanner
 @inherits ReactiveComponentBase<SendViewModel>
 
 <IonContent>
@@ -48,11 +49,7 @@
 
     private async Task OnClickScan()
     {
-        var scanner = new ZXing.Mobile.MobileBarcodeScanner();
-        var result = await scanner.Scan();
-
-        if (result != null)
-        { ViewModel.DestinationString = result.Text; }
+        ViewModel.DestinationString = await CameraScanner.Scan();
     }
 
     private async Task OnClickPaste()

@@ -39,6 +39,7 @@ namespace Chaincase
                     services.AddSingleton<IMainThreadInvoker, XamarinMainThreadInvoker>();
                     services.AddSingleton<IShare, XamarinShare>();
                     services.AddSingleton<IThemeManager, XamarinThemeManager>();
+                    services.AddSingleton<ICameraScanner, XamarinCameraScanner>();
 
                     configureDI?.Invoke(services);
                 })

@@ -39,6 +39,7 @@ namespace Chaincase.SSB
 			services.AddSingleton<IMainThreadInvoker, SSBMainThreadInvoker>();
 			services.AddScoped<IShare, SSBShare>();
 			services.AddSingleton<IThemeManager, MockThemeManager>();
+			services.AddSingleton<ICameraScanner, MockCameraScanner>();
 
 			// typically OS specific but web specific in SSB
 			services.AddScoped<IHsmStorage, JsInteropSecureConfigProvider>();
