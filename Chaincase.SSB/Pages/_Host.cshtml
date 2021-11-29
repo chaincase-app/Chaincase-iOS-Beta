@@ -18,9 +18,13 @@
     <link rel="stylesheet" href="_content/Chaincase.UI/ionic/ionic.bundle.css"/>
     <script src="_content/BlazorIonic/ionic-bridge.js"></script>
     <link rel="stylesheet" href="_content/Chaincase.UI/style/global.css"/>
+    <script src="_content/BlazorBarcodeScanner.ZXing.JS/zxingjs.index.min.js"></script>
+    <script src="_content/BlazorBarcodeScanner.ZXing.JS/BlazorBarcodeScanner.js"></script>
+
 </head>
 <body>
 <component type="typeof(App)" render-mode="ServerPrerendered"/>
+<component type="typeof(ZXingBlazorCameraScanner)" render-mode="ServerPrerendered"/>
 
 <div id="blazor-error-ui" style="display: none; width:100%; left:0; z-index:1000; position:fixed; padding: 0.6rem 1.25rem 0.7rem 1.25rem; ">
     <environment include="Staging,Production">

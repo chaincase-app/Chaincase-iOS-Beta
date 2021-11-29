@@ -1,0 +1,62 @@
+﻿@using Chaincase.Common.Contracts
+<IonModal @bind-Visible="@Show"  Dismissed="Dismissed">
+
+    <IonContent class="ion-padding">
+        @if (Show)
+        {
+            <BlazorBarcodeScanner.ZXing.JS.BarcodeReader
+                StartCameraAutomatically="true"
+
+                @ref="_reader" OnBarcodeReceived="Callback">
+            </BlazorBarcodeScanner.ZXing.JS.BarcodeReader>
+        }
+    </IonContent>
+</IonModal >
+@inject ICameraScanner CameraScanner;
+
+@code {
+
+    private BarcodeReader _reader;
+    private bool _show;
+
+    public bool Show
+    {
+        get => _show;
+        set
+        {
+        
+            _show = value;
+            
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        (CameraScanner as WebCameraScanner)?.SetRef(this);
+        base.OnInitialized();
+    }
+
+    public void ShowNow()
+    {
+        Show = true;
+
+        StateHasChanged();
+    }
+
+    private void Dismissed(Blazor.Ionic.Models.OverlayEventDetail<Blazor.Ionic.Models.IonicComponentDismissPayloadData> evt)
+    {
+        Callback(new BarcodeReceivedEventArgs()
+        {
+            BarcodeText = null,
+            TimeReceived = DateTime.UtcNow
+        });
+    }
+    private void Callback(BarcodeReceivedEventArgs obj)
+    {
+        (CameraScanner as WebCameraScanner)?.OnBarcodeReceived(obj);
+
+        Show = false;
+        StateHasChanged();
+    }
+
+}
