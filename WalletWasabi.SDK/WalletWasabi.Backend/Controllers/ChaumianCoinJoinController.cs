@@ -303,6 +303,7 @@ namespace WalletWasabi.Backend.Controllers
 						acceptedBlindedOutputScripts.Add(blindedOutputs[i]);
 					}
 
+
 					// Make sure Alice checks work.
 					var alice = new Alice(inputs, networkFeeToPayAfterBaseDenomination, request.ChangeOutputAddress, acceptedBlindedOutputScripts.Select(x => x.BlindedOutput));
 
