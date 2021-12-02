@@ -21,11 +21,20 @@ using WalletWasabi.Tests.Helpers;
 
 namespace WalletWasabi.Tests.XunitConfiguration
 {
-	public class RegTestFixture : IDisposable
+	public class RegTestFixture : ChaincaseRegTestFixture
+	{
+		public RegTestFixture():base(null,null,null)
+		{
+
+		}
+	}
+
+	public class ChaincaseRegTestFixture : IDisposable
 	{
 		private volatile bool _disposedValue = false; // To detect redundant calls
 
-		public RegTestFixture(CoreNode coreNode = null,
+
+		public ChaincaseRegTestFixture(CoreNode coreNode = null,
 			string connString = null,
 			string url = null)
 		{
