@@ -45,9 +45,9 @@
     <PackageReference Include="NicolasDorier.RateLimits" Version="1.2.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.20" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.7" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.8" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.8">
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.18" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.20" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.20">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
