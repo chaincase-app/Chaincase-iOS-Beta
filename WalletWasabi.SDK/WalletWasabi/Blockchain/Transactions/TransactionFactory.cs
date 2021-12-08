@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
-using System.Threading.Tasks;
 using WalletWasabi.Blockchain.Analysis.Clustering;
 using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Blockchain.TransactionBuilding;
@@ -14,7 +13,6 @@ using WalletWasabi.Exceptions;
 using WalletWasabi.Helpers;
 using WalletWasabi.Logging;
 using WalletWasabi.Models;
-using WalletWasabi.Stores;
 using WalletWasabi.WebClients.PayJoin;
 
 namespace WalletWasabi.Blockchain.Transactions
@@ -22,12 +20,12 @@ namespace WalletWasabi.Blockchain.Transactions
 	public class TransactionFactory
 	{
 		/// <param name="allowUnconfirmed">Allow to spend unconfirmed transactions, if necessary.</param>
-		public TransactionFactory(Network network, KeyManager keyManager, ICoinsView coins, BitcoinStore store, string password = "", bool allowUnconfirmed = false)
+		public TransactionFactory(Network network, KeyManager keyManager, ICoinsView coins, AllTransactionStore transactionStore, string password = "", bool allowUnconfirmed = false)
 		{
 			Network = Guard.NotNull(nameof(network), network);
 			KeyManager = Guard.NotNull(nameof(keyManager), keyManager);
 			Coins = Guard.NotNull(nameof(coins), coins);
-			Store = Guard.NotNull(nameof(store), store);
+			TransactionStore = Guard.NotNull(nameof(transactionStore), transactionStore);
 			Password = password;
 			AllowUnconfirmed = allowUnconfirmed;
 		}
@@ -35,9 +33,9 @@ namespace WalletWasabi.Blockchain.Transactions
 		public Network Network { get; }
 		public KeyManager KeyManager { get; }
 		public ICoinsView Coins { get; }
-		public BitcoinStore Store { get; }
 		public string Password { get; }
 		public bool AllowUnconfirmed { get; }
+		private AllTransactionStore TransactionStore { get; }
 
 		/// <exception cref="ArgumentException"></exception>
 		/// <exception cref="ArgumentNullException"></exception>
@@ -148,7 +146,7 @@ namespace WalletWasabi.Blockchain.Transactions
 			{
 				KeyManager.AssertCleanKeysIndexed(isInternal: true);
 				KeyManager.AssertLockedInternalKeysIndexed(14);
-				changeHdPubKey = KeyManager.GetKeys(KeyState.Clean, true).RandomElement();
+				changeHdPubKey = KeyManager.GetKeys(KeyState.Clean, true).FirstOrDefault();
 
 				builder.SetChange(changeHdPubKey.P2wpkhScript);
 			}
@@ -219,7 +217,10 @@ namespace WalletWasabi.Blockchain.Transactions
 			Logger.LogInfo("Signing transaction...");
 			// It must be watch only, too, because if we have the key and also hardware wallet, we do not care we can sign.
 
-			Transaction tx = null;
+			psbt.AddKeyPaths(KeyManager);
+			psbt.AddPrevTxs(TransactionStore);
+
+			Transaction tx;
 			if (KeyManager.IsWatchOnly)
 			{
 				tx = psbt.GetGlobalTransaction();
@@ -230,16 +231,16 @@ namespace WalletWasabi.Blockchain.Transactions
 				builder = builder.AddKeys(signingKeys.ToArray());
 				builder.SignPSBT(psbt);
 
-				UpdatePSBTInfo(psbt, spentCoins, changeHdPubKey);
-
-				if (!KeyManager.IsWatchOnly)
+				var isPayjoin = false;
+				// Try to pay using payjoin
+				if (payjoinClient is { })
 				{
-					// Try to pay using payjoin
-					if (payjoinClient is { })
-					{
-						psbt = TryNegotiatePayjoin(payjoinClient, builder, psbt, changeHdPubKey);
-					}
+					psbt = TryNegotiatePayjoin(payjoinClient, builder, psbt, changeHdPubKey);
+					isPayjoin = true;
+					psbt.AddKeyPaths(KeyManager);
+					psbt.AddPrevTxs(TransactionStore);
 				}
+
 				psbt.Finalize();
 				tx = psbt.ExtractTransaction();
 
@@ -249,21 +250,22 @@ namespace WalletWasabi.Blockchain.Transactions
 					throw new InvalidOperationException("Impossible to get the fee rate of the PSBT, this should never happen.");
 				}
 
-				// Manually check the feerate, because some inaccuracy is possible.
-				var sb1 = feeRate.SatoshiPerByte;
-				var sb2 = actualFeeRate.SatoshiPerByte;
-				if (Math.Abs(sb1 - sb2) > 2) // 2s/b inaccuracy ok.
+				if (!isPayjoin)
 				{
-					// So it'll generate a transactionpolicy error thrown below.
-					checkResults.Add(new NotEnoughFundsPolicyError("Fees different than expected"));
+					// Manually check the feerate, because some inaccuracy is possible.
+					var sb1 = feeRate.SatoshiPerByte;
+					var sb2 = actualFeeRate.SatoshiPerByte;
+					if (Math.Abs(sb1 - sb2) > 2) // 2s/b inaccuracy ok.
+					{
+						// So it'll generate a transactionpolicy error thrown below.
+						checkResults.Add(new NotEnoughFundsPolicyError("Fees different than expected"));
+					}
 				}
 				if (checkResults.Count > 0)
 				{
 					throw new InvalidTxException(tx, checkResults);
 				}
 			}
-
-			UpdatePSBTInfo(psbt, spentCoins, changeHdPubKey);
 
 			var label = SmartLabel.Merge(payments.Requests.Select(x => x.Label).Concat(spentCoins.Select(x => x.Label)));
 			var outerWalletOutputs = new List<SmartCoin>();
@@ -307,7 +309,8 @@ namespace WalletWasabi.Blockchain.Transactions
 			Logger.LogInfo($"Transaction is successfully built: {tx.GetHash()}.");
 			var sign = !KeyManager.IsWatchOnly;
 			var spendsUnconfirmed = spentCoins.Any(c => !c.Confirmed);
-			return new BuildTransactionResult(new SmartTransaction(tx, Height.Unknown), psbt, spendsUnconfirmed, sign, fee, feePc, outerWalletOutputs, innerWalletOutputs, spentCoins);
+			SmartTransaction smartTransaction = new SmartTransaction(tx, Height.Unknown, label: SmartLabel.Merge(payments.Requests.Select(x => x.Label)));
+			return new BuildTransactionResult(smartTransaction, psbt, spendsUnconfirmed, sign, fee, feePc, outerWalletOutputs, innerWalletOutputs, spentCoins);
 		}
 
 		private PSBT TryNegotiatePayjoin(IPayjoinClient payjoinClient, TransactionBuilder builder, PSBT psbt, HdPubKey changeHdPubKey)
@@ -343,40 +346,6 @@ namespace WalletWasabi.Blockchain.Transactions
 			}
 
 			return psbt;
-		}
-
-		private void UpdatePSBTInfo(PSBT psbt, SmartCoin[] spentCoins, HdPubKey changeHdPubKey)
-		{
-			if (KeyManager.MasterFingerprint is HDFingerprint fp)
-			{
-				foreach (var coin in spentCoins)
-				{
-					var rootKeyPath = new RootedKeyPath(fp, coin.HdPubKey.FullKeyPath);
-					psbt.AddKeyPath(coin.HdPubKey.PubKey, rootKeyPath, coin.ScriptPubKey);
-				}
-				if (changeHdPubKey is { })
-				{
-					var rootKeyPath = new RootedKeyPath(fp, changeHdPubKey.FullKeyPath);
-					psbt.AddKeyPath(changeHdPubKey.PubKey, rootKeyPath, changeHdPubKey.P2wpkhScript);
-				}
-			}
-
-			foreach (var input in spentCoins)
-			{
-				var coinInputTxID = input.TransactionId;
-				if (Store.TransactionStore.TryGetTransaction(coinInputTxID, out var txn))
-				{
-					var psbtInputs = psbt.Inputs.Where(x => x.PrevOut.Hash == coinInputTxID);
-					foreach (var psbtInput in psbtInputs)
-					{
-						psbtInput.NonWitnessUtxo = txn.Transaction;
-					}
-				}
-				else
-				{
-					Logger.LogWarning($"Transaction id:{coinInputTxID} is missing from the TransactionStore. Ignoring...");
-				}
-			}
 		}
 	}
 }

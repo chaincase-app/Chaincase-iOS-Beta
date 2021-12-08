@@ -24,15 +24,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+	<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.1" />
     <PackageReference Include="Microsoft.Win32.Registry" Version="4.7.0" />
+    <PackageReference Include="NBitcoin" Version="5.0.83" />
+    <PackageReference Include="NBitcoin.Secp256k1" Version="1.0.10" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.7.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.1.18" />
     <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="3.1.20" />
-    <PackageReference Include="NBitcoin" Version="5.0.83" />
-    <PackageReference Include="NBitcoin.Secp256k1" Version="1.0.10" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.1.18" />
-    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" />
     <PackageReference Include="System.Collections.Immutable" Version="1.7.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.18" />
   </ItemGroup>
@@ -58,12 +57,6 @@
     </None>
     <None Update="Microservices\Binaries\win64\hwi.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="OnionSeeds\MainOnionSeeds.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="OnionSeeds\TestNetOnionSeeds.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="TorDaemons\digests.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

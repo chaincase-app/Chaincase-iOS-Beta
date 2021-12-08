@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NBitcoin;
+using WalletWasabi.Blockchain.Analysis.Clustering;
 using WalletWasabi.Blockchain.Keys;
 using WalletWasabi.Blockchain.TransactionOutputs;
 using WalletWasabi.Blockchain.Transactions;
@@ -105,6 +106,14 @@ namespace WalletWasabi.Blockchain.TransactionProcessing
 			{
 				uint256 txId = tx.GetHash();
 
+				// If we already have the transaction, then let's work on that.
+				if (TransactionStore.TryGetTransaction(txId, out var foundTx))
+				{
+					foundTx.TryUpdate(tx);
+					tx = foundTx;
+					result = new ProcessedResult(tx);
+				}
+
 				// Performance ToDo: txids could be cached in a hashset here by the AllCoinsView and then the contains would be fast.
 				if (!tx.Transaction.IsCoinBase && !Coins.AsAllCoinsView().CreatedBy(txId).Any()) // Transactions we already have and processed would be "double spends" but they shouldn't.
 				{
@@ -172,6 +181,11 @@ namespace WalletWasabi.Blockchain.TransactionProcessing
 					HdPubKey foundKey = KeyManager.GetKeyForScriptPubKey(output.ScriptPubKey);
 					if (foundKey != default)
 					{
+						if (!foundKey.IsInternal)
+						{
+							tx.Label = SmartLabel.Merge(tx.Label, foundKey.Label);
+						}
+
 						foundKey.SetKeyState(KeyState.Used, KeyManager);
 						if (output.Value <= DustThreshold)
 						{

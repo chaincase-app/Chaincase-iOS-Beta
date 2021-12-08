@@ -38,18 +38,21 @@ namespace WalletWasabi.Gui.Tabs.WalletManager.RecoverWallets
 
 			this.ValidateProperty(x => x.Password, ValidatePassword);
 			this.ValidateProperty(x => x.MinGapLimit, ValidateMinGapLimit);
-			this.ValidateProperty(x => x.AccountKeyPath, ValidateKeyPath);
+			this.ValidateProperty(x => x.AccountKeyPath, ValidateAccountKeyPath);
 
 			MnemonicWords = "";
 
-			RecoverCommand = ReactiveCommand.Create(() =>
-			{
-				RecoverWallet(owner);
-			},
-			Observable.FromEventPattern(this, nameof(ErrorsChanged))
+			var canExecute = Observable
+				.Merge(Observable.FromEventPattern(this, nameof(ErrorsChanged)).Select(_ => Unit.Default))
+				.Merge(this.WhenAnyValue(x => x.MnemonicWords).Select(_ => Unit.Default))
 				.ObserveOn(RxApp.MainThreadScheduler)
-				.Select(_ => !Validations.AnyErrors)
-			);
+				.Select(_ =>
+				{
+					var numberOfWords = MnemonicWords.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length;
+					return !Validations.AnyErrors && (numberOfWords == 12 || numberOfWords == 15 || numberOfWords == 18 || numberOfWords == 21 || numberOfWords == 24);
+				});
+
+			RecoverCommand = ReactiveCommand.Create(() => RecoverWallet(owner), canExecute);
 
 			this.WhenAnyValue(x => x.MnemonicWords).Subscribe(UpdateSuggestions);
 
@@ -220,13 +223,21 @@ namespace WalletWasabi.Gui.Tabs.WalletManager.RecoverWallets
 			}
 		}
 
-		private void ValidateKeyPath(IValidationErrors errors)
+		private void ValidateAccountKeyPath(IValidationErrors errors)
 		{
 			if (string.IsNullOrWhiteSpace(AccountKeyPath))
 			{
 				errors.Add(ErrorSeverity.Error, "Path is not valid.");
 			}
-			else if (!KeyPath.TryParse(AccountKeyPath, out _))
+			else if (KeyPath.TryParse(AccountKeyPath, out var keyPath))
+			{
+				var accountKeyPath = keyPath.GetAccountKeyPath();
+				if (keyPath.Length != accountKeyPath.Length || accountKeyPath.Length != KeyManager.DefaultAccountKeyPath.Length)
+				{
+					errors.Add(ErrorSeverity.Error, "Path is not a compatible account derivation path.");
+				}
+			}
+			else
 			{
 				errors.Add(ErrorSeverity.Error, "Path is not a valid derivation path.");
 			}

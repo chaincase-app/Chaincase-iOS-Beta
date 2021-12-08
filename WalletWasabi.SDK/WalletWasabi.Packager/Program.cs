@@ -66,20 +66,6 @@ namespace WalletWasabi.Packager
 				return;
 			}
 
-			// If I want a list of up to date onions run it with '--getonions'.
-			if (IsGetOnionsMode(args))
-			{
-				GetOnions();
-				return;
-			}
-
-			// If I want a list of up to date onions run it with '--getonions'.
-			if (IsReduceOnionsMode(args))
-			{
-				ReduceOnions();
-				return;
-			}
-
 			// Start with digest creation and return if only digest creation.
 			CreateDigests();
 
@@ -114,63 +100,6 @@ namespace WalletWasabi.Packager
 			}
 		}
 
-		private static void GetOnions()
-		{
-			WriteOnionsToConsole(null);
-		}
-
-		private static void ReduceOnions()
-		{
-			var onionFile = Path.Combine(LibraryProjectDirectory, "OnionSeeds", "MainOnionSeeds.txt");
-			var currentOnions = File.ReadAllLines(onionFile).ToHashSet();
-			WriteOnionsToConsole(currentOnions);
-		}
-
-		private static void WriteOnionsToConsole(HashSet<string> currentOnions)
-		{
-			using var httpClient = new HttpClient();
-			httpClient.BaseAddress = new Uri("https://bitnodes.21.co/api/v1/");
-
-			using var response = httpClient.GetAsync("snapshots/latest/", HttpCompletionOption.ResponseContentRead).GetAwaiter().GetResult();
-			if (response.StatusCode != HttpStatusCode.OK)
-			{
-				throw new HttpRequestException(response.StatusCode.ToString());
-			}
-
-			var responseString = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-			var json = (JObject)JsonConvert.DeserializeObject(responseString);
-			var onions = new List<string>();
-			foreach (JProperty node in json["nodes"])
-			{
-				if (!node.Name.Contains(".onion"))
-				{
-					continue;
-				}
-
-				var userAgent = ((JArray)node.Value)[1].ToString();
-
-				try
-				{
-					var verString = userAgent.Substring(userAgent.IndexOf("Satoshi:") + 8, 4);
-					var ver = new Version(verString);
-					bool addToResult = currentOnions is null || currentOnions.Contains(node.Name);
-
-					if (ver >= new Version("0.16") && addToResult)
-					{
-						onions.Add(node.Name);
-					}
-				}
-				catch
-				{
-				}
-			}
-
-			foreach (var onion in onions.OrderBy(x => x))
-			{
-				Console.WriteLine(onion);
-			}
-		}
-
 		private static void CreateDigests()
 		{
 			var tempDir = "DigestTempDir";
@@ -180,24 +109,23 @@ namespace WalletWasabi.Packager
 			var torDaemonsDir = Path.Combine(LibraryProjectDirectory, "TorDaemons");
 			string torWinZip = Path.Combine(torDaemonsDir, "tor-win64.zip");
 			IoHelpers.BetterExtractZipToDirectoryAsync(torWinZip, tempDir).GetAwaiter().GetResult();
-			File.Move(Path.Combine(tempDir, "Tor", "tor.exe"), Path.Combine(tempDir, "TorWin"));
+			var winDigest = File.ReadAllBytes(Path.Combine(tempDir, "Tor", "tor.exe"));
+			IoHelpers.DeleteRecursivelyWithMagicDustAsync(tempDir).GetAwaiter().GetResult();
 
 			string torLinuxZip = Path.Combine(torDaemonsDir, "tor-linux64.zip");
 			IoHelpers.BetterExtractZipToDirectoryAsync(torLinuxZip, tempDir).GetAwaiter().GetResult();
-			File.Move(Path.Combine(tempDir, "Tor", "tor"), Path.Combine(tempDir, "TorLin"));
+			var linDigest = File.ReadAllBytes(Path.Combine(tempDir, "Tor", "tor"));
+			IoHelpers.DeleteRecursivelyWithMagicDustAsync(tempDir).GetAwaiter().GetResult();
 
 			string torOsxZip = Path.Combine(torDaemonsDir, "tor-osx64.zip");
 			IoHelpers.BetterExtractZipToDirectoryAsync(torOsxZip, tempDir).GetAwaiter().GetResult();
-			File.Move(Path.Combine(tempDir, "Tor", "tor.real"), Path.Combine(tempDir, "TorOsx"));
+			var macDigest = File.ReadAllBytes(Path.Combine(tempDir, "Tor", "tor")).Concat(File.ReadAllBytes(Path.Combine(tempDir, "Tor", "tor.real"))).ToArray();
 
-			var tempDirInfo = new DirectoryInfo(tempDir);
-			var binaries = tempDirInfo.GetFiles();
 			Console.WriteLine("Digests:");
-			foreach (var file in binaries)
+			foreach (var bytes in new[] { linDigest, macDigest, winDigest })
 			{
-				var filePath = file.FullName;
-				var hash = ByteHelpers.ToHex(IoHelpers.GetHashFile(filePath)).ToLowerInvariant();
-				Console.WriteLine($"{file.Name}: {hash}");
+				var hash = ByteHelpers.ToHex(IoHelpers.GetHashFile(bytes)).ToLowerInvariant();
+				Console.WriteLine($"{hash}");
 			}
 
 			IoHelpers.DeleteRecursivelyWithMagicDustAsync(tempDir).GetAwaiter().GetResult();
@@ -265,44 +193,6 @@ namespace WalletWasabi.Packager
 			}
 
 			return onlyCreateDigests;
-		}
-
-		private static bool IsGetOnionsMode(string[] args)
-		{
-			bool getOnions = false;
-			if (args != null)
-			{
-				foreach (var arg in args)
-				{
-					if (arg.Trim().TrimStart('-').Equals("getonions", StringComparison.OrdinalIgnoreCase)
-						|| arg.Trim().TrimStart('-').Equals("getonion", StringComparison.OrdinalIgnoreCase))
-					{
-						getOnions = true;
-						break;
-					}
-				}
-			}
-
-			return getOnions;
-		}
-
-		private static bool IsReduceOnionsMode(string[] args)
-		{
-			bool getOnions = false;
-			if (args != null)
-			{
-				foreach (var arg in args)
-				{
-					if (arg.Trim().TrimStart('-').Equals("reduceonions", StringComparison.OrdinalIgnoreCase)
-						|| arg.Trim().TrimStart('-').Equals("reduceonion", StringComparison.OrdinalIgnoreCase))
-					{
-						getOnions = true;
-						break;
-					}
-				}
-			}
-
-			return getOnions;
 		}
 
 		private static void RestoreProgramCs()
@@ -532,7 +422,7 @@ namespace WalletWasabi.Packager
 
 				foreach (var file in torFolder.EnumerateFiles())
 				{
-					if (!file.Name.Contains("data", StringComparison.OrdinalIgnoreCase) && !file.Name.Contains(toNotRemove, StringComparison.OrdinalIgnoreCase))
+					if (!file.Name.Contains("data", StringComparison.OrdinalIgnoreCase) && !file.Name.Contains("digest", StringComparison.OrdinalIgnoreCase) && !file.Name.Contains(toNotRemove, StringComparison.OrdinalIgnoreCase))
 					{
 						File.Delete(file.FullName);
 					}

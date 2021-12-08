@@ -110,7 +110,7 @@ namespace WalletWasabi.CoinJoin.Client.Clients
 
 		public bool IsDestinationSame => KeyManager.ExtPubKey == DestinationKeyManager.ExtPubKey;
 
-		public async void Synchronizer_ResponseArrivedAsync(object sender, SynchronizeResponse e)
+		private async void Synchronizer_ResponseArrivedAsync(object sender, SynchronizeResponse e)
 		{
 			await TryProcessStatusAsync(e?.CcjRoundStates).ConfigureAwait(false);
 		}
@@ -269,13 +269,14 @@ namespace WalletWasabi.CoinJoin.Client.Clients
 						StateUpdated?.Invoke(this, null);
 						double delaySeconds = new Random().NextDouble() * 0.8167; // delay the response to defend timing attack privacy.
 
-						if (Network == Network.RegTest)
-						{
-							delaySeconds = 0;
-						}
+				if (Network == Network.RegTest)
+				{
+					delaySeconds = 0;
+				}
 
 						await Task.Delay(TimeSpan.FromSeconds(delaySeconds), Cancel.Token).ConfigureAwait(false);
-
+	using (await MixLock.LockAsync().ConfigureAwait(false))
+				{
 						foreach (var ongoingRound in State.GetActivelyMixingRounds())
 						{
 							await TryProcessRoundStateAsync(ongoingRound).ConfigureAwait(false);
@@ -294,8 +295,6 @@ namespace WalletWasabi.CoinJoin.Client.Clients
 							}
 						}
 					}
-
-				}
 
 				}
 			}
@@ -636,6 +635,7 @@ namespace WalletWasabi.CoinJoin.Client.Clients
 				}
 			}
 
+			CleanNonLockedExposedKeys();
 			var keysToSurelyRegister = ExposedLinks.Where(x => coinsToRegister.Contains(x.Key)).SelectMany(x => x.Value).Select(x => x.Key).ToArray();
 			var keysTryNotToRegister = ExposedLinks.SelectMany(x => x.Value).Select(x => x.Key).Except(keysToSurelyRegister).ToArray();
 
@@ -647,7 +647,7 @@ namespace WalletWasabi.CoinJoin.Client.Clients
 			allLockedInternalKeys = keysToSurelyRegister.Concat(allLockedInternalKeys).Distinct();
 
 			// Prefer not to bloat the wallet:
-			if (allLockedInternalKeys.Count() <= maximumMixingLevelCount)
+			if (keysTryNotToRegister.Length >= DestinationKeyManager.MinGapLimit / 2)
 			{
 				allLockedInternalKeys = allLockedInternalKeys.Concat(keysTryNotToRegister).Distinct();
 			}
@@ -711,6 +711,26 @@ namespace WalletWasabi.CoinJoin.Client.Clients
 			// Save our modifications in the keymanager before we give back the selected keys.
 			DestinationKeyManager.ToFile();
 			return (change, actives);
+		}
+
+		private void CleanNonLockedExposedKeys()
+		{
+			// Remove non-locked exposed keys.
+			foreach (var key in ExposedLinks.Keys.ToArray())
+			{
+				if (ExposedLinks.TryGetValue(key, out var links))
+				{
+					var lockedKeys = links.Where(x => x.Key.KeyState == KeyState.Locked).ToArray();
+					if (lockedKeys.Any())
+					{
+						ExposedLinks.AddOrReplace(key, lockedKeys);
+					}
+					else
+					{
+						ExposedLinks.TryRemove(key, out _);
+					}
+				}
+			}
 		}
 
 		public async Task QueueCoinsToMixAsync(params SmartCoin[] coins)
