@@ -17,7 +17,7 @@ namespace Chaincase.Tests
 	{
 		public static bool InCi => Environment.GetEnvironmentVariable("IN_CI") == "true";
 
-		public static RegTestFixture CreateRegtestFixture(bool useDeployedNode = true, bool newDb = false )
+		public static ChaincaseRegTestFixture CreateRegtestFixture(bool useDeployedNode = true, bool newDb = false )
 		{
 			CoreNode coreNode = null;
 			if (useDeployedNode)
@@ -44,8 +44,8 @@ namespace Chaincase.Tests
 			}
 			var dbName = newDb ? GenerateString(10) : "wasabibackend";
 			
-			return InCi ? new RegTestFixture(coreNode, $"User ID=postgres;Host=postgres;Port=5432;Database={dbName};", null) : 
-				new RegTestFixture(coreNode, newDb? $"User ID=postgres;Host=127.0.0.1;Port=65466;Database={dbName};" : null);
+			return InCi ? new ChaincaseRegTestFixture(coreNode, $"User ID=postgres;Host=postgres;Port=5432;Database={dbName};", null) : 
+				new ChaincaseRegTestFixture(coreNode, newDb? $"User ID=postgres;Host=127.0.0.1;Port=65466;Database={dbName};" : null);
 		}
 
 		public static string GenerateString(int length)
