@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -20,11 +19,8 @@ namespace WalletWasabi.Backend
 	public class SendPushService
 	{
 		private readonly IDbContextFactory<WasabiBackendContext> ContextFactory;
+		private readonly Config _config;
 
-		private string _keyPath = "/home/staging/AuthKey_4L3728R8LJ.p8";
-		private string _auth_key_id = "4L3728R8LJ";
-		private string _teamId = "9Z72DXKVXK"; // Chaincase LLC
-		private string _bundleId = "cash.chaincase.testnet"; // APNs Development iOS
 		private string _payload = @"{
 				""aps"": {
 					""content-available"": 1
@@ -32,27 +28,28 @@ namespace WalletWasabi.Backend
 				""cj"": 1
 			}";
 
-		public SendPushService(IDbContextFactory<WasabiBackendContext> contextFactory)
+		public SendPushService(IDbContextFactory<WasabiBackendContext> contextFactory, Config config)
 		{
 			ContextFactory = contextFactory;
+			_config = config;
 		}
 
 		private string GenerateAuthenticationHeader()
 		{
 			var headerBytes = JsonSerializer.SerializeToUtf8Bytes(new {
 				alg = "ES256",
-				kid = _auth_key_id
+				kid = _config.APNAuthKeyId
 			});
 			var header = Convert.ToBase64String(headerBytes);
 
 			var claimsBytes = JsonSerializer.SerializeToUtf8Bytes(new
 			{
-				iss = _teamId,
+				iss = _config.APNTeamId,
 				iat = DateTimeOffset.Now.ToUnixTimeSeconds()
 			});
 			var claims = Convert.ToBase64String(claimsBytes);
 
-			var p8KeySpan = GetBytesFromPem(_keyPath);
+			var p8KeySpan = GetBytesFromPem(_config.GetAPNAuthKeyFile());
 			var signer = ECDsa.Create();
 			signer.ImportPkcs8PrivateKey(p8KeySpan, out _);
 			var dataToSign = Encoding.UTF8.GetBytes($"{header}.{claims}");
@@ -82,7 +79,7 @@ namespace WalletWasabi.Backend
 			var client = new HttpClient();
 			client.DefaultRequestVersion = HttpVersion.Version20;
 			var content = new StringContent(_payload, Encoding.UTF8, "application/json");
-			client.DefaultRequestHeaders.Add("apns-topic", _bundleId);
+			client.DefaultRequestHeaders.Add("apns-topic", _config.APNBundleId);
 			client.DefaultRequestHeaders.Add("apns-push-type", "background");
 			client.DefaultRequestHeaders.Add("apns-priority", "5"); // background push MUST be 5
 			client.DefaultRequestHeaders.Add("apns-expiration", "0"); // attempt delivery only once
