@@ -11,6 +11,43 @@
           "System.Text.Encodings.Web": "4.5.0"
         }
       },
+      "Microsoft.Bcl.AsyncInterfaces": {
+        "type": "Transitive",
+        "resolved": "1.1.1",
+        "contentHash": "yuvf07qFWFqtK3P/MRkEKLhn5r2UbSpVueRziSqj0yJQIKFwG1pq9mOayK3zE5qZCTs0CbrwL9M6R8VwqyGy2w=="
+      },
+      "Microsoft.Bcl.HashCode": {
+        "type": "Transitive",
+        "resolved": "1.1.1",
+        "contentHash": "MalY0Y/uM/LjXtHfX/26l2VtN4LDNZ2OE3aumNOHDLsT4fNYy2hiHXI4CXCqKpNUNm7iJ2brrc4J89UdaL56FA=="
+      },
+      "Microsoft.EntityFrameworkCore": {
+        "type": "Transitive",
+        "resolved": "3.1.18",
+        "contentHash": "NrJd4ynQ+IUTznPtzSgFLq9keHEGkzT4xdO/ZlSbsPu5Sk9npyRhdXhk8lY8gz3wmI+X6TciR9gzJIOFxS8Eew==",
+        "dependencies": {
+          "Microsoft.Bcl.AsyncInterfaces": "1.1.1",
+          "Microsoft.Bcl.HashCode": "1.1.1",
+          "Microsoft.EntityFrameworkCore.Abstractions": "3.1.18",
+          "Microsoft.EntityFrameworkCore.Analyzers": "3.1.18",
+          "Microsoft.Extensions.Caching.Memory": "3.1.18",
+          "Microsoft.Extensions.DependencyInjection": "3.1.18",
+          "Microsoft.Extensions.Logging": "3.1.18",
+          "System.Collections.Immutable": "1.7.1",
+          "System.ComponentModel.Annotations": "4.7.0",
+          "System.Diagnostics.DiagnosticSource": "4.7.1"
+        }
+      },
+      "Microsoft.EntityFrameworkCore.Abstractions": {
+        "type": "Transitive",
+        "resolved": "3.1.18",
+        "contentHash": "ozdMDwkPOHtjQEQSB+7KJ5KDAQRzorZG74VM3Aa+MbdCZdRNV3JZ5EQdvZvNXV9ZV4FKIrvjwUczSNtVdx3mAw=="
+      },
+      "Microsoft.EntityFrameworkCore.Analyzers": {
+        "type": "Transitive",
+        "resolved": "3.1.18",
+        "contentHash": "CmaJvnBIZkE9JH/nPfYR7digTVrWL/31ftriFOzyU7PVkIA+223bFZVJkdG0WuOvLh08F9wgNs9P7p8f5//qXA=="
+      },
       "Microsoft.Extensions.Caching.Abstractions": {
         "type": "Transitive",
         "resolved": "3.1.20",
@@ -30,12 +67,36 @@
           "Microsoft.Extensions.Options": "3.1.20"
         }
       },
+      "Microsoft.Extensions.Configuration": {
+        "type": "Transitive",
+        "resolved": "3.1.18",
+        "contentHash": "G2w2QolMv76ZswL6XKjy8PbAu12uYbtIkGwkkZEhy7irWfqQWFT8PKQ68cEpotg6e2rc15E5/LQDgvCpXeWFtA==",
+        "dependencies": {
+          "Microsoft.Extensions.Configuration.Abstractions": "3.1.18"
+        }
+      },
       "Microsoft.Extensions.Configuration.Abstractions": {
         "type": "Transitive",
-        "resolved": "3.1.6",
-        "contentHash": "Z7QAA7XFvYuGZCKsfzetdIq0Vj1ngiIzCBBqerlQMhewx1ZFLXHuvKx9xAIWeZqhuQv69VmFs3vO0Af9FDAa9Q==",
+        "resolved": "3.1.18",
+        "contentHash": "ID1/qQDGowofEfOoNcEkerRDy3x5FMguDxDEsl4DVROaI/qLa/oWCqUljIDWMuM1GUDNhucSrTMZ8/k9VyOHAg==",
         "dependencies": {
-          "Microsoft.Extensions.Primitives": "3.1.6"
+          "Microsoft.Extensions.Primitives": "3.1.18"
+        }
+      },
+      "Microsoft.Extensions.Configuration.Binder": {
+        "type": "Transitive",
+        "resolved": "3.1.18",
+        "contentHash": "OsJMdTm2qWlyIpigTD6EUp7h1IKC0+Zf1+1Nq4Q6dS64EJOeUi6+FL0STPi5FK9v+1j9AvMWDcnK3IDZH5rE6g==",
+        "dependencies": {
+          "Microsoft.Extensions.Configuration": "3.1.18"
+        }
+      },
+      "Microsoft.Extensions.DependencyInjection": {
+        "type": "Transitive",
+        "resolved": "3.1.18",
+        "contentHash": "Cd5n8pU5sVnke4qV87Lm6np0NQZLUG7vkgWgHxAmq+yAizIUCoDeqHc4MepV4YgH4kiY2VuYESVdCx7JbtkMnQ==",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "3.1.18"
         }
       },
       "Microsoft.Extensions.DependencyInjection.Abstractions": {
@@ -45,21 +106,32 @@
       },
       "Microsoft.Extensions.FileProviders.Abstractions": {
         "type": "Transitive",
-        "resolved": "3.1.6",
-        "contentHash": "HjEWm0GNHeN8ykVGn2DCebBEdZYL9CVypVAysaDHfjwiRT1d8nRhYGH8ua0mheE1TIep5+86O2Ft0UcbuWyghg==",
+        "resolved": "3.1.18",
+        "contentHash": "H0Y/gICYhYqaHRmBhSGr3JF1KR7YMXLuhR0c1vqo/eM7lOrDofwDy/pjnhBIc2B2UFn0Z/xVKlxSJaltw3tUMw==",
         "dependencies": {
-          "Microsoft.Extensions.Primitives": "3.1.6"
+          "Microsoft.Extensions.Primitives": "3.1.18"
         }
       },
       "Microsoft.Extensions.Hosting.Abstractions": {
         "type": "Transitive",
-        "resolved": "3.1.6",
-        "contentHash": "CtXVuuBcKQXmNQm6a/wGwKkYxLNsIp7TrL8+XPld6aFUisOkkBHTm3EIm8vwKlHRI8xLONgfgILXPXREGaBBwQ==",
+        "resolved": "3.1.18",
+        "contentHash": "9vzzrt/dIYipg6eB+ivQeYy3pRmtx8EheVF02dohP904oxMGRkcDsuetaoYXsidVgler56VMv45WZWZavF41nw==",
         "dependencies": {
-          "Microsoft.Extensions.Configuration.Abstractions": "3.1.6",
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "3.1.6",
-          "Microsoft.Extensions.FileProviders.Abstractions": "3.1.6",
-          "Microsoft.Extensions.Logging.Abstractions": "3.1.6"
+          "Microsoft.Extensions.Configuration.Abstractions": "3.1.18",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "3.1.18",
+          "Microsoft.Extensions.FileProviders.Abstractions": "3.1.18",
+          "Microsoft.Extensions.Logging.Abstractions": "3.1.18"
+        }
+      },
+      "Microsoft.Extensions.Logging": {
+        "type": "Transitive",
+        "resolved": "3.1.18",
+        "contentHash": "1cYb4a/c1IfYLc5hEGQOL0t9g43gBIcqJQC5WrEZdXhScEuP1tFs1XgGjzK957Wwibi5O8h8Gulpd2VZeW0cvg==",
+        "dependencies": {
+          "Microsoft.Extensions.Configuration.Binder": "3.1.18",
+          "Microsoft.Extensions.DependencyInjection": "3.1.18",
+          "Microsoft.Extensions.Logging.Abstractions": "3.1.18",
+          "Microsoft.Extensions.Options": "3.1.18"
         }
       },
       "Microsoft.Extensions.Logging.Abstractions": {
@@ -106,22 +178,22 @@
       },
       "NBitcoin": {
         "type": "Transitive",
-        "resolved": "5.0.47",
-        "contentHash": "fjEOFg2syu1AC2Q6NCeZ8GmwpDGtUeRTvbgiRyVQflm8NVSR/6X2mrFRu+KG/Q+77eq9c5K5ip081cnpuK9d4w==",
+        "resolved": "5.0.83",
+        "contentHash": "pHWDCdCOAjb1B7I/KMnWqnpybTYJC2+4zgUD77GTiEqFZDlsoky54n7g4oUMtD9m0ywHh2ab5fc06GxzrTUYDw==",
         "dependencies": {
           "Microsoft.Extensions.Logging.Abstractions": "1.0.0",
-          "Newtonsoft.Json": "11.0.1"
+          "Newtonsoft.Json": "11.0.2"
         }
       },
       "NBitcoin.Secp256k1": {
         "type": "Transitive",
-        "resolved": "1.0.3",
-        "contentHash": "TCRUf7C44H/Hy42Ad1g0Dt83EfEH0l+4OuDhnWrzVsPBNiM6s6YRHnHYT+0dxGZKxD0CgdCTZ5f9Z2Ml1RRGbw=="
+        "resolved": "1.0.10",
+        "contentHash": "+CbOOtba1tv4p0G8uKRmwH4he5LXNtqfxdIrDi0RcVViR7HRTbaoDE7tJ7cAkg7pxuiNHGkpvtn+rFgkPxYgYw=="
       },
       "Newtonsoft.Json": {
         "type": "Transitive",
-        "resolved": "11.0.1",
-        "contentHash": "pNN4l+J6LlpIvHOeNdXlwxv39NPJ2B5klz+Rd2UQZIx30Squ5oND1Yy3wEAUoKn0GPUj6Yxt9lxlYWQqfZcvKg=="
+        "resolved": "11.0.2",
+        "contentHash": "IvJe1pj7JHEsP8B8J8DwlMEx8UInrs/x+9oVY+oCD13jpLu4JbJU2WCIsMRn5C4yW9+DgkaO8uiVE5VHKjpmdQ=="
       },
       "System.Buffers": {
         "type": "Transitive",
@@ -137,6 +209,11 @@
         "type": "Transitive",
         "resolved": "4.7.0",
         "contentHash": "0YFqjhp/mYkDGpU0Ye1GjE53HMp9UVfGN7seGpAMttAC0C40v5gw598jCgpbBLMmCo0E5YRLBv5Z2doypO49ZQ=="
+      },
+      "System.Diagnostics.DiagnosticSource": {
+        "type": "Transitive",
+        "resolved": "4.7.1",
+        "contentHash": "j81Lovt90PDAq8kLpaJfJKV/rWdWuEk6jfV+MBkee33vzYLEUsy4gXK8laa9V2nZlLM9VM9yA/OOQxxPEJKAMw=="
       },
       "System.Security.AccessControl": {
         "type": "Transitive",
@@ -161,11 +238,12 @@
         "type": "Project",
         "dependencies": {
           "Microsoft.AspNetCore.WebUtilities": "2.2.0",
+          "Microsoft.EntityFrameworkCore": "3.1.18",
           "Microsoft.Extensions.Caching.Memory": "3.1.20",
-          "Microsoft.Extensions.Hosting.Abstractions": "3.1.6",
+          "Microsoft.Extensions.Hosting.Abstractions": "3.1.18",
           "Microsoft.Win32.Registry": "4.7.0",
-          "NBitcoin": "5.0.47",
-          "NBitcoin.Secp256k1": "1.0.3",
+          "NBitcoin": "5.0.83",
+          "NBitcoin.Secp256k1": "1.0.10",
           "System.Collections.Immutable": "1.7.1",
           "System.ComponentModel.Annotations": "4.7.0"
         }
