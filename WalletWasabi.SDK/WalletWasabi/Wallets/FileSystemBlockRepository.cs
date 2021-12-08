@@ -134,7 +134,7 @@ namespace WalletWasabi.Wallets
 
 				// Unintuitively File.Move overwrite: false throws an IOException if the file already exists.
 				// https://docs.microsoft.com/en-us/dotnet/api/system.io.file.move?view=netcore-3.1
-				File.Move(sourceFileName: blockFilePath, destFileName: newFilePath, overwrite: false);
+				File.Move(sourceFileName: blockFilePath, destFileName: newFilePath);
 				cntSuccess++;
 			}
 			else
