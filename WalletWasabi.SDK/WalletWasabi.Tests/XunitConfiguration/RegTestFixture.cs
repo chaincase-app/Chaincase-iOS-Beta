@@ -18,9 +18,18 @@ using WalletWasabi.Helpers;
 using WalletWasabi.Logging;
 using WalletWasabi.Services;
 using WalletWasabi.Tests.Helpers;
+using Xunit;
 
 namespace WalletWasabi.Tests.XunitConfiguration
 {
+
+	public class RegTestFixtureCollection : ICollectionFixture<RegTestFixture>
+	{
+		// This class has no code, and is never created. Its purpose is simply
+		// to be the place to apply [CollectionDefinition] and all the
+		// ICollectionFixture<> interfaces.
+	}
+
 	public class RegTestFixture : ChaincaseRegTestFixture
 	{
 		public RegTestFixture():base(null,null,null)
