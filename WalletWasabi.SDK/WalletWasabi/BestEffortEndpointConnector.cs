@@ -1,7 +1,10 @@
+using NBitcoin;
 using NBitcoin.Protocol;
 using NBitcoin.Protocol.Behaviors;
 using NBitcoin.Protocol.Connectors;
+using NBitcoin.Socks;
 using System;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -12,96 +15,17 @@ namespace WalletWasabi
 {
 	public class BestEffortEndpointConnector : IEnpointConnector
 	{
-        public enum ConnectionMode
-        {
-            // Connect to nodes published as onion services only 
-            OnionServiceOnly,
-            // Connect to nodes published on the clearnet through Tor exit nodes
-            AllowGoingThroughTorExitNodes,
-            // Connect to nodes directly on clearnet
-            ClearNet
-        }
+		public BestEffortEndpointConnector(long maxNonOnionConnectionCount)
+			: this(new EffortState(maxNonOnionConnectionCount))
+		{
+		}
 
-        // A class to share state between all the BestEffortEndpointConnector connectors.
-        // This is necessary because NBitcoin clones the connectors for every new node connection
-        // attempt using the original connector.
-		public class EffortState
-        {
-            private long _connectedNodesCount;
-            private DateTimeOffset _lastModeChangeTime;
-            private bool _lostConnection; 
-            public long ConnectedNodesCount
-			{
-				get => _connectedNodesCount;
-				set
-				{
-                    _lostConnection = value == 0 && _connectedNodesCount > 0;
-                    _connectedNodesCount = value;
-				}
-			}
+		private BestEffortEndpointConnector(EffortState state)
+		{
+			State = state;
+		}
 
-			public ConnectionMode Mode { get; set; }
-            public DateTimeOffset LastModeChangeTime 
-            { 
-                get => _lastModeChangeTime;
-                set
-                {
-                    _lostConnection = false;
-                    _lastModeChangeTime = value;
-                }
-            }
-
-            public TimeSpan ElapsedTimeSinceLastModeChange => DateTimeOffset.UtcNow - LastModeChangeTime;
-            
-            public EffortState(ConnectionMode mode, DateTimeOffset lastModeChangeTime)
-            {
-                Mode = mode;
-                LastModeChangeTime = lastModeChangeTime;
-            }
-
-            public bool CheckModeUpdate()
-            {
-                var previousMode = Mode;
-                if (_lostConnection)
-                {
-                    Mode = ConnectionMode.OnionServiceOnly;
-                } 
-                else if ( (ElapsedTimeSinceLastModeChange > TimeSpan.FromMinutes(1) && ConnectedNodesCount == 0) 
-                        || (ElapsedTimeSinceLastModeChange > TimeSpan.FromMinutes(2) && ConnectedNodesCount <= 3)
-                        || (ElapsedTimeSinceLastModeChange > TimeSpan.FromMinutes(3) && ConnectedNodesCount <= 5))
-                {
-                    Mode = Mode switch {
-                        ConnectionMode.OnionServiceOnly => ConnectionMode.AllowGoingThroughTorExitNodes,
-                        ConnectionMode.AllowGoingThroughTorExitNodes => ConnectionMode.ClearNet,
-                        ConnectionMode.ClearNet => ConnectionMode.ClearNet,
-                        _ => throw new ArgumentException($"Unknown {nameof(Mode)} value {Mode}.")
-                    };
-                }
-                if (previousMode != Mode)
-                {
-                    Logger.LogInfo($"Update connection mode from {previousMode} to {Mode}.");
-                    LastModeChangeTime = DateTimeOffset.UtcNow;
-                    return true;
-                }
-                return false; 
-            }
-        }
-
-        public DefaultEndpointConnector Connector { get; private set; }
-        public EffortState State { get; private set; }
-
-        public BestEffortEndpointConnector()
-            : this(
-                new DefaultEndpointConnector(allowOnlyTorEndpoints: true), 
-                new EffortState(ConnectionMode.OnionServiceOnly, DateTimeOffset.UtcNow))
-        {
-        }
-
-        private BestEffortEndpointConnector(DefaultEndpointConnector connector, EffortState state)
-        {
-            Connector = connector;
-            State = state;
-        }
+		public EffortState State { get; private set; }
 
 		public void UpdateConnectedNodesCounter(int connectedNodes)
 		{
@@ -110,43 +34,86 @@ namespace WalletWasabi
 
 		public IEnpointConnector Clone()
 		{
-			return new BestEffortEndpointConnector(Connector, State);
+			return new BestEffortEndpointConnector(State);
 		}
 
-		public virtual async Task ConnectSocket(Socket socket, EndPoint endPoint, NodeConnectionParameters nodeConnectionParameters, CancellationToken cancellationToken)
+		public virtual async Task ConnectSocket(Socket socket, EndPoint endpoint, NodeConnectionParameters nodeConnectionParameters, CancellationToken cancellationToken)
 		{
-            if (State.CheckModeUpdate())
-            {
-                var socksSettings = nodeConnectionParameters.TemplateBehaviors.Find<SocksSettingsBehavior>();
+			var isTor = endpoint.IsTor();
 
-                switch (State.Mode)
-                {
-                    case ConnectionMode.OnionServiceOnly:
-                        Connector.AllowOnlyTorEndpoints = true;  // throw if endPoint is not a Tor endpoint
-                        if (socksSettings is { })
-                        {
-                            socksSettings.OnlyForOnionHosts = false; // go through Tor always
-                        }
-                        break;
-                    case ConnectionMode.AllowGoingThroughTorExitNodes:
-                        Connector.AllowOnlyTorEndpoints = false; // do not throw if endPoint is not a Tor endpoint
-                        if (socksSettings is { })
-                        {
-                            socksSettings.OnlyForOnionHosts = false; // go through Tor always
-                        }
-                        break;
-                    case ConnectionMode.ClearNet:
-                        Connector.AllowOnlyTorEndpoints = false; // do not throw if endPoint is not a Tor endpoint
-                        if (socksSettings is { })
-                        {
-                            socksSettings.OnlyForOnionHosts = true; // go through Tor always
-                        }
-                        break;
-                }
-            }
+			var socksSettings = nodeConnectionParameters.TemplateBehaviors.Find<SocksSettingsBehavior>();
+			var socketEndpoint = endpoint;
+			var useSocks = isTor || socksSettings?.OnlyForOnionHosts is false;
+			if (useSocks)
+			{
+				if (socksSettings?.SocksEndpoint == null)
+				{
+					throw new InvalidOperationException("SocksSettingsBehavior.SocksEndpoint is not set but the connection is expecting using socks proxy");
+				}
+				if (!isTor && State.AllowOnlyTorEndpoints)
+				{
+					throw new InvalidOperationException($"The Endpoint connector is configured to allow only Tor endpoints and the '{endpoint}' enpoint is not one");
+				}
 
-            await Connector.ConnectSocket(socket, endPoint, nodeConnectionParameters, cancellationToken).ConfigureAwait(false);
-            State.LastModeChangeTime = DateTimeOffset.UtcNow;
+				socketEndpoint = socksSettings.SocksEndpoint;
+			}
+
+			if (socketEndpoint is IPEndPoint mappedv4 && mappedv4.Address.IsIPv4MappedToIPv6Ex())
+			{
+				socketEndpoint = new IPEndPoint(mappedv4.Address.MapToIPv4Ex(), mappedv4.Port);
+			}
+			await socket.ConnectAsync(socketEndpoint).ConfigureAwait(false);
+
+			if (useSocks)
+			{
+				await SocksHelper.Handshake(socket, endpoint, GenerateCredentials(), cancellationToken).ConfigureAwait(false);
+			}
+		}
+
+		private NetworkCredential GenerateCredentials()
+		{
+			const string Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+			var identity = new string(Enumerable.Repeat(Chars, 21)
+				.Select(s => s[(int)(RandomUtils.GetUInt32() % s.Length)]).ToArray());
+			return new NetworkCredential(identity, identity);
+		}
+
+		// A class to share state between all the BestEffortEndpointConnector connectors.
+		// This is necessary because NBitcoin clones the connectors for every new node connection
+		// attempt using the original connector.
+		public class EffortState
+		{
+			private bool _allowAnyConnetionType;
+
+			public EffortState(long maxNonOnionConnectionCount)
+			{
+				MaxNonOnionConnectionCount = maxNonOnionConnectionCount;
+			}
+
+			public long ConnectedNodesCount { get; set; }
+
+			public bool AllowOnlyTorEndpoints
+			{
+				get
+				{
+					var allowAnyConnetionType = ConnectedNodesCount <= MaxNonOnionConnectionCount;
+
+					if (_allowAnyConnetionType != allowAnyConnetionType)
+					{
+						_allowAnyConnetionType = allowAnyConnetionType;
+						Logger.LogDebug(ToString());
+					}
+
+					return !_allowAnyConnetionType;
+				}
+			}
+
+			public long MaxNonOnionConnectionCount { get; }
+
+			public override string ToString()
+			{
+				return $"Connections: {ConnectedNodesCount}, Currently allow only onions: {!_allowAnyConnetionType}.";
+			}
 		}
 	}
 }

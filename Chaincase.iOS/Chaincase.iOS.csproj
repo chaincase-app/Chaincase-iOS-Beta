@@ -58,7 +58,7 @@
     <MtouchExtraArgs>-v -v -v -v</MtouchExtraArgs>
     <MtouchFloat32>true</MtouchFloat32>
     <CodesignEntitlements>Entitlements.developer.plist</CodesignEntitlements>
-    <CodesignProvision>Chaincase Testnet Dev</CodesignProvision>
+    <CodesignProvision>cash.chaincase.chaincase Development</CodesignProvision>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
     <BlazorLinkOnBuild>false</BlazorLinkOnBuild>

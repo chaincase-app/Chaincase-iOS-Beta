@@ -15,70 +15,64 @@ namespace WalletWasabi.Tests.UnitTests
 	{
 		[Fact]
 		public async Task CanConnectWithDifferentModesAsync()
-        {
-            var connector = new BestEffortEndpointConnector();
-            var nodeConnectionParameters = new NodeConnectionParameters();
-            nodeConnectionParameters.TemplateBehaviors.Add(new SocksSettingsBehavior(new IPEndPoint(IPAddress.Loopback, 8090), onlyForOnionHosts: true, networkCredential: null, streamIsolation: true));
+		{
+			var connector = new BestEffortEndpointConnector(6);
+			var nodeConnectionParameters = new NodeConnectionParameters();
+			nodeConnectionParameters.TemplateBehaviors.Add(new SocksSettingsBehavior(new IPEndPoint(IPAddress.Loopback, 8090), onlyForOnionHosts: true, networkCredential: null, streamIsolation: true));
 
-            using var nodes = new NodesGroup(Network.TestNet, nodeConnectionParameters);
+			using var nodes = new NodesGroup(Network.TestNet, nodeConnectionParameters);
 
-            async Task Connect(EndPoint endpoint)
-            {
-                using var socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-                await connector.ConnectSocket(socket, endpoint, nodeConnectionParameters, CancellationToken.None);
-            }
+			async Task ConnectAsync(EndPoint endpoint)
+			{
+				using var socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+				await connector.ConnectSocket(socket, endpoint, nodeConnectionParameters, CancellationToken.None);
+			}
 
-            Exception ex;
-            // Try to connect to a non-onion address
-            ex = await Assert.ThrowsAsync<InvalidOperationException>(
-                async () => await Connect(new IPEndPoint(IPAddress.Loopback, 180)));
-            Assert.Equal("The Endpoint connector is configured to allow only Tor endpoints and the '127.0.0.1:180' enpoint is not one", ex.Message);
-            Assert.Equal(BestEffortEndpointConnector.ConnectionMode.OnionServiceOnly, connector.State.Mode);
+			Exception ex;
 
-            // Try to connect to an onion address (it has to fail because there is no a real socks proxy listening)
-            ex = await Assert.ThrowsAnyAsync<SocketException>(
-                async () => await Connect(new DnsEndPoint("nec4kn4ghql7p7an.onion", 80)));
-            Assert.Contains("refused", ex.Message);
-            Assert.Equal(BestEffortEndpointConnector.ConnectionMode.OnionServiceOnly, connector.State.Mode);
+			// Try to connect to a non-onion address.
+			ex = await Assert.ThrowsAsync<SocketException>(
+				async () => await ConnectAsync(new IPEndPoint(IPAddress.Loopback, 180)));
+			Assert.Contains("refused", ex.Message);
+			Assert.False(connector.State.AllowOnlyTorEndpoints);
 
-            // Timing out - Mode changes from OnionServiceOnly -> AllowGoingThroughTorExitNodes
-            connector.State.LastConnectionTime = DateTimeOffset.UtcNow.AddHours(-1);
+			// Try to connect to an onion address (it has to fail because there is no real socks proxy listening).
+			ex = await Assert.ThrowsAnyAsync<SocketException>(
+				async () => await ConnectAsync(new DnsEndPoint("nec4kn4ghql7p7an.onion", 180)));
+			Assert.Contains("refused", ex.Message);
+			Assert.False(connector.State.AllowOnlyTorEndpoints);
 
-            ex = await Assert.ThrowsAnyAsync<SocketException>(
-                async () => await Connect(new IPEndPoint(IPAddress.Loopback, 180)));
-            Assert.Contains("refused", ex.Message);
-            Assert.Equal(BestEffortEndpointConnector.ConnectionMode.AllowGoingThroughTorExitNodes, connector.State.Mode);
+			// Simulate we lost connection.
+			connector.State.ConnectedNodesCount = 10;
+			ex = await Assert.ThrowsAsync<SocketException>(
+				async () => await ConnectAsync(new IPEndPoint(IPAddress.Loopback, 180)));
+			Assert.Contains("refused", ex.Message);
+			Assert.True(connector.State.AllowOnlyTorEndpoints);
 
-            // Simulate there is a connection made (so, it is feasible to have more) 
-            connector.UpdateConnectedNodesCounter(1);
-            connector.State.LastConnectionTime = DateTimeOffset.UtcNow.AddHours(-1);
+			ex = await Assert.ThrowsAnyAsync<SocketException>(
+				async () => await ConnectAsync(new DnsEndPoint("nec4kn4ghql7p7an.onion", 180)));
+			Assert.Contains("refused", ex.Message);
+			Assert.True(connector.State.AllowOnlyTorEndpoints);
 
-            ex = await Assert.ThrowsAnyAsync<SocketException>(
-                async () => await Connect(new IPEndPoint(IPAddress.Loopback, 180)));
-            Assert.Contains("refused", ex.Message);
-            Assert.Equal(BestEffortEndpointConnector.ConnectionMode.AllowGoingThroughTorExitNodes, connector.State.Mode);
+			// Simulate we lost connection.
+			connector.State.ConnectedNodesCount = 0;
+			ex = await Assert.ThrowsAsync<SocketException>(
+				async () => await ConnectAsync(new IPEndPoint(IPAddress.Loopback, 180)));
+			Assert.Contains("refused", ex.Message);
+			Assert.False(connector.State.AllowOnlyTorEndpoints);
 
-            // Simulate we lost connection 
-            connector.State.ConnectedNodesCount = 0;
+			// Try to connect to an onion address (it has to fail because there is no real socks proxy listening).
+			ex = await Assert.ThrowsAnyAsync<SocketException>(
+				async () => await ConnectAsync(new DnsEndPoint("nec4kn4ghql7p7an.onion", 180)));
+			Assert.Contains("refused", ex.Message);
+			Assert.False(connector.State.AllowOnlyTorEndpoints);
 
-            ex = await Assert.ThrowsAnyAsync<SocketException>(
-                async () => await Connect(new DnsEndPoint("nec4kn4ghql7p7an.onion", 180)));
-            Assert.Contains("refused", ex.Message);
-            Assert.Equal(BestEffortEndpointConnector.ConnectionMode.OnionServiceOnly, connector.State.Mode);
-
-            // Simulate there are no connections made  
-            connector.State.LastConnectionTime = DateTimeOffset.UtcNow.AddHours(-1);
-
-            ex = await Assert.ThrowsAnyAsync<SocketException>(
-                async () => await Connect(new IPEndPoint(IPAddress.Loopback, 180)));
-            Assert.Contains("refused", ex.Message);
-            Assert.Equal(BestEffortEndpointConnector.ConnectionMode.AllowGoingThroughTorExitNodes, connector.State.Mode);
-
-            // Simulate there are no connections made (so, go to desperate mode and connect to clearnet) 
-            ex = await Assert.ThrowsAnyAsync<SocketException>(
-                async () => await Connect(new IPEndPoint(IPAddress.Loopback, 180)));
-            Assert.Contains("refused", ex.Message);
-            Assert.Equal(BestEffortEndpointConnector.ConnectionMode.ClearNet, connector.State.Mode);
-        }
-    }
+			// Enough peers with recent connection.
+			connector.State.ConnectedNodesCount = 10;
+			ex = await Assert.ThrowsAnyAsync<SocketException>(
+				async () => await ConnectAsync(new DnsEndPoint("nec4kn4ghql7p7an.onion", 180)));
+			Assert.Contains("refused", ex.Message);
+			Assert.True(connector.State.AllowOnlyTorEndpoints);
+		}
+	}
 }
