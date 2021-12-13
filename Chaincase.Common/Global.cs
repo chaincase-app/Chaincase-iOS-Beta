@@ -16,6 +16,7 @@ using NBitcoin.Protocol;
 using NBitcoin.Protocol.Behaviors;
 using NBitcoin.Protocol.Connectors;
 using Nito.AsyncEx;
+using WalletWasabi;
 using WalletWasabi.Blockchain.Analysis.FeesEstimation;
 using WalletWasabi.Blockchain.TransactionBroadcasting;
 using WalletWasabi.CoinJoin.Client;
@@ -172,18 +173,7 @@ namespace Chaincase.Common
                 }
                 else
                 {
-                    if (_config.UseTor)
-                    {
-                        // onlyForOnionHosts: false - Connect to clearnet IPs through Tor, too.
-                        connectionParameters.TemplateBehaviors.Add(new SocksSettingsBehavior(_config.TorSocks5EndPoint, onlyForOnionHosts: false, networkCredential: null, streamIsolation: true));
-                        // allowOnlyTorEndpoints: true - Connect only to onions and don't connect to clearnet IPs at all.
-                        // This of course makes the first setting unneccessary, but it's better if that's around, in case someone wants to tinker here.
-                        connectionParameters.EndpointConnector = new DefaultEndpointConnector(allowOnlyTorEndpoints: Network == Network.Main);
-
-                        await AddKnownBitcoinFullNodeAsHiddenServiceAsync(AddressManager).ConfigureAwait(false);
-                    }
-                    Nodes = new NodesGroup(Network, connectionParameters, requirements: Constants.NodeRequirements);
-                    Nodes.MaximumNodeConnection = 12;
+                    Nodes = CreateAndConfigureNodesGroup(connectionParameters);
                     regTestMempoolServingNode = null;
                 }
 
@@ -240,6 +230,22 @@ namespace Chaincase.Common
                 StoppingCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
                 Logger.LogDebug($"Initialization Completed");
             }
+        }
+
+        private NodesGroup CreateAndConfigureNodesGroup(NodeConnectionParameters connectionParameters)
+        {
+            var maximumNodeConnection = 12;
+            var bestEffortEndpointConnector = new BestEffortEndpointConnector(maximumNodeConnection / 2);
+            connectionParameters.EndpointConnector = bestEffortEndpointConnector;
+            if (_config.UseTor)
+            {
+                connectionParameters.TemplateBehaviors.Add(new SocksSettingsBehavior(_config.TorSocks5EndPoint, onlyForOnionHosts: false, networkCredential: null, streamIsolation: true));
+            }
+            var nodes = new NodesGroup(Network, connectionParameters, requirements: Constants.NodeRequirements);
+            nodes.ConnectedNodes.Added += ConnectedNodes_OnAddedOrRemoved;
+            nodes.ConnectedNodes.Removed += ConnectedNodes_OnAddedOrRemoved;
+            nodes.MaximumNodeConnection = maximumNodeConnection;
+            return nodes;
         }
 
         public async Task<AddressManagerBehavior> InitializeAddressManagerBehaviorAsync()
@@ -306,25 +312,13 @@ namespace Chaincase.Common
             return addressManagerBehavior;
         }
 
-        private async Task AddKnownBitcoinFullNodeAsHiddenServiceAsync(AddressManager addressManager)
+        private void ConnectedNodes_OnAddedOrRemoved(object? sender, NodeEventArgs e)
         {
-            if (Network == NBitcoin.Network.RegTest)
+            if (Nodes.NodeConnectionParameters.EndpointConnector is BestEffortEndpointConnector bestEffortEndPointConnector)
             {
-                return;
-            }
-
-            //  curl -s https://bitnodes.21.co/api/v1/snapshots/latest/ | egrep -o '[a-z0-9]{16}\.onion:?[0-9]*' | sort -ru
-            // Then filtered to include only /Satoshi:0.17.x
-            var fullBaseDirectory = EnvironmentHelpers.GetFullBaseDirectory();
-
-            var onions = await File.ReadAllLinesAsync(Path.Combine(fullBaseDirectory, "OnionSeeds", $"{Network}OnionSeeds.txt")).ConfigureAwait(false);
-
-            onions.Shuffle();
-            foreach (var onion in onions.Take(60))
-            {
-                if (EndPointParser.TryParse(onion, Network.DefaultPort, out var endpoint))
+                if (sender is NodesCollection nodesCollection)
                 {
-                    await addressManager.AddAsync(endpoint).ConfigureAwait(false);
+                    bestEffortEndPointConnector.UpdateConnectedNodesCounter(nodesCollection.Count);
                 }
             }
 
