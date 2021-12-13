@@ -31,6 +31,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Additional Files", "Additional Files", "{AE4B804F-E227-4778-9D67-92481B21E7D0}"
 ProjectSection(SolutionItems) = preProject
 	WalletWasabi.SDK\.gitrepo = WalletWasabi.SDK\.gitrepo
+	.github\workflows\build-and-test.yml = .github\workflows\build-and-test.yml
+	.github\workflows\build-backend.yml = .github\workflows\build-backend.yml
 EndProjectSection
 EndProject
 Global
