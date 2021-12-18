@@ -8,9 +8,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chaincase.iOS", "Chaincase.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chaincase.Common", "Chaincase.Common\Chaincase.Common.csproj", "{96670874-0C12-47C2-94A3-4B7CA7DBCED4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chaincase.UI", "Chaincase.UI\Chaincase.UI.csproj", "{15DF9C65-C954-4264-8B87-EF1D07B26D3B}"
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chaincase.UI", "Chaincase.UI\Chaincase.UI.csproj", "{15DF9C65-C954-4264-8B87-EF1D07B26D3B}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chaincase.SSB", "Chaincase.SSB\Chaincase.SSB.csproj", "{396B25F5-ACC6-4718-A5F8-DADC52FCFC2E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.iOS.Tor", "Xamarin.iOS.Tor\Xamarin.iOS.Tor.csproj", "{4B9C81E8-049C-425D-BD7A-BFBF586A7F64}"
@@ -30,11 +27,18 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WalletWasabi.Backend", "WalletWasabi.SDK\WalletWasabi.Backend\WalletWasabi.Backend.csproj", "{E91831F7-BF1F-424C-B85F-60CA121568E8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Additional Files", "Additional Files", "{AE4B804F-E227-4778-9D67-92481B21E7D0}"
-ProjectSection(SolutionItems) = preProject
-	WalletWasabi.SDK\.gitrepo = WalletWasabi.SDK\.gitrepo
-	.github\workflows\build-and-test.yml = .github\workflows\build-and-test.yml
-	.github\workflows\build-backend.yml = .github\workflows\build-backend.yml
-EndProjectSection
+	ProjectSection(SolutionItems) = preProject
+		WalletWasabi.SDK\.gitrepo = WalletWasabi.SDK\.gitrepo
+		.github\workflows\build-and-test.yml = .github\workflows\build-and-test.yml
+		.github\workflows\build-backend.yml = .github\workflows\build-backend.yml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{355740EB-4EC0-4977-9E40-6DE782D21334}"
+	ProjectSection(SolutionItems) = preProject
+		Chaincase.UI\Chaincase.UI.csproj = Chaincase.UI\Chaincase.UI.csproj
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chaincase.UI", "Chaincase.UI\Chaincase.UI.csproj", "{11F0DDF0-137A-48CB-8C99-629B08D8BD3A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -105,26 +109,6 @@ Global
 		{96670874-0C12-47C2-94A3-4B7CA7DBCED4}.Release|x64.Build.0 = Release|Any CPU
 		{96670874-0C12-47C2-94A3-4B7CA7DBCED4}.Release|x86.ActiveCfg = Release|Any CPU
 		{96670874-0C12-47C2-94A3-4B7CA7DBCED4}.Release|x86.Build.0 = Release|Any CPU
-		{15DF9C65-C954-4264-8B87-EF1D07B26D3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{15DF9C65-C954-4264-8B87-EF1D07B26D3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{15DF9C65-C954-4264-8B87-EF1D07B26D3B}.Debug|iPhone.ActiveCfg = Debug|Any CPU
-		{15DF9C65-C954-4264-8B87-EF1D07B26D3B}.Debug|iPhone.Build.0 = Debug|Any CPU
-		{15DF9C65-C954-4264-8B87-EF1D07B26D3B}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
-		{15DF9C65-C954-4264-8B87-EF1D07B26D3B}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
-		{15DF9C65-C954-4264-8B87-EF1D07B26D3B}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{15DF9C65-C954-4264-8B87-EF1D07B26D3B}.Debug|x64.Build.0 = Debug|Any CPU
-		{15DF9C65-C954-4264-8B87-EF1D07B26D3B}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{15DF9C65-C954-4264-8B87-EF1D07B26D3B}.Debug|x86.Build.0 = Debug|Any CPU
-		{15DF9C65-C954-4264-8B87-EF1D07B26D3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{15DF9C65-C954-4264-8B87-EF1D07B26D3B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{15DF9C65-C954-4264-8B87-EF1D07B26D3B}.Release|iPhone.ActiveCfg = Release|Any CPU
-		{15DF9C65-C954-4264-8B87-EF1D07B26D3B}.Release|iPhone.Build.0 = Release|Any CPU
-		{15DF9C65-C954-4264-8B87-EF1D07B26D3B}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
-		{15DF9C65-C954-4264-8B87-EF1D07B26D3B}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
-		{15DF9C65-C954-4264-8B87-EF1D07B26D3B}.Release|x64.ActiveCfg = Release|Any CPU
-		{15DF9C65-C954-4264-8B87-EF1D07B26D3B}.Release|x64.Build.0 = Release|Any CPU
-		{15DF9C65-C954-4264-8B87-EF1D07B26D3B}.Release|x86.ActiveCfg = Release|Any CPU
-		{15DF9C65-C954-4264-8B87-EF1D07B26D3B}.Release|x86.Build.0 = Release|Any CPU
 		{396B25F5-ACC6-4718-A5F8-DADC52FCFC2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{396B25F5-ACC6-4718-A5F8-DADC52FCFC2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{396B25F5-ACC6-4718-A5F8-DADC52FCFC2E}.Debug|iPhone.ActiveCfg = Debug|Any CPU
@@ -294,6 +278,26 @@ Global
 		{E91831F7-BF1F-424C-B85F-60CA121568E8}.Release|x64.Build.0 = Release|Any CPU
 		{E91831F7-BF1F-424C-B85F-60CA121568E8}.Release|x86.ActiveCfg = Release|Any CPU
 		{E91831F7-BF1F-424C-B85F-60CA121568E8}.Release|x86.Build.0 = Release|Any CPU
+		{11F0DDF0-137A-48CB-8C99-629B08D8BD3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11F0DDF0-137A-48CB-8C99-629B08D8BD3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11F0DDF0-137A-48CB-8C99-629B08D8BD3A}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{11F0DDF0-137A-48CB-8C99-629B08D8BD3A}.Debug|iPhone.Build.0 = Debug|Any CPU
+		{11F0DDF0-137A-48CB-8C99-629B08D8BD3A}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{11F0DDF0-137A-48CB-8C99-629B08D8BD3A}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
+		{11F0DDF0-137A-48CB-8C99-629B08D8BD3A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{11F0DDF0-137A-48CB-8C99-629B08D8BD3A}.Debug|x64.Build.0 = Debug|Any CPU
+		{11F0DDF0-137A-48CB-8C99-629B08D8BD3A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{11F0DDF0-137A-48CB-8C99-629B08D8BD3A}.Debug|x86.Build.0 = Debug|Any CPU
+		{11F0DDF0-137A-48CB-8C99-629B08D8BD3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11F0DDF0-137A-48CB-8C99-629B08D8BD3A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11F0DDF0-137A-48CB-8C99-629B08D8BD3A}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{11F0DDF0-137A-48CB-8C99-629B08D8BD3A}.Release|iPhone.Build.0 = Release|Any CPU
+		{11F0DDF0-137A-48CB-8C99-629B08D8BD3A}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{11F0DDF0-137A-48CB-8C99-629B08D8BD3A}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
+		{11F0DDF0-137A-48CB-8C99-629B08D8BD3A}.Release|x64.ActiveCfg = Release|Any CPU
+		{11F0DDF0-137A-48CB-8C99-629B08D8BD3A}.Release|x64.Build.0 = Release|Any CPU
+		{11F0DDF0-137A-48CB-8C99-629B08D8BD3A}.Release|x86.ActiveCfg = Release|Any CPU
+		{11F0DDF0-137A-48CB-8C99-629B08D8BD3A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
