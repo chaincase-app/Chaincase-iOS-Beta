@@ -1,5 +1,3 @@
-#if DEBUG
-
 using LiveSharp;
 
 // Use this attribute to designate which types and methods will be available for runtime code update
@@ -7,6 +5,9 @@ using LiveSharp;
 
 // Uncomment the following line if you want to provide a custom entry point for LiveSharp runtime
 //[assembly: LiveSharpStart(typeof(Program), nameof(Program.Main), typeof(string[]))]
+
+// Uncomment if you want to specify a static IP address for the LiveSharp Server 
+//[assembly: LiveSharpServerIp("xxx.xxx.xxx.xxx")]
 
 // Disable style warnings
 // ReSharper disable once CheckNamespace
@@ -18,8 +19,8 @@ namespace LiveSharp
         // This method will be run during the start of your application and every time you update it
         public void Configure(ILiveSharpRuntime app) 
         {
-            app.Config.SetValue("disableBlazorCSS", "true");
-            app.UseDefaultBlazorHandler();
+            app.Config.SetValue("pageHotReloadMethod", "build");
+            app.UseDefaultXamarinFormsHandler();
         }
         
         public void Run(ILiveSharpRuntime app)
@@ -29,5 +30,3 @@ namespace LiveSharp
         }
     } 
 }
-
-#endif

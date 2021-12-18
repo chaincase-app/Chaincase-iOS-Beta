@@ -30,9 +30,6 @@
     <PackageReference Include="ReactiveUI" Version="13.2.2" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.1.12" />
   </ItemGroup>
-  <PropertyGroup Condition="'$(Configuration)' == 'Release' ">
-    <DefineConstants>LIVESHARP_DISABLE</DefineConstants>
-  </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Chaincase.UI\Chaincase.UI.csproj" />
