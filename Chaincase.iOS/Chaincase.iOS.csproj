@@ -88,7 +88,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Background\iOSOnSleepingTask.cs" />
     <Compile Include="Background\iOSInitializeNoWalletContext.cs" />
-    <Compile Include="LiveSharp.dashboard.cs" />
     <Compile Include="Services\iOSNotificationManager.cs" />
     <Compile Include="Services\iOSNotificationReceiver.cs" />
     <Compile Include="Services\iOSHsmStorage.cs" />
@@ -161,9 +160,6 @@
     <PackageReference Include="ZXing.Net.Mobile.Forms">
       <Version>2.4.1</Version>
     </PackageReference>
-    <PackageReference Include="LiveSharp">
-      <Version>1.6.54</Version>
-    </PackageReference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' != 'Release'">
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.1.12" />
@@ -182,7 +178,7 @@
       <Name>Chaincase.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\Chaincase.UI\Chaincase.UI.csproj">
-      <Project>{15DF9C65-C954-4264-8B87-EF1D07B26D3B}</Project>
+      <Project>{C692BD57-091E-479D-812B-0A3FF4493A4B}</Project>
       <Name>Chaincase.UI</Name>
     </ProjectReference>
     <ProjectReference Include="..\Xamarin.iOS.Tor\Xamarin.iOS.Tor.csproj">
