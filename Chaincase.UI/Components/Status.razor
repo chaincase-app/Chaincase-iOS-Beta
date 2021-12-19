@@ -1,35 +1,87 @@
 ﻿@inject StatusViewModel StatusViewModel
-@using WalletWasabi.Stores
+@using WalletWasabi.Models
+
 @inherits ReactiveComponentBase<StatusViewModel>
 
 <IonList>
-    <IonItem>
-        <IonLabel>Numbers of Peers: @ViewModel.Peers</IonLabel>
-    </IonItem>
-    <IonItem>
-        <IonLabel>Backend Status: @Backendlabel()</IonLabel>
-    </IonItem>
-    <IonItem>
-        <IonLabel>Tor Status: @TorLabel()</IonLabel>
-    </IonItem>
-    <IonItem>
-        @if (ViewModel.FiltersLeft == 0)
+    <IonItem button OnClick="() => DetailsShown = true">
+        @if (ViewModel.Tor == TorStatus.NotRunning)
         {
-            <IonLabel>Your wallet is sync'd</IonLabel>
+            <IonLabel>Making private Tor connection...</IonLabel>
+            <ion-spinner slot="end"/>
         }
-        else
+        else if (ViewModel.Backend == BackendStatus.NotConnected)
         {
-            <IonLabel>Filters left: @ViewModel.FiltersLeft</IonLabel>
+            <IonLabel>Connecting to Chaincase...</IonLabel>
+            <ion-spinner slot="end"/>
+        }
+        else if (ViewModel.FiltersLeft > 0)
+        {
+            <IonLabel>Fetching @ViewModel.FiltersLeft private sync filters...</IonLabel>
+            <ion-spinner slot="end"/>
+        }
+        else if (ViewModel.Peers <= 0)
+        {
+            <IonLabel>Finding bitcoin peers...</IonLabel>
+            <ion-spinner slot="end"/>
+        }
+        else if (ViewModel.DownloadingBlock)
+        {
+            <IonLabel>Downloading blocks...</IonLabel>
+            <ion-spinner slot="end"/>
         }
     </IonItem>
-    @if (ViewModel.FiltersLeft != 0)
-    {
-        <IonItem>
-            <IonProgressBar value="@ViewModel.ProgressPercent"/>
-        </IonItem>
-    }
-
 </IonList>
+
+<IonModal @bind-Visible="DetailsShown">
+    <IonHeader>
+        <IonToolbar>
+            <IonTitle>Wallet status</IonTitle>
+            <IonButtons slot="start">
+                @*default-href displays a system-native back button regardless of ion-nav state*@
+                <ion-back-button @onclick="() => DetailsShown = false" default-href="#"></ion-back-button>
+            </IonButtons>
+        </IonToolbar>
+    </IonHeader>
+
+    <IonContent>
+        <IonList>
+            <IonItem>
+                <IonLabel>Numbers of Peers: @ViewModel.Peers</IonLabel>
+            </IonItem>
+            <IonItem>
+                <IonLabel>Backend Status: @Backendlabel()</IonLabel>
+            </IonItem>
+            <IonItem>
+                <IonLabel>Tor Status: @TorLabel()</IonLabel>
+            </IonItem>
+            <IonItem>
+                @if (ViewModel.FiltersLeft == 0)
+                {
+                    <IonLabel>Filters caught up ✅</IonLabel>
+                }
+                else
+                {
+                    <IonLabel>Filters left: @ViewModel.FiltersLeft</IonLabel>
+                }
+            </IonItem>
+            @if (ViewModel.FiltersLeft != 0)
+            {
+                <IonItem>
+                    <IonProgressBar value="@ViewModel.ProgressPercent"/>
+                </IonItem>
+            }
+            @if (ViewModel.DownloadingBlock)
+            {
+                <IonItem>
+                    <IonLabel>Downloading blocks...</IonLabel>
+                    <ion-spinner slot="end"/>
+                </IonItem>
+            }
+
+        </IonList>
+    </IonContent>
+</IonModal>
 
 @code{
 
@@ -38,8 +90,14 @@
         ViewModel = StatusViewModel;
     }
 
-    public string Backendlabel() {
-        switch (ViewModel.Backend) {
+    private bool IsSynchronized => ViewModel.FiltersLeft == 0
+        && ViewModel.Backend == BackendStatus.Connected
+        && ViewModel.Tor != TorStatus.NotRunning;
+
+    public string Backendlabel()
+    {
+        switch (ViewModel.Backend)
+        {
             case WalletWasabi.Models.BackendStatus.NotConnected:
                 return "⌛";
             case WalletWasabi.Models.BackendStatus.Connected:
@@ -49,7 +107,8 @@
         }
     }
 
-    public string TorLabel() {
+    public string TorLabel()
+    {
         switch (ViewModel.Tor)
         {
             case WalletWasabi.Models.TorStatus.NotRunning:
@@ -62,4 +121,7 @@
                 return "⌛";
         }
     }
+
+    public bool DetailsShown { get; set; }
+
 }
