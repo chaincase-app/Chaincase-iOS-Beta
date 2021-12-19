@@ -38,9 +38,8 @@
         <IonToolbar>
             <IonTitle>Wallet status</IonTitle>
             <IonButtons slot="start">
-                <IonButton @onclick="() => DetailsShown = false">
-                    <IonIcon name="close"></IonIcon>
-                </IonButton>
+                @*default-href displays a system-native back button regardless of ion-nav state*@
+                <ion-back-button @onclick="() => DetailsShown = false" default-href="#"></ion-back-button>
             </IonButtons>
         </IonToolbar>
     </IonHeader>
