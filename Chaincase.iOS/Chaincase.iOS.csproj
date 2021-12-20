@@ -14,6 +14,7 @@
     <AssemblyName>Chaincase.iOS</AssemblyName>
     <MtouchEnableSGenConc>true</MtouchEnableSGenConc>
     <MtouchHttpClientHandler>NSUrlSessionHandler</MtouchHttpClientHandler>
+    <ProvisioningType>manual</ProvisioningType>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhoneSimulator' ">
     <DebugSymbols>true</DebugSymbols>
@@ -27,8 +28,10 @@
     <MtouchLink>None</MtouchLink>
     <MtouchDebug>true</MtouchDebug>
     <LangVersion>9.0</LangVersion>
-    <CodesignKey>iPhone Developer</CodesignKey>
+    <CodesignKey>Apple Development: Andrew Camilleri (SM5NXH99Q5)</CodesignKey>
     <CodesignEntitlements>Entitlements.developer.plist</CodesignEntitlements>
+    <IOSDebugOverWiFi>true</IOSDebugOverWiFi>
+    <CodesignProvision>cash.chaincase.chaincase Development</CodesignProvision>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
     <DebugType>none</DebugType>
@@ -50,13 +53,14 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <MtouchArch>ARM64</MtouchArch>
-    <CodesignKey>Apple Development: Daniel Gould (BDA534V858)</CodesignKey>
+    <CodesignKey>Apple Development: Andrew Camilleri (SM5NXH99Q5)</CodesignKey>
     <MtouchDebug>true</MtouchDebug>
-    <MtouchLink>None</MtouchLink>
+    <MtouchLink>Full</MtouchLink>
     <MtouchInterpreter>-all</MtouchInterpreter>
     <LangVersion>9.0</LangVersion>
     <MtouchExtraArgs>-v -v -v -v</MtouchExtraArgs>
     <MtouchFloat32>true</MtouchFloat32>
+    <CodesignKey>Apple Development: Andrew Camilleri (SM5NXH99Q5)</CodesignKey>
     <CodesignEntitlements>Entitlements.developer.plist</CodesignEntitlements>
     <CodesignProvision>cash.chaincase.chaincase Development</CodesignProvision>
   </PropertyGroup>

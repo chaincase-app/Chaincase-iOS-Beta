@@ -1,29 +1,22 @@
 ﻿using System.Threading.Tasks;
-using BlazorBarcodeScanner.ZXing.JS;
 using Chaincase.Common.Contracts;
+using Microsoft.JSInterop;
 
 namespace Chaincase.SSB
 {
 	public class WebCameraScanner : ICameraScanner
 	{
-		private ZXingBlazorCameraScanner _reader;
+		private readonly IJSRuntime _jsRuntime;
 		private TaskCompletionSource<string> tcs;
 
-		public void SetRef(ZXingBlazorCameraScanner barcodeReader)
+		public WebCameraScanner(IJSRuntime jsRuntime)
 		{
-			_reader = barcodeReader;
+			_jsRuntime = jsRuntime;
 		}
 
-		public Task<string> Scan()
+		public async Task<string> Scan()
 		{
-			tcs = new TaskCompletionSource<string>();
-			_reader.ShowNow();
-			return tcs.Task;
-		}
-
-		public void OnBarcodeReceived(BarcodeReceivedEventArgs barcodeReceivedEventArgs)
-		{
-			tcs?.SetResult(barcodeReceivedEventArgs.BarcodeText);
+			return (await _jsRuntime.InvokeAsync<string>("IonicBridge.executeFunctionByName", "window", "prompt", "paste your scan"));
 		}
 	}
 }
