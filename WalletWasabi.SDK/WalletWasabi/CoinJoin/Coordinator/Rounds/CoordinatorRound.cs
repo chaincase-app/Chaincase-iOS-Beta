@@ -55,6 +55,8 @@ namespace WalletWasabi.CoinJoin.Coordinator.Rounds
 				RegisteredUnblindedSignatures = new List<UnblindedSignature>();
 				RegisteredUnblindedSignaturesLock = new object();
 
+				NonceProvider = new RoundNonceProvider(config.MaximumMixingLevelCount);
+
 				MixingLevels = new MixingLevelCollection(config.Denomination, new Signer(new Key()));
 				for (int i = 0; i < config.MaximumMixingLevelCount - 1; i++)
 				{
@@ -121,6 +123,7 @@ namespace WalletWasabi.CoinJoin.Coordinator.Rounds
 
 		private List<Alice> Alices { get; }
 		private List<Alice> QueuedAlices { get; }
+		private HashSet<OutPoint> QueuedInputs { get; }
 		private List<Bob> Bobs { get; } // Do not make it a hashset or do not make Bob IEquitable!!!
 
 		private List<UnblindedSignature> RegisteredUnblindedSignatures { get; }
@@ -217,6 +220,8 @@ namespace WalletWasabi.CoinJoin.Coordinator.Rounds
 
 		public UtxoReferee UtxoReferee { get; }
 		public CoordinatorRoundConfig RoundConfig { get; }
+
+		public RoundNonceProvider NonceProvider { get; }
 
 		public static ConcurrentDictionary<(long roundId, RoundPhase phase), DateTimeOffset> PhaseTimeoutLog { get; } = new ConcurrentDictionary<(long roundId, RoundPhase phase), DateTimeOffset>();
 
@@ -639,7 +644,6 @@ namespace WalletWasabi.CoinJoin.Coordinator.Rounds
 
 			// It is ok to remove these Alices, because these did not get blind signatures.
 			RemoveAlicesBy(alicesNotConfirmConnectionIds.Distinct().ToArray());
-			DequeueAlicesBy(alicesNotConfirmConnectionIds.Distinct().ToArray());
 
 			int aliceCountAfterConnectionConfirmationTimeout = CountAlices();
 			int didNotConfirmCount = AnonymitySet - aliceCountAfterConnectionConfirmationTimeout;
@@ -1388,29 +1392,6 @@ namespace WalletWasabi.CoinJoin.Coordinator.Rounds
 			}
 
 			return numberOfRemovedAlices;
-		}
-
-		public int DequeueAlicesBy(params Guid[] ids)
-		{
-			var numberOfDequeuedAlices = 0;
-			using (RoundSynchronizerLock.Lock())
-			{
-				if ((Phase != RoundPhase.InputRegistration && Phase != RoundPhase.ConnectionConfirmation) || Status != CoordinatorRoundStatus.Running)
-				{
-					throw new InvalidOperationException("Dequeue Alice is only allowed in InputRegistration and ConnectionConfirmation phases.");
-				}
-				foreach (var id in ids)
-				{
-					numberOfDequeuedAlices = QueuedAlices.RemoveAll(x => x.UniqueId == id);
-				}
-			}
-
-			if (numberOfDequeuedAlices > 0)
-			{
-				Logger.LogInfo($"Round ({RoundId}): {numberOfDequeuedAlices} alices are removed.");
-			}
-
-			return numberOfDequeuedAlices;
 		}
 
 		#endregion Modifiers

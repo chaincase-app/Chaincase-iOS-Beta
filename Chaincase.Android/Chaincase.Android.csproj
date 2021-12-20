@@ -72,10 +72,8 @@
 
   <ItemGroup Condition="'$(Configuration)' != 'Release' ">
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.1.8" />
-    <PackageReference Include="LiveSharp" Version="1.6.33" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="LiveSharp.dashboard.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

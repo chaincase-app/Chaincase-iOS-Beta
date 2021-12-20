@@ -93,9 +93,25 @@ namespace WalletWasabi.Backend
 		[JsonProperty(PropertyName = "HashCashDifficulty", DefaultValueHandling = DefaultValueHandling.Populate)]
 		public int HashCashDifficulty { get; internal set; }
 
-		[DefaultValue("/home/Dan/Downloads/AuthKey_4L3728R8LJ.p8")]
+		[DefaultValue("APNAuth.p8")]
 		[JsonProperty(PropertyName = "APNsAuthKeyFile", DefaultValueHandling = DefaultValueHandling.Populate)]
 		public string APNsAuthKeyFile { get; internal set; }
+		[DefaultValue("A4L3728R8LJ")]
+		[JsonProperty(PropertyName = "APNAuthKeyId", DefaultValueHandling = DefaultValueHandling.Populate)]
+		public string APNAuthKeyId { get; internal set; }
+
+		[DefaultValue("9Z72DXKVXK")]
+		[JsonProperty(PropertyName = "APNTeamId", DefaultValueHandling = DefaultValueHandling.Populate)]
+		public string APNTeamId { get; internal set; }
+		[DefaultValue("cash.chaincase.testnet")]
+		[JsonProperty(PropertyName = "APNBundleId", DefaultValueHandling = DefaultValueHandling.Populate)]
+		public string APNBundleId { get; internal set; }
+
+
+		public string GetAPNAuthKeyFile()
+		{
+			return Path.Combine(new FileInfo(FilePath).Directory!.FullName, APNsAuthKeyFile);
+		}
 
 		public EndPoint GetBitcoinP2pEndPoint()
 		{

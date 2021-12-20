@@ -240,7 +240,7 @@ namespace WalletWasabi.CoinJoin.Coordinator
 
 		public async Task SchedulePushAsync(TimeSpan inputRegistrationTimeout)
 		{
-			var pushDelay = inputRegistrationTimeout - TimeSpan.FromSeconds(15);
+			var pushDelay = inputRegistrationTimeout - TimeSpan.FromSeconds(17);
 			if (pushDelay.TotalMilliseconds < 0)
 			{
 				return;
@@ -253,7 +253,7 @@ namespace WalletWasabi.CoinJoin.Coordinator
 					&& x.CountQueuedAlices() >= 2))
 			{
 				// this sends 2 notifications for two rounds, so make sure the notifications are rate limited
-				Logger.LogInfo("PUSH NOTIFICATIONS! INPUT DONE IN 15.");
+				Logger.LogInfo("PUSH NOTIFICATIONS! INPUT DONE IN 17.");
 				SendPushCallback.Invoke();
 			}
 		}

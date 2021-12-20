@@ -58,7 +58,7 @@
     <MtouchExtraArgs>-v -v -v -v</MtouchExtraArgs>
     <MtouchFloat32>true</MtouchFloat32>
     <CodesignEntitlements>Entitlements.developer.plist</CodesignEntitlements>
-    <CodesignProvision>Chaincase Testnet Dev</CodesignProvision>
+    <CodesignProvision>cash.chaincase.chaincase Development</CodesignProvision>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
     <BlazorLinkOnBuild>false</BlazorLinkOnBuild>
@@ -70,7 +70,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <MtouchArch>ARM64</MtouchArch>
-    <CodesignKey>Apple Distribution: Chaincase LLC (9Z72DXKVXK)</CodesignKey>
+    <CodesignKey>iPhone Distribution</CodesignKey>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <LangVersion>9.0</LangVersion>
     <MtouchLink>SdkOnly</MtouchLink>
@@ -78,7 +78,7 @@
     <MtouchExtraArgs>-v -v -v -v</MtouchExtraArgs>
     <MtouchUseLlvm>false</MtouchUseLlvm>
     <MtouchInterpreter>-all</MtouchInterpreter>
-    <CodesignProvision>Chaincase Distribution</CodesignProvision>
+    <CodesignProvision>Chaincase Ad Hoc</CodesignProvision>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
@@ -88,7 +88,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Background\iOSOnSleepingTask.cs" />
     <Compile Include="Background\iOSInitializeNoWalletContext.cs" />
-    <Compile Include="LiveSharp.dashboard.cs" />
     <Compile Include="Services\iOSNotificationManager.cs" />
     <Compile Include="Services\iOSNotificationReceiver.cs" />
     <Compile Include="Services\iOSHsmStorage.cs" />
@@ -161,9 +160,6 @@
     <PackageReference Include="ZXing.Net.Mobile.Forms">
       <Version>2.4.1</Version>
     </PackageReference>
-    <PackageReference Include="LiveSharp">
-      <Version>1.6.54</Version>
-    </PackageReference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' != 'Release'">
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.1.12" />
@@ -181,10 +177,6 @@
       <Project>{96670874-0C12-47C2-94A3-4B7CA7DBCED4}</Project>
       <Name>Chaincase.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Chaincase.UI\Chaincase.UI.csproj">
-      <Project>{15DF9C65-C954-4264-8B87-EF1D07B26D3B}</Project>
-      <Name>Chaincase.UI</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Xamarin.iOS.Tor\Xamarin.iOS.Tor.csproj">
       <Project>{4B9C81E8-049C-425D-BD7A-BFBF586A7F64}</Project>
       <Name>Xamarin.iOS.Tor</Name>
@@ -193,6 +185,9 @@
     </ProjectReference>
     <ProjectReference Include="..\WalletWasabi.SDK\WalletWasabi\WalletWasabi.csproj">
       <Name>WalletWasabi</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Chaincase.UI\Chaincase.UI.csproj">
+      <Name>Chaincase.UI</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

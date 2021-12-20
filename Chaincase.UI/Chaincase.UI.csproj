@@ -10,7 +10,7 @@
         <PackageReference Include="QRCoder" Version="1.4.1" />
         <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="3.1.12" />
         <PackageReference Include="BlazorIonic" Version="1.0.14" />
-        <PackageReference Include="LiveSharp" Version="1.6.54" />
+        <PackageReference Include="ZXing.Net.Mobile" Version="2.4.1" />
         <PackageReference Include="Microsoft.AspNetCore.Components" Version="3.1.12" />
         <PackageReference Include="ReactiveUI" Version="13.2.2" />
         <PackageReference Include="ReactiveUI.Blazor" Version="13.2.2" />

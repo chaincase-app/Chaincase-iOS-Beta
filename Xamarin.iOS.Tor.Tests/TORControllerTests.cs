@@ -184,7 +184,7 @@ namespace Xamarin.iOS.Tor.Tests
                 Controller.GetSessionConfiguration((NSUrlSessionConfiguration configuration) =>
                 {
                     NSUrlSession session = NSUrlSession.FromConfiguration(configuration);
-                    session.CreateDataTask(NSUrl.FromString("https://facebookcorewwwi.onion/"), (NSData data, NSUrlResponse response, NSError error) =>
+                    session.CreateDataTask(NSUrl.FromString("https://facebookwkhpilnemxj7asaniu7vnjjbiltxjqhye3mhbshg7kx5tfyd.onion/"), (NSData data, NSUrlResponse response, NSError error) =>
                     {
                         Assert.Equal(((NSHttpUrlResponse)response).StatusCode, 200);
                         Assert.True(error is null);
