@@ -134,6 +134,7 @@ namespace Chaincase.UI.ViewModels
                 RoundPhaseState = new RoundPhaseState(mostAdvancedRound.State.Phase, _walletManager.CurrentWallet.ChaumianClient?.State.IsInErrorState ?? false);
                 RoundTimesout = mostAdvancedRound.State.Phase == RoundPhase.InputRegistration ? mostAdvancedRound.State.InputRegistrationTimesout : DateTimeOffset.UtcNow;
                 PeersRegistered = mostAdvancedRound.State.RegisteredPeerCount;
+                PeersQueued = mostAdvancedRound.State.QueuedPeerCount;
                 PeersNeeded = mostAdvancedRound.State.RequiredPeerCount;
                 RequiredBTC = mostAdvancedRound.State.CalculateRequiredAmount();
             }
@@ -242,6 +243,7 @@ namespace Chaincase.UI.ViewModels
                 this.RaisePropertyChanged(nameof(RoundPhaseState));
                 this.RaisePropertyChanged(nameof(RoundTimesout));
                 PeersRegistered = mostAdvancedRound.State.RegisteredPeerCount;
+                PeersQueued = mostAdvancedRound.State.QueuedPeerCount;
                 PeersNeeded = mostAdvancedRound.State.RequiredPeerCount;
             }
         }
