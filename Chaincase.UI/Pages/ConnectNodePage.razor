@@ -24,7 +24,7 @@
             @if (ViewModel.CanConnect is { })
             {
                 <div>
-                    <IonBadge color="@(ViewModel.CanConnect ?? false ? "success" : "warning")">
+                    <IonBadge color="@(ViewModel.CanConnect ?? false ? "success" : "warning")" slot="end">
                         @(ViewModel.CanConnect ?? false ? "Connected" : "Disconnected")
                     </IonBadge>
                 </div>
