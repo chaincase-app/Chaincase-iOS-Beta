@@ -148,7 +148,6 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="Xamarin.iOS" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net.Http" />
   </ItemGroup>
@@ -159,6 +158,9 @@
     <PackageReference Include="Xamarin.Essentials" Version="1.6.1" />
     <PackageReference Include="ZXing.Net.Mobile.Forms">
       <Version>2.4.1</Version>
+    </PackageReference>
+    <PackageReference Include="Xamarin.iOS.Tor">
+      <Version>405.10.1</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' != 'Release'">
@@ -176,12 +178,6 @@
     <ProjectReference Include="..\Chaincase.Common\Chaincase.Common.csproj">
       <Project>{96670874-0C12-47C2-94A3-4B7CA7DBCED4}</Project>
       <Name>Chaincase.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Xamarin.iOS.Tor\Xamarin.iOS.Tor.csproj">
-      <Project>{4B9C81E8-049C-425D-BD7A-BFBF586A7F64}</Project>
-      <Name>Xamarin.iOS.Tor</Name>
-      <IsAppExtension>false</IsAppExtension>
-      <IsWatchApp>false</IsWatchApp>
     </ProjectReference>
     <ProjectReference Include="..\WalletWasabi.SDK\WalletWasabi\WalletWasabi.csproj">
       <Name>WalletWasabi</Name>
