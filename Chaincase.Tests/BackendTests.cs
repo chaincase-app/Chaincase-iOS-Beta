@@ -26,27 +26,6 @@ namespace Chaincase.Tests
 			Assert.True(HashCashUtils.Verify(stamp));
 		}
 
-		[Fact]
-		public async Task NotificationsTests()
-		{
-			var regtestFixture = TestUtils.CreateRegtestFixture(true);
-			Assert.Equal(0, regtestFixture.Global.Config.HashCashDifficulty);
-			TestUtils.SetPrivateValue(regtestFixture.Global.Config, config => config.HashCashDifficulty, 10);
-			Assert.Equal(10, regtestFixture.Global.Config.HashCashDifficulty);
-			using var client = new ChaincaseClient(() => new Uri(regtestFixture.BackendEndPoint), null);
-			_ = await client.RegisterNotificationTokenAsync(new DeviceToken()
-			{
-				Status = TokenStatus.New,
-				Token = "123456",
-				Type = TokenType.AppleDebug
-			}, CancellationToken.None);
-
-			var factory = regtestFixture.BackendHost.Services.GetService<IDbContextFactory<WasabiBackendContext>>();
-			await using var context = factory.CreateDbContext();
-			Assert.NotNull(await context.Tokens.FindAsync("123456"));
-
-		}
-
 		#endregion
 	}
 }
