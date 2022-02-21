@@ -24,6 +24,7 @@ using Chaincase.Common.Services;
 using Chaincase.Common.Contracts;
 using WalletWasabi.Blockchain.TransactionBroadcasting;
 using WalletWasabi.WebClients.PayJoin;
+using System.Net;
 
 namespace Chaincase.UI.ViewModels
 {
@@ -368,13 +369,14 @@ namespace Chaincase.UI.ViewModels
                 requests.Add(activeDestinationRequest);
                 var intent = new PaymentIntent(requests);
 
+                var payjoinClient = GetPayjoinClient(PayjoinEndPoint, _config.UseTor, _config.Network, _config.TorSocks5EndPoint);
                 var result = await Task.Run(() => _walletManager.CurrentWallet.BuildTransaction(
                     password,
                     intent,
                     feeStrategy,
                     allowUnconfirmed: true,
                     allowedInputs: selectedCoinReferences,
-                    payjoinClient: GetPayjoinClient()));
+                    payjoinClient));
                 SmartTransaction signedTransaction = result.Transaction;
                 SignedTransaction = signedTransaction;
 
@@ -406,7 +408,7 @@ namespace Chaincase.UI.ViewModels
             return false;
         }
 
-        private IPayjoinClient? GetPayjoinClient(string payjoinEndPoint)
+        private static IPayjoinClient? GetPayjoinClient(string payjoinEndPoint, bool isTorEnabled, Network network, EndPoint torSocks5EndPoint)
         {
             if (string.IsNullOrWhiteSpace(payjoinEndPoint) ||
                 !Uri.IsWellFormedUriString(payjoinEndPoint, UriKind.Absolute))
@@ -415,19 +417,19 @@ namespace Chaincase.UI.ViewModels
             }
 
             var payjoinEndPointUri = new Uri(payjoinEndPoint);
-            if (payjoinEndPointUri.DnsSafeHost.EndsWith(".onion", StringComparison.OrdinalIgnoreCase) && !_config.UseTor)
+            if (payjoinEndPointUri.DnsSafeHost.EndsWith(".onion", StringComparison.OrdinalIgnoreCase) && isTorEnabled)
             {
                 Logger.LogWarning("PayJoin server is an onion service but Tor is disabled. Ignoring...");
                 return null;
             } 
 
-            if (_config.Network == Network.Main && payjoinEndPointUri.Scheme != Uri.UriSchemeHttps && !_config.UseTor)
+            if (network == Network.Main && payjoinEndPointUri.Scheme != Uri.UriSchemeHttps && isTorEnabled)
             {
                 Logger.LogWarning("PayJoin server is not exposed as an onion service nor https. Ignoring...");
                 return null;
             }
 
-            return new PayjoinClient(payjoinEndPointUri, _config.TorSocks5EndPoint);
+            return new PayjoinClient(payjoinEndPointUri, torSocks5EndPoint);
         }
 
         public string PayjoinEndPoint
