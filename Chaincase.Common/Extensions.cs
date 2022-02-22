@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using Chaincase.Common.Contracts;
+using Chaincase.Common.PayJoin;
 using Chaincase.Common.Services;
 using Microsoft.Extensions.DependencyInjection;
 using WalletWasabi.Blockchain.Analysis.FeesEstimation;
@@ -13,7 +14,7 @@ using WalletWasabi.Wallets;
 
 namespace Chaincase.Common
 {
-	public static class Extensions
+    public static class Extensions
     {
         public static IServiceCollection AddCommonServices(this IServiceCollection services)
         {
@@ -21,7 +22,8 @@ namespace Chaincase.Common
             services.AddSingleton<Config>();
             services.AddSingleton<UiConfig>();
             services.AddScoped<SensitiveStorage>();
-            services.AddSingleton(x => {
+            services.AddSingleton(x =>
+            {
                 var network = x.GetRequiredService<Config>().Network;
                 var dataDir = x.GetRequiredService<IDataDirProvider>().Get();
                 var walletDirectories = x.GetService<WalletDirectories>() ?? new WalletDirectories(dataDir);
@@ -36,7 +38,7 @@ namespace Chaincase.Common
                 var indexStore = new IndexStore(network, new SmartHeaderChain());
 
                 return new ChaincaseBitcoinStore(Path.Combine(dataDir, "BitcoinStore"), network,
-                    indexStore, new AllTransactionStore(), new MempoolService(),client
+                    indexStore, new AllTransactionStore(), new MempoolService(), client
                 );
             });
             services.AddSingleton<BitcoinStore>(provider => provider.GetRequiredService<ChaincaseBitcoinStore>());
@@ -54,18 +56,26 @@ namespace Chaincase.Common
             services.AddSingleton(x =>
             {
                 return new FeeProviders(new List<IFeeProvider>
-				{
+                {
                     x.GetRequiredService<ChaincaseSynchronizer>()
                 });
             });
             services.AddSingleton(x =>
             {
-	            var config = x.GetRequiredService<Config>();
-	            return new ChaincaseClient(config.GetCurrentBackendUri, config.TorSocks5EndPoint);
+                var config = x.GetRequiredService<Config>();
+                return new ChaincaseClient(config.GetCurrentBackendUri, config.TorSocks5EndPoint);
             });
-            
+            services.AddPayJoinServices();
 
             return services;
+        }
+
+
+        public static bool IsOnion(this Uri uri)
+        {
+            if (uri == null || !uri.IsAbsoluteUri)
+                return false;
+            return uri.DnsSafeHost.EndsWith(".onion", StringComparison.OrdinalIgnoreCase);
         }
     }
 }
