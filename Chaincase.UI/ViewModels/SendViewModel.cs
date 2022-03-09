@@ -172,7 +172,7 @@ namespace Chaincase.UI.ViewModels
                 {
                     // since AmountText can be altered by hand, we set it instead
                     // of binding to a calculated ObservableAsPropertyHelper
-                    //AmountText = url.Amount.ToString();
+                    AmountText = url.Amount.ToString();
                 }
                 // we could check url.Label or url.Message for contact, but there is
                 // no convention on their use yet so it's hard to say whether they
@@ -421,7 +421,7 @@ namespace Chaincase.UI.ViewModels
             {
                 Logger.LogWarning("PayJoin server is an onion service but Tor is disabled. Ignoring...");
                 return null;
-            } 
+            }
 
             if (network == Network.Main && payjoinEndPointUri.Scheme != Uri.UriSchemeHttps && !isTorEnabled)
             {
