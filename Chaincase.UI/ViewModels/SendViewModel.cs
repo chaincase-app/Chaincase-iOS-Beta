@@ -25,6 +25,8 @@ using Chaincase.Common.Contracts;
 using WalletWasabi.Blockchain.TransactionBroadcasting;
 using WalletWasabi.WebClients.PayJoin;
 using System.Net;
+using System.Threading;
+using Chainicase.Common.PayJoin.Sender;
 
 namespace Chaincase.UI.ViewModels
 {
@@ -37,6 +39,7 @@ namespace Chaincase.UI.ViewModels
         private readonly Config _config;
         private readonly UiConfig _uiConfig;
         private readonly FeeProviders _feeProviders;
+        private readonly PayjoinClient _payjoinClient;
 
         private bool _isMax;
         private string _amountText;
@@ -60,13 +63,21 @@ namespace Chaincase.UI.ViewModels
 
         protected CompositeDisposable Disposables { get; } = new CompositeDisposable();
 
-        public SendViewModel(Global global, ChaincaseWalletManager walletManager, Config config, UiConfig uiConfig, SelectCoinsViewModel selectCoinsViewModel, FeeProviders feeProviders)
+        public SendViewModel(
+            Global global,
+            ChaincaseWalletManager walletManager,
+            Config config,
+            UiConfig uiConfig,
+            SelectCoinsViewModel selectCoinsViewModel,
+            FeeProviders feeProviders,
+            PayjoinClient payjoinClient)
         {
             _global = global;
             _walletManager = walletManager;
             _config = config;
             _uiConfig = uiConfig;
             _feeProviders = feeProviders;
+            _payjoinClient = payjoinClient;
 
             SelectCoinsViewModel = selectCoinsViewModel;
             AmountText = "0.0";
@@ -369,18 +380,24 @@ namespace Chaincase.UI.ViewModels
                 requests.Add(activeDestinationRequest);
                 var intent = new PaymentIntent(requests);
 
-                var payjoinClient = GetPayjoinClient(PayjoinEndPoint, _config.UseTor, _config.Network, _config.TorSocks5EndPoint);
-                var result = await Task.Run(() => _walletManager.CurrentWallet.BuildTransaction(
-                    password,
-                    intent,
-                    feeStrategy,
-                    allowUnconfirmed: true,
-                    allowedInputs: selectedCoinReferences,
-                    payjoinClient));
-                SmartTransaction signedTransaction = result.Transaction;
-                SignedTransaction = signedTransaction;
+                if (PayjoinEndPoint != null)
+                {
+                    var proposedPayjoin = await GetPayjoinProposedTX(new BitcoinUrlBuilder(vm.SigningContext.PayJoinBIP21, network.NBitcoinNetwork), psbt,
+                            derivationSchemeSettings, network, cancellationToken);
+                }
+                else
+                {
+                    var result = await Task.Run(() => _walletManager.CurrentWallet.BuildTransaction(
+                        password,
+                        intent,
+                        feeStrategy,
+                        allowUnconfirmed: true,
+                        allowedInputs: selectedCoinReferences));
+                    SmartTransaction signedTransaction = result.Transaction;
+                    SignedTransaction = signedTransaction;
 
-                await _transactionBroadcaster.SendTransactionAsync(signedTransaction); // put this on non-ui theread?
+                    await _transactionBroadcaster.SendTransactionAsync(signedTransaction); // put this on non-ui theread?
+                }
 
                 // reset for the next send
                 Label = "";
@@ -408,28 +425,15 @@ namespace Chaincase.UI.ViewModels
             return false;
         }
 
-        private static IPayjoinClient? GetPayjoinClient(string payjoinEndPoint, bool isTorEnabled, Network network, EndPoint torSocks5EndPoint)
+        private async Task<PSBT> GetPayjoinProposedTX(BitcoinUrlBuilder bip21, PSBT psbt, DerivationSchemeSettings derivationSchemeSettings, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(payjoinEndPoint) ||
-                !Uri.IsWellFormedUriString(payjoinEndPoint, UriKind.Absolute))
-            {
-                return null;
-            }
-
-            var payjoinEndPointUri = new Uri(payjoinEndPoint);
-            if (payjoinEndPointUri.DnsSafeHost.EndsWith(".onion", StringComparison.OrdinalIgnoreCase) && isTorEnabled)
-            {
-                Logger.LogWarning("PayJoin server is an onion service but Tor is disabled. Ignoring...");
-                return null;
-            }
-
-            if (network == Network.Main && payjoinEndPointUri.Scheme != Uri.UriSchemeHttps && isTorEnabled)
-            {
-                Logger.LogWarning("PayJoin server is not exposed as an onion service nor https. Ignoring...");
-                return null;
-            }
-
-            return new PayjoinClient(payjoinEndPointUri, torSocks5EndPoint);
+            var cloned = psbt.Clone();
+            cloned = cloned.Finalize();
+            // TODO Why does BtcPay broadcast the "original" bip78 transaction? Is it just replaced by PayJoin?
+            //await _broadcaster.Schedule(DateTimeOffset.UtcNow + TimeSpan.FromMinutes(2.0), cloned.ExtractTransaction(), btcPayNetwork);
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            cts.CancelAfter(TimeSpan.FromSeconds(30));
+            return await _payjoinClient.RequestPayjoin(bip21, new PayjoinWallet(derivationSchemeSettings), psbt, cts.Token);
         }
 
         public string PayjoinEndPoint

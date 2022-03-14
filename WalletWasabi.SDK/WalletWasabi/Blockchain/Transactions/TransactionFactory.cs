@@ -15,7 +15,8 @@ using WalletWasabi.Helpers;
 using WalletWasabi.Logging;
 using WalletWasabi.Models;
 using WalletWasabi.Stores;
-using WalletWasabi.WebClients.PayJoin;
+using BTCPayServer.BIP78.Sender;
+using NBitcoin.Payment;
 
 namespace WalletWasabi.Blockchain.Transactions
 {
@@ -46,8 +47,9 @@ namespace WalletWasabi.Blockchain.Transactions
 			PaymentIntent payments,
 			FeeRate feeRate,
 			IEnumerable<OutPoint> allowedInputs = null,
-			IPayjoinClient payjoinClient = null)
-			=> BuildTransaction(payments, () => feeRate, allowedInputs, () => LockTime.Zero, payjoinClient);
+			PayjoinClient payjoinClient = null,
+			BitcoinUrlBuilder bip21 = null)
+			=> BuildTransaction(payments, () => feeRate, allowedInputs, () => LockTime.Zero, payjoinClient, bip21);
 
 		/// <exception cref="ArgumentException"></exception>
 		/// <exception cref="ArgumentNullException"></exception>
@@ -57,7 +59,8 @@ namespace WalletWasabi.Blockchain.Transactions
 			Func<FeeRate> feeRateFetcher,
 			IEnumerable<OutPoint> allowedInputs = null,
 			Func<LockTime> lockTimeSelector = null,
-			IPayjoinClient payjoinClient = null)
+			PayjoinClient payjoinClient = null,
+			BitcoinUrlBuilder bip21 = null)
 		{
 			payments = Guard.NotNull(nameof(payments), payments);
 			lockTimeSelector ??= () => LockTime.Zero;
@@ -310,17 +313,20 @@ namespace WalletWasabi.Blockchain.Transactions
 			return new BuildTransactionResult(new SmartTransaction(tx, Height.Unknown), psbt, spendsUnconfirmed, sign, fee, feePc, outerWalletOutputs, innerWalletOutputs, spentCoins);
 		}
 
-		private PSBT TryNegotiatePayjoin(IPayjoinClient payjoinClient, TransactionBuilder builder, PSBT psbt, HdPubKey changeHdPubKey)
+		// <summary> Just a helper method </summary>
+		private PSBT TryNegotiatePayjoin(BitcoinUrlBuilder bip21, PayjoinClient payjoinClient, TransactionBuilder builder, PSBT psbt, HdPubKey changeHdPubKey)
 		{
 			try
 			{
-				Logger.LogInfo($"Negotiating payjoin payment with `{payjoinClient.PaymentUrl}`.");
+				bip21.TryGetPayjoinEndpoint(out var endpoint);
+				Logger.LogInfo($"Negotiating payjoin payment with `{endpoint}`.");
 
-				psbt = payjoinClient.RequestPayjoin(psbt,
-					KeyManager.ExtPubKey,
-					new RootedKeyPath(KeyManager.MasterFingerprint.Value, KeyManager.DefaultAccountKeyPath),
-					changeHdPubKey,
-					CancellationToken.None).GetAwaiter().GetResult();
+				psbt = payjoinClient.RequestPayjoin(bip21, new PayjoinWallet())
+				//psbt = payjoinClient.RequestPayjoin(psbt,
+				//	KeyManager.ExtPubKey,
+				//	new RootedKeyPath(KeyManager.MasterFingerprint.Value, KeyManager.DefaultAccountKeyPath),
+				//	changeHdPubKey,
+				//	CancellationToken.None).GetAwaiter().GetResult();
 				builder.SignPSBT(psbt);
 
 				Logger.LogInfo($"Payjoin payment was negotiated successfully.");
