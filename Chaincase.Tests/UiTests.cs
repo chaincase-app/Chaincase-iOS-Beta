@@ -8,12 +8,13 @@ using Chaincase.UI.Pages;
 using Chaincase.UI.Services;
 using Chaincase.UI.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
+using NBitcoin;
 using WalletWasabi.Helpers;
 using Xunit;
 
 namespace Chaincase.Tests
 {
-	public class UiTests
+    public class UiTests
     {
         private readonly TestContext ctx;
         public UiTests()
@@ -32,7 +33,7 @@ namespace Chaincase.Tests
             ctx.Services.AddScoped<ThemeSwitcher>();
 
             ctx.Services.AddSingleton<PINViewModel>();
-            ctx.Services.AddSingleton<SendViewModel>();
+            ctx.Services.AddTransient<SendViewModel>();
             ctx.Services.AddSingleton<SelectCoinsViewModel>();
             ctx.Services.AddSingleton<BackUpViewModel>();
 
@@ -54,30 +55,51 @@ namespace Chaincase.Tests
             loginPage.Find("ion-button").TextContent.MarkupMatches("LOG IN");
         }
 
-        // TODO this fails regardless of the bound disabled ViewModel value
-        // Something is wrong with the test
-        //[Fact] 
-        //public void SendButtonValidationWorks()
-        //{
-        //    var sendViewModel = ctx.Services.GetRequiredService<SendViewModel>();
 
-        //    var sendAmountPage = ctx.RenderComponent<SendAmountPage>();
-        //    var spendButton = sendAmountPage.Find("ion-button");
-        //    var disabledAttr = spendButton.Attributes.GetNamedItem("disabled");
+        [Fact]
+        public void DestinationUrlPropertyParsedFromString()
+        {
+            var sendViewModel = ctx.Services.GetRequiredService<SendViewModel>();
+            string amountString = "0.0001111";
 
-        //    Assert.True(disabledAttr.Value == "true");
-        //}
+            sendViewModel.DestinationString = $"bitcoin:BC1Q6APR55WRXTDTK3CJ6M69MXAYW99VVGTVDNVUNT?amount={amountString}&pj=https://testnet.demo.btcpayserver.org/BTC/pj";
+            var amount = Money.Parse(amountString);
+            Assert.True(sendViewModel.DestinationUrl.Amount == amount);
+            Assert.True(Money.Parse(sendViewModel.AmountText) == amount);
+            Assert.True(sendViewModel.OutputAmount == amount);
+        }
+
+        [Fact]
+        public void SendMaxAmountIsMaxSelected()
+        {
+            var sendViewModel = ctx.Services.GetRequiredService<SendViewModel>();
+            string amountString = "0.0001111";
+            var amount = Money.Parse(amountString);
+            sendViewModel.DestinationString = $"bitcoin:BC1Q6APR55WRXTDTK3CJ6M69MXAYW99VVGTVDNVUNT?amount={amountString}&pj=https://testnet.demo.btcpayserver.org/BTC/pj";
+            Assert.True(sendViewModel.DestinationUrl.Amount == amount);
+            Assert.True(Money.Parse(sendViewModel.AmountText) == amount);
+            Assert.True(sendViewModel.OutputAmount == amount);
+
+            sendViewModel.AmountText = amountString;
+            Assert.False(sendViewModel.IsMax);
+            Assert.True(sendViewModel.OutputAmount == amount);
+            sendViewModel.IsMax = true;
+
+            Assert.True(sendViewModel.DestinationUrl.Amount == amount);
+            Assert.True(Money.Parse(sendViewModel.AmountText) != amount);
+            Assert.False(sendViewModel.OutputAmount == amount);
+        }
     }
 
     public class TestDataDirProvider : SSBDataDirProvider
     {
-	    public TestDataDirProvider()
-	    {
-		    SubDirectory = Path.Combine("Test", "Client");
-	    } 
-	    public TestDataDirProvider(string dir)
-	    {
-		    SubDirectory = Path.Combine("Test", "Client", dir);
-	    } 
+        public TestDataDirProvider()
+        {
+            SubDirectory = Path.Combine("Test", "Client");
+        }
+        public TestDataDirProvider(string dir)
+        {
+            SubDirectory = Path.Combine("Test", "Client", dir);
+        }
     }
 }

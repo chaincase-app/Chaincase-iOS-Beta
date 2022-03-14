@@ -23,6 +23,8 @@ using WalletWasabi.Exceptions;
 using Chaincase.Common.Services;
 using Chaincase.Common.Contracts;
 using WalletWasabi.Blockchain.TransactionBroadcasting;
+using WalletWasabi.WebClients.PayJoin;
+using System.Net;
 
 namespace Chaincase.UI.ViewModels
 {
@@ -170,7 +172,7 @@ namespace Chaincase.UI.ViewModels
                 {
                     // since AmountText can be altered by hand, we set it instead
                     // of binding to a calculated ObservableAsPropertyHelper
-                    //AmountText = url.Amount.ToString();
+                    AmountText = url.Amount.ToString();
                 }
                 // we could check url.Label or url.Message for contact, but there is
                 // no convention on their use yet so it's hard to say whether they
@@ -367,12 +369,14 @@ namespace Chaincase.UI.ViewModels
                 requests.Add(activeDestinationRequest);
                 var intent = new PaymentIntent(requests);
 
+                var payjoinClient = GetPayjoinClient(PayjoinEndPoint, _config.UseTor, _config.Network, _config.TorSocks5EndPoint);
                 var result = await Task.Run(() => _walletManager.CurrentWallet.BuildTransaction(
                     password,
                     intent,
                     feeStrategy,
                     allowUnconfirmed: true,
-                    allowedInputs: selectedCoinReferences));
+                    allowedInputs: selectedCoinReferences,
+                    payjoinClient));
                 SmartTransaction signedTransaction = result.Transaction;
                 SignedTransaction = signedTransaction;
 
@@ -402,6 +406,40 @@ namespace Chaincase.UI.ViewModels
                 IsBusy = false;
             }
             return false;
+        }
+
+        private static IPayjoinClient? GetPayjoinClient(string payjoinEndPoint, bool isTorEnabled, Network network, EndPoint torSocks5EndPoint)
+        {
+            if (string.IsNullOrWhiteSpace(payjoinEndPoint) ||
+                !Uri.IsWellFormedUriString(payjoinEndPoint, UriKind.Absolute))
+            {
+                return null;
+            }
+
+            var payjoinEndPointUri = new Uri(payjoinEndPoint);
+            if (payjoinEndPointUri.DnsSafeHost.EndsWith(".onion", StringComparison.OrdinalIgnoreCase) && !isTorEnabled)
+            {
+                Logger.LogWarning("PayJoin server is an onion service but Tor is disabled. Ignoring...");
+                return null;
+            }
+
+            if (network == Network.Main && payjoinEndPointUri.Scheme != Uri.UriSchemeHttps && !isTorEnabled)
+            {
+                Logger.LogWarning("PayJoin server is not exposed as an onion service nor https. Ignoring...");
+                return null;
+            }
+
+            return new PayjoinClient(payjoinEndPointUri, torSocks5EndPoint);
+        }
+
+        public string PayjoinEndPoint
+        {
+            get
+            {
+                string endPoint = null;
+                _destinationUrl.Value?.UnknowParameters?.TryGetValue("pj", out endPoint);
+                return endPoint;
+            }
         }
 
         public BitcoinUrlBuilder DestinationUrl => _destinationUrl.Value;
