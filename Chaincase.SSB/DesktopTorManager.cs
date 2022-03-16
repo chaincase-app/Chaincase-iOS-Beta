@@ -29,5 +29,15 @@ namespace Chaincase.SSB
 			_torProcessManager.Start(ensureRunning, dataDir);
 			return Task.CompletedTask;
 		}
+
+		string ITorManager.CreateHiddenService()
+		{
+			throw new System.NotImplementedException();
+		}
+
+		void ITorManager.DestroyHiddenService(string serviceId)
+		{
+			throw new System.NotImplementedException();
+		}
 	}
 }

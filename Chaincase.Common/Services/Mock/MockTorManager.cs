@@ -8,7 +8,17 @@ namespace Chaincase.Common.Services.Mock
     {
         public TorState State { get; } = TorState.Connected;
 
-        public Task StartAsync(bool ensureRunning, string dataDir)
+		public string CreateHiddenService()
+		{
+            return "mock.onion";
+        }
+
+		public void DestroyHiddenService(string serviceId)
+		{
+            return;
+        }
+
+		public Task StartAsync(bool ensureRunning, string dataDir)
         {
             return Task.CompletedTask;
         }
