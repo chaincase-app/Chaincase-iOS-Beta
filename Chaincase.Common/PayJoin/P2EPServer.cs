@@ -13,8 +13,9 @@ namespace Chaincase.Common.PayJoin
 {
 	public class P2EPServer : BackgroundService
 	{
-		private readonly ITorManager _torManager;
 		private readonly HttpListener _listener;
+		private readonly ITorManager _torManager;
+		private readonly P2EPRequestHandler _handler;
 
 		private ChaincaseWalletManager _walletManager { get; }
 		private INotificationManager _notificationManager { get; }
@@ -26,12 +27,13 @@ namespace Chaincase.Common.PayJoin
 
 		public string Password { private get; set; }
 
-		public P2EPServer(ITorManager torManager)
+		public P2EPServer(ITorManager torManager, P2EPRequestHandler handler)
 		{
 			_listener = new HttpListener();
 			_listener.AuthenticationSchemes = AuthenticationSchemes.Anonymous;
 			_listener.Prefixes.Add($"http://*:{_paymentEndpointPort}/");
 			_torManager = torManager;
+			_handler = handler;
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -39,10 +41,10 @@ namespace Chaincase.Common.PayJoin
 			ServiceId = _torManager.CreateHiddenService(); // TODO tor not running must throw
 			_listener.Start();
 			await base.StartAsync(cancellationToken).ConfigureAwait(false);
-			//var handler = new P2EPRequestHandler(_network, _walletManager, 1, _notificationManager);
 
 			while (!cancellationToken.IsCancellationRequested)
 			{
+				// ProcessRequest
 				var context = await GetHttpContextAsync(cancellationToken).ConfigureAwait(false);
 				var request = context.Request;
 				var response = context.Response;
@@ -58,7 +60,7 @@ namespace Chaincase.Common.PayJoin
 					string body = await reader.ReadToEndAsync().ConfigureAwait(false);
 
 					// TODO rather than keep the password in memory...
-					string result = null; //await handler.HandleAsync(body, cancellationToken, Password).ConfigureAwait(false);
+					string result = await _handler.HandleAsync(body, cancellationToken, Password).ConfigureAwait(false);
 
 					var output = response.OutputStream;
 					var buffer = Encoding.UTF8.GetBytes(result);
