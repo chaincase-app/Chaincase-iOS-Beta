@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using Chaincase.Common.Contracts;
+using Chaincase.Common.PayJoin;
 using Chaincase.Common.Services;
 using Microsoft.Extensions.DependencyInjection;
 using WalletWasabi.Blockchain.Analysis.FeesEstimation;
@@ -63,7 +64,7 @@ namespace Chaincase.Common
 	            var config = x.GetRequiredService<Config>();
 	            return new ChaincaseClient(config.GetCurrentBackendUri, config.TorSocks5EndPoint);
             });
-            
+            services.AddPayJoinServices();
 
             return services;
         }
