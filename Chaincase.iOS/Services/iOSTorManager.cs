@@ -7,12 +7,12 @@ using Chaincase.Common.Contracts;
 using CoreFoundation;
 using Foundation;
 using Nito.AsyncEx;
-using ObjCRuntime;
 using Xamarin.iOS.Tor;
 using WalletWasabi.Exceptions;
 using WalletWasabi.Helpers;
 using WalletWasabi.Logging;
 using WalletWasabi.TorSocks5;
+using System.Threading;
 
 namespace Chaincase.iOS.Services
 {
@@ -28,6 +28,8 @@ namespace Chaincase.iOS.Services
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "iOS is iOS")]
     public class iOSTorManager : ITorManager
     {
+        private const string AddOnion = "ADD_ONION";
+        private const string DelOnion = "DEL_ONION";
 
         private NSData Cookie => NSData.FromUrl(torBaseConf.DataDirectory.Append("control_auth_cookie", false));
         public TorState State { get; set; }
@@ -277,6 +279,41 @@ namespace Chaincase.iOS.Services
                     Logger.LogError($"TorProcessManager.StopAsync(): Failed to stop tor thread {error}");
                 }
             }
+        }
+
+        public string CreateHiddenService()
+        {
+            EventWaitHandle ewh = new EventWaitHandle(false, EventResetMode.AutoReset);
+            string serviceId = "";
+            TorController.SendCommand(new NSString(AddOnion),
+                new string[] { "NEW:BEST", "Port=37129,37129", "Flags=DiscardPK" },
+                null, (keys, values, _) => {
+
+                    var keyValuePair = values[0].ToString().Split('=');
+                    if (keyValuePair.Length < 2)
+                    {
+                        ewh.Set();
+                        return false;
+                    }
+                    serviceId = keyValuePair[1];
+                    ewh.Set();
+                    return true;
+                });
+            ewh.WaitOne();
+            return serviceId;
+        }
+
+        public void DestroyHiddenService(string serviceId)
+        {
+            EventWaitHandle ewh = new EventWaitHandle(false, EventResetMode.AutoReset);
+            TorController.SendCommand(new NSString(DelOnion),
+                new string[] { $"{serviceId}" }, null,
+                (keys, values, _) =>
+                {
+                    ewh.Set();
+                    return true;
+                });
+            ewh.WaitOne();
         }
 
         // Cancel the connection retry and fail guard.

@@ -17,5 +17,13 @@ namespace Chaincase.Common.Services.Mock
         {
             return Task.CompletedTask;
         }
+
+        public string CreateHiddenService() {
+            return "foobar";
+        }
+
+        public void DestroyHiddenService(string serviceId) {
+            return;
+        }
     }
 }
