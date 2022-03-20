@@ -13,7 +13,8 @@
     <ItemGroup>
       <PackageReference Include="ReactiveUI" Version="13.2.2" />
       <PackageReference Include="ReactiveUI.Blazor" Version="13.2.2" />
-      <PackageReference Include="NBitcoin" Version="5.0.83" />
+      <PackageReference Include="NBitcoin" Version="6.0.19" />
+      <PackageReference Include="BIP78.Receiver" Version="0.2.2" />
     </ItemGroup>
     <ItemGroup>
       <Folder Include="Models\" />
@@ -21,5 +22,8 @@
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\WalletWasabi.SDK\WalletWasabi\WalletWasabi.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+      <None Remove="BIP78.Receiver" />
     </ItemGroup>
 </Project>
