@@ -8,6 +8,10 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Chaincase.Common.Contracts;
 using Chaincase.Common.Services;
+using WalletWasabi.WebClients.PayJoin;
+using System.Web;
+using Newtonsoft.Json;
+using System.Linq;
 
 namespace Chaincase.Common.PayJoin
 {
@@ -44,9 +48,10 @@ namespace Chaincase.Common.PayJoin
 
 			while (!cancellationToken.IsCancellationRequested)
 			{
-				// ProcessRequest
+				// ProcessRequest aka P2EPRequestHandler
 				var context = await GetHttpContextAsync(cancellationToken).ConfigureAwait(false);
 				var request = context.Request;
+				var parameters = context.Request.Url;
 				var response = context.Response;
 				try
 				{
@@ -58,7 +63,8 @@ namespace Chaincase.Common.PayJoin
 
 					using var reader = new StreamReader(request.InputStream);
 					string body = await reader.ReadToEndAsync().ConfigureAwait(false);
-
+					var payjoinParams = ParseP2EPQueryString(request.Url.Query);
+					// pass the PayJoinClientParameters from the url
 					// TODO rather than keep the password in memory...
 					string result = await _handler.HandleAsync(body, cancellationToken, Password).ConfigureAwait(false);
 
@@ -111,6 +117,22 @@ namespace Chaincase.Common.PayJoin
 				}
 			}
 			return await getHttpContextTask.ConfigureAwait(false);
+		}
+
+		private static PayjoinClientParameters ParseP2EPQueryString(string queryString)
+		{
+			var query = HttpUtility.ParseQueryString(queryString);
+			string json = JsonConvert.SerializeObject(query.Cast<string>().ToDictionary(k => k, v => query[v]));
+			return JsonConvert.DeserializeObject<PayjoinClientParameters>(json);
+
+			//return new PayjoinClientParameters
+			//{
+			//	MaxAdditionalFeeContribution = query.Get("maxadditionalfeecontribution"),
+			//	MinFeeRate = new NBitcoin.FeeRate(Decimal.Parse(query.Get("minfeerate"))),
+			//	AdditionalFeeOutputIndex = int.Parse(query.Get("additionalfeeoutputindex")),
+			//	DisableOutputSubstitution = bool.Parse(query.Get("additionalfeeoutputindex")),
+			//	Version = int.Parse(query.Get("v")
+			//}
 		}
 	}
 }
