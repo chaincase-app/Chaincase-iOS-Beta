@@ -12,6 +12,7 @@ using WalletWasabi.WebClients.PayJoin;
 using System.Web;
 using Newtonsoft.Json;
 using System.Linq;
+using NBitcoin;
 
 namespace Chaincase.Common.PayJoin
 {
@@ -51,7 +52,7 @@ namespace Chaincase.Common.PayJoin
 				// ProcessRequest aka P2EPRequestHandler
 				var context = await GetHttpContextAsync(cancellationToken).ConfigureAwait(false);
 				var request = context.Request;
-				var parameters = context.Request.Url;
+				var urlParams = context.Request.Url;
 				var response = context.Response;
 				try
 				{
@@ -66,13 +67,12 @@ namespace Chaincase.Common.PayJoin
 					var payjoinParams = ParseP2EPQueryString(request.Url.Query);
 					// pass the PayJoinClientParameters from the url
 					// TODO rather than keep the password in memory...
-					string result = await _handler.HandleAsync(body, cancellationToken, Password).ConfigureAwait(false);
-
+					//string result = await _handler.HandleAsync(body, cancellationToken, Password).ConfigureAwait(false);
+					string result = await _handler.HandleP2EPRequestAsync(originalTx,  clientParams);
 					var output = response.OutputStream;
 					var buffer = Encoding.UTF8.GetBytes(result);
 					await output.WriteAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false);
 					await output.FlushAsync(cancellationToken).ConfigureAwait(false);
-
 				}
 				catch (OperationCanceledException)
 				{

@@ -29,8 +29,19 @@ namespace Chaincase.Common.PayJoin
 			{
 				return CreatePayjoinError(PayjoinReceiverWellknownErrors.VersionUnsupported, new string[] { "1" });
 			}
-
 			var ctx = new PayjoinProposalContext(originalPSBT, clientParams);
+			FeeRate originalFeeRate = null;
+			bool psbtFormat = true;
+
+			if (!ctx.OriginalPSBT.IsAllFinalized())
+			{
+				return CreatePayjoinError(PayjoinReceiverWellknownErrors.OriginalPSBTRejected);
+			}
+			// note: Chaincase implementation only supports PSBT, not "Transaction"
+
+			FeeRate senderMinFeeRate = minfeerate >= 0.0m ? new FeeRate(minfeerate) : null;
+			Money allowedSenderFeeContribution = Money.Satoshis(maxadditionalfeecontribution is long t && t >= 0 ? t : 0);
+
 			//var (psbt, clientParams) = ParseP2EPRequest(body);
 			//if (!PSBT.TryParse(body, Network, out var psbt))
 			//{
