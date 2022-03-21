@@ -7,13 +7,14 @@ using Chaincase.Common.Contracts;
 using Chaincase.Common.Services;
 using NBitcoin;
 using WalletWasabi.Blockchain.Keys;
+using WalletWasabi.Helpers;
 using WalletWasabi.Wallets;
 
 namespace Chaincase.Common.PayJoin
 {
-    public class PayJoinProposalContex : PayjoinProposalContext
+    public class PayJoinProposalContext : PayjoinProposalContext
     {
-        public PayJoinProposalContex(PSBT originalPSBT, PayjoinClientParameters payjoinClientParameters = null)
+        public PayJoinProposalContext(PSBT originalPSBT, PayjoinClientParameters payjoinClientParameters = null)
             : base(originalPSBT, payjoinClientParameters)
         {
         }
@@ -32,16 +33,16 @@ namespace Chaincase.Common.PayJoin
         where TContext : PayjoinProposalContext
     {
         private readonly Network _network;
-        public readonly ChaincaseWalletManager _walletManager;
-        public readonly INotificationManager _notificationManager;
-        //public readonly int PrivacyLevelThreshold { get; }
+        private readonly ChaincaseWalletManager _walletManager;
+        private readonly INotificationManager _notificationManager;
+        private readonly int _privacyLevelThreshold;
 
         public PayJoinReceiverWallet(Network network, ChaincaseWalletManager walletManager, INotificationManager notificationManager, int privacyLevelThreshold = 1)
         {
             _network = network;
             _walletManager = walletManager;
             _notificationManager = notificationManager;
-            //PrivacyLevelThreshold = privacyLevelThreshold;
+            _privacyLevelThreshold = privacyLevelThreshold;
         }
 
         // could be called HandleProposal or the like to reflect the spec
@@ -144,8 +145,12 @@ namespace Chaincase.Common.PayJoin
                     "AdditionalFeeOutputIndex specified index of payment output");
             }
 
-            await ComputePayjoinModifications(ctx);
+            ctx = await ComputePayjoin(ctx);
         }
+
+        public string GetPayjoinProposalResult(TContext ctx) =>
+            ctx.PayjoinReceiverWalletProposal.PayjoinPSBT.ToBase64();
+
 
         //  "Interactive receivers are not required to validate [or broadcast]
         //  the original PSBT because they are not exposed to probing attacks."
@@ -155,9 +160,79 @@ namespace Chaincase.Common.PayJoin
             throw new NotImplementedException();
         }
 
+        // this is where we ought to add our input & output
+        // Instead of modifying the context we'll create a new one
+        // pure functional code is much easier to reason with
         protected override Task ComputePayjoinModifications(TContext context)
         {
             throw new NotImplementedException();
+        }
+
+        // TODO pass in spendable utxos, rm km dep for functional reasoning
+        // perhaps just return the psbt instead of this context
+        protected Task<TContext> ComputePayjoin(TContext context, string password = "")
+        {
+            //from btcpayserver's payjoinEndpoint
+            //var utxos = (await explorer.GetUTXOsAsync(derivationSchemeSettings.AccountDerivation))
+            //        .GetUnspentUTXOs(false);
+            //// In case we are paying ourselves, be need to make sure
+            //// we can't take spent outpoints.
+            //var prevOuts = ctx.OriginalTransaction.Inputs.Select(o => o.PrevOut).ToHashSet();
+            //utxos = utxos.Where(u => !prevOuts.Contains(u.Outpoint)).ToArray();
+            //Array.Sort(utxos, UTXODeterministicComparer.Instance);
+            //foreach (var utxo in (await SelectUTXO(network, utxos, psbt.Inputs.Select(input => input.WitnessUtxo.Value.ToDecimal(MoneyUnit.BTC)), output.Value.ToDecimal(MoneyUnit.BTC),
+            //    psbt.Outputs.Where(psbtOutput => psbtOutput.Index != output.Index).Select(psbtOutput => psbtOutput.Value.ToDecimal(MoneyUnit.BTC)))).selectedUTXO)
+            //{
+            //    selectedUTXOs.Add(utxo.Outpoint, utxo);
+            //}
+            //ctx.LockedUTXOs = selectedUTXOs.Select(u => u.Key).ToArray();
+            //originalPaymentOutput = output;
+
+            // Which coin to use
+
+            var toUse = _walletManager.GetWallets()
+                .Where(x => x.State == WalletState.Started && !x.KeyManager.IsWatchOnly && !x.KeyManager.IsHardwareWallet)
+                .SelectMany(wallet => wallet.Coins.Select(coin => new { wallet.KeyManager, coin }))
+                .Where(x => x.coin.AnonymitySet >= _privacyLevelThreshold && !x.coin.Unavailable)
+                .OrderBy(x => x.coin.IsBanned)
+                .ThenBy(x => x.coin.Confirmed)
+                .ThenBy(x => x.coin.Height)
+                .First();
+            var psbt = context.OriginalPSBT;
+
+            // Fees 
+            context.OriginalPSBT.TryGetEstimatedFeeRate(out var originalFeeRate);
+            var paymentTx = psbt.ExtractTransaction();
+            foreach (var input in paymentTx.Inputs)
+            {
+                input.WitScript = WitScript.Empty;
+            }
+            // Get prv key for signature 
+            var serverCoinKey = toUse.KeyManager.GetSecrets(password, toUse.coin.ScriptPubKey).First();
+            var serverCoin = toUse.coin.GetCoin();
+
+            paymentTx.Inputs.Add(serverCoin.Outpoint);
+            var paymentOutput = paymentTx.Outputs.First();
+            var inputSizeInVBytes = (int)Math.Ceiling(((3 * Constants.P2wpkhInputSizeInBytes) + Constants.P2pkhInputSizeInBytes) / 4m);
+            // Get final value
+            paymentOutput.Value += (Money)serverCoin.Amount - originalFeeRate.GetFee(inputSizeInVBytes);
+
+            var payjoinPSBT = PSBT.FromTransaction(paymentTx, Network.Main);
+            var serverCoinToSign = payjoinPSBT.Inputs.FindIndexedInput(serverCoin.Outpoint);
+            serverCoinToSign.UpdateFromCoin(serverCoin);
+            serverCoinToSign.Sign(serverCoinKey.PrivateKey);
+            serverCoinToSign.FinalizeInput();
+
+            _notificationManager.ScheduleNotification("PayJoin Received", "You've responded to a payment request with a CoinJoin style transaction ", 1);
+            payjoinPSBT.ToHex();
+
+            var computed = new PayjoinProposalContext(context.OriginalPSBT, context.PayjoinParameters);
+            computed.PayjoinReceiverWalletProposal = new PayjoinReceiverWalletProposal
+            {
+                PayjoinPSBT = payjoinPSBT
+            };
+
+            return Task.FromResult((TContext)computed);
         }
 
         // We don't yet maintain payment requests with amounts like btcpay does
@@ -205,7 +280,7 @@ namespace Chaincase.Common.PayJoin
 
         // Validate the original tx because we're not broadcasting it to check
         // Todo "Is..." Functions return bool. This function expects a string
-		// error return type but errors should be thrown as exceptions
+        // error return type but errors should be thrown as exceptions
         protected override Task<string> IsMempoolEligible(PSBT psbt)
         {
             var validator = psbt.CreateTransactionValidator();
@@ -221,8 +296,8 @@ namespace Chaincase.Common.PayJoin
         }
 
         protected override Task<bool> SupportsType(ScriptPubKeyType scriptPubKeyType)
-    {
-        return Task.FromResult(scriptPubKeyType == ScriptPubKeyType.Segwit);
+        {
+            return Task.FromResult(scriptPubKeyType == ScriptPubKeyType.Segwit);
+        }
     }
-}
 }

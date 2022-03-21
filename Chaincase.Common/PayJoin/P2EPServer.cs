@@ -8,11 +8,12 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Chaincase.Common.Contracts;
 using Chaincase.Common.Services;
-using WalletWasabi.WebClients.PayJoin;
 using System.Web;
 using Newtonsoft.Json;
 using System.Linq;
 using NBitcoin;
+using BTCPayServer.BIP78.Sender;
+using BTCPayServer.BIP78.Receiver;
 
 namespace Chaincase.Common.PayJoin
 {
@@ -20,10 +21,8 @@ namespace Chaincase.Common.PayJoin
 	{
 		private readonly HttpListener _listener;
 		private readonly ITorManager _torManager;
-		private readonly P2EPRequestHandler _handler;
+		private readonly PayJoinReceiverWallet<PayJoinProposalContext> _receiver;
 
-		private ChaincaseWalletManager _walletManager { get; }
-		private INotificationManager _notificationManager { get; }
 		private NBitcoin.Network _network { get; }
 
 		public string ServiceId { get; private set; }
@@ -32,13 +31,13 @@ namespace Chaincase.Common.PayJoin
 
 		public string Password { private get; set; }
 
-		public P2EPServer(ITorManager torManager, P2EPRequestHandler handler)
+		public P2EPServer(ITorManager torManager, PayJoinReceiverWallet<PayJoinProposalContext> receiver)
 		{
 			_listener = new HttpListener();
 			_listener.AuthenticationSchemes = AuthenticationSchemes.Anonymous;
 			_listener.Prefixes.Add($"http://*:{_paymentEndpointPort}/");
 			_torManager = torManager;
-			_handler = handler;
+			_receiver = receiver;
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -49,10 +48,8 @@ namespace Chaincase.Common.PayJoin
 
 			while (!cancellationToken.IsCancellationRequested)
 			{
-				// ProcessRequest aka P2EPRequestHandler
 				var context = await GetHttpContextAsync(cancellationToken).ConfigureAwait(false);
 				var request = context.Request;
-				var urlParams = context.Request.Url;
 				var response = context.Response;
 				try
 				{
@@ -64,11 +61,11 @@ namespace Chaincase.Common.PayJoin
 
 					using var reader = new StreamReader(request.InputStream);
 					string body = await reader.ReadToEndAsync().ConfigureAwait(false);
+					PSBT.TryParse(body, _network, out var originalPSBT);
 					var payjoinParams = ParseP2EPQueryString(request.Url.Query);
-					// pass the PayJoinClientParameters from the url
-					// TODO rather than keep the password in memory...
-					//string result = await _handler.HandleAsync(body, cancellationToken, Password).ConfigureAwait(false);
-					string result = await _handler.HandleP2EPRequestAsync(originalTx,  clientParams);
+					var ctx = new PayJoinProposalContext(originalPSBT, payjoinParams);
+					await _receiver.Initiate(ctx);
+					string result = _receiver.GetPayjoinProposalResult(ctx);
 					var output = response.OutputStream;
 					var buffer = Encoding.UTF8.GetBytes(result);
 					await output.WriteAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false);
@@ -78,6 +75,13 @@ namespace Chaincase.Common.PayJoin
 				{
 					break;
 				}
+				//catch (PayjoinReceiverException e)
+				//{
+				//	response.StatusCode = (int)HttpStatusCode.BadRequest;
+				//	response.StatusDescription = e.Message;
+				//  todo include the spec exception response in the response body
+				//  cause the BtcPayServer.BIP78 doesn't include this
+				//}
 				catch (Exception e)
 				{
 					response.StatusCode = (int)HttpStatusCode.BadRequest;
@@ -85,8 +89,8 @@ namespace Chaincase.Common.PayJoin
 				}
 				finally
 				{
-					response.Close();
 
+					response.Close();
 				}
 			}
 		}

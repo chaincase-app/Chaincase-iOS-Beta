@@ -1,4 +1,5 @@
 ﻿using System;
+using BTCPayServer.BIP78.Receiver;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Chaincase.Common.PayJoin
@@ -8,7 +9,7 @@ namespace Chaincase.Common.PayJoin
         public static void AddPayJoinServices(this IServiceCollection services)
         {
             services.AddSingleton<P2EPServer>();
-            services.AddTransient<P2EPRequestHandler>();
+            services.AddSingleton<PayjoinReceiverWallet<PayjoinProposalContext>>();
         }
     }
 }
