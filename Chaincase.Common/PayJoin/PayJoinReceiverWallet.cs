@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Security;
 using System.Threading.Tasks;
 using BTCPayServer.BIP78.Receiver;
 using BTCPayServer.BIP78.Sender;
@@ -32,6 +33,9 @@ namespace Chaincase.Common.PayJoin
     public class PayJoinReceiverWallet<TContext> : PayjoinReceiverWallet<TContext>
         where TContext : PayjoinProposalContext
     {
+
+        private String Password;
+
         private readonly Network _network;
         private readonly ChaincaseWalletManager _walletManager;
         private readonly INotificationManager _notificationManager;
@@ -43,6 +47,18 @@ namespace Chaincase.Common.PayJoin
             _walletManager = walletManager;
             _notificationManager = notificationManager;
             _privacyLevelThreshold = privacyLevelThreshold;
+        }
+
+        public async Task TryArm(string password)
+        {
+            await _walletManager.CurrentWallet.TryUnlock(password);
+            Password = password;
+        }
+
+        public Task Disarm()
+        {
+            Password = null;
+            return Task.CompletedTask;
         }
 
         // could be called HandleProposal or the like to reflect the spec
@@ -170,7 +186,7 @@ namespace Chaincase.Common.PayJoin
 
         // TODO pass in spendable utxos, rm km dep for functional reasoning
         // perhaps just return the psbt instead of this context
-        protected Task<TContext> ComputePayjoin(TContext context, string password = "")
+        protected Task<TContext> ComputePayjoin(TContext context)
         {
             //from btcpayserver's payjoinEndpoint
             //var utxos = (await explorer.GetUTXOsAsync(derivationSchemeSettings.AccountDerivation))
@@ -208,7 +224,7 @@ namespace Chaincase.Common.PayJoin
                 input.WitScript = WitScript.Empty;
             }
             // Get prv key for signature 
-            var serverCoinKey = toUse.KeyManager.GetSecrets(password, toUse.coin.ScriptPubKey).First();
+            var serverCoinKey = toUse.KeyManager.GetSecrets(Password, toUse.coin.ScriptPubKey).First();
             var serverCoin = toUse.coin.GetCoin();
 
             paymentTx.Inputs.Add(serverCoin.Outpoint);

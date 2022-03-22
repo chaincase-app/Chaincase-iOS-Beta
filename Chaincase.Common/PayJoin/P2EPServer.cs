@@ -29,8 +29,6 @@ namespace Chaincase.Common.PayJoin
 		private readonly int _paymentEndpointPort = 37129;
 		public string PaymentEndpoint => $"http://{ServiceId}.onion:{_paymentEndpointPort}";
 
-		public string Password { private get; set; }
-
 		public P2EPServer(ITorManager torManager, PayJoinReceiverWallet<PayJoinProposalContext> receiver)
 		{
 			_listener = new HttpListener();
@@ -95,9 +93,11 @@ namespace Chaincase.Common.PayJoin
 			}
 		}
 
+		public async Task TryArmHotWallet(string password) => await _receiver.TryArm(password);
+
 		public override async Task StopAsync(CancellationToken cancellationToken)
 		{
-			Password = null;
+			await _receiver.Disarm();
 			await base.StopAsync(cancellationToken).ConfigureAwait(false);
 			_listener.Stop();
 			var serviceId = ServiceId;

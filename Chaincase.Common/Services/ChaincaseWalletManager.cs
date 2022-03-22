@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.SymbolStore;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Chaincase.Common.Contracts;
 using NBitcoin;
 using WalletWasabi.Blockchain.TransactionOutputs;
@@ -12,6 +14,14 @@ using WalletWasabi.Wallets;
 
 namespace Chaincase.Common.Services
 {
+    public static class WalletExtensions
+    {
+        public static async Task TryUnlock(this Wallet wallet, string password)
+        {
+            await Task.Run(() => wallet.KeyManager.GetMasterExtKey(password ?? ""));
+        }
+    }
+
     public class ChaincaseWalletManager : WalletManager
     {
         private readonly INotificationManager _notificationManager;
