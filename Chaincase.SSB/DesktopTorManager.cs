@@ -29,5 +29,17 @@ namespace Chaincase.SSB
 			_torProcessManager.Start(ensureRunning, dataDir);
 			return Task.CompletedTask;
 		}
+
+		string ITorManager.CreateHiddenService()
+		{
+			// hidden service support for desktop may follow _torProcessManager
+			// update with @kiminuo's changes
+			throw new System.NotImplementedException();
+		}
+
+		void ITorManager.DestroyHiddenService(string serviceId)
+		{
+			throw new System.NotImplementedException();
+		}
 	}
 }
