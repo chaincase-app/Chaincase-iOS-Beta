@@ -13,7 +13,8 @@ namespace Microsoft.Extensions.Caching.Memory
 
 		private static object AsyncLocksLock { get; } = new object();
 
-		public static async Task<TItem> AtomicGetOrCreateAsync<TItem>(this IMemoryCache cache, object key, Func<ICacheEntry, Task<TItem>> factory)
+		/// <param name="cache">Must be thread safe.</param>
+		public static async Task<TItem> AtomicGetOrCreateAsync<TItem>(this IMemoryCache cache, object key, MemoryCacheEntryOptions options, Func<Task<TItem>> factory)
 		{
 			if (cache.TryGetValue(key, out TItem value))
 			{
@@ -24,13 +25,17 @@ namespace Microsoft.Extensions.Caching.Memory
 			lock (AsyncLocksLock)
 			{
 				// If we have no dic for the cache yet then create one.
-				if (!AsyncLocks.TryGetValue(cache, out Dictionary<object, AsyncLock> cacheDic))
+				if (!AsyncLocks.TryGetValue(cache, out var cacheDic))
 				{
 					cacheDic = new Dictionary<object, AsyncLock>();
 					AsyncLocks.Add(cache, cacheDic);
 				}
 
-				if (!cacheDic.TryGetValue(key, out asyncLock))
+				if (cacheDic.TryGetValue(key, out var al))
+				{
+					asyncLock = al;
+				}
+				else
 				{
 					asyncLock = new AsyncLock();
 					cacheDic.Add(key, asyncLock);
@@ -41,7 +46,8 @@ namespace Microsoft.Extensions.Caching.Memory
 			{
 				if (!cache.TryGetValue(key, out value))
 				{
-					value = await cache.GetOrCreateAsync(key, factory).ConfigureAwait(false);
+					value = await factory.Invoke().ConfigureAwait(false);
+					cache.Set(key, value, options);
 					lock (AsyncLocksLock)
 					{
 						var cacheDic = AsyncLocks[cache];

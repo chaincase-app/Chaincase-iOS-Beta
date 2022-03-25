@@ -12,6 +12,8 @@ namespace WalletWasabi.Helpers
 		public const string ClientSupportBackendVersionMax = "4";
 		public const string BackendMajorVersion = "4";
 
+		public const string BuiltinBitcoinNodeName = "Bitcoin Knots";
+
 		/// <summary>
 		/// By changing this, we can force to start over the transactions file, so old incorrect transactions would be cleared.
 		/// It is also important to force the KeyManagers to be reindexed when this is changed by renaming the BlockState Height related property.

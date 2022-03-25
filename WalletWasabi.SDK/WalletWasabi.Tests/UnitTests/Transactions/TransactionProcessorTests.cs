@@ -747,7 +747,7 @@ namespace WalletWasabi.Tests.UnitTests.Transactions
 
 			// Spend the received coin to someone else B
 			var changeScript1 = transactionProcessor.NewKey("B").P2wpkhScript;
-			var tx1 = CreateSpendingTransaction(new[] { createdCoin.GetCoin() }, new Key().ScriptPubKey, changeScript1);
+			var tx1 = CreateSpendingTransaction(new[] { createdCoin.GetCoin() }, new Key().PubKey.ScriptPubKey, changeScript1);
 			transactionProcessor.Process(tx1);
 			createdCoin = transactionProcessor.Coins.First();
 			Assert.Equal("A, B", createdCoin.Clusters.Labels);
@@ -797,7 +797,7 @@ namespace WalletWasabi.Tests.UnitTests.Transactions
 
 			var changeScript = transactionProcessor.NewKey("D").P2wpkhScript;
 			var coins = new[] { scoinA.GetCoin(), scoinB.GetCoin(), scoinC.GetCoin() };
-			var tx3 = CreateSpendingTransaction(coins, new Key().ScriptPubKey, changeScript);
+			var tx3 = CreateSpendingTransaction(coins, new Key().PubKey.ScriptPubKey, changeScript);
 			transactionProcessor.Process(tx3);
 
 			var changeCoinD = Assert.Single(transactionProcessor.Coins);
@@ -810,7 +810,7 @@ namespace WalletWasabi.Tests.UnitTests.Transactions
 
 			changeScript = transactionProcessor.NewKey("F").P2wpkhScript;
 			coins = new[] { changeCoinD.GetCoin(), scoinE.GetCoin() };
-			var tx5 = CreateSpendingTransaction(coins, new Key().ScriptPubKey, changeScript);
+			var tx5 = CreateSpendingTransaction(coins, new Key().PubKey.ScriptPubKey, changeScript);
 			transactionProcessor.Process(tx5);
 
 			var changeCoin = Assert.Single(transactionProcessor.Coins);
@@ -1007,7 +1007,7 @@ namespace WalletWasabi.Tests.UnitTests.Transactions
 
 			var changeScript = transactionProcessor.NewKey("D").P2wpkhScript;
 			var coins = new[] { scoinA.GetCoin(), scoinB.GetCoin(), scoinC.GetCoin() };
-			var tx3 = CreateSpendingTransaction(coins, new Key().ScriptPubKey, changeScript, height: 55555);
+			var tx3 = CreateSpendingTransaction(coins, new Key().PubKey.ScriptPubKey, changeScript, height: 55555);
 			transactionProcessor.Process(tx3);
 
 			var changeCoinD = Assert.Single(transactionProcessor.Coins);

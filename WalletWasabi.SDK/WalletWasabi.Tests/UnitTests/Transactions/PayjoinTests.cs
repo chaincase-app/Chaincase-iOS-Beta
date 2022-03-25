@@ -126,7 +126,7 @@ namespace WalletWasabi.Tests.UnitTests.Transactions
 			var allowedCoins = transactionFactory.Coins.ToArray();
 
 			var amount = Money.Coins(0.001m);
-			var payment = new PaymentIntent(new Key().ScriptPubKey, amount);
+			var payment = new PaymentIntent(new Key().PubKey.ScriptPubKey, amount);
 
 			var tx = transactionFactory.BuildTransaction(payment, new FeeRate(2m), allowedCoins.Select(x => x.OutPoint), payjoinClient);
 
