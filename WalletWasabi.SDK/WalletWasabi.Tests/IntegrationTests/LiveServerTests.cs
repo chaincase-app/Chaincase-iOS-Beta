@@ -1,16 +1,15 @@
-using NBitcoin;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using NBitcoin;
 using WalletWasabi.Backend.Models.Responses;
 using WalletWasabi.Blockchain.BlockFilters;
 using WalletWasabi.CoinJoin.Client.Clients;
-using WalletWasabi.Legal;
 using WalletWasabi.Models;
-using WalletWasabi.Services;
 using WalletWasabi.Tests.XunitConfiguration;
 using WalletWasabi.TorSocks5;
 using WalletWasabi.WebClients.Wasabi;
@@ -35,23 +34,21 @@ namespace WalletWasabi.Tests.IntegrationTests
 		#region Blockchain
 
 		[Theory]
-		[InlineData(NetworkType.Mainnet)]
-		[InlineData(NetworkType.Testnet)]
-		public async Task GetFeesAsync(NetworkType networkType)
+		[MemberData(nameof(GetNetworks))]
+		public async Task GetFeesAsync(Network network)
 		{
-			using var client = new WasabiClient(LiveServerTestsFixture.UriMappings[networkType], Global.Instance.TorSocks5Endpoint);
+			using var client = new WasabiClient(LiveServerTestsFixture.UriMappings[network], Global.Instance.TorSocks5Endpoint);
 			var feeEstimationPairs = await client.GetFeesAsync(1000);
 
 			Assert.True(feeEstimationPairs.NotNullAndNotEmpty());
 		}
 
 		[Theory]
-		[InlineData(NetworkType.Mainnet)]
-		[InlineData(NetworkType.Testnet)]
-		public async Task GetFiltersAsync(NetworkType networkType)
+		[MemberData(nameof(GetNetworks))]
+		public async Task GetFiltersAsync(Network network)
 		{
-			using var client = new WasabiClient(LiveServerTestsFixture.UriMappings[networkType], Global.Instance.TorSocks5Endpoint);
-			var filterModel = StartingFilters.GetStartingFilter(Network.GetNetwork(networkType.ToString()));
+			using var client = new WasabiClient(LiveServerTestsFixture.UriMappings[network], Global.Instance.TorSocks5Endpoint);
+			var filterModel = StartingFilters.GetStartingFilter(Network.GetNetwork(network.ToString()));
 
 			FiltersResponse filtersResponse = await client.GetFiltersAsync(filterModel.Header.BlockHash, 2);
 
@@ -60,24 +57,21 @@ namespace WalletWasabi.Tests.IntegrationTests
 		}
 
 		[Theory]
-		[InlineData(NetworkType.Mainnet)]
-		[InlineData(NetworkType.Testnet)]
-		public async Task GetAllRoundStatesAsync(NetworkType networkType)
+		[MemberData(nameof(GetNetworks))]
+		public async Task GetAllRoundStatesAsync(Network network)
 		{
-			using var client = new SatoshiClient(LiveServerTestsFixture.UriMappings[networkType], Global.Instance.TorSocks5Endpoint);
+			using var client = new SatoshiClient(LiveServerTestsFixture.UriMappings[network], Global.Instance.TorSocks5Endpoint);
 			var states = await client.GetAllRoundStatesAsync();
 			Assert.True(states.NotNullAndNotEmpty());
 			Assert.True(states.Count() >= 1);
 		}
 
 		[Theory]
-		[InlineData(NetworkType.Mainnet)]
-		[InlineData(NetworkType.Testnet)]
-		public async Task GetTransactionsAsync(NetworkType networkType)
+		[MemberData(nameof(GetNetworks))]
+		public async Task GetTransactionsAsync(Network network)
 		{
-			using var client = new WasabiClient(LiveServerTestsFixture.UriMappings[networkType], Global.Instance.TorSocks5Endpoint);
+			using var client = new WasabiClient(LiveServerTestsFixture.UriMappings[network], Global.Instance.TorSocks5Endpoint);
 			var randomTxIds = Enumerable.Range(0, 20).Select(_ => RandomUtils.GetUInt256());
-			var network = networkType == NetworkType.Mainnet ? Network.Main : Network.TestNet;
 
 			var ex = await Assert.ThrowsAsync<HttpRequestException>(async () =>
 				await client.GetTransactionsAsync(network, randomTxIds.Take(4), CancellationToken.None));
@@ -95,11 +89,10 @@ namespace WalletWasabi.Tests.IntegrationTests
 		#region Offchain
 
 		[Theory]
-		[InlineData(NetworkType.Mainnet)]
-		[InlineData(NetworkType.Testnet)]
-		public async Task GetExchangeRateAsync(NetworkType networkType) // xunit wtf: If this function is called GetExchangeRatesAsync, it'll stuck on 1 CPU VMs (Manjuro, Fedora)
+		[MemberData(nameof(GetNetworks))]
+		public async Task GetExchangeRateAsync(Network network) // xunit wtf: If this function is called GetExchangeRatesAsync, it'll stuck on 1 CPU VMs (Manjuro, Fedora)
 		{
-			using var client = new WasabiClient(LiveServerTestsFixture.UriMappings[networkType], Global.Instance.TorSocks5Endpoint);
+			using var client = new WasabiClient(LiveServerTestsFixture.UriMappings[network], Global.Instance.TorSocks5Endpoint);
 			var exchangeRates = await client.GetExchangeRatesAsync();
 
 			Assert.True(exchangeRates.NotNullAndNotEmpty());
@@ -110,11 +103,10 @@ namespace WalletWasabi.Tests.IntegrationTests
 		#region Software
 
 		[Theory]
-		[InlineData(NetworkType.Mainnet)]
-		[InlineData(NetworkType.Testnet)]
-		public async Task GetVersionsTestsAsync(NetworkType networkType)
+		[MemberData(nameof(GetNetworks))]
+		public async Task GetVersionsTestsAsync(Network network)
 		{
-			using var client = new WasabiClient(LiveServerTestsFixture.UriMappings[networkType], Global.Instance.TorSocks5Endpoint);
+			using var client = new WasabiClient(LiveServerTestsFixture.UriMappings[network], Global.Instance.TorSocks5Endpoint);
 
 			var versions = await client.GetVersionsAsync(CancellationToken.None);
 			Assert.InRange(versions.ClientVersion, new Version(1, 1, 10), new Version(1, 2));
@@ -124,11 +116,10 @@ namespace WalletWasabi.Tests.IntegrationTests
 		}
 
 		[Theory]
-		[InlineData(NetworkType.Mainnet)]
-		[InlineData(NetworkType.Testnet)]
-		public async Task CheckUpdatesTestsAsync(NetworkType networkType)
+		[MemberData(nameof(GetNetworks))]
+		public async Task CheckUpdatesTestsAsync(Network network)
 		{
-			using var client = new WasabiClient(LiveServerTestsFixture.UriMappings[networkType], Global.Instance.TorSocks5Endpoint);
+			using var client = new WasabiClient(LiveServerTestsFixture.UriMappings[network], Global.Instance.TorSocks5Endpoint);
 
 			var updateStatus = await client.CheckUpdatesAsync(CancellationToken.None);
 
@@ -146,23 +137,10 @@ namespace WalletWasabi.Tests.IntegrationTests
 
 		#endregion Software
 
-		#region Wasabi
-
-		[Theory]
-		[InlineData(NetworkType.Mainnet)]
-		[InlineData(NetworkType.Testnet)]
-		public async Task GetLegalDocumentsTestsAsync(NetworkType networkType)
+		public static IEnumerable<object[]> GetNetworks()
 		{
-			using var client = new WasabiClient(LiveServerTestsFixture.UriMappings[networkType], Global.Instance.TorSocks5Endpoint);
-
-			var content = await client.GetLegalDocumentsAsync(CancellationToken.None);
-
-			var lines = content.Split('\n', StringSplitOptions.RemoveEmptyEntries);
-			Assert.Equal("Last Updated: 2020-04-05", lines[0]);
-			var lineCount = lines.Length;
-			Assert.InRange(lineCount, 100, 1000);
+			yield return new object[] { Network.Main };
+			yield return new object[] { Network.TestNet };
 		}
-
-		#endregion Wasabi
 	}
 }

@@ -76,7 +76,7 @@ namespace WalletWasabi.Tests.RegressionTests
 			var bestBlock = await rpc.GetBlockAsync(bestBlockHash);
 			var coinbaseTxId = bestBlock.Transactions[0].GetHash();
 			var offchainTxId = network.Consensus.ConsensusFactory.CreateTransaction().GetHash();
-			var mempoolTxId = await rpc.SendToAddressAsync(new Key().PubKey.GetSegwitAddress(network), Money.Coins(1));
+			var mempoolTxId = await rpc.SendToAddressAsync(new Key().PubKey.GetAddress(ScriptPubKeyType.Segwit, network), Money.Coins(1));
 
 			var folder = Common.GetWorkDir();
 			await IoHelpers.DeleteRecursivelyWithMagicDustAsync(folder);
@@ -209,7 +209,7 @@ namespace WalletWasabi.Tests.RegressionTests
 			Assert.Equal($"{HttpStatusCode.BadRequest.ToReasonString()}\nProvided input is immature.", httpRequestException.Message);
 
 			var key = new Key();
-			var witnessAddress = key.PubKey.GetSegwitAddress(network);
+			var witnessAddress = key.PubKey.GetAddress(ScriptPubKeyType.Segwit, network);
 			hash = await rpc.SendToAddressAsync(witnessAddress, Money.Coins(0.01m));
 			await rpc.GenerateAsync(1);
 			tx = await rpc.GetRawTransactionAsync(hash);
@@ -313,7 +313,7 @@ namespace WalletWasabi.Tests.RegressionTests
 			round = coordinator.GetCurrentInputRegisterableRoundOrDefault();
 			requester = new Requester();
 			nonce = round.NonceProvider.GetNextNonce();
-			blindedData = new BlindedOutputWithNonceIndex(nonce.N, requester.BlindScript(round.MixingLevels.GetBaseLevel().SignerKey.PubKey, nonce.R, key.ScriptPubKey));
+			blindedData = new BlindedOutputWithNonceIndex(nonce.N, requester.BlindScript(round.MixingLevels.GetBaseLevel().SignerKey.PubKey, nonce.R, key.PubKey.ScriptPubKey));
 			inputsRequest.BlindedOutputScripts = new[] { blindedData };
 			blindedOutputScriptsHash = new uint256(NBitcoin.Crypto.Hashes.SHA256(blindedData.BlindedOutput.ToBytes()));
 			proof = key.SignCompact(blindedOutputScriptsHash);
@@ -358,7 +358,7 @@ namespace WalletWasabi.Tests.RegressionTests
 			Assert.Equal($"{HttpStatusCode.BadRequest.ToReasonString()}\nCannot register an input twice.", httpRequestException.Message);
 
 			nonce = round.NonceProvider.GetNextNonce();
-			blindedData = new BlindedOutputWithNonceIndex(nonce.N, requester.BlindScript(round.MixingLevels.GetBaseLevel().SignerKey.PubKey, nonce.R, key.ScriptPubKey));
+			blindedData = new BlindedOutputWithNonceIndex(nonce.N, requester.BlindScript(round.MixingLevels.GetBaseLevel().SignerKey.PubKey, nonce.R, key.PubKey.ScriptPubKey));
 			inputsRequest.BlindedOutputScripts = new[] { blindedData };
 			blindedOutputScriptsHash = new uint256(NBitcoin.Crypto.Hashes.SHA256(blindedData.BlindedOutput.ToBytes()));
 
@@ -366,7 +366,7 @@ namespace WalletWasabi.Tests.RegressionTests
 			for (int j = 0; j < 8; j++)
 			{
 				key = new Key();
-				witnessAddress = key.PubKey.GetSegwitAddress(network);
+				witnessAddress = key.PubKey.GetAddress(ScriptPubKeyType.Segwit, network);
 				hash = await rpc.SendToAddressAsync(witnessAddress, Money.Coins(0.01m));
 				await rpc.GenerateAsync(1);
 				tx = await rpc.GetRawTransactionAsync(hash);
@@ -433,7 +433,7 @@ namespace WalletWasabi.Tests.RegressionTests
 			var utxos = coordinator.UtxoReferee;
 			Assert.NotNull(await utxos.TryGetBannedAsync(bannedCoin, false));
 			spendingTx.Inputs.Add(new TxIn(bannedCoin));
-			spendingTx.Outputs.Add(new TxOut(Money.Coins(1), new Key().PubKey.GetSegwitAddress(network)));
+			spendingTx.Outputs.Add(new TxOut(Money.Coins(1), new Key().PubKey.GetAddress(ScriptPubKeyType.Segwit, network)));
 			await coordinator.ProcessConfirmedTransactionAsync(spendingTx);
 
 			Assert.NotNull(await utxos.TryGetBannedAsync(new OutPoint(spendingTx.GetHash(), 0), false));
@@ -454,7 +454,7 @@ namespace WalletWasabi.Tests.RegressionTests
 			// <-------------------------->
 
 			key = new Key();
-			witnessAddress = key.PubKey.GetSegwitAddress(network);
+			witnessAddress = key.PubKey.GetAddress(ScriptPubKeyType.Segwit, network);
 			hash = await rpc.SendToAddressAsync(witnessAddress, Money.Coins(0.01m));
 			await rpc.GenerateAsync(1);
 			tx = await rpc.GetRawTransactionAsync(hash);
@@ -462,7 +462,7 @@ namespace WalletWasabi.Tests.RegressionTests
 			round = coordinator.GetCurrentInputRegisterableRoundOrDefault();
 			requester = new Requester();
 			requesters = new[] { requester };
-			BitcoinWitPubKeyAddress bitcoinWitPubKeyAddress = new Key().PubKey.GetSegwitAddress(network);
+			var bitcoinWitPubKeyAddress = new Key().PubKey.GetAddress(ScriptPubKeyType.Segwit, network);
 			registeredAddresses = new[] { bitcoinWitPubKeyAddress };
 			Script script = bitcoinWitPubKeyAddress.ScriptPubKey;
 			nonce = round.NonceProvider.GetNextNonce();
@@ -548,8 +548,8 @@ namespace WalletWasabi.Tests.RegressionTests
 
 			var key1 = new Key();
 			var key2 = new Key();
-			var outputAddress1 = key1.PubKey.GetSegwitAddress(network);
-			var outputAddress2 = key2.PubKey.GetSegwitAddress(network);
+			var outputAddress1 = key1.PubKey.GetAddress(ScriptPubKeyType.Segwit, network);
+			var outputAddress2 = key2.PubKey.GetAddress(ScriptPubKeyType.Segwit, network);
 			var hash1 = await rpc.SendToAddressAsync(outputAddress1, Money.Coins(0.01m));
 			var hash2 = await rpc.SendToAddressAsync(outputAddress2, Money.Coins(0.01m));
 			await rpc.GenerateAsync(1);
@@ -746,7 +746,7 @@ namespace WalletWasabi.Tests.RegressionTests
 				foreach (var level in round.MixingLevels.Levels)
 				{
 					var requester = new Requester();
-					var outputsAddress = new Key().PubKey.GetSegwitAddress(network);
+					BitcoinWitPubKeyAddress outputsAddress = (BitcoinWitPubKeyAddress)new Key().PubKey.GetAddress(ScriptPubKeyType.Segwit, network);
 					var scriptPubKey = outputsAddress.ScriptPubKey;
 					// We blind the scriptPubKey with a new requester by mixin level
 					var nonce = round.NonceProvider.GetNextNonce();
@@ -764,7 +764,7 @@ namespace WalletWasabi.Tests.RegressionTests
 				for (var inputIdx = 0; inputIdx < 4; inputIdx++)
 				{
 					var key = new Key();
-					var outputAddress = key.PubKey.GetSegwitAddress(network);
+					var outputAddress = key.PubKey.GetAddress(ScriptPubKeyType.Segwit, network);
 					var hash = await rpc.SendToAddressAsync(outputAddress, Money.Coins(0.1m));
 					await rpc.GenerateAsync(1);
 					var tx = await rpc.GetRawTransactionAsync(hash);
@@ -905,7 +905,7 @@ namespace WalletWasabi.Tests.RegressionTests
 					{
 						receiveSatoshi = 100000000;
 					}
-					BitcoinWitPubKeyAddress inputAddress = key.PubKey.GetSegwitAddress(network);
+					var inputAddress = (BitcoinWitPubKeyAddress) key.PubKey.GetAddress(ScriptPubKeyType.Segwit, network);
 					uint256 txHash = await rpc.SendToAddressAsync(inputAddress, Money.Satoshis(receiveSatoshi));
 					fundingTxCount++;
 					Assert.NotNull(txHash);

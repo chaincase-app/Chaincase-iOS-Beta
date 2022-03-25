@@ -46,7 +46,7 @@ namespace WalletWasabi.Services
 			{
 				if (!Match(bitcoinExtPubKey, change, i, filterArray, out PubKey pubKey))
 				{
-					yield return pubKey.GetSegwitAddress(bitcoinExtPubKey.Network);
+					yield return (BitcoinWitPubKeyAddress)pubKey.GetAddress(ScriptPubKeyType.Segwit, bitcoinExtPubKey.Network);
 					returnedNum++;
 					if (returnedNum >= count)
 					{

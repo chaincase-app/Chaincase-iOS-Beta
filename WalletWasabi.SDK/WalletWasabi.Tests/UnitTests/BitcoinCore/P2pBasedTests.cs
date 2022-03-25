@@ -40,7 +40,7 @@ namespace WalletWasabi.Tests.UnitTests.BitcoinCore
 				node.Behaviors.Add(bitcoinStore.CreateUntrustedP2pBehavior());
 				node.VersionHandshake();
 
-				var addr = new Key().PubKey.GetSegwitAddress(network);
+				var addr = new Key().PubKey.GetAddress(ScriptPubKeyType.Segwit, network);
 
 				var txNum = 10;
 				var eventAwaiter = new EventsAwaiter<SmartTransaction>(
@@ -87,7 +87,7 @@ namespace WalletWasabi.Tests.UnitTests.BitcoinCore
 
 				var dir = Path.Combine(Global.Instance.DataDir, EnvironmentHelpers.GetCallerFileName(), EnvironmentHelpers.GetMethodName());
 
-				var addr = new Key().PubKey.GetSegwitAddress(network);
+				var addr = new Key().PubKey.GetAddress(ScriptPubKeyType.Segwit, network);
 				var notifier = coreNode.MempoolService;
 
 				var txNum = 10;

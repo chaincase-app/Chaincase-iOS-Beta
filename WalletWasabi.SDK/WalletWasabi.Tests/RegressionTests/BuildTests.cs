@@ -70,7 +70,7 @@ namespace WalletWasabi.Tests.RegressionTests
 			using var wallet = Wallet.CreateAndRegisterServices(network, bitcoinStore, keyManager, synchronizer, nodes, workDir, serviceConfiguration, synchronizer, blockProvider);
 			wallet.NewFilterProcessed += Common.Wallet_NewFilterProcessed;
 
-			var scp = new Key().ScriptPubKey;
+			var scp = new Key().PubKey.GetAddress(ScriptPubKeyType.Legacy, Network.Main);
 
 			var validIntent = new PaymentIntent(scp, Money.Coins(1));
 			var invalidIntent = new PaymentIntent(
@@ -236,7 +236,7 @@ namespace WalletWasabi.Tests.RegressionTests
 			var baseTip = await rpc.GetBestBlockHashAsync();
 
 			// Generate script
-			var scp = new Key().ScriptPubKey;
+			var scp = new Key().PubKey.GetAddress(ScriptPubKeyType.Legacy, Network.Main);
 
 			// Get some money, make it confirm.
 			var key = keyManager.GetNextReceiveKey("foo label", out _);

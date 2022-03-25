@@ -237,7 +237,7 @@ namespace NBitcoin.RPC
 				var fakeOutputValue = totalFakeOutputsValue / fakeOutputCount;
 				fakeTransaction.Outputs.Add(fakeOutputValue, new Key());
 			}
-			MempoolAcceptResult testMempoolAcceptResult = await rpc.TestMempoolAcceptAsync(fakeTransaction, allowHighFees: true);
+			MempoolAcceptResult testMempoolAcceptResult = await rpc.TestMempoolAcceptAsync(fakeTransaction);
 
 			if (!testMempoolAcceptResult.IsAllowed)
 			{

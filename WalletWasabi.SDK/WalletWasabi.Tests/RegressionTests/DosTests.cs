@@ -1,4 +1,4 @@
-using NBitcoin;
+﻿using NBitcoin;
 using NBitcoin.Crypto;
 using NBitcoin.Protocol;
 using NBitcoin.RPC;
@@ -123,7 +123,7 @@ namespace WalletWasabi.Tests.RegressionTests
 					{
 						receiveSatoshi = 100000000;
 					}
-					BitcoinWitPubKeyAddress inputAddress = key.PubKey.GetSegwitAddress(network);
+					var inputAddress = (BitcoinWitPubKeyAddress)key.PubKey.GetAddress(ScriptPubKeyType.Segwit, network);
 					uint256 txHash = await rpc.SendToAddressAsync(inputAddress, Money.Satoshis(receiveSatoshi));
 					fundingTxCount++;
 					Assert.NotNull(txHash);
@@ -305,10 +305,10 @@ namespace WalletWasabi.Tests.RegressionTests
 			CoordinatorRound round = coordinator.GetCurrentInputRegisterableRoundOrDefault();
 			for (int i = 0; i < roundConfig.AnonymitySet; i++)
 			{
-				BitcoinWitPubKeyAddress activeOutputAddress = new Key().PubKey.GetSegwitAddress(network);
-				BitcoinWitPubKeyAddress changeOutputAddress = new Key().PubKey.GetSegwitAddress(network);
+				BitcoinWitPubKeyAddress activeOutputAddress = (BitcoinWitPubKeyAddress)new Key().PubKey.GetAddress(ScriptPubKeyType.Segwit, network);
+				BitcoinWitPubKeyAddress changeOutputAddress = (BitcoinWitPubKeyAddress)new Key().PubKey.GetAddress(ScriptPubKeyType.Segwit, network);
 				Key inputKey = new Key();
-				BitcoinWitPubKeyAddress inputAddress = inputKey.PubKey.GetSegwitAddress(network);
+				BitcoinWitPubKeyAddress inputAddress = (BitcoinWitPubKeyAddress)inputKey.PubKey.GetAddress(ScriptPubKeyType.Segwit, network);
 
 				var requester = new Requester();
 				var nonce = round.NonceProvider.GetNextNonce();

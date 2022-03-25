@@ -55,7 +55,7 @@ namespace WalletWasabi.Backend
 			RpcClient = Guard.NotNull(nameof(rpc), rpc);
 
 			// Make sure RPC works.
-			await AssertRpcNodeFullyInitializedAsync();
+			await AssertRpcNodeFullyInitializedAsync(cancel);
 
 			// Make sure P2P works.
 			await InitializeP2pAsync(config.Network, config.GetBitcoinP2pEndPoint(), cancel);
@@ -109,11 +109,11 @@ namespace WalletWasabi.Backend
 			HostedServices.Register(new BlockNotifier(TimeSpan.FromSeconds(7), RpcClient, P2pNode), "Block Notifier");
 		}
 
-		private async Task AssertRpcNodeFullyInitializedAsync()
+		private async Task AssertRpcNodeFullyInitializedAsync(CancellationToken cancellationToken)
 		{
 			try
 			{
-				var blockchainInfo = await RpcClient.GetBlockchainInfoAsync();
+				var blockchainInfo = await RpcClient.GetBlockchainInfoAsync(cancellationToken);
 
 				var blocks = blockchainInfo.Blocks;
 				if (blocks == 0 && Config.Network != Network.RegTest)
@@ -129,45 +129,22 @@ namespace WalletWasabi.Backend
 
 				if (blocks != headers)
 				{
-					throw new NotSupportedException("Bitcoin Core is not fully synchronized.");
+					throw new NotSupportedException($"{Constants.BuiltinBitcoinNodeName} is not fully synchronized.");
 				}
 
-				Logger.LogInfo("Bitcoin Core is fully synchronized.");
-
-				var estimateSmartFeeResponse = await RpcClient.TryEstimateSmartFeeAsync(2, EstimateSmartFeeMode.Conservative, simulateIfRegTest: true, tryOtherFeeRates: true);
-				if (estimateSmartFeeResponse is null)
-				{
-					throw new NotSupportedException("Bitcoin Core cannot estimate network fees yet.");
-				}
-
-				Logger.LogInfo("Bitcoin Core fee estimation is working.");
+				Logger.LogInfo($"{Constants.BuiltinBitcoinNodeName} is fully synchronized.");
 
 				if (Config.Network == Network.RegTest) // Make sure there's at least 101 block, if not generate it
 				{
 					if (blocks < 101)
 					{
-						uint256[] generateBlocksResponse = null;
-						try
-						{
-							generateBlocksResponse = await RpcClient.GenerateAsync(101);
-						}
-						catch (RPCException exception)
-						{
-							//Bitcoin knots does not create a wallet by default, so let's create it to reduce manual setup on dev env
-							if (exception.RPCCode == RPCErrorCode.RPC_WALLET_NOT_FOUND)
-							{
-								await ((RpcClientBase)RpcClient).Rpc.SendCommandAsync("createwallet" ,"default");
-
-								generateBlocksResponse = await RpcClient.GenerateAsync(101);
-							}
-						}
-
+						var generateBlocksResponse = await RpcClient.GenerateAsync(101, cancellationToken);
 						if (generateBlocksResponse is null)
 						{
-							throw new NotSupportedException($"Bitcoin Core cannot generate blocks on the {Network.RegTest}.");
+							throw new NotSupportedException($"{Constants.BuiltinBitcoinNodeName} cannot generate blocks on the {Network.RegTest}.");
 						}
 
-						blockchainInfo = await RpcClient.GetBlockchainInfoAsync();
+						blockchainInfo = await RpcClient.GetBlockchainInfoAsync(cancellationToken);
 						blocks = blockchainInfo.Blocks;
 						if (blocks == 0)
 						{
@@ -175,20 +152,11 @@ namespace WalletWasabi.Backend
 						}
 						Logger.LogInfo($"Generated 101 block on {Network.RegTest}. Number of blocks {blocks}.");
 					}
-					//101 blocks is fine, but let's spice things up in regtest for better sync tests
-					_ = Task.Run(async () =>
-					{
-						while (true)
-						{
-							await Task.Delay(TimeSpan.FromMinutes(1));
-							await RpcClient.GenerateAsync(101);
-						}
-					});
 				}
 			}
 			catch (WebException)
 			{
-				Logger.LogError($"Bitcoin Core is not running, or incorrect RPC credentials, or network is given in the config file: `{Config.FilePath}`.");
+				Logger.LogError($"{Constants.BuiltinBitcoinNodeName} is not running, or incorrect RPC credentials, or network is given in the config file: `{Config.FilePath}`.");
 				throw;
 			}
 		}
