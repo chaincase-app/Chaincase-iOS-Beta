@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security;
 using System.Threading.Tasks;
@@ -29,11 +30,17 @@ namespace Chaincase.Common.PayJoin
         }
     }
 
+    public enum PayJoinCoinSelectionType
+    {
+        Unavailable,
+        AvoidsHeuristic,
+        Ordered
+    }
+
     // bip78 spec: https://github.com/bitcoin/bips/blob/master/bip-0078.mediawiki
     public class PayJoinReceiverWallet<TContext> : PayjoinReceiverWallet<TContext>
         where TContext : PayjoinProposalContext
     {
-
         private String Password;
 
         private readonly Network _network;
@@ -206,6 +213,7 @@ namespace Chaincase.Common.PayJoin
 
             // Which coin to use
 
+            //toUse is {KeyManager, SmartCoin}
             var toUse = _walletManager.GetWallets()
                 .Where(x => x.State == WalletState.Started && !x.KeyManager.IsWatchOnly && !x.KeyManager.IsHardwareWallet)
                 .SelectMany(wallet => wallet.Coins.Select(coin => new { wallet.KeyManager, coin }))
@@ -314,6 +322,63 @@ namespace Chaincase.Common.PayJoin
         protected override Task<bool> SupportsType(ScriptPubKeyType scriptPubKeyType)
         {
             return Task.FromResult(scriptPubKeyType == ScriptPubKeyType.Segwit);
+        }
+
+        public static async Task<(Coin[] selected, PayJoinCoinSelectionType type)> SelectUTXO(
+            Coin[] availableUtxos,
+            IEnumerable<decimal> originalInputAmounts,
+            decimal mainPaymentOutput,
+            IEnumerable<decimal> originalOutputAmounts)
+        {
+            if (availableUtxos.Length == 0)
+                return (Array.Empty<Coin>(), PayJoinCoinSelectionType.Unavailable);
+
+            // goal: avoid 2 kinds of "unecessary input heuristic"
+
+            // heuristic 1: one output is smaller than any input.
+            // This implies that the small output must be change.
+
+            // heuristic 2: one input larger than any output suggests
+			// that no output is a payment. Only a PayJoin would build this TX.
+
+            // PayJoin looks just like normal tx when we select to avoid these 2
+            
+            // src: https://gist.github.com/AdamISZ/4551b947789d3216bacfcb7af25e029e#gistcomment-2796539
+
+            foreach (var availableUtxo in availableUtxos)
+            {
+                var invalid = false;
+                foreach (var input in originalInputAmounts.Concat(new[] { availableUtxo.Amount.ToDecimal(MoneyUnit.BTC) }))
+                {
+                    var computedOutputs =
+                        originalOutputAmounts.Concat(new[] { mainPaymentOutput + availableUtxo.Amount.ToDecimal(MoneyUnit.BTC) });
+                    if (computedOutputs.Any(output => input > output))
+                    {
+                        // Are Uneccesey Input Heuistics 1 & 2 invalid?
+                        invalid = true;
+                        break;
+                    }
+                }
+
+                if (invalid)
+                {
+                    continue;
+                }
+
+                // PayJoin with this coin avoids Unecessary Input Heuristics.
+                // Spending this will look just like a normal transaction.
+                return (new[] { availableUtxo }, PayJoinCoinSelectionType.AvoidsHeuristic);
+            }
+
+            // PayJoin that spends any other coin will be evident as such.
+            // PayJoin a coin withCoinJoined past will still preserve that.
+            //foreach (var utxo in availableUtxos)
+            //{
+            //    return (new[] { utxo }, PayJoinCoinSelectionType.Ordered);
+            //}
+
+            return (Array.Empty<Coin>(), PayJoinCoinSelectionType.Unavailable);
+
         }
     }
 }
