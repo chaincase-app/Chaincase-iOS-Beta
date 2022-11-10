@@ -1,3 +1,9 @@
+# Chaincase iOS Beta
+
+Thank you to all Chaincase iOS Beta testers. While [the iOS Beta is over](https://chaincase.app/words/sunset-ios-testflight-beta-export-guide), the pursuit of Bitcoin privacy lives on.
+
+---
+
 ![Chaincase Logomark](https://user-images.githubusercontent.com/8525467/118331682-e9983700-b4d6-11eb-96c8-c14fe3250742.png)
 
 ### Chaincase
